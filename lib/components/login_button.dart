@@ -1,3 +1,4 @@
+import 'package:coordimate/components/colors.dart';
 import 'package:flutter/material.dart';
 
 class LoginButton extends StatelessWidget {
@@ -15,19 +16,55 @@ class LoginButton extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        padding: EdgeInsets.all(25),
-        margin: EdgeInsets.symmetric(horizontal: 25),
+        padding: const EdgeInsets.all(10),
+        margin: const EdgeInsets.symmetric(horizontal: 25),
         decoration: BoxDecoration(
-          color: Colors.blue,
+          color: darkBlue,
+          border: Border.all(color: darkBlue, width: 3),
           borderRadius: BorderRadius.circular(10),
         ),
         child: Center(
           child: Text(
             text,
-            style: TextStyle(
+            style: const TextStyle(
                 color: Colors.white,
-                fontWeight: FontWeight.bold,
-                fontSize: 20
+                // fontWeight: FontWeight.bold,
+                fontSize: 24
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class LoginEmptyButton extends LoginButton {
+
+  const LoginEmptyButton({
+    super.key,
+    required super.text,
+    required super.onTap
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.all(10),
+        margin: const EdgeInsets.symmetric(horizontal: 25),
+        decoration: BoxDecoration(
+          border: Border.all(color: darkBlue, width: 3), // Dark blue border
+          borderRadius: BorderRadius.circular(10),
+          color: Colors.white, // White fill color
+        ),
+        child: Center(
+          child: Text(
+            text,
+            style: const TextStyle(
+              color: darkBlue, // Dark blue text color
+              // fontWeight: FontWeight.bold,
+              fontSize: 24,
             ),
           ),
         ),

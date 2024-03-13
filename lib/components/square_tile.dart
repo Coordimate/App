@@ -11,10 +11,16 @@ class SquareTile extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       // padding: EdgeInsets.all(20),
+      // decoration: BoxDecoration(
+        // border: Border.all(
+        //   color: Colors.grey,
+        //   width: 1,
+        // ),
+      // ),
       child: Image.asset(
         imagePath,
-        height: 50,
-        width: 50,
+        height: 60,
+        width: 60,
       ),
     );
   }

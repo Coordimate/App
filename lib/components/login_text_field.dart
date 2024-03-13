@@ -1,3 +1,4 @@
+import 'package:coordimate/components/colors.dart';
 import 'package:flutter/material.dart';
 
 class LoginTextField extends StatelessWidget {
@@ -5,13 +6,16 @@ class LoginTextField extends StatelessWidget {
   final String hintText;
   final bool obscureText;
   final String label;
+  final String icon;
 
   const LoginTextField({
     super.key,
     required this.controller,
     required this.hintText,
     required this.obscureText,
-    required this.label});
+    required this.label,
+    required this.icon
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -20,21 +24,36 @@ class LoginTextField extends StatelessWidget {
       child: TextField(
         controller: controller,
         obscureText: obscureText, // for hiding password
+        style: const TextStyle(
+          fontSize: 22,
+          color: darkBlue,
+        ),
         decoration: InputDecoration(
-          enabledBorder: const OutlineInputBorder(
+          enabledBorder: UnderlineInputBorder(
             borderSide: BorderSide(
-              color: Colors.blue,
+              color: alphaDarkBlue,
             ),
           ),
-          focusedBorder: const OutlineInputBorder(
+          focusedBorder: const UnderlineInputBorder(
             borderSide: BorderSide(
-              color: Colors.black,
+              color: darkBlue,
             ),
           ),
-          labelText: label,
-          labelStyle: TextStyle(color: Colors.grey[500]),
+          // labelText: label,
+          // labelStyle: TextStyle(color: Colors.grey[500]),
           hintText: hintText,
-          hintStyle: TextStyle(color: Colors.grey[500]),
+          hintStyle: TextStyle(color: alphaDarkBlue),
+          prefixIcon: Padding(
+            padding: const EdgeInsets.only(right: 8.0),
+            child: Image.asset(
+              icon,
+              height: 26,
+              width: 26,
+            ),
+          ),
+          prefixIconConstraints: const BoxConstraints(
+            minWidth: 0,
+          ),
         ),
       ),
     );

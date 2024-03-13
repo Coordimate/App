@@ -87,3 +87,25 @@ flutter:
   #
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/custom-fonts/#from-packages
+
+  fonts:
+    - family: OpenSans
+      fonts:
+        - asset: lib/fonts/OpenSans-Regular.ttf
+        - asset: lib/fonts/OpenSans-Bold.ttf
+          weight: 700
+        - asset: lib/fonts/OpenSans-Italic.ttf
+          style: italic
+        - asset: lib/fonts/OpenSans-BoldItalic.ttf
+          weight: 700
+          style: italic
+        - asset: lib/fonts/OpenSans-Light.ttf
+          weight: 300
+        - asset: lib/fonts/OpenSans-LightItalic.ttf
+          weight: 300
+          style: italic
+        - asset: lib/fonts/OpenSans-SemiBold.ttf
+          weight: 600
+        - asset: lib/fonts/OpenSans-SemiBoldItalic.ttf
+          weight: 600
+          style: italic
