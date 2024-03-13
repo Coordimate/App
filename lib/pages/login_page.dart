@@ -21,16 +21,18 @@ class LoginPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      resizeToAvoidBottomInset: false,
       backgroundColor: Colors.white,
       body: Center(
         child: Column(
           // mainAxisAlignment: MainAxisAlignment.center,
           children: [
 
+            // circles background
             ClipRect(
               child: Align(
                 alignment: Alignment.bottomCenter,
-                heightFactor: 0.8, // Adjust this value to crop from the top
+                heightFactor: 0.7, // Adjust this value to crop from the top
                 child: Image.asset(
                   backgroundImage,
                   fit: BoxFit.cover,
