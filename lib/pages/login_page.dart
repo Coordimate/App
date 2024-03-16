@@ -27,7 +27,6 @@ class LoginPage extends StatelessWidget {
         child: Column(
           // mainAxisAlignment: MainAxisAlignment.center,
           children: [
-
             // circles background
             ClipRect(
               child: Align(
@@ -43,14 +42,12 @@ class LoginPage extends StatelessWidget {
 
             const SizedBox(height: 30),
 
-            const Text(
-                "Welcome Back",
+            const Text("Welcome Back",
                 style: TextStyle(
-                    color: darkBlue,
-                    fontSize: 40,
-                    fontWeight: FontWeight.bold,
-                )
-            ),
+                  color: darkBlue,
+                  fontSize: 40,
+                  fontWeight: FontWeight.bold,
+                )),
 
             const SizedBox(height: 30),
 
@@ -92,20 +89,15 @@ class LoginPage extends StatelessWidget {
 
             const SizedBox(height: 25),
 
-            LoginButton(
-                onTap: signUserIn,
-                text: "Log In"
-            ),
+            LoginButton(onTap: signUserIn, text: "Log In"),
 
             const SizedBox(height: 30),
 
-            const Row (
+            const Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 SquareTile(imagePath: 'lib/images/google.png'),
-
                 SizedBox(width: 50),
-
                 SquareTile(imagePath: 'lib/images/facebook.png'),
               ],
             ),
@@ -141,11 +133,7 @@ class LoginPage extends StatelessWidget {
 
             const SizedBox(height: 20),
 
-            LoginEmptyButton(
-                text: "Register",
-                onTap: goToRegisterPage
-            ),
-
+            LoginEmptyButton(text: "Register", onTap: goToRegisterPage),
           ],
         ),
       ),

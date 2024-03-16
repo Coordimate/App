@@ -5,11 +5,7 @@ class LoginButton extends StatelessWidget {
   final String text;
   final Function()? onTap;
 
-  const LoginButton({
-    super.key,
-    required this.text,
-    required this.onTap
-  });
+  const LoginButton({super.key, required this.text, required this.onTap});
 
   @override
   Widget build(BuildContext context) {
@@ -29,8 +25,7 @@ class LoginButton extends StatelessWidget {
             style: const TextStyle(
                 color: Colors.white,
                 // fontWeight: FontWeight.bold,
-                fontSize: 24
-            ),
+                fontSize: 24),
           ),
         ),
       ),
@@ -39,12 +34,8 @@ class LoginButton extends StatelessWidget {
 }
 
 class LoginEmptyButton extends LoginButton {
-
-  const LoginEmptyButton({
-    super.key,
-    required super.text,
-    required super.onTap
-  });
+  const LoginEmptyButton(
+      {super.key, required super.text, required super.onTap});
 
   @override
   Widget build(BuildContext context) {
