@@ -231,7 +231,6 @@ class TimeSlotWidget extends StatefulWidget {
 class _TimeSlotWidgetState extends State<TimeSlotWidget> {
   late double start;
   late double length;
-  late double hourHeight;
   late String startTimeString;
   late String endTimeString;
 
@@ -337,7 +336,6 @@ class _TimeSlotWidgetState extends State<TimeSlotWidget> {
     super.initState();
     start = widget.start;
     length = widget.length;
-    hourHeight = widget.hourHeight;
     startTimeString = timeToString(hoursToTime(start));
     endTimeString = timeToString(hoursToTime(start + length));
   }
@@ -346,8 +344,8 @@ class _TimeSlotWidgetState extends State<TimeSlotWidget> {
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
     return Positioned(
-        top: hourHeight * start,
-        height: hourHeight * length,
+        top: widget.hourHeight * start,
+        height: widget.hourHeight * length,
         child: GestureDetector(
             onTap: () {
               showDialog(
