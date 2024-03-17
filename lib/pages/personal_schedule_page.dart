@@ -60,6 +60,34 @@ class _ScheduleGridState extends State<ScheduleGrid> {
   }
 }
 
+class _DaysRow extends StatelessWidget {
+  final List<String> days = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+
+  @override
+  Widget build(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
+
+    return Container(
+        decoration: const BoxDecoration(color: Colors.white, boxShadow: [
+          BoxShadow(
+              color: Colors.grey,
+              blurRadius: 5,
+              spreadRadius: 1,
+              offset: Offset(0, 1))
+        ]),
+        child: Row(children: [
+          SizedBox(width: screenWidth / 8, height: 25),
+          for (var day in days)
+            SizedBox(
+                width: screenWidth / 8,
+                height: 25,
+                child: Center(
+                    child: Text(day,
+                        style: const TextStyle(fontWeight: FontWeight.bold)))),
+        ]));
+  }
+}
+
 class _TimeColumn extends StatelessWidget {
   const _TimeColumn({
     this.hourHeight = 20.0,
@@ -88,47 +116,49 @@ class _DayColumn extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(children: [
-      for (var i = 0; i < 24; i++)
-        SizedBox(
-            height: hourHeight,
-            child: Container(
-              decoration: const BoxDecoration(
-                  border: Border(
-                      bottom: BorderSide(
-                          width: gridBorderWidth, color: gridBorderColor),
-                      right: BorderSide(
-                          width: gridBorderWidth, color: gridBorderColor))),
-            )),
+    final screenWidth = MediaQuery.of(context).size.width;
+
+    return Stack(children: [
+      Column(children: [
+        for (var i = 0; i < 24; i++)
+          SizedBox(
+              height: hourHeight,
+              child: Container(
+                decoration: const BoxDecoration(
+                    border: Border(
+                        bottom: BorderSide(
+                            width: gridBorderWidth, color: gridBorderColor),
+                        right: BorderSide(
+                            width: gridBorderWidth, color: gridBorderColor))),
+              )),
+      ]),
+      _TimeSlot(hourHeight: hourHeight, startHour: 1.0, lengthHours: 2.0),
+      _TimeSlot(hourHeight: hourHeight, startHour: 3.5, lengthHours: 2.2),
     ]);
   }
 }
 
-class _DaysRow extends StatelessWidget {
-  final List<String> days = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+class _TimeSlot extends StatelessWidget {
+  const _TimeSlot({
+    this.hourHeight = 20.0,
+    this.startHour = 0.0,
+    this.lengthHours = 0.0,
+  });
+
+  final double hourHeight;
+  final double startHour;
+  final double lengthHours;
 
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
 
-    return Container(
-        decoration: const BoxDecoration(color: Colors.white, boxShadow: [
-          BoxShadow(
-              color: Colors.grey,
-              blurRadius: 20,
-              spreadRadius: 1,
-              offset: Offset(0, 1))
-        ]),
-        child: Row(children: [
-          SizedBox(width: screenWidth / 8, height: 25),
-          for (var day in days)
-            SizedBox(
-                width: screenWidth / 8,
-                height: 25,
-                child: Center(
-                    child: Text(day,
-                        style: const TextStyle(fontWeight: FontWeight.bold)))),
-        ]));
+    return Positioned(
+        top: hourHeight * startHour,
+        height: hourHeight * lengthHours,
+        child: Container(
+            width: screenWidth / 8,
+            decoration: BoxDecoration(color: Colors.red.withOpacity(0.7))));
   }
 }
 
