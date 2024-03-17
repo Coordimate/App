@@ -7,7 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
 const gridBorderWidth = 1.0;
-const gridBorderColor = Color(0x4C293241);
+const gridBorderColor = gridGrey;
 
 class ScheduleGrid extends StatefulWidget {
   const ScheduleGrid({
@@ -140,8 +140,10 @@ class _DayColumn extends StatelessWidget {
   final List<TimeSlot> timeSlots;
   final int day;
   final double hourHeight;
+  final GlobalKey<_NewTimeSlotState> _newTimeSlotKey =
+      GlobalKey<_NewTimeSlotState>();
 
-  const _DayColumn({
+  _DayColumn({
     required this.timeSlots,
     required this.day,
     this.hourHeight = 20.0,
@@ -159,23 +161,78 @@ class _DayColumn extends StatelessWidget {
             child: Container(
                 width: screenWidth / 8 - gridBorderWidth,
                 decoration: const BoxDecoration(color: orange))),
-      Column(children: [
-        for (var i = 0; i < 24; i++)
-          SizedBox(
-              height: hourHeight,
-              child: Container(
-                decoration: BoxDecoration(
-                    border: Border(
-                        bottom: BorderSide(
-                            width: (i != 23) ? gridBorderWidth : 0,
-                            color: (i != 23) ? gridBorderColor : Colors.white),
-                        right: BorderSide(
-                            width: (day != 6) ? gridBorderWidth : 0,
-                            color:
-                                (day != 6) ? gridBorderColor : Colors.white))),
-              )),
-      ]),
+      NewTimeSlot(key: _newTimeSlotKey),
+      GestureDetector(
+          onLongPressStart: (details) {
+            _newTimeSlotKey.currentState?.updateTop(details.localPosition.dy);
+          },
+          onLongPressMoveUpdate: (details) {
+            var top = _newTimeSlotKey.currentState?._top ?? 0.0;
+            _newTimeSlotKey.currentState
+                ?.updateHeight(details.localPosition.dy - top);
+          },
+          onLongPressEnd: (details) {
+            _newTimeSlotKey.currentState?.updateTop(0);
+            _newTimeSlotKey.currentState?.updateHeight(0);
+          },
+          child: Column(children: [
+            for (var i = 0; i < 24; i++)
+              SizedBox(
+                  height: hourHeight,
+                  child: Container(
+                    decoration: BoxDecoration(
+                        border: Border(
+                            bottom: BorderSide(
+                                width: gridBorderWidth,
+                                color:
+                                    (i != 23) ? gridBorderColor : Colors.white),
+                            right: BorderSide(
+                                width: gridBorderWidth,
+                                color: (day != 6)
+                                    ? gridBorderColor
+                                    : Colors.white))),
+                  )),
+          ])),
     ]);
+  }
+}
+
+class NewTimeSlot extends StatefulWidget {
+  const NewTimeSlot({
+    super.key,
+  });
+
+  @override
+  State<NewTimeSlot> createState() => _NewTimeSlotState();
+}
+
+class _NewTimeSlotState extends State<NewTimeSlot> {
+  double _top = 0.0;
+  double _height = 0.0;
+
+  void updateTop(double top) {
+    setState(() {
+      _top = top;
+      _height = 10;
+    });
+  }
+
+  void updateHeight(double height) {
+    setState(() {
+      _height = height;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    return Positioned(
+      top: _top,
+      height: _height,
+      child: Container(
+          width: screenWidth / 8 - gridBorderWidth,
+          decoration: BoxDecoration(color: orange.withOpacity(0.5))),
+    );
   }
 }
 

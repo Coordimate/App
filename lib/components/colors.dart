@@ -15,9 +15,9 @@ const Color mediumBlue = Color(0xFF3D5A80);
 const Color lightBlue = Color(0xFF98C1D9);
 const Color orange = Color(0xFFEE6C4D);
 const Color white = Color(0xFFFFFFFF);
+const Color gridGrey = Color(0x4C293241);
 
 Color alphaDarkBlue = darkBlue.withAlpha(150);
-
 
 class AppColorScheme extends ColorScheme {
   static const Color appDarkBlue = darkBlue;
@@ -42,18 +42,19 @@ class AppColorScheme extends ColorScheme {
     onError = white,
     brightness = Brightness.light,
   }) : super(
-    primary: primary,
-    // primaryVariant: primaryVariant,
-    secondary: secondary,
-    // secondaryVariant: secondaryVariant,
-    surface: surface,
-    background: background,
-    error: error,
-    onPrimary: onPrimary,
-    onSecondary: onSecondary,
-    onSurface: onSurface,
-    onBackground: onBackground,
-    onError: onError,
-    brightness: brightness,
-  );
+          primary: primary,
+          // primaryVariant: primaryVariant,
+          secondary: secondary,
+          // secondaryVariant: secondaryVariant,
+          surface: surface,
+          background: background,
+          error: error,
+          onPrimary: onPrimary,
+          onSecondary: onSecondary,
+          onSurface: onSurface,
+          onBackground: onBackground,
+          onError: onError,
+          brightness: brightness,
+        );
 }
+
