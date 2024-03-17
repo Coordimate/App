@@ -8,6 +8,15 @@ import 'package:http/http.dart' as http;
 
 const gridBorderWidth = 1.0;
 const gridBorderColor = gridGrey;
+const List<String> days = [
+  "Monday",
+  "Tuesday",
+  "Wednesday",
+  "Thursday",
+  "Friday",
+  "Saturday",
+  "Sunday"
+];
 
 class ScheduleGrid extends StatefulWidget {
   const ScheduleGrid({
@@ -91,8 +100,6 @@ class _ScheduleGridState extends State<ScheduleGrid> {
 }
 
 class _DaysRow extends StatelessWidget {
-  final List<String> days = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
-
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
@@ -112,7 +119,7 @@ class _DaysRow extends StatelessWidget {
                 width: screenWidth / 8,
                 height: 25,
                 child: Center(
-                    child: Text(day,
+                    child: Text(day.substring(0, 3),
                         style: const TextStyle(fontWeight: FontWeight.bold)))),
         ]));
   }
@@ -149,18 +156,17 @@ class _DayColumn extends StatelessWidget {
     this.hourHeight = 20.0,
   });
 
+  void createTimeSlot(double start, double length) {
+    // TODO: store events to database, round the start and length to 15 minute intervals
+    print(
+        "New event created, day: $day, start: ${start.toStringAsFixed(2)}, length: ${length.toStringAsFixed(2)}");
+  }
+
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
 
     return Stack(children: [
-      for (var timeSlot in timeSlots)
-        Positioned(
-            top: hourHeight * timeSlot.start,
-            height: hourHeight * timeSlot.length,
-            child: Container(
-                width: screenWidth / 8 - gridBorderWidth,
-                decoration: const BoxDecoration(color: orange))),
       NewTimeSlot(key: _newTimeSlotKey),
       GestureDetector(
           onLongPressStart: (details) {
@@ -172,6 +178,9 @@ class _DayColumn extends StatelessWidget {
                 ?.updateHeight(details.localPosition.dy - top);
           },
           onLongPressEnd: (details) {
+            final start = _newTimeSlotKey.currentState!._top / hourHeight;
+            final length = _newTimeSlotKey.currentState!._height / hourHeight;
+            createTimeSlot(start, length);
             _newTimeSlotKey.currentState?.updateTop(0);
             _newTimeSlotKey.currentState?.updateHeight(0);
           },
@@ -193,7 +202,118 @@ class _DayColumn extends StatelessWidget {
                                     : Colors.white))),
                   )),
           ])),
+      for (var timeSlot in timeSlots)
+        TimeSlotWidget(
+            day: day,
+            hourHeight: hourHeight,
+            start: timeSlot.start,
+            length: timeSlot.length)
     ]);
+  }
+}
+
+class TimeSlotWidget extends StatefulWidget {
+  TimeSlotWidget({
+    super.key,
+    required this.day,
+    required this.start,
+    required this.length,
+    required this.hourHeight,
+  });
+
+  @override
+  State<TimeSlotWidget> createState() => _TimeSlotWidgetState();
+
+  final day = 0;
+
+  static TimeOfDay hoursToTime(double hours) {
+    return TimeOfDay(hour: hours.floor(), minute: ((hours % 1) * 60).floor());
+  }
+
+  static String timeToString(TimeOfDay time) {
+    return '${time.hour.toString().padLeft(2, '0')}:${time.minute.toString().padLeft(2, '0')}';
+  }
+
+  Widget _buildTimeSlotPopup(BuildContext context, int day) {
+    return AlertDialog(
+      title: Align(
+          alignment: Alignment.center,
+          child: Text(days[day],
+              style: const TextStyle(fontWeight: FontWeight.bold))),
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(mainAxisAlignment: MainAxisAlignment.spaceAround, children: [
+            const SizedBox(
+                width: 50,
+                child: Center(
+                    child: Text("from", style: TextStyle(fontSize: 20)))),
+            GestureDetector(
+                onTap: () {
+                  showTimePicker(
+                      initialTime: hoursToTime(start), context: context);
+                },
+                child: Container(
+                    width: 90,
+                    decoration: BoxDecoration(
+                        border: Border.all(color: darkBlue),
+                        borderRadius:
+                            const BorderRadius.all(Radius.circular(10))),
+                    child: Center(
+                        child: Text(timeToString(hoursToTime(start)),
+                            style: const TextStyle(
+                                fontSize: 26, fontWeight: FontWeight.w600))))),
+          ]),
+          const Divider(color: Colors.grey, height: 40),
+          Row(mainAxisAlignment: MainAxisAlignment.spaceAround, children: [
+            const SizedBox(
+                width: 50,
+                child:
+                    Center(child: Text("to", style: TextStyle(fontSize: 20)))),
+            GestureDetector(
+                onTap: () {
+                  showTimePicker(
+                      initialTime: hoursToTime(start + length),
+                      context: context);
+                },
+                child: Container(
+                    width: 90,
+                    decoration: BoxDecoration(
+                        border: Border.all(color: darkBlue),
+                        borderRadius:
+                            const BorderRadius.all(Radius.circular(10))),
+                    child: Center(
+                        child: Text(timeToString(hoursToTime(start + length)),
+                            style: const TextStyle(
+                                fontSize: 26, fontWeight: FontWeight.w600))))),
+          ]),
+        ],
+      ),
+    );
+  }
+}
+
+class _TimeSlotWidgetState extends State<TimeSlotWidget> {
+  double start = 0.0;
+  double length = 0.0;
+  double hourHeight = 0.0;
+
+  @override
+  Widget build(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    return Positioned(
+        top: hourHeight * start,
+        height: hourHeight * length,
+        child: GestureDetector(
+            onTap: () {
+              showDialog(
+                  context: context,
+                  builder: (context) => _buildTimeSlotPopup(context, day));
+            },
+            child: Container(
+                width: screenWidth / 8 - gridBorderWidth,
+                decoration: BoxDecoration(color: orange.withOpacity(0.7)))));
   }
 }
 
