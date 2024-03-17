@@ -7,7 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
 const gridBorderWidth = 1.0;
-const gridBorderColor = Colors.grey;
+const gridBorderColor = Color(0x4C293241);
 
 class ScheduleGrid extends StatefulWidget {
   const ScheduleGrid({
@@ -19,8 +19,8 @@ class ScheduleGrid extends StatefulWidget {
 }
 
 class _ScheduleGridState extends State<ScheduleGrid> {
-  double _baseHourHeight = 20.0;
-  double _hourHeight = 20.0;
+  double _baseHourHeight = 26.0;
+  double _hourHeight = 26.0;
 
   Future<List<TimeSlot>> timeSlotsFuture = getTimeSlots();
 
@@ -76,6 +76,7 @@ class _ScheduleGridState extends State<ScheduleGrid> {
                               SizedBox(
                                   width: screenWidth / 8,
                                   child: _DayColumn(
+                                      day: i,
                                       hourHeight: _hourHeight,
                                       timeSlots: timeSlots
                                           .where((x) => x.day == i)
@@ -86,22 +87,6 @@ class _ScheduleGridState extends State<ScheduleGrid> {
                     }
                   })
             ]))));
-  }
-
-  Widget buildTimeSlots(List<TimeSlot> timeSlots) {
-    final screenWidth = MediaQuery.of(context).size.width;
-    const hourHeight = 40;
-
-    return Column(children: [
-      for (var timeSlot in timeSlots)
-        SizedBox(
-            // Positioned(
-            // top: hourHeight * timeSlot.start,
-            height: hourHeight * timeSlot.length,
-            child: Container(
-                width: screenWidth / 8 - gridBorderWidth,
-                decoration: BoxDecoration(color: orange.withOpacity(0.8))))
-    ]);
   }
 }
 
@@ -116,7 +101,7 @@ class _DaysRow extends StatelessWidget {
         decoration: const BoxDecoration(color: Colors.white, boxShadow: [
           BoxShadow(
               color: Colors.grey,
-              blurRadius: 5,
+              blurRadius: 2,
               spreadRadius: 1,
               offset: Offset(0, 1))
         ]),
@@ -152,42 +137,44 @@ class _TimeColumn extends StatelessWidget {
 }
 
 class _DayColumn extends StatelessWidget {
-  List<TimeSlot> timeSlots;
+  final List<TimeSlot> timeSlots;
+  final int day;
+  final double hourHeight;
 
-  _DayColumn({
+  const _DayColumn({
     required this.timeSlots,
+    required this.day,
     this.hourHeight = 20.0,
   });
-
-  final double hourHeight;
 
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
 
     return Stack(children: [
-      Column(children: [
-        for (var i = 0; i < 24; i++)
-          SizedBox(
-              height: hourHeight,
-              child: Container(
-                decoration: const BoxDecoration(
-                    border: Border(
-                        bottom: BorderSide(
-                            width: gridBorderWidth, color: gridBorderColor),
-                        right: BorderSide(
-                            width: gridBorderWidth, color: gridBorderColor))),
-              )),
-      ]),
       for (var timeSlot in timeSlots)
         Positioned(
             top: hourHeight * timeSlot.start,
             height: hourHeight * timeSlot.length,
             child: Container(
                 width: screenWidth / 8 - gridBorderWidth,
-                decoration: BoxDecoration(color: orange.withOpacity(0.8))))
-      // TimeSlot(hourHeight: hourHeight, start: 1.0, length: 2.0),
-      // TimeSlot(hourHeight: hourHeight, start: 3.5, length: 2.2),
+                decoration: const BoxDecoration(color: orange))),
+      Column(children: [
+        for (var i = 0; i < 24; i++)
+          SizedBox(
+              height: hourHeight,
+              child: Container(
+                decoration: BoxDecoration(
+                    border: Border(
+                        bottom: BorderSide(
+                            width: (i != 23) ? gridBorderWidth : 0,
+                            color: (i != 23) ? gridBorderColor : Colors.white),
+                        right: BorderSide(
+                            width: (day != 6) ? gridBorderWidth : 0,
+                            color:
+                                (day != 6) ? gridBorderColor : Colors.white))),
+              )),
+      ]),
     ]);
   }
 }
@@ -210,9 +197,7 @@ class PersonalSchedulePage extends StatelessWidget {
             IconButton(
               icon: const Icon(Icons.settings_outlined),
               color: Colors.white,
-              onPressed: () {
-                _ScheduleGridState.getTimeSlots();
-              },
+              onPressed: () {},
             ),
           ],
         ),
