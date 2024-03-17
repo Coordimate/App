@@ -164,8 +164,6 @@ class _DayColumn extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final screenWidth = MediaQuery.of(context).size.width;
-
     return Stack(children: [
       NewTimeSlot(key: _newTimeSlotKey),
       GestureDetector(
@@ -213,7 +211,7 @@ class _DayColumn extends StatelessWidget {
 }
 
 class TimeSlotWidget extends StatefulWidget {
-  TimeSlotWidget({
+  const TimeSlotWidget({
     super.key,
     required this.day,
     required this.start,
@@ -221,10 +219,21 @@ class TimeSlotWidget extends StatefulWidget {
     required this.hourHeight,
   });
 
+  final int day;
+  final double start;
+  final double length;
+  final double hourHeight;
+
   @override
   State<TimeSlotWidget> createState() => _TimeSlotWidgetState();
+}
 
-  final day = 0;
+class _TimeSlotWidgetState extends State<TimeSlotWidget> {
+  late double start;
+  late double length;
+  late double hourHeight;
+  late String startTimeString;
+  late String endTimeString;
 
   static TimeOfDay hoursToTime(double hours) {
     return TimeOfDay(hour: hours.floor(), minute: ((hours % 1) * 60).floor());
@@ -234,70 +243,104 @@ class TimeSlotWidget extends StatefulWidget {
     return '${time.hour.toString().padLeft(2, '0')}:${time.minute.toString().padLeft(2, '0')}';
   }
 
-  Widget _buildTimeSlotPopup(BuildContext context, int day) {
-    return AlertDialog(
-      title: Align(
-          alignment: Alignment.center,
-          child: Text(days[day],
-              style: const TextStyle(fontWeight: FontWeight.bold))),
-      content: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(mainAxisAlignment: MainAxisAlignment.spaceAround, children: [
-            const SizedBox(
-                width: 50,
-                child: Center(
-                    child: Text("from", style: TextStyle(fontSize: 20)))),
-            GestureDetector(
-                onTap: () {
-                  showTimePicker(
-                      initialTime: hoursToTime(start), context: context);
-                },
-                child: Container(
-                    width: 90,
-                    decoration: BoxDecoration(
-                        border: Border.all(color: darkBlue),
-                        borderRadius:
-                            const BorderRadius.all(Radius.circular(10))),
-                    child: Center(
-                        child: Text(timeToString(hoursToTime(start)),
-                            style: const TextStyle(
-                                fontSize: 26, fontWeight: FontWeight.w600))))),
-          ]),
-          const Divider(color: Colors.grey, height: 40),
-          Row(mainAxisAlignment: MainAxisAlignment.spaceAround, children: [
-            const SizedBox(
-                width: 50,
-                child:
-                    Center(child: Text("to", style: TextStyle(fontSize: 20)))),
-            GestureDetector(
-                onTap: () {
-                  showTimePicker(
-                      initialTime: hoursToTime(start + length),
-                      context: context);
-                },
-                child: Container(
-                    width: 90,
-                    decoration: BoxDecoration(
-                        border: Border.all(color: darkBlue),
-                        borderRadius:
-                            const BorderRadius.all(Radius.circular(10))),
-                    child: Center(
-                        child: Text(timeToString(hoursToTime(start + length)),
-                            style: const TextStyle(
-                                fontSize: 26, fontWeight: FontWeight.w600))))),
-          ]),
-        ],
-      ),
-    );
+  static double timeToHours(TimeOfDay time) {
+    return time.hour + time.minute / 60;
   }
-}
 
-class _TimeSlotWidgetState extends State<TimeSlotWidget> {
-  double start = 0.0;
-  double length = 0.0;
-  double hourHeight = 0.0;
+  Widget _buildTimeSlotPopup(BuildContext context, int day) {
+    return StatefulBuilder(builder: (context, setState) {
+      return AlertDialog(
+        title: Align(
+            alignment: Alignment.center,
+            child: Text(days[day],
+                style: const TextStyle(fontWeight: FontWeight.bold))),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(mainAxisAlignment: MainAxisAlignment.spaceAround, children: [
+              const SizedBox(
+                  width: 50,
+                  child: Center(
+                      child: Text("from", style: TextStyle(fontSize: 20)))),
+              GestureDetector(
+                  onTap: () async {
+                    final TimeOfDay? time = await showTimePicker(
+                        initialTime: hoursToTime(start), context: context);
+                    if (time != null) {
+                      setState(() {
+                        start = timeToHours(time);
+                        startTimeString = timeToString(hoursToTime(start));
+                      });
+                      super.setState(() {
+                        start = timeToHours(time);
+                        startTimeString = timeToString(hoursToTime(start));
+                      });
+                    }
+                  },
+                  child: Container(
+                      width: 90,
+                      decoration: BoxDecoration(
+                          border: Border.all(color: darkBlue),
+                          borderRadius:
+                              const BorderRadius.all(Radius.circular(10))),
+                      child: Center(
+                          child: Text(startTimeString,
+                              style: const TextStyle(
+                                  fontSize: 26,
+                                  fontWeight: FontWeight.w600))))),
+            ]),
+            const Divider(color: Colors.grey, height: 40),
+            Row(mainAxisAlignment: MainAxisAlignment.spaceAround, children: [
+              const SizedBox(
+                  width: 50,
+                  child: Center(
+                      child: Text("to", style: TextStyle(fontSize: 20)))),
+              GestureDetector(
+                  onTap: () async {
+                    final TimeOfDay? time = await showTimePicker(
+                        initialTime: hoursToTime(start + length),
+                        context: context);
+                    if (time != null) {
+                      setState(() {
+                        length = timeToHours(time) - start;
+                        endTimeString =
+                            timeToString(hoursToTime(start + length));
+                      });
+                      super.setState(() {
+                        length = timeToHours(time) - start;
+                        endTimeString =
+                            timeToString(hoursToTime(start + length));
+                      });
+                    }
+                  },
+                  child: Container(
+                      width: 90,
+                      decoration: BoxDecoration(
+                          border: Border.all(color: darkBlue),
+                          borderRadius:
+                              const BorderRadius.all(Radius.circular(10))),
+                      child: Center(
+                          child: Text(endTimeString,
+                              style: const TextStyle(
+                                  fontSize: 26,
+                                  fontWeight: FontWeight.w600))))),
+            ]),
+          ],
+        ),
+      );
+    });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    start = widget.start;
+    length = widget.length;
+    hourHeight = widget.hourHeight;
+    startTimeString = timeToString(hoursToTime(start));
+    endTimeString = timeToString(hoursToTime(start + length));
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -309,7 +352,8 @@ class _TimeSlotWidgetState extends State<TimeSlotWidget> {
             onTap: () {
               showDialog(
                   context: context,
-                  builder: (context) => _buildTimeSlotPopup(context, day));
+                  builder: (context) =>
+                      _buildTimeSlotPopup(context, widget.day));
             },
             child: Container(
                 width: screenWidth / 8 - gridBorderWidth,
