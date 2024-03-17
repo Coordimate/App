@@ -2,10 +2,16 @@ import 'package:coordimate/components/login_button.dart';
 import 'package:coordimate/components/login_text_field.dart';
 import 'package:coordimate/components/square_tile.dart';
 import 'package:coordimate/components/colors.dart';
+import 'package:coordimate/pages/register_page.dart';
 import 'package:flutter/material.dart';
 
-class LoginPage extends StatelessWidget {
-  LoginPage({super.key});
+class LoginPage extends StatefulWidget {
+
+  @override
+  _LoginPageState createState() => _LoginPageState();
+}
+
+class _LoginPageState extends State<LoginPage> {
 
   final usernameController = TextEditingController();
   final passwordController = TextEditingController();
@@ -16,7 +22,13 @@ class LoginPage extends StatelessWidget {
 
   void signUserIn() {}
 
-  void goToRegisterPage() {}
+  void _goToRegisterPage() {
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (context) => RegisterPage(),
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -115,7 +127,7 @@ class LoginPage extends StatelessWidget {
                 Padding(
                   padding: EdgeInsets.symmetric(horizontal: 15.0),
                   child: Text(
-                    "or",
+                    "Don't have an account?",
                     style: TextStyle(
                       color: darkBlue,
                       fontSize: 24,
@@ -133,7 +145,11 @@ class LoginPage extends StatelessWidget {
 
             const SizedBox(height: 20),
 
-            LoginEmptyButton(text: "Register", onTap: goToRegisterPage),
+            LoginEmptyButton(
+                text: "Register",
+                onTap: _goToRegisterPage
+            ),
+
           ],
         ),
       ),

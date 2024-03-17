@@ -1,6 +1,6 @@
-/*import 'package:flutter/material.dart';
-import 'pages/login_page.dart';
-import 'pages/start_page.dart';
+import 'package:flutter/material.dart';
+// import 'pages/login_page.dart';
+// import 'pages/start_page.dart';
 import 'pages/register_page.dart';
 import 'pages/groups_page.dart';
 

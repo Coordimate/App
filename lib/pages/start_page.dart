@@ -1,16 +1,34 @@
 import 'package:coordimate/components/login_button.dart';
 import 'package:coordimate/components/colors.dart';
 import 'package:coordimate/components/square_tile.dart';
+import 'package:coordimate/pages/login_page.dart';
+import 'package:coordimate/pages/register_page.dart';
 import 'package:flutter/material.dart';
 
-class StartPage extends StatelessWidget {
-  const StartPage({super.key});
+class StartPage extends StatefulWidget {
+  @override
+  _StartPageState createState() => _StartPageState();
+}
+
+class _StartPageState extends State<StartPage> {
 
   final String backgroundImage = 'lib/images/circles.png';
 
-  void goToLogInPage() {}
+  void _goToLogInPage() {
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (context) => LoginPage(),
+      ),
+    );
+  }
 
-  void goToRegisterPage() {}
+  void _goToRegisterPage() {
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (context) => RegisterPage(),
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -49,7 +67,7 @@ class StartPage extends StatelessWidget {
             const SizedBox(height: 30),
 
             LoginButton(
-                onTap: goToLogInPage,
+                onTap: _goToLogInPage,
                 text: "Log In"
             ),
 
@@ -57,7 +75,7 @@ class StartPage extends StatelessWidget {
 
             LoginButton(
                 text: "Register",
-                onTap: goToRegisterPage
+                onTap: _goToRegisterPage
             ),
 
             const SizedBox(height: 50),

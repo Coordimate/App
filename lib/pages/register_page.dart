@@ -2,10 +2,16 @@ import 'package:coordimate/components/login_button.dart';
 import 'package:coordimate/components/login_text_field.dart';
 import 'package:coordimate/components/square_tile.dart';
 import 'package:coordimate/components/colors.dart';
+import 'package:coordimate/pages/login_page.dart';
 import 'package:flutter/material.dart';
 
-class RegisterPage extends StatelessWidget {
-  RegisterPage({super.key});
+class RegisterPage extends StatefulWidget {
+
+  @override
+  _RegisterPageState createState() => _RegisterPageState();
+}
+
+class _RegisterPageState extends State<RegisterPage> {
 
   final usernameController = TextEditingController();
   final emailController = TextEditingController();
@@ -17,9 +23,21 @@ class RegisterPage extends StatelessWidget {
   final String pathPerson = 'lib/images/person.png';
   final String backgroundImage = 'lib/images/circles2.png';
 
-  void registerUser() {}
+  void registerUser() async {
+    if (emailController.text.isNotEmpty && passwordController.text.isNotEmpty) {
+      if (passwordController.text == confirmPasswordController.text) {
 
-  void goToLoginPage() {}
+      }
+    }
+  }
+
+  void _goToLogInPage() {
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (context) => LoginPage(),
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -128,7 +146,7 @@ class RegisterPage extends StatelessWidget {
                 Padding(
                   padding: EdgeInsets.symmetric(horizontal: 15.0),
                   child: Text(
-                    "or",
+                    "Already have an account?",
                     style: TextStyle(
                       color: darkBlue,
                       fontSize: 24,
@@ -148,7 +166,7 @@ class RegisterPage extends StatelessWidget {
 
             LoginEmptyButton(
                 text: "Log In",
-                onTap: goToLoginPage
+                onTap: _goToLogInPage
             ),
 
           ],
