@@ -6,6 +6,8 @@ import 'package:coordimate/pages/register_page.dart';
 import 'package:flutter/material.dart';
 
 class StartPage extends StatefulWidget {
+  const StartPage({super.key});
+
   @override
   _StartPageState createState() => _StartPageState();
 }

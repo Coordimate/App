@@ -6,6 +6,8 @@ import 'package:coordimate/pages/register_page.dart';
 import 'package:flutter/material.dart';
 
 class LoginPage extends StatefulWidget {
+  const LoginPage({super.key});
+
 
   @override
   _LoginPageState createState() => _LoginPageState();
@@ -37,20 +39,20 @@ class _LoginPageState extends State<LoginPage> {
       backgroundColor: Colors.white,
       body: Center(
         child: Column(
-          // mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
             // circles background
-            ClipRect(
-              child: Align(
-                alignment: Alignment.bottomCenter,
-                heightFactor: 0.7, // Adjust this value to crop from the top
-                child: Image.asset(
-                  backgroundImage,
-                  fit: BoxFit.cover,
-                  width: double.infinity,
-                ),
-              ),
-            ),
+            // ClipRect(
+            //   child: Align(
+            //     alignment: Alignment.bottomCenter,
+            //     heightFactor: 0.7, // Adjust this value to crop from the top
+            //     child: Image.asset(
+            //       backgroundImage,
+            //       fit: BoxFit.cover,
+            //       width: double.infinity,
+            //     ),
+            //   ),
+            // ),
 
             const SizedBox(height: 30),
 

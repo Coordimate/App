@@ -3,9 +3,15 @@ import 'package:coordimate/components/login_text_field.dart';
 import 'package:coordimate/components/square_tile.dart';
 import 'package:coordimate/components/colors.dart';
 import 'package:coordimate/pages/login_page.dart';
+import 'package:coordimate/models/user.dart';
+import 'package:coordimate/pages/meetings_page.dart';
 import 'package:flutter/material.dart';
+import 'package:coordimate/keys.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 class RegisterPage extends StatefulWidget {
+  const RegisterPage({super.key});
 
   @override
   _RegisterPageState createState() => _RegisterPageState();
@@ -24,9 +30,39 @@ class _RegisterPageState extends State<RegisterPage> {
   final String backgroundImage = 'lib/images/circles2.png';
 
   void registerUser() async {
+    var url = Uri.parse("$apiUrl/users/");
     if (emailController.text.isNotEmpty && passwordController.text.isNotEmpty) {
       if (passwordController.text == confirmPasswordController.text) {
 
+        final User user = User(
+          username: usernameController.text,
+          email: emailController.text,
+          password: passwordController.text,
+        );
+
+        final jsonUser = json.encode(user);
+        print(jsonUser);
+
+        final response = await http.post(
+          url,
+          headers: <String, String>{
+            'Content-Type': 'application/json; charset=UTF-8',
+          },
+          body: jsonUser,
+        );
+
+        print(response.statusCode);
+
+        if (response.statusCode == 201) {
+          print("User registered successfully");
+          Navigator.of(context).push(
+            MaterialPageRoute(
+              builder: (context) => MeetingsPage(),
+            ),
+          );
+        } else {
+          print("User registration failed");
+        }
       }
     }
   }
@@ -46,21 +82,21 @@ class _RegisterPageState extends State<RegisterPage> {
       backgroundColor: Colors.white,
       body: Center(
         child: Column(
-          // mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
 
             // circles background
-            ClipRect(
-              child: Align(
-                alignment: Alignment.bottomCenter,
-                heightFactor: 0.8, // Adjust this value to crop from the top
-                child: Image.asset(
-                  backgroundImage,
-                  fit: BoxFit.cover,
-                  width: double.infinity,
-                ),
-              ),
-            ),
+            // ClipRect(
+            //   child: Align(
+            //     alignment: Alignment.bottomCenter,
+            //     heightFactor: 0.8, // Adjust this value to crop from the top
+            //     child: Image.asset(
+            //       backgroundImage,
+            //       fit: BoxFit.cover,
+            //       width: double.infinity,
+            //     ),
+            //   ),
+            // ),
 
             const SizedBox(height: 30),
             //
