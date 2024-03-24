@@ -4,6 +4,10 @@ import 'package:coordimate/components/square_tile.dart';
 import 'package:coordimate/components/colors.dart';
 import 'package:coordimate/pages/register_page.dart';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+import 'package:coordimate/keys.dart';
+import 'package:coordimate/pages/meetings_page.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -15,14 +19,43 @@ class LoginPage extends StatefulWidget {
 
 class _LoginPageState extends State<LoginPage> {
 
-  final usernameController = TextEditingController();
+  final emailController = TextEditingController();
   final passwordController = TextEditingController();
 
   final String pathEmail = 'lib/images/email.png';
   final String pathLock = 'lib/images/lock.png';
   final String backgroundImage = 'lib/images/circles.png';
 
-  void signUserIn() {}
+  void signUserIn() async {
+    var url = Uri.parse("$apiUrl/users/");
+    if (passwordController.text.isNotEmpty && emailController.text.isNotEmpty) {
+      final response = await http.get(
+        url,
+        headers: <String, String>{'Content-Type': 'application/json; charset=UTF-8',},
+      );
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        print(data);
+        for (var user in data['users']) {
+          print(user);
+          print(user['email']);
+          if (user['email'] == emailController.text && user['password'] == passwordController.text) {
+            print("User signed in successfully");
+
+            Navigator.of(context).push(
+              MaterialPageRoute(
+                builder: (context) => MeetingsPage(),
+              ),
+            );
+          }
+        }
+      }
+      else {
+        print("Failed to sign in with response code ${response.statusCode}");
+      }
+    }
+  }
 
   void _goToRegisterPage() {
     Navigator.of(context).push(
@@ -66,7 +99,7 @@ class _LoginPageState extends State<LoginPage> {
             const SizedBox(height: 30),
 
             LoginTextField(
-              controller: usernameController,
+              controller: emailController,
               hintText: "E-mail",
               label: "E-mail",
               obscureText: false,

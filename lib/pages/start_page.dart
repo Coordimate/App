@@ -9,7 +9,7 @@ class StartPage extends StatefulWidget {
   const StartPage({super.key});
 
   @override
-  _StartPageState createState() => _StartPageState();
+  State<StartPage> createState() => _StartPageState();
 }
 
 class _StartPageState extends State<StartPage> {
@@ -19,7 +19,7 @@ class _StartPageState extends State<StartPage> {
   void _goToLogInPage() {
     Navigator.of(context).push(
       MaterialPageRoute(
-        builder: (context) => LoginPage(),
+        builder: (context) => const LoginPage(),
       ),
     );
   }
@@ -27,7 +27,7 @@ class _StartPageState extends State<StartPage> {
   void _goToRegisterPage() {
     Navigator.of(context).push(
       MaterialPageRoute(
-        builder: (context) => RegisterPage(),
+        builder: (context) => const RegisterPage(),
       ),
     );
   }

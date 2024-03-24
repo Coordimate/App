@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:coordimate/components/colors.dart';
+// import 'package:coordimate/components/colors.dart';
 
 class BottomIcons extends StatefulWidget {
   @override

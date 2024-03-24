@@ -14,7 +14,7 @@ class RegisterPage extends StatefulWidget {
   const RegisterPage({super.key});
 
   @override
-  _RegisterPageState createState() => _RegisterPageState();
+  State<RegisterPage> createState() => _RegisterPageState();
 }
 
 class _RegisterPageState extends State<RegisterPage> {
@@ -41,7 +41,7 @@ class _RegisterPageState extends State<RegisterPage> {
         );
 
         final jsonUser = json.encode(user);
-        print(jsonUser);
+        // print(jsonUser);
 
         final response = await http.post(
           url,
@@ -51,7 +51,7 @@ class _RegisterPageState extends State<RegisterPage> {
           body: jsonUser,
         );
 
-        print(response.statusCode);
+        // print(response.statusCode);
 
         if (response.statusCode == 201) {
           print("User registered successfully");
@@ -61,7 +61,7 @@ class _RegisterPageState extends State<RegisterPage> {
             ),
           );
         } else {
-          print("User registration failed");
+          print("User registration failed ${response.statusCode}");
         }
       }
     }
@@ -70,7 +70,7 @@ class _RegisterPageState extends State<RegisterPage> {
   void _goToLogInPage() {
     Navigator.of(context).push(
       MaterialPageRoute(
-        builder: (context) => LoginPage(),
+        builder: (context) => const LoginPage(),
       ),
     );
   }

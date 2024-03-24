@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:coordimate/components/colors.dart';
+// import 'package:coordimate/components/colors.dart';
 import 'package:coordimate/components/main_navigation.dart';
 
 class MeetingsPage extends StatefulWidget {
   @override
-  _MeetingsPageState createState() => _MeetingsPageState();
+  State<MeetingsPage> createState() => _MeetingsPageState();
 }
 
 class _MeetingsPageState extends State<MeetingsPage> {
