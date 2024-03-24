@@ -30,15 +30,51 @@ class ScheduleGrid extends StatefulWidget {
 class _ScheduleGridState extends State<ScheduleGrid> {
   double _baseHourHeight = 26.0;
   double _hourHeight = 26.0;
+  List<TimeSlot> _timeSlots = [];
 
-  Future<List<TimeSlot>> timeSlotsFuture = getTimeSlots();
+  @override
+  void initState() {
+    super.initState();
+    getTimeSlots();
+  }
 
-  static Future<List<TimeSlot>> getTimeSlots() async {
-    var url = Uri.parse("$apiUrl/time_slots");
+  Future<void> getTimeSlots() async {
+    var url = Uri.parse("$apiUrl/time_slots/");
     final response =
         await http.get(url, headers: {"Content-Type": "application/json"});
-    final List body = json.decode(response.body)['result'];
-    return body.map((e) => TimeSlot.fromJson(e)).toList();
+    final List body = json.decode(response.body)['time_slots'];
+    setState(() {
+      _timeSlots = body.map((e) => TimeSlot.fromJson(e)).toList();
+    });
+  }
+
+  Future<void> createTimeSlot(int day, double start, double length) async {
+    await http.post(Uri.parse("$apiUrl/time_slots/"),
+        headers: {"Content-Type": "application/json"},
+        body: json.encode(<String, dynamic>{
+          'is_meeting': false,
+          'day': day,
+          'start': start.toStringAsFixed(2),
+          'length': length.toStringAsFixed(2)
+        }));
+    getTimeSlots();
+  }
+
+  Future<void> deleteTimeSlot(String id) async {
+    await http.delete(Uri.parse("$apiUrl/time_slots/$id"),
+        headers: {"Content-Type": "application/json"});
+    getTimeSlots();
+  }
+
+  Future<void> updateTimeSlot(String id, double start, double length) async {
+    await http.patch(Uri.parse("$apiUrl/time_slots/$id"),
+        headers: {"Content-Type": "application/json"},
+        body: json.encode(<String, dynamic>{
+          'id': id,
+          'start': start.toStringAsFixed(2),
+          'length': length.toStringAsFixed(2)
+        }));
+    getTimeSlots();
   }
 
   @override
@@ -65,36 +101,29 @@ class _ScheduleGridState extends State<ScheduleGrid> {
             child: Center(
                 child: Column(children: [
               _DaysRow(),
-              FutureBuilder(
-                  future: timeSlotsFuture,
-                  builder: (context, snapshot) {
-                    if (snapshot.connectionState == ConnectionState.waiting) {
-                      return const CircularProgressIndicator();
-                    } else if (snapshot.hasData) {
-                      final timeSlots = snapshot.data!;
-                      return Expanded(
-                          child: SingleChildScrollView(
-                              child: Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceEvenly,
-                                  children: [
-                            SizedBox(
-                                width: screenWidth / 8,
-                                child: _TimeColumn(hourHeight: _hourHeight)),
-                            for (var i = 0; i < 7; i++)
-                              SizedBox(
-                                  width: screenWidth / 8,
-                                  child: _DayColumn(
-                                      day: i,
-                                      hourHeight: _hourHeight,
-                                      timeSlots: timeSlots
-                                          .where((x) => x.day == i)
-                                          .toList())),
-                          ])));
-                    } else {
-                      return const Text("No data available");
-                    }
-                  })
+              StatefulBuilder(builder: (context, setState) {
+                return Expanded(
+                    child: SingleChildScrollView(
+                        child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                            children: [
+                      SizedBox(
+                          width: screenWidth / 8,
+                          child: _TimeColumn(hourHeight: _hourHeight)),
+                      for (var i = 0; i < 7; i++)
+                        SizedBox(
+                            width: screenWidth / 8,
+                            child: _DayColumn(
+                                day: i,
+                                hourHeight: _hourHeight,
+                                createTimeSlot: createTimeSlot,
+                                deleteTimeSlot: deleteTimeSlot,
+                                updateTimeSlot: updateTimeSlot,
+                                timeSlots: _timeSlots
+                                    .where((x) => x.day == i)
+                                    .toList())),
+                    ])));
+              })
             ]))));
   }
 }
@@ -144,6 +173,10 @@ class _TimeColumn extends StatelessWidget {
 }
 
 class _DayColumn extends StatelessWidget {
+  final void Function(int day, double start, double length) createTimeSlot;
+  final void Function(String id) deleteTimeSlot;
+  final void Function(String id, double start, double length) updateTimeSlot;
+
   final List<TimeSlot> timeSlots;
   final int day;
   final double hourHeight;
@@ -151,16 +184,13 @@ class _DayColumn extends StatelessWidget {
       GlobalKey<_NewTimeSlotState>();
 
   _DayColumn({
+    required this.createTimeSlot,
+    required this.deleteTimeSlot,
+    required this.updateTimeSlot,
     required this.timeSlots,
     required this.day,
     this.hourHeight = 20.0,
   });
-
-  void createTimeSlot(double start, double length) {
-    // TODO: store events to database, round the start and length to 15 minute intervals
-    print(
-        "New event created, day: $day, start: ${start.toStringAsFixed(2)}, length: ${length.toStringAsFixed(2)}");
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -178,7 +208,7 @@ class _DayColumn extends StatelessWidget {
           onLongPressEnd: (details) {
             final start = _newTimeSlotKey.currentState!._top / hourHeight;
             final length = _newTimeSlotKey.currentState!._height / hourHeight;
-            createTimeSlot(start, length);
+            createTimeSlot(day, start, length);
             _newTimeSlotKey.currentState?.updateTop(0);
             _newTimeSlotKey.currentState?.updateHeight(0);
           },
@@ -202,10 +232,13 @@ class _DayColumn extends StatelessWidget {
           ])),
       for (var timeSlot in timeSlots)
         TimeSlotWidget(
+            id: timeSlot.id,
             day: day,
             hourHeight: hourHeight,
             start: timeSlot.start,
-            length: timeSlot.length)
+            length: timeSlot.length,
+            deleteTimeSlot: deleteTimeSlot,
+            updateTimeSlot: updateTimeSlot)
     ]);
   }
 }
@@ -213,16 +246,22 @@ class _DayColumn extends StatelessWidget {
 class TimeSlotWidget extends StatefulWidget {
   const TimeSlotWidget({
     super.key,
+    required this.id,
     required this.day,
     required this.start,
     required this.length,
     required this.hourHeight,
+    required this.deleteTimeSlot,
+    required this.updateTimeSlot,
   });
 
+  final String id;
   final int day;
   final double start;
   final double length;
   final double hourHeight;
+  final void Function(String id) deleteTimeSlot;
+  final void Function(String id, double start, double length) updateTimeSlot;
 
   @override
   State<TimeSlotWidget> createState() => _TimeSlotWidgetState();
@@ -275,6 +314,7 @@ class _TimeSlotWidgetState extends State<TimeSlotWidget> {
                         start = timeToHours(time);
                         startTimeString = timeToString(hoursToTime(start));
                       });
+                      widget.updateTimeSlot(widget.id, start, widget.length);
                     }
                   },
                   child: Container(
@@ -311,6 +351,7 @@ class _TimeSlotWidgetState extends State<TimeSlotWidget> {
                         endTimeString =
                             timeToString(hoursToTime(start + length));
                       });
+                      widget.updateTimeSlot(widget.id, widget.start, length);
                     }
                   },
                   child: Container(
@@ -325,6 +366,18 @@ class _TimeSlotWidgetState extends State<TimeSlotWidget> {
                                   fontSize: 26,
                                   fontWeight: FontWeight.w600))))),
             ]),
+            const SizedBox(height: 30),
+            Center(
+                child: ElevatedButton(
+                    style: const ButtonStyle(
+                        side: MaterialStatePropertyAll(
+                            BorderSide(color: Colors.red))),
+                    onPressed: () {
+                      widget.deleteTimeSlot(widget.id);
+                      Navigator.of(context).pop();
+                    },
+                    child: const Text('Delete',
+                        style: TextStyle(color: Colors.red))))
           ],
         ),
       );
