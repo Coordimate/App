@@ -389,7 +389,8 @@ class _TimePickerState extends State<_TimePicker> {
                 onTap: () async {
                   final TimeOfDay? time = await showTimePicker(
                       initialTime: hoursToTime(widget.start), context: context);
-                  if (time != null) {
+                  if (time != null &&
+                      timeToHours(time) < widget.start + widget.length) {
                     setState(() {
                       newStart = timeToHours(time);
                       startTimeString = timeToString(hoursToTime(newStart));
@@ -420,7 +421,7 @@ class _TimePickerState extends State<_TimePicker> {
                   final TimeOfDay? time = await showTimePicker(
                       initialTime: hoursToTime(widget.start + widget.length),
                       context: context);
-                  if (time != null) {
+                  if (time != null && timeToHours(time) > widget.start) {
                     setState(() {
                       newLength = timeToHours(time) - widget.start;
                       endTimeString =
