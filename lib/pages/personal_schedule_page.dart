@@ -201,18 +201,41 @@ class _DayColumn extends StatelessWidget {
     this.hourHeight = 20.0,
   });
 
+  // Round to fraction of an hour based on current hour height
+  double roundToFraction(double hours) {
+    var fraction = 1;
+    if (hourHeight <= 30) {
+      fraction = 2;
+    } else if (hourHeight <= 50) {
+      fraction = 4;
+    } else {
+      fraction = 6;
+    }
+    return (hours / (hourHeight / fraction) + 0.5).floor() *
+        (hourHeight / fraction);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Stack(children: [
       NewTimeSlot(key: _newTimeSlotKey),
       GestureDetector(
           onLongPressStart: (details) {
-            _newTimeSlotKey.currentState?.updateTop(details.localPosition.dy);
+            _newTimeSlotKey.currentState
+                ?.updateStart(roundToFraction(details.localPosition.dy));
           },
           onLongPressMoveUpdate: (details) {
-            var top = _newTimeSlotKey.currentState?._top ?? 0.0;
-            _newTimeSlotKey.currentState
-                ?.updateHeight(details.localPosition.dy - top);
+            var start = _newTimeSlotKey.currentState?._start ?? 0.0;
+            if (details.localPosition.dy < start) {
+              _newTimeSlotKey.currentState
+                  ?.updateTop(roundToFraction(details.localPosition.dy));
+              _newTimeSlotKey.currentState?.updateHeight(
+                  roundToFraction(start - details.localPosition.dy));
+            } else {
+              _newTimeSlotKey.currentState?.updateTop(start);
+              _newTimeSlotKey.currentState?.updateHeight(
+                  roundToFraction(details.localPosition.dy - start));
+            }
           },
           onLongPressEnd: (details) {
             final start = _newTimeSlotKey.currentState!._top / hourHeight;
@@ -447,17 +470,25 @@ class NewTimeSlot extends StatefulWidget {
 class _NewTimeSlotState extends State<NewTimeSlot> {
   double _top = 0.0;
   double _height = 0.0;
+  double _start = 0.0;
 
   void updateTop(double top) {
     setState(() {
       _top = top;
-      _height = 10;
     });
   }
 
   void updateHeight(double height) {
     setState(() {
       _height = height;
+    });
+  }
+
+  void updateStart(double start) {
+    setState(() {
+      _start = start;
+      _top = start;
+      _height = 10;
     });
   }
 
