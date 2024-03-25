@@ -1,7 +1,7 @@
 class User {
   User({
     this.id = 0,
-    required this.username,
+    this.username = '',
     required this.email,
     required this.password
   });

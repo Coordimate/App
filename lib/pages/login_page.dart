@@ -8,6 +8,7 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:coordimate/keys.dart';
 import 'package:coordimate/pages/meetings_page.dart';
+import 'package:coordimate/models/user.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -27,29 +28,43 @@ class _LoginPageState extends State<LoginPage> {
   final String backgroundImage = 'lib/images/circles.png';
 
   void signUserIn() async {
-    var url = Uri.parse("$apiUrl/users/");
+    var url = Uri.parse("$apiUrl/login/");
     if (passwordController.text.isNotEmpty && emailController.text.isNotEmpty) {
-      final response = await http.get(
+      final User user = User(
+        email: emailController.text,
+        password: passwordController.text,
+      );
+      final response = await http.post(
         url,
         headers: <String, String>{'Content-Type': 'application/json; charset=UTF-8',},
+        body: json.encode(user),
       );
 
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
         print(data);
-        for (var user in data['users']) {
-          print(user);
-          print(user['email']);
-          if (user['email'] == emailController.text && user['password'] == passwordController.text) {
-            print("User signed in successfully");
+        // for (var user in data['users']) {
+        //   print(user);
+        //   print(user['email']);
+        //   if (user['email'] == emailController.text && user['password'] == passwordController.text) {
+        //     print("User signed in successfully");
+        //
+        //     Navigator.of(context).push(
+        //       MaterialPageRoute(
+        //         builder: (context) => const MeetingsPage(),
+        //       ),
+        //     );
+        //   }
+        // }
+        // if (data) {
+          print("User signed in successfully");
 
-            Navigator.of(context).push(
-              MaterialPageRoute(
-                builder: (context) => MeetingsPage(),
-              ),
-            );
-          }
-        }
+          Navigator.of(context).push(
+            MaterialPageRoute(
+              builder: (context) => const MeetingsPage(),
+            ),
+          );
+        // }
       }
       else {
         print("Failed to sign in with response code ${response.statusCode}");
@@ -60,7 +75,7 @@ class _LoginPageState extends State<LoginPage> {
   void _goToRegisterPage() {
     Navigator.of(context).push(
       MaterialPageRoute(
-        builder: (context) => RegisterPage(),
+        builder: (context) => const RegisterPage(),
       ),
     );
   }

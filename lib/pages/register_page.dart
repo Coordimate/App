@@ -57,7 +57,7 @@ class _RegisterPageState extends State<RegisterPage> {
           print("User registered successfully");
           Navigator.of(context).push(
             MaterialPageRoute(
-              builder: (context) => MeetingsPage(),
+              builder: (context) => const MeetingsPage(),
             ),
           );
         } else {
