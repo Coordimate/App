@@ -30,22 +30,20 @@ class ScheduleGrid extends StatefulWidget {
 class _ScheduleGridState extends State<ScheduleGrid> {
   double _baseHourHeight = 26.0;
   double _hourHeight = 26.0;
-  List<TimeSlot> timeSlots = [];
+  Future<List<TimeSlot>>? _timeSlots;
 
   @override
   void initState() {
     super.initState();
-    getTimeSlots();
+    _timeSlots = getTimeSlots();
   }
 
-  Future<void> getTimeSlots() async {
+  Future<List<TimeSlot>> getTimeSlots() async {
     var url = Uri.parse("$apiUrl/time_slots/");
     final response =
         await http.get(url, headers: {"Content-Type": "application/json"});
     final List body = json.decode(response.body)['time_slots'];
-    setState(() {
-      timeSlots = body.map((e) => TimeSlot.fromJson(e)).toList();
-    });
+    return body.map((e) => TimeSlot.fromJson(e)).toList();
   }
 
   Future<void> createTimeSlot(int day, double start, double length) async {
@@ -58,18 +56,16 @@ class _ScheduleGridState extends State<ScheduleGrid> {
           'length': length.toStringAsFixed(2)
         }));
     setState(() {
-      timeSlots.clear();
+      _timeSlots = getTimeSlots();
     });
-    await getTimeSlots();
   }
 
   Future<void> deleteTimeSlot(String id) async {
     await http.delete(Uri.parse("$apiUrl/time_slots/$id"),
         headers: {"Content-Type": "application/json"});
     setState(() {
-      timeSlots.clear();
+      _timeSlots = getTimeSlots();
     });
-    await getTimeSlots();
   }
 
   Future<void> updateTimeSlot(String id, double start, double length) async {
@@ -81,9 +77,8 @@ class _ScheduleGridState extends State<ScheduleGrid> {
           'length': length.toStringAsFixed(2)
         }));
     setState(() {
-      timeSlots.clear();
+      _timeSlots = getTimeSlots();
     });
-    await getTimeSlots();
   }
 
   @override
@@ -110,26 +105,34 @@ class _ScheduleGridState extends State<ScheduleGrid> {
             child: Center(
                 child: Column(children: [
               _DaysRow(),
-              Expanded(
-                  child: SingleChildScrollView(
-                      child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                          children: [
-                    SizedBox(
-                        width: screenWidth / 8,
-                        child: _TimeColumn(hourHeight: _hourHeight)),
-                    for (var i = 0; i < 7; i++)
-                      SizedBox(
-                          width: screenWidth / 8,
-                          child: _DayColumn(
-                              day: i,
-                              hourHeight: _hourHeight,
-                              createTimeSlot: createTimeSlot,
-                              deleteTimeSlot: deleteTimeSlot,
-                              updateTimeSlot: updateTimeSlot,
-                              timeSlots:
-                                  timeSlots.where((x) => x.day == i).toList())),
-                  ])))
+              FutureBuilder<List<TimeSlot>>(
+                  future: _timeSlots,
+                  builder: (context, snapshot) {
+                    return Expanded(
+                        child: SingleChildScrollView(
+                            child: Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceEvenly,
+                                children: [
+                          SizedBox(
+                              width: screenWidth / 8,
+                              child: _TimeColumn(hourHeight: _hourHeight)),
+                          for (var i = 0; i < 7; i++)
+                            SizedBox(
+                                width: screenWidth / 8,
+                                child: _DayColumn(
+                                    day: i,
+                                    hourHeight: _hourHeight,
+                                    createTimeSlot: createTimeSlot,
+                                    deleteTimeSlot: deleteTimeSlot,
+                                    updateTimeSlot: updateTimeSlot,
+                                    timeSlots: snapshot.hasData
+                                        ? snapshot.data!
+                                            .where((x) => x.day == i)
+                                            .toList()
+                                        : [])),
+                        ])));
+                  })
             ]))));
   }
 }
@@ -249,7 +252,7 @@ class _DayColumn extends StatelessWidget {
   }
 }
 
-class TimeSlotWidget extends StatefulWidget {
+class TimeSlotWidget extends StatelessWidget {
   const TimeSlotWidget({
     super.key,
     required this.id,
@@ -269,15 +272,60 @@ class TimeSlotWidget extends StatefulWidget {
   final void Function(String id) deleteTimeSlot;
   final void Function(String id, double start, double length) updateTimeSlot;
 
+  Widget _buildTimePickerPopup(BuildContext context, int day) {
+    return _TimePicker(
+        id: id,
+        day: day,
+        start: start,
+        length: length,
+        updateTimeSlot: updateTimeSlot,
+        deleteTimeSlot: deleteTimeSlot);
+  }
+
   @override
-  State<TimeSlotWidget> createState() => _TimeSlotWidgetState();
+  Widget build(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    return Positioned(
+        top: hourHeight * start,
+        height: hourHeight * length,
+        child: GestureDetector(
+            onTap: () {
+              showDialog(
+                  context: context,
+                  builder: (context) => _buildTimePickerPopup(context, day));
+            },
+            child: Container(
+                width: screenWidth / 8 - gridBorderWidth,
+                decoration: BoxDecoration(color: orange.withOpacity(0.7)))));
+  }
 }
 
-class _TimeSlotWidgetState extends State<TimeSlotWidget> {
-  late double start;
-  late double length;
-  late String startTimeString;
-  late String endTimeString;
+class _TimePicker extends StatefulWidget {
+  const _TimePicker({
+    required this.id,
+    required this.day,
+    required this.start,
+    required this.length,
+    required this.deleteTimeSlot,
+    required this.updateTimeSlot,
+  });
+
+  final String id;
+  final int day;
+  final double start;
+  final double length;
+  final void Function(String id) deleteTimeSlot;
+  final void Function(String id, double start, double length) updateTimeSlot;
+
+  @override
+  State<_TimePicker> createState() => _TimePickerState();
+}
+
+class _TimePickerState extends State<_TimePicker> {
+  double newStart = 0.0;
+  double newLength = 0.0;
+  String startTimeString = "";
+  String endTimeString = "";
 
   static TimeOfDay hoursToTime(double hours) {
     return TimeOfDay(hour: hours.floor(), minute: ((hours % 1) * 60).floor());
@@ -291,130 +339,99 @@ class _TimeSlotWidgetState extends State<TimeSlotWidget> {
     return time.hour + time.minute / 60;
   }
 
-  Widget _buildTimeSlotPopup(BuildContext context, int day) {
-    return StatefulBuilder(builder: (context, setState) {
-      return AlertDialog(
-        title: Align(
-            alignment: Alignment.center,
-            child: Text(days[day],
-                style: const TextStyle(fontWeight: FontWeight.bold))),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(mainAxisAlignment: MainAxisAlignment.spaceAround, children: [
-              const SizedBox(
-                  width: 50,
-                  child: Center(
-                      child: Text("from", style: TextStyle(fontSize: 20)))),
-              GestureDetector(
-                  onTap: () async {
-                    final TimeOfDay? time = await showTimePicker(
-                        initialTime: hoursToTime(start), context: context);
-                    if (time != null) {
-                      setState(() {
-                        start = timeToHours(time);
-                        startTimeString = timeToString(hoursToTime(start));
-                      });
-                      super.setState(() {
-                        start = timeToHours(time);
-                        startTimeString = timeToString(hoursToTime(start));
-                      });
-                      widget.updateTimeSlot(widget.id, start, widget.length);
-                    }
-                  },
-                  child: Container(
-                      width: 90,
-                      decoration: BoxDecoration(
-                          border: Border.all(color: darkBlue),
-                          borderRadius:
-                              const BorderRadius.all(Radius.circular(10))),
-                      child: Center(
-                          child: Text(startTimeString,
-                              style: const TextStyle(
-                                  fontSize: 26,
-                                  fontWeight: FontWeight.w600))))),
-            ]),
-            const Divider(color: Colors.grey, height: 40),
-            Row(mainAxisAlignment: MainAxisAlignment.spaceAround, children: [
-              const SizedBox(
-                  width: 50,
-                  child: Center(
-                      child: Text("to", style: TextStyle(fontSize: 20)))),
-              GestureDetector(
-                  onTap: () async {
-                    final TimeOfDay? time = await showTimePicker(
-                        initialTime: hoursToTime(start + length),
-                        context: context);
-                    if (time != null) {
-                      setState(() {
-                        length = timeToHours(time) - start;
-                        endTimeString =
-                            timeToString(hoursToTime(start + length));
-                      });
-                      super.setState(() {
-                        length = timeToHours(time) - start;
-                        endTimeString =
-                            timeToString(hoursToTime(start + length));
-                      });
-                      widget.updateTimeSlot(widget.id, widget.start, length);
-                    }
-                  },
-                  child: Container(
-                      width: 90,
-                      decoration: BoxDecoration(
-                          border: Border.all(color: darkBlue),
-                          borderRadius:
-                              const BorderRadius.all(Radius.circular(10))),
-                      child: Center(
-                          child: Text(endTimeString,
-                              style: const TextStyle(
-                                  fontSize: 26,
-                                  fontWeight: FontWeight.w600))))),
-            ]),
-            const SizedBox(height: 30),
-            Center(
-                child: ElevatedButton(
-                    style: const ButtonStyle(
-                        side: MaterialStatePropertyAll(
-                            BorderSide(color: Colors.red))),
-                    onPressed: () {
-                      widget.deleteTimeSlot(widget.id);
-                      Navigator.of(context).pop();
-                    },
-                    child: const Text('Delete',
-                        style: TextStyle(color: Colors.red))))
-          ],
-        ),
-      );
-    });
-  }
-
   @override
   void initState() {
     super.initState();
-    start = widget.start;
-    length = widget.length;
-    startTimeString = timeToString(hoursToTime(start));
-    endTimeString = timeToString(hoursToTime(start + length));
+    startTimeString = timeToString(hoursToTime(widget.start));
+    endTimeString = timeToString(hoursToTime(widget.start + widget.length));
   }
 
   @override
   Widget build(BuildContext context) {
-    final screenWidth = MediaQuery.of(context).size.width;
-    return Positioned(
-        top: widget.hourHeight * start,
-        height: widget.hourHeight * length,
-        child: GestureDetector(
-            onTap: () {
-              showDialog(
-                  context: context,
-                  builder: (context) =>
-                      _buildTimeSlotPopup(context, widget.day));
-            },
-            child: Container(
-                width: screenWidth / 8 - gridBorderWidth,
-                decoration: BoxDecoration(color: orange.withOpacity(0.7)))));
+    return AlertDialog(
+      title: Align(
+          alignment: Alignment.center,
+          child: Text(days[widget.day],
+              style: const TextStyle(fontWeight: FontWeight.bold))),
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(mainAxisAlignment: MainAxisAlignment.spaceAround, children: [
+            const SizedBox(
+                width: 50,
+                child: Center(
+                    child: Text("from", style: TextStyle(fontSize: 20)))),
+            GestureDetector(
+                onTap: () async {
+                  final TimeOfDay? time = await showTimePicker(
+                      initialTime: hoursToTime(widget.start), context: context);
+                  if (time != null) {
+                    setState(() {
+                      newStart = timeToHours(time);
+                      startTimeString = timeToString(hoursToTime(newStart));
+                    });
+                    widget.updateTimeSlot(widget.id, newStart,
+                        widget.length + widget.start - newStart);
+                  }
+                },
+                child: Container(
+                    width: 90,
+                    decoration: BoxDecoration(
+                        border: Border.all(color: darkBlue),
+                        borderRadius:
+                            const BorderRadius.all(Radius.circular(10))),
+                    child: Center(
+                        child: Text(startTimeString,
+                            style: const TextStyle(
+                                fontSize: 26, fontWeight: FontWeight.w600))))),
+          ]),
+          const Divider(color: Colors.grey, height: 40),
+          Row(mainAxisAlignment: MainAxisAlignment.spaceAround, children: [
+            const SizedBox(
+                width: 50,
+                child:
+                    Center(child: Text("to", style: TextStyle(fontSize: 20)))),
+            GestureDetector(
+                onTap: () async {
+                  final TimeOfDay? time = await showTimePicker(
+                      initialTime: hoursToTime(widget.start + widget.length),
+                      context: context);
+                  if (time != null) {
+                    setState(() {
+                      newLength = timeToHours(time) - widget.start;
+                      endTimeString =
+                          timeToString(hoursToTime(widget.start + newLength));
+                    });
+                    widget.updateTimeSlot(widget.id, widget.start, newLength);
+                  }
+                },
+                child: Container(
+                    width: 90,
+                    decoration: BoxDecoration(
+                        border: Border.all(color: darkBlue),
+                        borderRadius:
+                            const BorderRadius.all(Radius.circular(10))),
+                    child: Center(
+                        child: Text(endTimeString,
+                            style: const TextStyle(
+                                fontSize: 26, fontWeight: FontWeight.w600))))),
+          ]),
+          const SizedBox(height: 30),
+          Center(
+              child: ElevatedButton(
+                  style: const ButtonStyle(
+                      side: MaterialStatePropertyAll(
+                          BorderSide(color: Colors.red))),
+                  onPressed: () {
+                    widget.deleteTimeSlot(widget.id);
+                    Navigator.of(context).pop();
+                  },
+                  child: const Text('Delete',
+                      style: TextStyle(color: Colors.red))))
+        ],
+      ),
+    );
   }
 }
 
