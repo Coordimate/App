@@ -480,6 +480,6 @@ class PersonalSchedulePage extends StatelessWidget {
           ],
         ),
         body: const ScheduleGrid(),
-        bottomNavigationBar: BottomIcons());
+        bottomNavigationBar: NavBar(key: UniqueKey()));
   }
 }

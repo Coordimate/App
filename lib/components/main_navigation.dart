@@ -1,12 +1,17 @@
 import 'package:flutter/material.dart';
+import 'package:coordimate/pages/personal_schedule_page.dart';
 // import 'package:coordimate/components/colors.dart';
 
-class BottomIcons extends StatefulWidget {
+class NavBar extends StatefulWidget {
+  const NavBar({
+    required Key key,
+  }) : super(key: key);
+
   @override
-  _BottomIconsState createState() => _BottomIconsState();
+  NavBarState createState() => NavBarState();
 }
 
-class _BottomIconsState extends State<BottomIcons> {
+class NavBarState extends State<NavBar> {
   bool _isPersonButtonPressed = false;
   bool _isLockButtonPressed = false;
   bool _isEmailButtonPressed = false;
@@ -34,6 +39,10 @@ class _BottomIconsState extends State<BottomIcons> {
             },
             onTap: () {
               // Implement action for the first button
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => const PersonalSchedulePage()));
             },
             child: Container(
               color: _isPersonButtonPressed ? Colors.grey[300] : Colors.white,

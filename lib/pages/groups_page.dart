@@ -79,7 +79,7 @@ class _GroupsPageState extends State<GroupsPage> {
             ),
           ),
           Spacer(),
-          BottomIcons(), // Bottom icons widget
+          NavBar(), // Bottom icons widget
           SizedBox(height: screenHeight * 0.01),
         ],
       ),
