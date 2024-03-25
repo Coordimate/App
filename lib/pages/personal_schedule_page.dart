@@ -30,7 +30,7 @@ class ScheduleGrid extends StatefulWidget {
 class _ScheduleGridState extends State<ScheduleGrid> {
   double _baseHourHeight = 26.0;
   double _hourHeight = 26.0;
-  List<TimeSlot> _timeSlots = [];
+  List<TimeSlot> timeSlots = [];
 
   @override
   void initState() {
@@ -44,7 +44,7 @@ class _ScheduleGridState extends State<ScheduleGrid> {
         await http.get(url, headers: {"Content-Type": "application/json"});
     final List body = json.decode(response.body)['time_slots'];
     setState(() {
-      _timeSlots = body.map((e) => TimeSlot.fromJson(e)).toList();
+      timeSlots = body.map((e) => TimeSlot.fromJson(e)).toList();
     });
   }
 
@@ -57,13 +57,19 @@ class _ScheduleGridState extends State<ScheduleGrid> {
           'start': start.toStringAsFixed(2),
           'length': length.toStringAsFixed(2)
         }));
-    getTimeSlots();
+    setState(() {
+      timeSlots.clear();
+    });
+    await getTimeSlots();
   }
 
   Future<void> deleteTimeSlot(String id) async {
     await http.delete(Uri.parse("$apiUrl/time_slots/$id"),
         headers: {"Content-Type": "application/json"});
-    getTimeSlots();
+    setState(() {
+      timeSlots.clear();
+    });
+    await getTimeSlots();
   }
 
   Future<void> updateTimeSlot(String id, double start, double length) async {
@@ -74,7 +80,10 @@ class _ScheduleGridState extends State<ScheduleGrid> {
           'start': start.toStringAsFixed(2),
           'length': length.toStringAsFixed(2)
         }));
-    getTimeSlots();
+    setState(() {
+      timeSlots.clear();
+    });
+    await getTimeSlots();
   }
 
   @override
@@ -101,29 +110,26 @@ class _ScheduleGridState extends State<ScheduleGrid> {
             child: Center(
                 child: Column(children: [
               _DaysRow(),
-              StatefulBuilder(builder: (context, setState) {
-                return Expanded(
-                    child: SingleChildScrollView(
-                        child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                            children: [
+              Expanded(
+                  child: SingleChildScrollView(
+                      child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          children: [
+                    SizedBox(
+                        width: screenWidth / 8,
+                        child: _TimeColumn(hourHeight: _hourHeight)),
+                    for (var i = 0; i < 7; i++)
                       SizedBox(
                           width: screenWidth / 8,
-                          child: _TimeColumn(hourHeight: _hourHeight)),
-                      for (var i = 0; i < 7; i++)
-                        SizedBox(
-                            width: screenWidth / 8,
-                            child: _DayColumn(
-                                day: i,
-                                hourHeight: _hourHeight,
-                                createTimeSlot: createTimeSlot,
-                                deleteTimeSlot: deleteTimeSlot,
-                                updateTimeSlot: updateTimeSlot,
-                                timeSlots: _timeSlots
-                                    .where((x) => x.day == i)
-                                    .toList())),
-                    ])));
-              })
+                          child: _DayColumn(
+                              day: i,
+                              hourHeight: _hourHeight,
+                              createTimeSlot: createTimeSlot,
+                              deleteTimeSlot: deleteTimeSlot,
+                              updateTimeSlot: updateTimeSlot,
+                              timeSlots:
+                                  timeSlots.where((x) => x.day == i).toList())),
+                  ])))
             ]))));
   }
 }
@@ -174,8 +180,8 @@ class _TimeColumn extends StatelessWidget {
 
 class _DayColumn extends StatelessWidget {
   final void Function(int day, double start, double length) createTimeSlot;
-  final void Function(String id) deleteTimeSlot;
   final void Function(String id, double start, double length) updateTimeSlot;
+  final void Function(String id) deleteTimeSlot;
 
   final List<TimeSlot> timeSlots;
   final int day;
@@ -230,7 +236,7 @@ class _DayColumn extends StatelessWidget {
                                     : Colors.white))),
                   )),
           ])),
-      for (var timeSlot in timeSlots)
+      for (var timeSlot in timeSlots.where((e) => e.day == day).toList())
         TimeSlotWidget(
             id: timeSlot.id,
             day: day,
