@@ -26,7 +26,13 @@ class _RegisterPageState extends State<RegisterPage> {
   final String pathPerson = 'lib/images/person.png';
   final String backgroundImage = 'lib/images/circles2.png';
 
+  final _formKey = GlobalKey<FormState>();
+
   void registerUser() async {
+    if (_formKey.currentState!.validate() == false) {
+      return ;
+    }
+
     if (passwordController.text.isNotEmpty && emailController.text.isNotEmpty && usernameController.text.isNotEmpty && confirmPasswordController.text.isNotEmpty) {
       if (passwordController.text == confirmPasswordController.text) {
 
@@ -95,54 +101,63 @@ class _RegisterPageState extends State<RegisterPage> {
 
             const SizedBox(height: 20),
 
-            LoginTextField(
-              controller: usernameController,
-              hintText: "Name",
-              label: "Name",
-              obscureText: false,
-              icon: pathPerson,
-              keyboardType: TextInputType.name,
+            Form(
+              key: _formKey,
+              child: Column(
+                children: [
+                  LoginTextField(
+                    controller: usernameController,
+                    hintText: "Name",
+                    label: "name",
+                    obscureText: false,
+                    icon: pathPerson,
+                    keyboardType: TextInputType.name,
+                  ),
+
+                  const SizedBox(height: 15),
+
+                  LoginTextField(
+                    controller: emailController,
+                    hintText: "E-mail",
+                    label: "e-mail",
+                    obscureText: false,
+                    icon: pathEmail,
+                    keyboardType: TextInputType.emailAddress,
+                  ),
+
+                  const SizedBox(height: 15),
+
+                  LoginTextField(
+                    controller: passwordController,
+                    hintText: "Password",
+                    label: "password",
+                    obscureText: true,
+                    icon: pathLock,
+                    keyboardType: TextInputType.visiblePassword,
+                  ),
+
+                  const SizedBox(height: 15),
+
+                  LoginTextField(
+                    controller: confirmPasswordController,
+                    hintText: "Confirm Password",
+                    label: "password",
+                    obscureText: true,
+                    icon: pathLock,
+                    keyboardType: TextInputType.visiblePassword,
+                  ),
+
+                  const SizedBox(height: 20),
+
+                  LoginButton(
+                      onTap: registerUser,
+                      text: "Register"
+                  ),
+                ],
+              ),
             ),
 
-            const SizedBox(height: 15),
 
-            LoginTextField(
-              controller: emailController,
-              hintText: "E-mail",
-              label: "E-mail",
-              obscureText: false,
-              icon: pathEmail,
-              keyboardType: TextInputType.emailAddress,
-            ),
-
-            const SizedBox(height: 15),
-
-            LoginTextField(
-              controller: passwordController,
-              hintText: "Password",
-              label: "Password",
-              obscureText: true,
-              icon: pathLock,
-              keyboardType: TextInputType.visiblePassword,
-            ),
-
-            const SizedBox(height: 15),
-
-            LoginTextField(
-              controller: confirmPasswordController,
-              hintText: "Confirm Password",
-              label: "Confirm Password",
-              obscureText: true,
-              icon: pathLock,
-              keyboardType: TextInputType.visiblePassword,
-            ),
-
-            const SizedBox(height: 20),
-
-            LoginButton(
-                onTap: registerUser,
-                text: "Register"
-            ),
 
             const SizedBox(height: 30),
 

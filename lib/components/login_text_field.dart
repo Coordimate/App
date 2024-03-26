@@ -10,14 +10,14 @@ class LoginTextField extends StatefulWidget {
   final TextInputType keyboardType;
 
   const LoginTextField({
-    Key? key,
+    super.key,
     required this.controller,
     required this.hintText,
     required this.obscureText,
     required this.label,
     required this.icon,
     required this.keyboardType,
-  }) : super(key: key);
+  });
 
   @override
   State<LoginTextField> createState() => _LoginTextFieldState();
@@ -36,10 +36,17 @@ class _LoginTextFieldState extends State<LoginTextField> {
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 25.0),
-      child: TextField(
+      child: TextFormField(
         controller: widget.controller,
         obscureText: _obscureText,
         keyboardType: widget.keyboardType,
+        validator: (value) {
+          if (value == null || value.isEmpty) {
+            return 'Please enter ${widget.label}';
+          }
+          return null;
+        },
+        onSaved: (value) => widget.controller.text = value!,
         style: const TextStyle(
           fontSize: 22,
           color: darkBlue,

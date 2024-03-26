@@ -23,7 +23,12 @@ class _LoginPageState extends State<LoginPage> {
   final String pathLock = 'lib/images/lock.png';
   final String backgroundImage = 'lib/images/circles.png';
 
+  final _formKey = GlobalKey<FormState>();
+
   void signUserIn() async {
+    if (_formKey.currentState!.validate() == false) {
+      return ;
+    }
     if (passwordController.text.isNotEmpty && emailController.text.isNotEmpty) {
       final signInOK = await signUserInStorage(
           passwordController.text, emailController.text);
@@ -79,47 +84,56 @@ class _LoginPageState extends State<LoginPage> {
 
             const SizedBox(height: 30),
 
-            LoginTextField(
-              controller: emailController,
-              hintText: "E-mail",
-              label: "E-mail",
-              obscureText: false,
-              icon: pathEmail,
-              keyboardType: TextInputType.emailAddress,
-            ),
 
-            const SizedBox(height: 25),
-
-            LoginTextField(
-              controller: passwordController,
-              hintText: "Password",
-              label: "Password",
-              obscureText: true,
-              icon: pathLock,
-              keyboardType: TextInputType.visiblePassword,
-            ),
-
-            const SizedBox(height: 20),
-
-            const Padding(
-              padding: EdgeInsets.symmetric(horizontal: 25.0),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.end,
+            Form(
+              key: _formKey,
+              child: Column(
                 children: [
-                  Text(
-                    "Forgot password?",
-                    style: TextStyle(
-                      color: mediumBlue,
-                      fontSize: 16,
+                  LoginTextField(
+                    controller: emailController,
+                    hintText: "E-mail",
+                    label: "e-mail",
+                    obscureText: false,
+                    icon: pathEmail,
+                    keyboardType: TextInputType.emailAddress,
+                  ),
+
+                  const SizedBox(height: 25),
+
+                  LoginTextField(
+                    controller: passwordController,
+                    hintText: "Password",
+                    label: "password",
+                    obscureText: true,
+                    icon: pathLock,
+                    keyboardType: TextInputType.visiblePassword,
+                  ),
+
+                  const SizedBox(height: 20),
+
+                  const Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 25.0),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        Text(
+                          "Forgot password?",
+                          style: TextStyle(
+                            color: mediumBlue,
+                            fontSize: 16,
+                          ),
+                        ),
+                      ],
                     ),
                   ),
+
+                  const SizedBox(height: 25),
+
+                  LoginButton(onTap: signUserIn, text: "Log In"),
                 ],
               ),
             ),
 
-            const SizedBox(height: 25),
-
-            LoginButton(onTap: signUserIn, text: "Log In"),
 
             const SizedBox(height: 30),
 
