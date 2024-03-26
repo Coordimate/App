@@ -4,18 +4,14 @@ import 'package:coordimate/components/square_tile.dart';
 import 'package:coordimate/components/colors.dart';
 import 'package:coordimate/pages/register_page.dart';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
-import 'dart:convert';
-import 'package:coordimate/keys.dart';
 import 'package:coordimate/pages/meetings_page.dart';
-import 'package:coordimate/models/user.dart';
+import 'package:coordimate/data/storage.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
 
-
   @override
-  _LoginPageState createState() => _LoginPageState();
+  State<LoginPage> createState() => _LoginPageState();
 }
 
 class _LoginPageState extends State<LoginPage> {
@@ -28,46 +24,16 @@ class _LoginPageState extends State<LoginPage> {
   final String backgroundImage = 'lib/images/circles.png';
 
   void signUserIn() async {
-    var url = Uri.parse("$apiUrl/login/");
     if (passwordController.text.isNotEmpty && emailController.text.isNotEmpty) {
-      final User user = User(
-        email: emailController.text,
-        password: passwordController.text,
-      );
-      final response = await http.post(
-        url,
-        headers: <String, String>{'Content-Type': 'application/json; charset=UTF-8',},
-        body: json.encode(user),
-      );
+      final signInOK = await signUserInStorage(
+          passwordController.text, emailController.text);
 
-      if (response.statusCode == 200) {
-        final data = json.decode(response.body);
-        print(data);
-        // for (var user in data['users']) {
-        //   print(user);
-        //   print(user['email']);
-        //   if (user['email'] == emailController.text && user['password'] == passwordController.text) {
-        //     print("User signed in successfully");
-        //
-        //     Navigator.of(context).push(
-        //       MaterialPageRoute(
-        //         builder: (context) => const MeetingsPage(),
-        //       ),
-        //     );
-        //   }
-        // }
-        // if (data) {
-          print("User signed in successfully");
-
-          Navigator.of(context).push(
-            MaterialPageRoute(
-              builder: (context) => const MeetingsPage(),
-            ),
-          );
-        // }
-      }
-      else {
-        print("Failed to sign in with response code ${response.statusCode}");
+      if (signInOK) {
+        Navigator.of(context).push(
+          MaterialPageRoute(
+            builder: (context) => const MeetingsPage(),
+          ),
+        );
       }
     }
   }
