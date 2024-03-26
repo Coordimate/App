@@ -6,6 +6,7 @@ import 'package:coordimate/pages/register_page.dart';
 import 'package:flutter/material.dart';
 import 'package:coordimate/pages/meetings_page.dart';
 import 'package:coordimate/data/storage.dart';
+import 'package:coordimate/components/alert_dialog.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -38,6 +39,16 @@ class _LoginPageState extends State<LoginPage> {
           MaterialPageRoute(
             builder: (context) => const MeetingsPage(),
           ),
+        );
+      } else {
+        showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return const CustomAlertDialog(
+              title: "Sign In Failed",
+              content: "Please check your credentials",
+            );
+          },
         );
       }
     }
@@ -159,7 +170,7 @@ class _LoginPageState extends State<LoginPage> {
                 Padding(
                   padding: EdgeInsets.symmetric(horizontal: 15.0),
                   child: Text(
-                    "Don't have an account?",
+                    "Do not have an account?",
                     style: TextStyle(
                       color: darkBlue,
                       fontSize: 24,
