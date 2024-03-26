@@ -6,6 +6,7 @@ import 'package:coordimate/pages/login_page.dart';
 import 'package:flutter/material.dart';
 import 'package:coordimate/pages/meetings_page.dart';
 import 'package:coordimate/data/storage.dart';
+import 'package:coordimate/components/alert_dialog.dart';
 
 class RegisterPage extends StatefulWidget {
   const RegisterPage({super.key});
@@ -32,7 +33,7 @@ class _RegisterPageState extends State<RegisterPage> {
     if (_formKey.currentState!.validate() == false) {
       return ;
     }
-
+    // isEmpty is checked in the form validation
     if (passwordController.text.isNotEmpty && emailController.text.isNotEmpty && usernameController.text.isNotEmpty && confirmPasswordController.text.isNotEmpty) {
       if (passwordController.text == confirmPasswordController.text) {
 
@@ -48,8 +49,27 @@ class _RegisterPageState extends State<RegisterPage> {
               builder: (context) => const MeetingsPage(),
             ),
           );
+        } else {
+          showDialog(
+            context: context,
+            builder: (BuildContext context) {
+              return const CustomAlertDialog(
+                title: "Registration Failed",
+                content: "Please check your credentials",
+              );
+            },
+          );
         }
       } else {
+        showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return const CustomAlertDialog(
+              title: "Registration Failed",
+              content: "Please check passwords match",
+            );
+          },
+        );
         print("Passwords do not match");
       }
     } else {
@@ -156,8 +176,6 @@ class _RegisterPageState extends State<RegisterPage> {
                 ],
               ),
             ),
-
-
 
             const SizedBox(height: 30),
 
