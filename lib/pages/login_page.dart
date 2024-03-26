@@ -85,6 +85,7 @@ class _LoginPageState extends State<LoginPage> {
               label: "E-mail",
               obscureText: false,
               icon: pathEmail,
+              keyboardType: TextInputType.emailAddress,
             ),
 
             const SizedBox(height: 25),
@@ -95,6 +96,7 @@ class _LoginPageState extends State<LoginPage> {
               label: "Password",
               obscureText: true,
               icon: pathLock,
+              keyboardType: TextInputType.visiblePassword,
             ),
 
             const SizedBox(height: 20),

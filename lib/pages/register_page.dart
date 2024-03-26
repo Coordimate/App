@@ -101,6 +101,7 @@ class _RegisterPageState extends State<RegisterPage> {
               label: "Name",
               obscureText: false,
               icon: pathPerson,
+              keyboardType: TextInputType.name,
             ),
 
             const SizedBox(height: 15),
@@ -111,6 +112,7 @@ class _RegisterPageState extends State<RegisterPage> {
               label: "E-mail",
               obscureText: false,
               icon: pathEmail,
+              keyboardType: TextInputType.emailAddress,
             ),
 
             const SizedBox(height: 15),
@@ -121,6 +123,7 @@ class _RegisterPageState extends State<RegisterPage> {
               label: "Password",
               obscureText: true,
               icon: pathLock,
+              keyboardType: TextInputType.visiblePassword,
             ),
 
             const SizedBox(height: 15),
@@ -131,6 +134,7 @@ class _RegisterPageState extends State<RegisterPage> {
               label: "Confirm Password",
               obscureText: true,
               icon: pathLock,
+              keyboardType: TextInputType.visiblePassword,
             ),
 
             const SizedBox(height: 20),

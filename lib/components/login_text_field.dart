@@ -1,29 +1,45 @@
 import 'package:coordimate/components/colors.dart';
 import 'package:flutter/material.dart';
 
-class LoginTextField extends StatelessWidget {
-  final controller;
+class LoginTextField extends StatefulWidget {
+  final TextEditingController controller;
   final String hintText;
   final bool obscureText;
   final String label;
   final String icon;
+  final TextInputType keyboardType;
 
   const LoginTextField({
-    super.key,
+    Key? key,
     required this.controller,
     required this.hintText,
     required this.obscureText,
     required this.label,
-    required this.icon
-  });
+    required this.icon,
+    required this.keyboardType,
+  }) : super(key: key);
+
+  @override
+  State<LoginTextField> createState() => _LoginTextFieldState();
+}
+
+class _LoginTextFieldState extends State<LoginTextField> {
+  bool _obscureText = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _obscureText = widget.obscureText;
+  }
 
   @override
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 25.0),
       child: TextField(
-        controller: controller,
-        obscureText: obscureText, // for hiding password
+        controller: widget.controller,
+        obscureText: _obscureText,
+        keyboardType: widget.keyboardType,
         style: const TextStyle(
           fontSize: 22,
           color: darkBlue,
@@ -39,32 +55,30 @@ class LoginTextField extends StatelessWidget {
               color: darkBlue,
             ),
           ),
-          // labelText: label,
-          // labelStyle: TextStyle(color: Colors.grey[500]),
-          hintText: hintText,
+          hintText: widget.hintText,
           hintStyle: TextStyle(color: alphaDarkBlue),
           prefixIcon: Padding(
             padding: const EdgeInsets.only(right: 8.0),
             child: Image.asset(
-              icon,
+              widget.icon,
               height: 26,
               width: 26,
             ),
           ),
-          prefixIconConstraints: const BoxConstraints(
-            minWidth: 0,
-          ),
+          suffixIcon: widget.obscureText
+              ? IconButton(
+            onPressed: () {
+              setState(() {_obscureText = !_obscureText;});
+            },
+            icon: Icon(
+              _obscureText ? Icons.visibility : Icons.visibility_off,
+              color: alphaDarkBlue,
+            ),
+          )
+              : null,
+          prefixIconConstraints: const BoxConstraints(minWidth: 0),
         ),
       ),
     );
   }
 }
-
- // The  LoginTextField  widget is a stateless widget that takes a  label  parameter. This parameter is used to set the label of the  TextField  widget.
- // The  TextField  widget is wrapped in a  Padding  widget to add some padding around the  TextField .
- // The  TextField  widget has a  decoration  property that takes an  InputDecoration  widget. The  InputDecoration  widget is used to customize the appearance of the  TextField .
- // The  InputDecoration  widget has two properties:  enabledBorder  and  focusedBorder . The  enabledBorder  property is used to set the border color of the  TextField  when it is not focused. The  focusedBorder  property is used to set the border color of the  TextField  when it is focused.
- // The  labelText  property of the  InputDecoration  widget is used to set the label of the  TextField .
- // The  LoginTextField  widget is used in the  LoginPage  widget to create the username and password  TextField  widgets.
- // The  LoginPage  widget is used in the  MyApp  widget to create the login page.
- // The  MyApp  widget is the root widget of the application.
