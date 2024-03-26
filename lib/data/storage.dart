@@ -16,7 +16,9 @@ Future<bool> signUserInStorage(pswd, email) async {
 
   final response = await http.post(
     url,
-    headers: <String, String>{'Content-Type': 'application/json; charset=UTF-8',},
+    headers: <String, String>{
+      'Content-Type': 'application/json; charset=UTF-8',
+    },
     body: json.encode(user),
   );
 
@@ -31,15 +33,14 @@ Future<bool> signUserInStorage(pswd, email) async {
     await storage.write(key: 'refresh_token', value: refreshToken);
 
     return true;
-  }
-  else {
+  } else {
     print("Failed to sign in with response code ${response.statusCode}");
     return false;
   }
 }
 
 Future<bool> registerUserStorage(pswd, email, username) async {
-  var url = Uri.parse("$apiUrl/users/");
+  var url = Uri.parse("$apiUrl/register");
 
   final User user = User(
     username: username,
@@ -70,3 +71,4 @@ Future<bool> registerUserStorage(pswd, email, username) async {
   print("User registration failed ${response.statusCode}");
   return false;
 }
+
