@@ -36,29 +36,30 @@ class _RegisterPageState extends State<RegisterPage> {
     // isEmpty is checked in the form validation
     if (passwordController.text.isNotEmpty && emailController.text.isNotEmpty && usernameController.text.isNotEmpty && confirmPasswordController.text.isNotEmpty) {
       if (passwordController.text == confirmPasswordController.text) {
-
         final registrationOK = await registerUserStorage(
             passwordController.text,
             emailController.text,
             usernameController.text
         );
 
-        if (registrationOK) {
-          Navigator.of(context).push(
-            MaterialPageRoute(
-              builder: (context) => const MeetingsPage(),
-            ),
-          );
-        } else {
-          showDialog(
-            context: context,
-            builder: (BuildContext context) {
-              return const CustomAlertDialog(
-                title: "Registration Failed",
-                content: "Please check your credentials",
-              );
-            },
-          );
+        if (mounted) {
+          if (registrationOK) {
+            Navigator.of(context).push(
+              MaterialPageRoute(
+                builder: (context) => const MeetingsPage(),
+              ),
+            );
+          } else {
+            showDialog(
+              context: context,
+              builder: (BuildContext context) {
+                return const CustomAlertDialog(
+                  title: "Registration Failed",
+                  content: "Please check your credentials",
+                );
+              },
+            );
+          }
         }
       } else {
         showDialog(

@@ -28,28 +28,31 @@ class _LoginPageState extends State<LoginPage> {
 
   void signUserIn() async {
     if (_formKey.currentState!.validate() == false) {
-      return ;
+      return;
     }
     if (passwordController.text.isNotEmpty && emailController.text.isNotEmpty) {
       final signInOK = await signUserInStorage(
           passwordController.text, emailController.text);
 
-      if (signInOK) {
-        Navigator.of(context).push(
-          MaterialPageRoute(
-            builder: (context) => const MeetingsPage(),
-          ),
-        );
-      } else {
-        showDialog(
-          context: context,
-          builder: (BuildContext context) {
-            return const CustomAlertDialog(
-              title: "Sign In Failed",
-              content: "Please check your credentials",
-            );
-          },
-        );
+      if (mounted) {
+        if (signInOK) {
+          Navigator.of(context).push(
+            MaterialPageRoute(
+              builder: (context) => const MeetingsPage(),
+            ),
+          );
+        } else {
+          print("Sign in failed");
+          showDialog(
+            context: context,
+            builder: (BuildContext context) {
+              return const CustomAlertDialog(
+                title: 'Sign In Failed',
+                content: 'The email or password is incorrect.',
+              );
+            },
+          );
+        }
       }
     }
   }
