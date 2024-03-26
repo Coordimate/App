@@ -64,6 +64,9 @@ Future<bool> registerUserStorage(pswd, email, username) async {
   if (response.statusCode == 201) {
     print("User registered successfully");
     return await signUserInStorage(pswd, email);
+  } else if (response.statusCode == 400) {
+    print("User with email $email already exists");
+    return false;
   }
   print("User registration failed ${response.statusCode}");
   return false;
