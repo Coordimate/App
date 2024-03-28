@@ -6,6 +6,11 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 const storage = FlutterSecureStorage();
 
+void logUserOutStorage() async {
+  storage.delete(key: 'refresh_token');
+  storage.delete(key: 'access_token');
+}
+
 Future<bool> signUserInStorage(pswd, email) async {
   var url = Uri.parse("$apiUrl/login");
 

@@ -1,10 +1,13 @@
 import 'dart:convert';
-import 'package:coordimate/components/colors.dart';
-import 'package:coordimate/components/main_navigation.dart';
-import 'package:coordimate/models/time_slot.dart';
-import 'package:coordimate/keys.dart';
+
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+
+import 'package:coordimate/components/colors.dart';
+import 'package:coordimate/components/main_navigation.dart';
+import 'package:coordimate/data/storage.dart';
+import 'package:coordimate/keys.dart';
+import 'package:coordimate/models/time_slot.dart';
 
 const gridBorderWidth = 1.0;
 const gridBorderColor = gridGrey;
@@ -509,6 +512,12 @@ class _NewTimeSlotState extends State<NewTimeSlot> {
 class PersonalSchedulePage extends StatelessWidget {
   const PersonalSchedulePage({super.key});
 
+  void logOut(BuildContext context) {
+    logUserOutStorage();
+    Navigator.popUntil(
+        context, (Route<dynamic> predicate) => predicate.isFirst);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -524,7 +533,9 @@ class PersonalSchedulePage extends StatelessWidget {
             IconButton(
               icon: const Icon(Icons.settings_outlined),
               color: Colors.white,
-              onPressed: () {},
+              onPressed: () {
+                logOut(context);
+              },
             ),
           ],
         ),
