@@ -1,10 +1,10 @@
 import 'package:coordimate/components/login_button.dart';
 import 'package:coordimate/components/login_text_field.dart';
+import 'package:coordimate/screens/home_screen.dart';
 import 'package:coordimate/components/square_tile.dart';
 import 'package:coordimate/components/colors.dart';
 import 'package:coordimate/pages/register_page.dart';
 import 'package:flutter/material.dart';
-import 'package:coordimate/pages/meetings_page.dart';
 import 'package:coordimate/data/storage.dart';
 import 'package:coordimate/components/alert_dialog.dart';
 
@@ -38,7 +38,7 @@ class _LoginPageState extends State<LoginPage> {
         if (signInOK) {
           Navigator.of(context).push(
             MaterialPageRoute(
-              builder: (context) => const MeetingsPage(),
+              builder: (context) => HomeScreen(key: UniqueKey()),
             ),
           );
         } else {

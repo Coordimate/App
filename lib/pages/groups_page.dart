@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:coordimate/components/colors.dart';
-import 'package:coordimate/components/main_navigation.dart';
 import 'package:coordimate/components/create_groups_button.dart'; // Import the CreateGroupsButton
 
 class GroupsPage extends StatefulWidget {
@@ -79,19 +78,9 @@ class _GroupsPageState extends State<GroupsPage> {
             ),
           ),
           Spacer(),
-          NavBar(key: UniqueKey()), // Bottom icons widget
           SizedBox(height: screenHeight * 0.01),
         ],
       ),
     );
   }
-}
-
-void main() {
-  runApp(MaterialApp(
-    home: GroupsPage(),
-    theme: ThemeData(
-      primaryColor: darkBlue,
-    ),
-  ));
 }
