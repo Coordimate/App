@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
 import 'package:coordimate/components/colors.dart';
+import 'package:coordimate/models/time_slot.dart';
 import 'package:coordimate/components/main_navigation.dart';
 import 'package:coordimate/data/storage.dart';
 import 'package:coordimate/keys.dart';
@@ -539,7 +540,6 @@ class PersonalSchedulePage extends StatelessWidget {
             ),
           ],
         ),
-        body: const ScheduleGrid(),
-        bottomNavigationBar: NavBar(key: UniqueKey()));
+        body: const ScheduleGrid());
   }
 }

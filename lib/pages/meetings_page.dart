@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:coordimate/components/main_navigation.dart';
 
 class MeetingsPage extends StatefulWidget {
   const MeetingsPage({
@@ -21,7 +20,6 @@ class _MeetingsPageState extends State<MeetingsPage> {
           Text("Main home screen for meetings"),
         ],
       ),
-      bottomNavigationBar: NavBar(key: UniqueKey()),
     );
   }
 }
