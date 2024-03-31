@@ -1,6 +1,6 @@
 import 'package:coordimate/components/appbar.dart';
 import 'package:flutter/material.dart';
-import 'package:coordimate/components/colors.dart';
+import 'package:coordimate/components/meeting_tiles.dart';
 
 class MeetingsPage extends StatefulWidget {
   const MeetingsPage({
@@ -22,78 +22,25 @@ class _MeetingsPageState extends State<MeetingsPage> {
   }
 
   ListView _buildListView() {
-    return ListView.builder(
+    return ListView(
       padding: const EdgeInsets.all(16),
-      itemCount: 15,
-      itemBuilder: (context, index) {
-        return Container(
-          margin: const EdgeInsets.only(bottom: 16),
-          decoration: BoxDecoration(
-            color: darkBlue,
-            borderRadius: BorderRadius.circular(10),
-          ),
-          child: ListTile(
-            // contentPadding: const EdgeInsets.all(16),
-            title: Row(
-                  children: [
-                    Text(
-                      'Doggies Group',
-                      style: TextStyle(
-                          fontSize: 24,
-                          fontWeight: FontWeight.bold,
-                          fontStyle: FontStyle.italic,
-                          color: Colors.white
-                      ),
-                    ), // Title
-                  ],
-                ),
-            subtitle: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    Expanded(
-                      child: Text(
-                        'Barking all day long with my friends!',
-                        style: TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white,
-                        ),
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ),
-                  ],
-                ),
-                Text(
-                  'Wednesday, September 20', // Add your additional line of text here
-                  style: TextStyle(
-                    fontSize: 20,
-                    color: Colors.white,
-                  ),
-                ),
-                Row(
-                  children: [
-                    const Icon(Icons.calendar_today, color: Colors.white70), // Calendar Icon
-                    const SizedBox(width: 8), // Add spacing
-                    Text(
-                      'Doggies Group',
-                      style: TextStyle(
-                          fontSize: 20,
-                          color: Colors.white70
-                      ),
-                    ), // Title
-                  ],
-                ),
-              ],
-            ),
-            // trailing: const Icon(Icons.arrow_forward_ios),
-            onTap: () {
-              // Navigate to the meeting details page
-            },
-          ),
-        );
-      },
+      children: <Widget>[
+        ...List.generate(3, (index) => NewMeetingTile(
+            title: "New Meeting $index blablabla",
+            date: "Wed, September 20, 12:30",
+            group: "Doggies Group"
+        )),
+        ...List.generate(2, (index) => AcceptedMeetingTile(
+            title: "Accepted Meeting $index blablablabla",
+            date: "Wed, September 20, 12:30",
+            group: "Doggies Group"
+        )),
+        ...List.generate(3, (index) => ArchivedMeetingTile(
+            title: "Archived Meeting $index blablablabla",
+            date: "Wed, September 20, 12:30",
+            group: "Doggies Group"
+        )),
+      ],
     );
   }
 }
