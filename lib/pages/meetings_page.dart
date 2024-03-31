@@ -1,6 +1,10 @@
 import 'package:coordimate/components/appbar.dart';
 import 'package:flutter/material.dart';
 import 'package:coordimate/components/meeting_tiles.dart';
+import 'package:coordimate/models/meeting.dart';
+import 'package:coordimate/keys.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 class MeetingsPage extends StatefulWidget {
   const MeetingsPage({
@@ -16,6 +20,7 @@ class _MeetingsPageState extends State<MeetingsPage> {
   final TextEditingController _titleController = TextEditingController();
   final TextEditingController _descriptionController = TextEditingController();
   DateTime _selectedDate = DateTime.now();
+  List<Meeting> meetings = [];
 
   Future<void> _selectDate(BuildContext context) async {
     final DateTime? pickedDate = await showDatePicker(
@@ -98,11 +103,46 @@ class _MeetingsPageState extends State<MeetingsPage> {
   }
 
   @override
+  void initState() {
+    super.initState();
+    fetchMeetings();
+  }
+
+  Future<void> fetchMeetings() async {
+    final response = await http.get(Uri.parse("$apiUrl/meetings/"));
+    if (response.statusCode == 200) {
+      print(response.body);
+      print(json.decode(response.body)['meetings'][0]);
+      setState(() {
+        meetings = (json.decode(response.body)['meetings'] as List)
+            .map((data) => Meeting.fromJson(data))
+            .toList();
+      });
+    } else {
+      throw Exception('Failed to load meetings');
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: CustomAppBar(title: "Meetings", needCreateButton: true, onPressed: _onCreateMeeting),
-      body: _buildListView(),
+      body: _buildListViewFromDB(),
+    );
+  }
+
+  ListView _buildListViewFromDB() {
+    return ListView.builder(
+      padding: const EdgeInsets.all(16),
+      itemCount: meetings.length,
+      itemBuilder: (context, index) {
+        return AcceptedMeetingTile(
+          title: meetings[index].title,
+          date: meetings[index].dateTime.toString(),
+          group: meetings[index].groupId,
+        );
+      },
     );
   }
 
