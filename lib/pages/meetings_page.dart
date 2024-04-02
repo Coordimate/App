@@ -177,7 +177,7 @@ class _MeetingsPageState extends State<MeetingsPage> {
             _buildMeetingList(declinedMeetings, "Declined Meetings"),
           ],
           if (newInvitations.isNotEmpty) ...[
-            _buildMeetingList(newInvitations, "New Invitations"),
+            _buildMeetingList(newInvitations, "Invitations"),
           ],
           if (acceptedMeetings.isNotEmpty) ...[
             _buildMeetingList(acceptedMeetings, "Accepted Meetings"),
@@ -202,48 +202,19 @@ class _MeetingsPageState extends State<MeetingsPage> {
             // Build meeting tile based on meeting status
             if (meetings[index].status == MeetingStatus.needsAcceptance) {
               return NewMeetingTile(
-                title: meetings[index].title,
-                date: meetings[index].getFormattedDate(),
-                group: meetings[index].group,
+                meeting: meetings[index],
               );
             } else if (meetings[index].status == MeetingStatus.declined) {
               return ArchivedMeetingTile(
-                title: meetings[index].title,
-                date: meetings[index].getFormattedDate(),
-                group: meetings[index].group,
+                meeting: meetings[index],
               );
             } else {
               return AcceptedMeetingTile(
-                title: meetings[index].title,
-                date: meetings[index].getFormattedDate(),
-                group: meetings[index].group,
+                  meeting: meetings[index],
               );
             }
           },
         ),
-      ],
-    );
-  }
-
-  ListView _buildListView() {
-    return ListView(
-      padding: const EdgeInsets.all(16),
-      children: <Widget>[
-        ...List.generate(3, (index) => NewMeetingTile(
-            title: "New Meeting $index blablabla",
-            date: "Wed, September 20, 12:30",
-            group: "Doggies Group"
-        )),
-        ...List.generate(2, (index) => AcceptedMeetingTile(
-            title: "Accepted Meeting $index blablablabla",
-            date: "Wed, September 20, 12:30",
-            group: "Doggies Group"
-        )),
-        ...List.generate(3, (index) => ArchivedMeetingTile(
-            title: "Archived Meeting $index blablablabla",
-            date: "Wed, September 20, 12:30",
-            group: "Doggies Group"
-        )),
       ],
     );
   }

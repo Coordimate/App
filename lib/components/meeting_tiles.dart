@@ -1,19 +1,19 @@
 import 'package:coordimate/components/meeting_action_button.dart';
+import 'package:coordimate/models/meeting.dart';
 import 'package:flutter/material.dart';
 import 'package:coordimate/components/colors.dart';
+import 'package:coordimate/keys.dart';
+import 'package:coordimate/api_client.dart';
+import 'dart:convert';
 
 class MeetingTile extends StatelessWidget {
-  final String title;
-  final String date;
-  final String group;
   final bool isArchived;
+  final Meeting meeting;
 
   const MeetingTile({
     super.key,
-    required this.title,
-    required this.date,
-    required this.group,
     required this.isArchived,
+    required this.meeting,
   });
 
   @override
@@ -29,7 +29,7 @@ class MeetingTile extends StatelessWidget {
           children: [
             Expanded(
               child: Text(
-                title,
+                meeting.title,
                 style: const TextStyle(
                   fontSize: 22,
                   fontWeight: FontWeight.bold,
@@ -44,7 +44,7 @@ class MeetingTile extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              date,
+              meeting.getFormattedDate(),
               style: const TextStyle(
                 fontSize: 20,
                 color: Colors.white,
@@ -55,7 +55,7 @@ class MeetingTile extends StatelessWidget {
                 const Icon(Icons.calendar_today, color: Colors.white70),
                 const SizedBox(width: 8),
                 Text(
-                  group,
+                  meeting.group,
                   style: const TextStyle(
                       fontSize: 20,
                       color: Colors.white70
@@ -77,12 +77,22 @@ class NewMeetingTile extends MeetingTile {
 
   const NewMeetingTile({
     super.key,
-    required super.title,
-    required super.date,
-    required super.group,
+    required super.meeting,
   }) : super(
-    isArchived: false, // Set isArchived to true
+    isArchived: false,
   );
+
+  // Future<void> _acceptMeeting() async {
+  //   final response = await client.patch(
+  //     Uri.parse("$apiUrl/invites/$id/"),
+  //     headers: <String, String>{
+  //       'Content-Type': 'application/json; charset=UTF-8',
+  //     },
+  //     body: json.encode(<String, dynamic>{
+  //       'status': 'accepted',
+  //     }),
+  //   );
+  // }
 
   void _onAccept() {
     // Handle the accept button press
@@ -105,7 +115,7 @@ class NewMeetingTile extends MeetingTile {
           Expanded(
               child: ListTile(
                 title: Text(
-                  title,
+                  meeting.title,
                   style: const TextStyle(
                     fontSize: 22,
                     fontWeight: FontWeight.bold,
@@ -117,7 +127,7 @@ class NewMeetingTile extends MeetingTile {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      date,
+                      meeting.getFormattedDate(),
                       style: const TextStyle(
                         fontSize: 20,
                         color: Colors.white,
@@ -128,7 +138,7 @@ class NewMeetingTile extends MeetingTile {
                         const Icon(Icons.calendar_today, color: Colors.white70),
                         const SizedBox(width: 8),
                         Text(
-                          group,
+                          meeting.group,
                           style: const TextStyle(
                               fontSize: 20,
                               color: Colors.white70
@@ -168,9 +178,7 @@ class NewMeetingTile extends MeetingTile {
 class AcceptedMeetingTile extends MeetingTile {
   const AcceptedMeetingTile({
     super.key,
-    required super.title,
-    required super.date,
-    required super.group,
+    required super.meeting
   }) : super(
     isArchived: false, // Set isArchived to false
   );
@@ -179,9 +187,7 @@ class AcceptedMeetingTile extends MeetingTile {
 class ArchivedMeetingTile extends MeetingTile {
   const ArchivedMeetingTile({
     super.key,
-    required super.title,
-    required super.date,
-    required super.group,
+    required super.meeting
   }) : super(
     isArchived: true, // Set isArchived to true
   );
