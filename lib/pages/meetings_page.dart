@@ -1,4 +1,5 @@
 import 'package:coordimate/components/appbar.dart';
+import 'package:coordimate/components/colors.dart';
 import 'package:coordimate/components/divider.dart';
 import 'package:flutter/material.dart';
 import 'package:coordimate/components/meeting_tiles.dart';
@@ -167,13 +168,13 @@ class _MeetingsPageState extends State<MeetingsPage> {
 
   Future<void> _acceptMeeting(String id) async {
     final response = await client.patch(
-      Uri.parse("$apiUrl/invites/$id"),
-      headers: <String, String>{
-        'Content-Type': 'application/json; charset=UTF-8',
-      },
-      body: json.encode(<String, dynamic>{
-        'status': 'accepted',
-      })
+        Uri.parse("$apiUrl/invites/$id"),
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+        },
+        body: json.encode(<String, dynamic>{
+          'status': 'accepted',
+        })
     );
 
     // print(response);
@@ -228,17 +229,46 @@ class _MeetingsPageState extends State<MeetingsPage> {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: CustomAppBar(title: "Meetings", needCreateButton: true, onPressed: _onCreateMeeting),
-      body: ListView(
+      body: Stack(
         children: [
-          if (declinedMeetings.isNotEmpty) ...[
-            _buildMeetingList(declinedMeetings, "Declined Meetings"),
-          ],
-          if (newInvitations.isNotEmpty) ...[
-            _buildMeetingList(newInvitations, "Invitations"),
-          ],
-          if (acceptedMeetings.isNotEmpty) ...[
-            _buildMeetingList(acceptedMeetings, "Accepted Meetings"),
-          ],
+          ListView(
+            padding: EdgeInsets.only(bottom: MediaQuery.of(context).size.height * 0.17), // Add padding to the bottom
+            children: [
+              if (declinedMeetings.isNotEmpty) ...[
+                _buildMeetingList(declinedMeetings, "Declined Meetings"),
+              ],
+              if (newInvitations.isNotEmpty) ...[
+                _buildMeetingList(newInvitations, "Invitations"),
+              ],
+              if (acceptedMeetings.isNotEmpty) ...[
+                _buildMeetingList(acceptedMeetings, "Accepted Meetings"),
+              ],
+            ],
+          ),
+          DraggableBottomSheet(
+            child: Column(
+              children: [
+                AcceptedMeetingTile(meeting: Meeting(
+                  title: "BUBABOBA",
+                  dateTime: DateTime.now(),
+                  description: "BUBABOBA",
+                  status: MeetingStatus.accepted,
+                ),),
+                AcceptedMeetingTile(meeting: Meeting(
+                  title: "BUBABOBA2",
+                  dateTime: DateTime.now(),
+                  description: "BUBABOBA2",
+                  status: MeetingStatus.accepted,
+                ),),
+                AcceptedMeetingTile(meeting: Meeting(
+                  title: "BUBABOBA3",
+                  dateTime: DateTime.now(),
+                  description: "BUBABOBA3",
+                  status: MeetingStatus.accepted,
+                ),),
+              ],
+            ),
+          ),
         ],
       ),
     );
@@ -269,12 +299,132 @@ class _MeetingsPageState extends State<MeetingsPage> {
               );
             } else {
               return AcceptedMeetingTile(
-                  meeting: meetings[index],
+                meeting: meetings[index],
               );
             }
           },
         ),
       ],
+    );
+  }
+}
+class DraggableBottomSheet extends StatefulWidget {
+  final Widget child;
+
+  const DraggableBottomSheet({
+    super.key,
+    required this.child,
+  });
+
+  @override
+  State<DraggableBottomSheet> createState() => _DraggableBottomSheetState();
+}
+
+class _DraggableBottomSheetState extends State<DraggableBottomSheet> {
+
+  final sheet = GlobalKey();
+  final controller = DraggableScrollableController();
+
+  @override
+  void initState() {
+    super.initState();
+    controller.addListener(onChanged);
+  }
+
+  void collapse() => animateSheet(getSheet.snapSizes!.first);
+  void expand() => animateSheet(getSheet.maxChildSize);
+  void anchor() => animateSheet(getSheet.snapSizes!.last);
+  void hide() => animateSheet(getSheet.minChildSize);
+
+  void animateSheet(double value) {
+    controller.animateTo(
+      value,
+      duration: const Duration(microseconds: 50),
+      curve: Curves.easeInOut,
+    );
+  }
+
+  DraggableScrollableSheet get getSheet => sheet.currentWidget as DraggableScrollableSheet;
+
+  void onChanged() {
+    final currentSize = controller.size;
+    if (currentSize <= 0.25) collapse();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return LayoutBuilder(builder: (builder, constraints) {
+      return DraggableScrollableSheet(
+          key: sheet,
+          initialChildSize: 0.2, // 30% of screen height
+          maxChildSize: 0.985, // 90% of screen height
+          minChildSize: 0.2, // 30% of screen height
+          expand: true,
+          snap: true,
+          snapSizes: const [
+            0.2,
+            0.985,
+          ],
+          builder: (BuildContext context, ScrollController scrollController) {
+            return DecoratedBox(
+              decoration: const BoxDecoration(
+                color: Colors.white,
+                boxShadow: [
+                  BoxShadow(
+                    color: darkBlue,
+                    blurRadius: 10,
+                    spreadRadius: 1,
+                    offset: Offset(0, 1),
+                  ),
+                ],
+                borderRadius: BorderRadius.only(
+                  topLeft: Radius.circular(22),
+                  topRight: Radius.circular(22),
+                ),
+              ),
+              child: CustomScrollView(
+                controller: scrollController,
+                slivers: [
+                  topButtonIndicator(),
+                  SliverToBoxAdapter(
+                    child: widget.child,
+                  ),
+                ],
+              ),
+            );
+          });
+    });
+  }
+
+  SliverToBoxAdapter topButtonIndicator() {
+    return SliverToBoxAdapter(
+      child: Container(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Container(
+              child: Center(
+                child: Wrap(
+                  children: [
+                    Container(
+                      width: 100,
+                      margin: const EdgeInsets.symmetric(vertical: 10),
+                      height: 5,
+                      decoration: BoxDecoration(
+                        color: darkBlue,
+                        shape: BoxShape.rectangle,
+                        borderRadius: BorderRadius.circular(5),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
+
+      ),
     );
   }
 }
