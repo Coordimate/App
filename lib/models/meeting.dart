@@ -1,25 +1,31 @@
 import 'package:intl/intl.dart';
 
+enum MeetingStatus {
+  declined,
+  accepted,
+  needsAcceptance,
+}
+
 class Meeting {
+
+  final String id;
+  final String title;
+  final String group;
+  final DateTime dateTime;
+  final String adminId;
+  final String description;
+  // for meeting tiles
+  final MeetingStatus status;
+
   Meeting({
     this.id = '',
     required this.title,
     required this.dateTime,
     this.description = '',
     this.adminId = '',
-    this.groupId = '',
-    required this.needsAcceptance,
-    required this.isAccepted
+    this.group = '',
+    this.status = MeetingStatus.needsAcceptance,
   });
-
-  final String id;
-  final String title;
-  final String groupId;
-  final DateTime dateTime;
-  final String adminId;
-  final String description;
-  final bool needsAcceptance;
-  final bool isAccepted;
 
   String getFormattedDate() {
     return DateFormat('EEE, MMMM d, HH:mm').format(dateTime);
@@ -29,14 +35,13 @@ class Meeting {
     print("json data ${json['start']}");
     print(DateTime.parse(json['start']));
     return Meeting(
-      id: json['id'] ?? 0,
+      id: json['id'].toString(),
       title: json['title'],
-      groupId: json['group_id'],
+      group: json['group_id'].toString(),
       dateTime: DateTime.parse(json['start']),
-      adminId: json['admin_id'],
-      description: json['description'],
-      needsAcceptance: json['needs_acceptance'],
-      isAccepted: json['is_accepted']
+      adminId: json['admin_id'] ?? '',
+      description: json['description'] ?? '',
+      status: json['status'] == 'accepted' ? MeetingStatus.accepted : json['status'] == 'declined' ? MeetingStatus.declined : MeetingStatus.needsAcceptance,
     );
   }
 }

@@ -84,8 +84,12 @@ class NewMeetingTile extends MeetingTile {
     isArchived: false, // Set isArchived to true
   );
 
-  void _onPressed() {
-    // Handle the tick button press
+  void _onAccept() {
+    // Handle the accept button press
+  }
+
+  void _onDecline() {
+    // Handle the decline button press
   }
 
   @override
@@ -142,13 +146,13 @@ class NewMeetingTile extends MeetingTile {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 ActionButton(
-                    onPressed: _onPressed,
+                    onPressed: _onAccept,
                     color: lightBlue,
                     iconPath: 'lib/images/tick.png'
                 ),
                 const SizedBox(height: 10),
                 ActionButton(
-                    onPressed: _onPressed,
+                    onPressed: _onDecline,
                     color: orange,
                     iconPath: 'lib/images/cross.png'
                 ),

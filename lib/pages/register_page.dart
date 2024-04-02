@@ -1,8 +1,10 @@
+import 'package:coordimate/components/appbar.dart';
 import 'package:coordimate/components/login_button.dart';
 import 'package:coordimate/components/login_text_field.dart';
 import 'package:coordimate/screens/home_screen.dart';
 import 'package:coordimate/components/square_tile.dart';
 import 'package:coordimate/components/colors.dart';
+import 'package:coordimate/components/divider.dart';
 import 'package:coordimate/pages/login_page.dart';
 import 'package:flutter/material.dart';
 import 'package:coordimate/data/storage.dart';
@@ -193,32 +195,7 @@ class _RegisterPageState extends State<RegisterPage> {
 
             const SizedBox(height: 20),
 
-            const Row(
-              children: [
-                Expanded(
-                  child: Divider(
-                    thickness: 1,
-                    color: darkBlue,
-                  ),
-                ),
-                Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 15.0),
-                  child: Text(
-                    "Already have an account?",
-                    style: TextStyle(
-                      color: darkBlue,
-                      fontSize: 24,
-                    ),
-                  ),
-                ),
-                Expanded(
-                  child: Divider(
-                    thickness: 1,
-                    color: darkBlue,
-                  ),
-                ),
-              ],
-            ),
+            const CustomDivider(text: "Already have an account?"),
 
             const SizedBox(height: 20),
 

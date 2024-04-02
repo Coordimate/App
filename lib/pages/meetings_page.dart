@@ -1,11 +1,13 @@
 import 'package:coordimate/components/appbar.dart';
+import 'package:coordimate/components/divider.dart';
 import 'package:flutter/material.dart';
 import 'package:coordimate/components/meeting_tiles.dart';
 import 'package:coordimate/models/meeting.dart';
 import 'package:coordimate/keys.dart';
-import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:intl/intl.dart';
+
+import 'package:coordimate/api_client.dart';
 
 class MeetingsPage extends StatefulWidget {
   const MeetingsPage({
@@ -50,7 +52,7 @@ class _MeetingsPageState extends State<MeetingsPage> {
   }
 
   Future<void> _createMeeting() async {
-    final response = await http.post(
+    final response = await client.post(
       Uri.parse("$apiUrl/meetings/"),
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
@@ -60,7 +62,6 @@ class _MeetingsPageState extends State<MeetingsPage> {
         'start': _selectedDate.toIso8601String(),
         'description': _descriptionController.text,
         'group_id': '1',
-        'admin_id': '1',
         'needs_acceptance': true,
         'accepted': false,
       }),
@@ -70,6 +71,12 @@ class _MeetingsPageState extends State<MeetingsPage> {
     } else {
       throw Exception('Failed to create meeting');
     }
+  }
+
+  void clearControllers() {
+    _titleController.clear();
+    _descriptionController.clear();
+    _selectedDate = DateTime.now();
   }
 
   void _onCreateMeeting() {
@@ -113,6 +120,7 @@ class _MeetingsPageState extends State<MeetingsPage> {
                 TextButton(
                   child: const Text('Cancel'),
                   onPressed: () {
+                    clearControllers();
                     Navigator.of(context).pop();
                   },
                 ),
@@ -120,6 +128,7 @@ class _MeetingsPageState extends State<MeetingsPage> {
                   child: const Text('Create'),
                   onPressed: () {
                     _createMeeting();
+                    clearControllers();
                     Navigator.of(context).pop();
                   },
                 ),
@@ -138,7 +147,7 @@ class _MeetingsPageState extends State<MeetingsPage> {
   }
 
   Future<void> fetchMeetings() async {
-    final response = await http.get(Uri.parse("$apiUrl/meetings/"));
+    final response = await client.get(Uri.parse("$apiUrl/meetings/"));
     if (response.statusCode == 200) {
       print(response.body);
       print(json.decode(response.body)['meetings'][0]);
@@ -146,6 +155,7 @@ class _MeetingsPageState extends State<MeetingsPage> {
         meetings = (json.decode(response.body)['meetings'] as List)
             .map((data) => Meeting.fromJson(data))
             .toList();
+        meetings.sort((a, b) => a.dateTime.difference(DateTime.now()).inMilliseconds - b.dateTime.difference(DateTime.now()).inMilliseconds);
       });
     } else {
       throw Exception('Failed to load meetings');
@@ -154,38 +164,64 @@ class _MeetingsPageState extends State<MeetingsPage> {
 
   @override
   Widget build(BuildContext context) {
+    List<Meeting> declinedMeetings = meetings.where((meeting) => meeting.status == MeetingStatus.declined).toList();
+    List<Meeting> newInvitations = meetings.where((meeting) => meeting.status == MeetingStatus.needsAcceptance).toList();
+    List<Meeting> acceptedMeetings = meetings.where((meeting) => meeting.status == MeetingStatus.accepted).toList();
+
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: CustomAppBar(title: "Meetings", needCreateButton: true, onPressed: _onCreateMeeting),
-      body: _buildListViewFromDB(),
+      body: ListView(
+        children: [
+          if (declinedMeetings.isNotEmpty) ...[
+            _buildMeetingList(declinedMeetings, "Declined Meetings"),
+          ],
+          if (newInvitations.isNotEmpty) ...[
+            _buildMeetingList(newInvitations, "New Invitations"),
+          ],
+          if (acceptedMeetings.isNotEmpty) ...[
+            _buildMeetingList(acceptedMeetings, "Accepted Meetings"),
+          ],
+        ],
+      ),
     );
   }
 
-  ListView _buildListViewFromDB() {
-    return ListView.builder(
-      padding: const EdgeInsets.all(16),
-      itemCount: meetings.length,
-      itemBuilder: (context, index) {
-        if (meetings[index].needsAcceptance) {
-          return NewMeetingTile(
-            title: meetings[index].title,
-            date: meetings[index].getFormattedDate(),
-            group: meetings[index].groupId,
-          );
-        } else if (!meetings[index].isAccepted) {
-          return ArchivedMeetingTile(
-            title: meetings[index].title,
-            date: meetings[index].getFormattedDate(),
-            group: meetings[index].groupId,
-          );
-        } else {
-          return AcceptedMeetingTile(
-            title: meetings[index].title,
-            date: meetings[index].getFormattedDate(),
-            group: meetings[index].groupId,
-          );
-        }
-      },
+  Widget _buildMeetingList(List<Meeting> meetings, String title) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        CustomDivider(text: title),
+        const SizedBox(height: 16),
+        ListView.builder(
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          itemCount: meetings.length,
+          itemBuilder: (context, index) {
+            // Build meeting tile based on meeting status
+            if (meetings[index].status == MeetingStatus.needsAcceptance) {
+              return NewMeetingTile(
+                title: meetings[index].title,
+                date: meetings[index].getFormattedDate(),
+                group: meetings[index].group,
+              );
+            } else if (meetings[index].status == MeetingStatus.declined) {
+              return ArchivedMeetingTile(
+                title: meetings[index].title,
+                date: meetings[index].getFormattedDate(),
+                group: meetings[index].group,
+              );
+            } else {
+              return AcceptedMeetingTile(
+                title: meetings[index].title,
+                date: meetings[index].getFormattedDate(),
+                group: meetings[index].group,
+              );
+            }
+          },
+        ),
+      ],
     );
   }
 
