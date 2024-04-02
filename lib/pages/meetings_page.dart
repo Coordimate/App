@@ -3,6 +3,7 @@ import 'package:coordimate/components/colors.dart';
 import 'package:coordimate/components/divider.dart';
 import 'package:flutter/material.dart';
 import 'package:coordimate/components/meeting_tiles.dart';
+import 'package:coordimate/components/calendar_day_box.dart';
 import 'package:coordimate/models/meeting.dart';
 import 'package:coordimate/keys.dart';
 import 'dart:convert';
@@ -248,6 +249,17 @@ class _MeetingsPageState extends State<MeetingsPage> {
           DraggableBottomSheet(
             child: Column(
               children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    CalendarDayBox(date: DateTime.now(), isSelected: false),
+                    CalendarDayBox(date: DateTime.now().add(const Duration(days: 1)), isSelected: false),
+                    CalendarDayBox(date: DateTime.now().add(const Duration(days: 2)), isSelected: true),
+                    CalendarDayBox(date: DateTime.now().add(const Duration(days: 3)), isSelected: true),
+                    CalendarDayBox(date: DateTime.now().add(const Duration(days: 4)), isSelected: false),
+                  ],
+                ),
+                const SizedBox(height: 16),
                 AcceptedMeetingTile(meeting: Meeting(
                   title: "BUBABOBA",
                   dateTime: DateTime.now(),
@@ -308,6 +320,7 @@ class _MeetingsPageState extends State<MeetingsPage> {
     );
   }
 }
+
 class DraggableBottomSheet extends StatefulWidget {
   final Widget child;
 
@@ -356,9 +369,9 @@ class _DraggableBottomSheetState extends State<DraggableBottomSheet> {
     return LayoutBuilder(builder: (builder, constraints) {
       return DraggableScrollableSheet(
           key: sheet,
-          initialChildSize: 0.2, // 30% of screen height
-          maxChildSize: 0.985, // 90% of screen height
-          minChildSize: 0.2, // 30% of screen height
+          initialChildSize: 0.2,
+          maxChildSize: 0.985,
+          minChildSize: 0.2,
           expand: true,
           snap: true,
           snapSizes: const [
@@ -423,7 +436,6 @@ class _DraggableBottomSheetState extends State<DraggableBottomSheet> {
             ),
           ],
         ),
-
       ),
     );
   }
