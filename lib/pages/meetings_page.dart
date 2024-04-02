@@ -227,6 +227,12 @@ class _MeetingsPageState extends State<MeetingsPage> {
     List<Meeting> newInvitations = meetings.where((meeting) => meeting.status == MeetingStatus.needsAcceptance).toList();
     List<Meeting> acceptedMeetings = meetings.where((meeting) => meeting.status == MeetingStatus.accepted).toList();
 
+    double screenHeight = MediaQuery.of(context).size.height;
+    double screenWidth = MediaQuery.of(context).size.width;
+    double boxWidth = screenWidth / 5 * 0.85;
+    double paddingBottom = 8.0; // space between calendar row and meeting list
+    double initialChildSize = (boxWidth + paddingBottom + kBottomNavigationBarHeight) / screenHeight;
+
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: CustomAppBar(title: "Meetings", needCreateButton: true, onPressed: _onCreateMeeting),
@@ -247,6 +253,7 @@ class _MeetingsPageState extends State<MeetingsPage> {
             ],
           ),
           DraggableBottomSheet(
+            initialChildSize: initialChildSize,
             child: Column(
               children: [
                 Row(
@@ -323,10 +330,12 @@ class _MeetingsPageState extends State<MeetingsPage> {
 
 class DraggableBottomSheet extends StatefulWidget {
   final Widget child;
+  final double initialChildSize;
 
   const DraggableBottomSheet({
     super.key,
     required this.child,
+    required this.initialChildSize,
   });
 
   @override
@@ -369,13 +378,13 @@ class _DraggableBottomSheetState extends State<DraggableBottomSheet> {
     return LayoutBuilder(builder: (builder, constraints) {
       return DraggableScrollableSheet(
           key: sheet,
-          initialChildSize: 0.2,
+          initialChildSize: widget.initialChildSize,
           maxChildSize: 0.985,
-          minChildSize: 0.2,
+          minChildSize: widget.initialChildSize,
           expand: true,
           snap: true,
-          snapSizes: const [
-            0.2,
+          snapSizes: [
+            widget.initialChildSize,
             0.985,
           ],
           builder: (BuildContext context, ScrollController scrollController) {
