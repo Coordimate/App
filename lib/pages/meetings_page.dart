@@ -25,13 +25,16 @@ class _MeetingsPageState extends State<MeetingsPage> {
   DateTime _selectedDate = DateTime.now();
   List<Meeting> meetings = [];
 
-  Future<void> _selectDate(BuildContext context) async {
+  Future<void> _selectDate() async {
     final DateTime? pickedDate = await showDatePicker(
       context: context,
       initialDate: _selectedDate,
       firstDate: DateTime(2022, 1),
       lastDate: DateTime(2025),
     );
+    if (!mounted) {
+      return;
+    }
     if (pickedDate != null && pickedDate != _selectedDate) {
       final TimeOfDay? pickedTime = await showTimePicker(
         context: context,
@@ -67,7 +70,7 @@ class _MeetingsPageState extends State<MeetingsPage> {
       }),
     );
     if (response.statusCode == 201) {
-      fetchMeetings();
+      _fetchMeetings();
     } else {
       throw Exception('Failed to create meeting');
     }
@@ -101,7 +104,7 @@ class _MeetingsPageState extends State<MeetingsPage> {
                       title: Text(DateFormat('EEE, MMMM d, HH:mm').format(_selectedDate.toLocal())),
                       trailing: const Icon(Icons.keyboard_arrow_down),
                       onTap: () async {
-                        await _selectDate(context);
+                        await _selectDate();
                         setState(() {});  // Rebuild the dialog to update the date
                       },
                     ),
@@ -143,14 +146,14 @@ class _MeetingsPageState extends State<MeetingsPage> {
   @override
   void initState() {
     super.initState();
-    fetchMeetings();
+    _fetchMeetings();
   }
 
-  Future<void> fetchMeetings() async {
+  Future<void> _fetchMeetings() async {
     final response = await client.get(Uri.parse("$apiUrl/meetings/"));
     if (response.statusCode == 200) {
-      print(response.body);
-      print(json.decode(response.body)['meetings'][0]);
+      // print(response.body);
+      // print(json.decode(response.body)['meetings'][0]);
       setState(() {
         meetings = (json.decode(response.body)['meetings'] as List)
             .map((data) => Meeting.fromJson(data))
@@ -159,6 +162,60 @@ class _MeetingsPageState extends State<MeetingsPage> {
       });
     } else {
       throw Exception('Failed to load meetings');
+    }
+  }
+
+  Future<void> _acceptMeeting(String id) async {
+    final response = await client.patch(
+      Uri.parse("$apiUrl/invites/$id"),
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+      },
+      body: json.encode(<String, dynamic>{
+        'status': 'accepted',
+      })
+    );
+
+    // print(response);
+
+    if (!mounted) {
+      return;
+    }
+    if (response.statusCode == 200) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Meeting accepted')),
+      );
+      // Fetch the meetings again after accepting
+      _fetchMeetings();
+    } else {
+      throw Exception('Failed to accept meeting');
+    }
+  }
+
+  Future<void> _declineMeeting(String id) async {
+    final response = await client.patch(
+      Uri.parse("$apiUrl/invites/$id"),
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+      },
+      body: json.encode(<String, dynamic>{
+        'status': 'declined',
+      }),
+    );
+
+    // print(response);
+
+    if (!mounted) {
+      return;
+    }
+    if (response.statusCode == 200) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Meeting declined')),
+      );
+      // Fetch the meetings again after accepting
+      _fetchMeetings();
+    } else {
+      throw Exception('Failed to accept meeting');
     }
   }
 
@@ -203,6 +260,8 @@ class _MeetingsPageState extends State<MeetingsPage> {
             if (meetings[index].status == MeetingStatus.needsAcceptance) {
               return NewMeetingTile(
                 meeting: meetings[index],
+                onAccepted: () => _acceptMeeting(meetings[index].id),
+                onDeclined: () => _declineMeeting(meetings[index].id),
               );
             } else if (meetings[index].status == MeetingStatus.declined) {
               return ArchivedMeetingTile(
