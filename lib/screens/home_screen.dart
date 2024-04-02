@@ -32,18 +32,31 @@ class HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
         body: _screens[_selectedScreen],
-        bottomNavigationBar: BottomNavigationBar(
-            items: const <BottomNavigationBarItem>[
-              BottomNavigationBarItem(
-                  icon: Icon(Icons.perm_contact_cal_outlined),
-                  label: 'Schedule'),
-              BottomNavigationBarItem(
-                  icon: Icon(Icons.home_outlined), label: 'Meetings'),
-              BottomNavigationBarItem(
-                  icon: Icon(Icons.people_outline), label: 'Groups')
+        bottomNavigationBar: DecoratedBox(
+          decoration: BoxDecoration(
+            boxShadow: [
+              BoxShadow(
+                color: alphaDarkBlue,
+                spreadRadius: 1,
+                blurRadius: 7,
+                offset: const Offset(0, 1),
+              ),
             ],
-            currentIndex: _selectedScreen,
-            selectedItemColor: darkBlue,
-            onTap: _onButtonPressed));
+          ),
+          child: BottomNavigationBar(
+              backgroundColor: Colors.white,
+              items: const <BottomNavigationBarItem>[
+                BottomNavigationBarItem(
+                    icon: Icon(Icons.perm_contact_cal_outlined),
+                    label: 'Schedule'),
+                BottomNavigationBarItem(
+                    icon: Icon(Icons.home_outlined), label: 'Meetings'),
+                BottomNavigationBarItem(
+                    icon: Icon(Icons.people_outline), label: 'Groups')
+              ],
+              currentIndex: _selectedScreen,
+              selectedItemColor: darkBlue,
+              onTap: _onButtonPressed),
+        ));
   }
 }
