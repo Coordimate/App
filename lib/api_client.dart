@@ -16,7 +16,9 @@ class AuthInterceptor implements InterceptorContract {
   Future<BaseRequest> interceptRequest({required BaseRequest request}) async {
     final String? accessToken = await storage.read(key: 'access_token');
     if (accessToken != null) {
-      request.headers.addAll({'Authorization': 'Bearer $accessToken'});
+      request.headers.addAll({
+        'Authorization': 'Bearer $accessToken',
+      });
     }
     return request;
   }
@@ -40,9 +42,21 @@ class ExpiredTokenRetryPolicy extends RetryPolicy {
       if (refreshToken == null) {
         return false;
       }
-      http.post(Uri.parse("$apiUrl/refresh"),
+      final response = await http.post(Uri.parse("$apiUrl/refresh"),
+          headers: {'Content-Type': 'application/json'},
           body: json.encode(<String, dynamic>{'refresh_token': refreshToken}));
-      return true;
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        final String accessToken = data['access_token'];
+        final String refreshToken = data['refresh_token'];
+        await storage.write(key: 'access_token', value: accessToken);
+        await storage.write(key: 'refresh_token', value: refreshToken);
+        return true;
+      } else {
+        print("Failed to refresh token response code ${response.statusCode}");
+        return false;
+      }
     }
     return false;
   }
