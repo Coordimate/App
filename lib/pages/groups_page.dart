@@ -1,23 +1,7 @@
 import 'package:flutter/material.dart';
 
-// class GroupsPage extends StatelessWidget {
-//   const GroupsPage({Key? key}) : super(key: key);
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return MaterialApp(
-//       title: 'Groups Page',
-//       theme: ThemeData(
-//         primarySwatch: Colors.blue,
-//       ),
-//       home: const GroupsPage(title: 'Groups'),
-//     );
-//   }
-// }
-
 class GroupsPage extends StatefulWidget {
   const GroupsPage({Key? key}) : super(key: key);
-  // final String title;
 
   @override
   State<GroupsPage> createState() => _GroupsPageState();
@@ -192,7 +176,7 @@ class _GroupsPageState extends State<GroupsPage> {
                             0xFF293241), // Set background color to hex value 3D5A80
                         elevation: 0, // Remove shadow
                         child: Image.asset(
-                          'lib/icon-images/create.png', // Path to custom icon
+                          'lib/images/create.png', // Path to custom icon
                           // Color of the icon
                         ),
                       ),
