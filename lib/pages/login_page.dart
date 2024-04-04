@@ -1,3 +1,4 @@
+import 'package:coordimate/components/divider.dart';
 import 'package:coordimate/components/login_button.dart';
 import 'package:coordimate/components/login_text_field.dart';
 import 'package:coordimate/screens/home_screen.dart';
@@ -162,32 +163,7 @@ class _LoginPageState extends State<LoginPage> {
 
             const SizedBox(height: 20),
 
-            const Row(
-              children: [
-                Expanded(
-                  child: Divider(
-                    thickness: 1,
-                    color: darkBlue,
-                  ),
-                ),
-                Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 15.0),
-                  child: Text(
-                    "Do not have an account?",
-                    style: TextStyle(
-                      color: darkBlue,
-                      fontSize: 24,
-                    ),
-                  ),
-                ),
-                Expanded(
-                  child: Divider(
-                    thickness: 1,
-                    color: darkBlue,
-                  ),
-                ),
-              ],
-            ),
+            const CustomDivider(text: "Do not have an account?"),
 
             const SizedBox(height: 20),
 
