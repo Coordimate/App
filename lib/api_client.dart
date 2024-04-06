@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 import 'package:http_interceptor/http_interceptor.dart';
 
@@ -14,7 +15,11 @@ class AuthInterceptor implements InterceptorContract {
 
   @override
   Future<BaseRequest> interceptRequest({required BaseRequest request}) async {
-    final String? accessToken = await storage.read(key: 'access_token');
+    String? accessToken = await storage.read(key: 'access_token');
+    if (accessToken == null) {
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      accessToken = prefs.getString('access_token');
+    }
     if (accessToken != null) {
       request.headers.addAll({
         'Authorization': 'Bearer $accessToken',
