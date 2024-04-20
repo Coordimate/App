@@ -1,5 +1,6 @@
 import 'package:coordimate/keys.dart';
 import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
 import 'package:coordimate/models/user.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
@@ -9,6 +10,9 @@ const storage = FlutterSecureStorage();
 void logUserOutStorage() async {
   storage.delete(key: 'refresh_token');
   storage.delete(key: 'access_token');
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+  prefs.remove('access_token');
+  prefs.remove('refresh_token');
 }
 
 Future<bool> signUserInStorage(pswd, email) async {
@@ -36,6 +40,9 @@ Future<bool> signUserInStorage(pswd, email) async {
     final String refreshToken = data['refresh_token'];
     await storage.write(key: 'access_token', value: accessToken);
     await storage.write(key: 'refresh_token', value: refreshToken);
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    prefs.setString('access_token', accessToken);
+    prefs.setString('refresh_token', refreshToken);
 
     return true;
   } else {
