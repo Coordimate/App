@@ -221,11 +221,14 @@ class _MeetingsPageState extends State<MeetingsPage> {
     }
   }
 
+  DateTime selectedDate = DateTime.now();
+
   @override
   Widget build(BuildContext context) {
     List<Meeting> declinedMeetings = meetings.where((meeting) => meeting.status == MeetingStatus.declined).toList();
     List<Meeting> newInvitations = meetings.where((meeting) => meeting.status == MeetingStatus.needsAcceptance).toList();
     List<Meeting> acceptedMeetings = meetings.where((meeting) => meeting.status == MeetingStatus.accepted).toList();
+
 
     double screenHeight = MediaQuery.of(context).size.height;
     double screenWidth = MediaQuery.of(context).size.width;
@@ -258,38 +261,59 @@ class _MeetingsPageState extends State<MeetingsPage> {
               children: [
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    CalendarDayBox(date: DateTime.now(), isSelected: false),
-                    CalendarDayBox(date: DateTime.now().add(const Duration(days: 1)), isSelected: false),
-                    CalendarDayBox(date: DateTime.now().add(const Duration(days: 2)), isSelected: true),
-                    CalendarDayBox(date: DateTime.now().add(const Duration(days: 3)), isSelected: true),
-                    CalendarDayBox(date: DateTime.now().add(const Duration(days: 4)), isSelected: false),
-                  ],
+                  children: List<DateTime>.generate(5, (i) => DateTime.now().add(Duration(days: i))).map(
+                        (date) => CalendarDayBox(
+                      date: date,
+                      isSelected: selectedDate.day == date.day, // Pass isSelected based on selectedDate
+                      onSelected: (selectedDate) {
+                        setState(() {
+                          this.selectedDate = selectedDate; // Update the selected date
+                        });
+                      },
+                    ),
+                  ).toList(),
                 ),
                 const SizedBox(height: 16),
-                AcceptedMeetingTile(meeting: Meeting(
-                  title: "BUBABOBA",
-                  dateTime: DateTime.now(),
-                  description: "BUBABOBA",
-                  status: MeetingStatus.accepted,
-                ),),
-                AcceptedMeetingTile(meeting: Meeting(
-                  title: "BUBABOBA2",
-                  dateTime: DateTime.now(),
-                  description: "BUBABOBA2",
-                  status: MeetingStatus.accepted,
-                ),),
-                AcceptedMeetingTile(meeting: Meeting(
-                  title: "BUBABOBA3",
-                  dateTime: DateTime.now(),
-                  description: "BUBABOBA3",
-                  status: MeetingStatus.accepted,
-                ),),
+                if (newInvitations.isNotEmpty) ...[
+                  _buildDailyMeetingList(newInvitations, selectedDate),
+                ],
+                if (acceptedMeetings.isNotEmpty) ...[
+                  _buildDailyMeetingList(acceptedMeetings, selectedDate),
+                ],
               ],
             ),
           ),
         ],
       ),
+    );
+  }
+
+  Widget _buildDailyMeetingList(List<Meeting> meetings, DateTime selectedDate) {
+    return ListView.builder(
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      itemCount: meetings.length,
+      itemBuilder: (context, index) {
+        // Build meeting tile based on meeting status
+        print("list size " + meetings.length.toString());
+        print("index " + index.toString());
+        print("selected date " + selectedDate.day.toString());
+        print("date " + meetings[index].dateTime.day.toString());
+        if (meetings[index].dateTime.day == selectedDate.day && meetings[index].status == MeetingStatus.needsAcceptance) {
+          return NewMeetingTile(
+            meeting: meetings[index],
+            onAccepted: () => _acceptMeeting(meetings[index].id),
+            onDeclined: () => _declineMeeting(meetings[index].id),
+          );
+        } else if (meetings[index].dateTime.day == selectedDate.day) {
+          return AcceptedMeetingTile(
+            meeting: meetings[index],
+          );
+        } else {
+          return Container();
+        }
+      },
     );
   }
 
@@ -420,31 +444,27 @@ class _DraggableBottomSheetState extends State<DraggableBottomSheet> {
 
   SliverToBoxAdapter topButtonIndicator() {
     return SliverToBoxAdapter(
-      child: Container(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Container(
-              child: Center(
-                child: Wrap(
-                  children: [
-                    Container(
-                      width: 100,
-                      margin: const EdgeInsets.symmetric(vertical: 10),
-                      height: 5,
-                      decoration: BoxDecoration(
-                        color: darkBlue,
-                        shape: BoxShape.rectangle,
-                        borderRadius: BorderRadius.circular(5),
-                      ),
-                    ),
-                  ],
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Center(
+            child: Wrap(
+              children: [
+                Container(
+                  width: 100,
+                  margin: const EdgeInsets.symmetric(vertical: 10),
+                  height: 5,
+                  decoration: BoxDecoration(
+                    color: darkBlue,
+                    shape: BoxShape.rectangle,
+                    borderRadius: BorderRadius.circular(5),
+                  ),
                 ),
-              ),
+              ],
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }

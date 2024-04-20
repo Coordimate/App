@@ -1,4 +1,3 @@
-import 'package:coordimate/components/appbar.dart';
 import 'package:coordimate/components/login_button.dart';
 import 'package:coordimate/components/login_text_field.dart';
 import 'package:coordimate/screens/home_screen.dart';
