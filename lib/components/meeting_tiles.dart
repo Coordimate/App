@@ -2,6 +2,7 @@ import 'package:coordimate/components/meeting_action_button.dart';
 import 'package:coordimate/models/meeting.dart';
 import 'package:flutter/material.dart';
 import 'package:coordimate/components/colors.dart';
+import 'package:coordimate/components/agenda.dart';
 
 class MeetingTile extends StatelessWidget {
   final bool isArchived;
@@ -29,6 +30,11 @@ class MeetingTile extends StatelessWidget {
         title: Row(
           children: [
             Expanded(
+                child: GestureDetector(
+              onTap: () {
+                Navigator.of(context).push(MaterialPageRoute(
+                    builder: (context) => MeetingAgenda(key: UniqueKey())));
+              },
               child: Text(
                 meeting.title,
                 style: const TextStyle(
@@ -38,7 +44,7 @@ class MeetingTile extends StatelessWidget {
                 ),
                 overflow: TextOverflow.ellipsis,
               ),
-            ),
+            )),
           ],
         ),
         subtitle: Column(
@@ -57,10 +63,7 @@ class MeetingTile extends StatelessWidget {
                 const SizedBox(width: 8),
                 Text(
                   meeting.group,
-                  style: const TextStyle(
-                      fontSize: 20,
-                      color: Colors.white70
-                  ),
+                  style: const TextStyle(fontSize: 20, color: Colors.white70),
                 ),
               ],
             ),
@@ -75,15 +78,14 @@ class MeetingTile extends StatelessWidget {
 }
 
 class NewMeetingTile extends MeetingTile {
-
   const NewMeetingTile({
     super.key,
     required super.meeting,
     required super.onAccepted,
     required super.onDeclined,
   }) : super(
-    isArchived: false,
-  );
+          isArchived: false,
+        );
 
   @override
   Widget build(BuildContext context) {
@@ -96,43 +98,41 @@ class NewMeetingTile extends MeetingTile {
       child: Row(
         children: [
           Expanded(
-              child: ListTile(
-                title: Text(
-                  meeting.title,
-                  style: const TextStyle(
-                    fontSize: 22,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
+            child: ListTile(
+              title: Text(
+                meeting.title,
+                style: const TextStyle(
+                  fontSize: 22,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
+                ),
+                overflow: TextOverflow.ellipsis,
+              ),
+              subtitle: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    meeting.getFormattedDate(),
+                    style: const TextStyle(
+                      fontSize: 20,
+                      color: Colors.white,
+                    ),
                   ),
-                  overflow: TextOverflow.ellipsis,
-                ),
-                subtitle: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      meeting.getFormattedDate(),
-                      style: const TextStyle(
-                        fontSize: 20,
-                        color: Colors.white,
+                  Row(
+                    children: [
+                      const Icon(Icons.calendar_today, color: Colors.white70),
+                      const SizedBox(width: 8),
+                      Text(
+                        meeting.group,
+                        style: const TextStyle(
+                            fontSize: 20, color: Colors.white70),
                       ),
-                    ),
-                    Row(
-                      children: [
-                        const Icon(Icons.calendar_today, color: Colors.white70),
-                        const SizedBox(width: 8),
-                        Text(
-                          meeting.group,
-                          style: const TextStyle(
-                              fontSize: 20,
-                              color: Colors.white70
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
+                    ],
+                  ),
+                ],
               ),
             ),
+          ),
           Padding(
             padding: const EdgeInsets.fromLTRB(0, 10, 10, 10),
             child: Column(
@@ -141,14 +141,12 @@ class NewMeetingTile extends MeetingTile {
                 ActionButton(
                     onPressed: onAccepted,
                     color: lightBlue,
-                    iconPath: 'lib/images/tick.png'
-                ),
+                    iconPath: 'lib/images/tick.png'),
                 const SizedBox(height: 10),
                 ActionButton(
                     onPressed: onDeclined,
                     color: orange,
-                    iconPath: 'lib/images/cross.png'
-                ),
+                    iconPath: 'lib/images/cross.png'),
               ],
             ),
           ),
@@ -159,25 +157,22 @@ class NewMeetingTile extends MeetingTile {
 }
 
 class AcceptedMeetingTile extends MeetingTile {
-  const AcceptedMeetingTile({
-    super.key,
-    required super.meeting
-  }) : super(
-    isArchived: false, // Set isArchived to false
-    onAccepted: defaultOnPressed, // Set onAccepted to an empty function
-    onDeclined: defaultOnPressed, // Set onDeclined to an empty function
-  );
+  const AcceptedMeetingTile({super.key, required super.meeting})
+      : super(
+          isArchived: false, // Set isArchived to false
+          onAccepted: defaultOnPressed, // Set onAccepted to an empty function
+          onDeclined: defaultOnPressed, // Set onDeclined to an empty function
+        );
   static void defaultOnPressed() {}
 }
 
 class ArchivedMeetingTile extends MeetingTile {
-  const ArchivedMeetingTile({
-    super.key,
-    required super.meeting
-  }) : super(
-    isArchived: true, // Set isArchived to true
-    onAccepted: defaultOnPressed, // Set onAccepted to an empty function
-    onDeclined: defaultOnPressed, // Set onDeclined to an empty function
-  );
+  const ArchivedMeetingTile({super.key, required super.meeting})
+      : super(
+          isArchived: true, // Set isArchived to true
+          onAccepted: defaultOnPressed, // Set onAccepted to an empty function
+          onDeclined: defaultOnPressed, // Set onDeclined to an empty function
+        );
   static void defaultOnPressed() {}
 }
+
