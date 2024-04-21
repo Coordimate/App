@@ -190,15 +190,15 @@ class MeetingAgendaState extends State<MeetingAgenda> {
               }
               while (i < agenda.length && agenda[i].level > level) {
                 item = agenda.removeAt(i);
-                if (newIndex + j >= agenda.length) {
+                if (newIndex + j > agenda.length) {
                   agenda.add(item);
                 } else {
                   agenda.insert(newIndex + j, item);
                 }
                 if (oldIndex > newIndex) {
                   i += 1;
+                  j += 1;
                 }
-                j += 1;
               }
             });
           },
