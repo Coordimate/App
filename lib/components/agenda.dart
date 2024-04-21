@@ -131,11 +131,11 @@ class MeetingAgendaState extends State<MeetingAgenda> {
         level: 0,
         text:
             'hello, this is a really long agenda point that would never fit on the screen'),
-    AgendaPoint(level: 0, text: 'hello'),
-    AgendaPoint(level: 1, text: 'hello'),
-    AgendaPoint(level: 1, text: 'hello'),
-    AgendaPoint(level: 2, text: 'hello'),
-    AgendaPoint(level: 0, text: 'hello'),
+    AgendaPoint(level: 0, text: 'hello 1'),
+    AgendaPoint(level: 1, text: 'hello 2'),
+    AgendaPoint(level: 1, text: 'hello 3'),
+    AgendaPoint(level: 2, text: 'hello 4'),
+    AgendaPoint(level: 0, text: 'hello 5'),
   ];
 
   void indentPoint(int index, int indentDirection) {
@@ -177,8 +177,29 @@ class MeetingAgendaState extends State<MeetingAgenda> {
               if (oldIndex < newIndex) {
                 newIndex -= 1;
               }
-              final AgendaPoint item = agenda.removeAt(oldIndex);
+              AgendaPoint item = agenda.removeAt(oldIndex);
               agenda.insert(newIndex, item);
+
+              // Move the children along
+              int level = agenda[newIndex].level;
+              int i = oldIndex + 1;
+              int j = 1;
+              if (oldIndex < newIndex) {
+                i -= 1;
+                j -= 1;
+              }
+              while (i < agenda.length && agenda[i].level > level) {
+                item = agenda.removeAt(i);
+                if (newIndex + j >= agenda.length) {
+                  agenda.add(item);
+                } else {
+                  agenda.insert(newIndex + j, item);
+                }
+                if (oldIndex > newIndex) {
+                  i += 1;
+                }
+                j += 1;
+              }
             });
           },
         ));
