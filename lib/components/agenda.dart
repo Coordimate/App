@@ -11,7 +11,10 @@ class AgendaPoint {
 
 class _AgendaPointWidget extends StatefulWidget {
   const _AgendaPointWidget(
-      {required this.index, required this.agendaPoint, required this.indent});
+      {required super.key,
+      required this.index,
+      required this.agendaPoint,
+      required this.indent});
 
   final fontSize = 20.0;
   final int index;
@@ -27,6 +30,13 @@ class _AgendaPointWidgetState extends State<_AgendaPointWidget> {
   Color bgColor = Colors.white;
   bool takingInput = false;
   final textController = TextEditingController();
+
+  void storeEdit(event) {
+    setState(() {
+      widget.agendaPoint.text = textController.text;
+      takingInput = !takingInput;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -56,9 +66,7 @@ class _AgendaPointWidgetState extends State<_AgendaPointWidget> {
           });
         },
         onPanDown: (details) {
-          setState(() {
-            bgColor = lightBlue;
-          });
+          // TODO:: add a shaking animation to affected points
         },
         child: Container(
             decoration: BoxDecoration(
@@ -78,14 +86,15 @@ class _AgendaPointWidgetState extends State<_AgendaPointWidget> {
                 if (takingInput) {
                   textController.text = widget.agendaPoint.text;
                   return TextField(
+                    autofocus: true,
                     controller: textController,
-                    onTapOutside: (event) {
+                    onTapOutside: storeEdit,
+                    onChanged: (event) {
                       setState(() {
                         widget.agendaPoint.text = textController.text;
-                        takingInput = !takingInput;
                       });
                     },
-                    maxLines: 3,
+                    maxLines: null,
                     style: TextStyle(
                       fontSize: widget.fontSize,
                       color: darkBlue,
@@ -154,12 +163,24 @@ class MeetingAgendaState extends State<MeetingAgenda> {
     return Scaffold(
         backgroundColor: Colors.white,
         appBar: const CustomAppBar(title: 'Agenda', needButton: false),
-        body: SingleChildScrollView(
-            child:
-                Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          for (var i = 0; i < agenda.length; i++)
-            _AgendaPointWidget(
-                index: i, agendaPoint: agenda[i], indent: indentWithChildren),
-        ])));
+        body: ReorderableListView(
+          children: [
+            for (int index = 0; index < agenda.length; index += 1)
+              _AgendaPointWidget(
+                  key: UniqueKey(),
+                  index: index,
+                  agendaPoint: agenda[index],
+                  indent: indentWithChildren),
+          ],
+          onReorder: (int oldIndex, int newIndex) {
+            setState(() {
+              if (oldIndex < newIndex) {
+                newIndex -= 1;
+              }
+              final AgendaPoint item = agenda.removeAt(oldIndex);
+              agenda.insert(newIndex, item);
+            });
+          },
+        ));
   }
 }
