@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
 import 'package:coordimate/components/colors.dart';
+import 'package:coordimate/components/appbar.dart';
 import 'package:coordimate/models/time_slot.dart';
 import 'package:coordimate/data/storage.dart';
 import 'package:coordimate/keys.dart';
@@ -521,23 +522,13 @@ class PersonalSchedulePage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
         backgroundColor: Colors.white,
-        appBar: AppBar(
-          backgroundColor: mediumBlue,
-          title: const Text(
-            'Personal Schedule',
-            style: TextStyle(color: white, fontWeight: FontWeight.bold),
-          ),
-          centerTitle: true,
-          actions: [
-            IconButton(
-              icon: const Icon(Icons.settings_outlined),
-              color: Colors.white,
-              onPressed: () {
-                logOut(context);
-              },
-            ),
-          ],
-        ),
+        appBar: CustomAppBar(
+            title: 'Schedule',
+            needButton: true,
+            onPressed: () {
+              logOut(context);
+            },
+            buttonIcon: Icons.settings_outlined),
         body: const ScheduleGrid());
   }
 }
