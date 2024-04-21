@@ -1,13 +1,13 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
 
 import 'package:coordimate/components/colors.dart';
 import 'package:coordimate/components/appbar.dart';
 import 'package:coordimate/models/time_slot.dart';
 import 'package:coordimate/data/storage.dart';
 import 'package:coordimate/keys.dart';
+import 'package:coordimate/api_client.dart';
 
 const gridBorderWidth = 1.0;
 const gridBorderColor = gridGrey;
@@ -44,13 +44,13 @@ class _ScheduleGridState extends State<ScheduleGrid> {
   Future<List<TimeSlot>> getTimeSlots() async {
     var url = Uri.parse("$apiUrl/time_slots/");
     final response =
-        await http.get(url, headers: {"Content-Type": "application/json"});
+        await client.get(url, headers: {"Content-Type": "application/json"});
     final List body = json.decode(response.body)['time_slots'];
     return body.map((e) => TimeSlot.fromJson(e)).toList();
   }
 
   Future<void> createTimeSlot(int day, double start, double length) async {
-    await http.post(Uri.parse("$apiUrl/time_slots/"),
+    await client.post(Uri.parse("$apiUrl/time_slots/"),
         headers: {"Content-Type": "application/json"},
         body: json.encode(<String, dynamic>{
           'is_meeting': false,
@@ -63,16 +63,16 @@ class _ScheduleGridState extends State<ScheduleGrid> {
     });
   }
 
-  Future<void> deleteTimeSlot(String id) async {
-    await http.delete(Uri.parse("$apiUrl/time_slots/$id"),
+  Future<void> deleteTimeSlot(int id) async {
+    await client.delete(Uri.parse("$apiUrl/time_slots/$id"),
         headers: {"Content-Type": "application/json"});
     setState(() {
       _timeSlots = getTimeSlots();
     });
   }
 
-  Future<void> updateTimeSlot(String id, double start, double length) async {
-    await http.patch(Uri.parse("$apiUrl/time_slots/$id"),
+  Future<void> updateTimeSlot(int id, double start, double length) async {
+    await client.patch(Uri.parse("$apiUrl/time_slots/$id"),
         headers: {"Content-Type": "application/json"},
         body: json.encode(<String, dynamic>{
           'id': id,
@@ -186,8 +186,8 @@ class _TimeColumn extends StatelessWidget {
 
 class _DayColumn extends StatelessWidget {
   final void Function(int day, double start, double length) createTimeSlot;
-  final void Function(String id, double start, double length) updateTimeSlot;
-  final void Function(String id) deleteTimeSlot;
+  final void Function(int id, double start, double length) updateTimeSlot;
+  final void Function(int id) deleteTimeSlot;
 
   final List<TimeSlot> timeSlots;
   final int day;
@@ -290,13 +290,13 @@ class TimeSlotWidget extends StatelessWidget {
     required this.updateTimeSlot,
   });
 
-  final String id;
+  final int id;
   final int day;
   final double start;
   final double length;
   final double hourHeight;
-  final void Function(String id) deleteTimeSlot;
-  final void Function(String id, double start, double length) updateTimeSlot;
+  final void Function(int id) deleteTimeSlot;
+  final void Function(int id, double start, double length) updateTimeSlot;
 
   Widget _buildTimePickerPopup(BuildContext context, int day) {
     return _TimePicker(
@@ -336,12 +336,12 @@ class _TimePicker extends StatefulWidget {
     required this.updateTimeSlot,
   });
 
-  final String id;
+  final int id;
   final int day;
   final double start;
   final double length;
-  final void Function(String id) deleteTimeSlot;
-  final void Function(String id, double start, double length) updateTimeSlot;
+  final void Function(int id) deleteTimeSlot;
+  final void Function(int id, double start, double length) updateTimeSlot;
 
   @override
   State<_TimePicker> createState() => _TimePickerState();
