@@ -30,7 +30,7 @@ class _AgendaPointWidget extends StatefulWidget {
 class _AgendaPointWidgetState extends State<_AgendaPointWidget> {
   int swipeDirection = 0;
   Color bgColor = Colors.white;
-  bool takingInput = false;
+  late bool takingInput = widget.agendaPoint.text == '';
   late int prevIndentLevel = widget.agendaPoint.level;
 
   final textController = TextEditingController();
@@ -172,11 +172,18 @@ class MeetingAgendaState extends State<MeetingAgenda> {
     indentPoint(index, indentDirection);
   }
 
+  void _addAgendaPoint() {
+    setState(() {
+      agenda.add(AgendaPoint(text: '', level: 0));
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
         backgroundColor: Colors.white,
-        appBar: const CustomAppBar(title: 'Agenda', needButton: false),
+        appBar: CustomAppBar(
+            title: 'Agenda', needButton: true, onPressed: _addAgendaPoint),
         body: ReorderableListView(
           children: [
             for (int index = 0; index < agenda.length; index += 1)
