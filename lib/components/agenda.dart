@@ -6,6 +6,8 @@ class AgendaPoint {
   AgendaPoint({required this.level, required this.text});
 
   int level = 0;
+  // Internal! Used to animate indentation
+  late int prevLevel = level;
   String text = "";
 }
 
@@ -29,6 +31,8 @@ class _AgendaPointWidgetState extends State<_AgendaPointWidget> {
   int swipeDirection = 0;
   Color bgColor = Colors.white;
   bool takingInput = false;
+  late int prevIndentLevel = widget.agendaPoint.level;
+
   final textController = TextEditingController();
 
   void storeEdit(event) {
@@ -60,58 +64,66 @@ class _AgendaPointWidgetState extends State<_AgendaPointWidget> {
         },
         onPanEnd: (details) {
           setState(() {
+            prevIndentLevel = widget.agendaPoint.level;
             widget.indent(widget.index, swipeDirection);
             swipeDirection = 0;
             bgColor = Colors.white;
           });
         },
-        onPanDown: (details) {
-          // TODO:: add a shaking animation to affected points
-        },
-        child: Container(
-            decoration: BoxDecoration(
-                color: bgColor,
-                borderRadius: const BorderRadius.all(Radius.circular(20))),
-            margin: EdgeInsets.only(
-                left: widget.fontSize +
-                    (1.5 * widget.fontSize * widget.agendaPoint.level)
-                        .toDouble(),
-                right: widget.fontSize,
-                top: widget.fontSize / 4,
-                bottom: widget.fontSize / 4),
-            child: Row(children: [
-              Icon(Icons.circle, size: widget.fontSize / 2),
-              SizedBox(width: widget.fontSize / 2),
-              Expanded(child: Builder(builder: (context) {
-                if (takingInput) {
-                  textController.text = widget.agendaPoint.text;
-                  return TextField(
-                    autofocus: true,
-                    controller: textController,
-                    onTapOutside: storeEdit,
-                    onChanged: (event) {
-                      setState(() {
-                        widget.agendaPoint.text = textController.text;
-                      });
-                    },
-                    maxLines: null,
-                    style: TextStyle(
-                      fontSize: widget.fontSize,
-                      color: darkBlue,
-                    ),
-                  );
-                } else {
-                  return Text(
-                    widget.agendaPoint.text,
-                    softWrap: true,
-                    style: TextStyle(
-                      fontSize: widget.fontSize,
-                      color: darkBlue,
-                    ),
-                  );
-                }
-              }))
-            ])));
+        child: TweenAnimationBuilder(
+          tween: Tween<double>(
+              begin: widget.agendaPoint.prevLevel.toDouble(),
+              end: widget.agendaPoint.level.toDouble()),
+          duration: const Duration(milliseconds: 200),
+          builder: (context, double indentLevel, child) {
+            // Update prevLevel once the Animation has played out
+            widget.agendaPoint.prevLevel = widget.agendaPoint.level;
+
+            return Container(
+                decoration: BoxDecoration(
+                    color: bgColor,
+                    borderRadius: const BorderRadius.all(Radius.circular(20))),
+                margin: EdgeInsets.only(
+                    left:
+                        widget.fontSize + (1.5 * widget.fontSize * indentLevel),
+                    right: widget.fontSize,
+                    top: widget.fontSize / 4,
+                    bottom: widget.fontSize / 4),
+                child: Row(children: [
+                  Icon(Icons.circle, size: widget.fontSize / 2),
+                  SizedBox(width: widget.fontSize / 2),
+                  Expanded(child: Builder(builder: (context) {
+                    if (takingInput) {
+                      textController.text = widget.agendaPoint.text;
+                      return TextField(
+                        autofocus: true,
+                        controller: textController,
+                        onTapOutside: storeEdit,
+                        onChanged: (event) {
+                          setState(() {
+                            widget.agendaPoint.text = textController.text;
+                          });
+                        },
+                        maxLines: null,
+                        style: TextStyle(
+                          fontSize: widget.fontSize,
+                          color: darkBlue,
+                        ),
+                      );
+                    } else {
+                      return Text(
+                        widget.agendaPoint.text,
+                        softWrap: true,
+                        style: TextStyle(
+                          fontSize: widget.fontSize,
+                          color: darkBlue,
+                        ),
+                      );
+                    }
+                  }))
+                ]));
+          },
+        ));
   }
 }
 
@@ -140,6 +152,7 @@ class MeetingAgendaState extends State<MeetingAgenda> {
 
   void indentPoint(int index, int indentDirection) {
     setState(() {
+      agenda[index].prevLevel = agenda[index].level;
       agenda[index].level += indentDirection;
       if (agenda[index].level < 0) {
         agenda[index].level = 0;
@@ -149,6 +162,7 @@ class MeetingAgendaState extends State<MeetingAgenda> {
     });
   }
 
+  // TODO: move the children along when indenting
   void indentWithChildren(int index, int indentDirection) {
     int i = index + 1;
     while (i < agenda.length && agenda[i].level > agenda[index].level) {
@@ -170,7 +184,7 @@ class MeetingAgendaState extends State<MeetingAgenda> {
                   key: UniqueKey(),
                   index: index,
                   agendaPoint: agenda[index],
-                  indent: indentWithChildren),
+                  indent: indentPoint),
           ],
           onReorder: (int oldIndex, int newIndex) {
             setState(() {
@@ -180,26 +194,30 @@ class MeetingAgendaState extends State<MeetingAgenda> {
               AgendaPoint item = agenda.removeAt(oldIndex);
               agenda.insert(newIndex, item);
 
-              // Move the children along
-              int level = agenda[newIndex].level;
-              int i = oldIndex + 1;
-              int j = 1;
-              if (oldIndex < newIndex) {
-                i -= 1;
-                j -= 1;
+              // Avoid indent animation when reordering list items
+              for (final ap in agenda) {
+                ap.prevLevel = ap.level;
               }
-              while (i < agenda.length && agenda[i].level > level) {
-                item = agenda.removeAt(i);
-                if (newIndex + j > agenda.length) {
-                  agenda.add(item);
-                } else {
-                  agenda.insert(newIndex + j, item);
-                }
-                if (oldIndex > newIndex) {
-                  i += 1;
-                  j += 1;
-                }
-              }
+              // TODO: Move the children along on reorder (lacking animation)
+              // int level = agenda[newIndex].level;
+              // int i = oldIndex + 1;
+              // int j = 1;
+              // if (oldIndex < newIndex) {
+              //   i -= 1;
+              //   j -= 1;
+              // }
+              // while (i < agenda.length && agenda[i].level > level) {
+              //   item = agenda.removeAt(i);
+              //   if (newIndex + j > agenda.length) {
+              //     agenda.add(item);
+              //   } else {
+              //     agenda.insert(newIndex + j, item);
+              //   }
+              //   if (oldIndex > newIndex) {
+              //     i += 1;
+              //     j += 1;
+              //   }
+              // }
             });
           },
         ));
