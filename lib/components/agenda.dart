@@ -6,9 +6,9 @@ class AgendaPoint {
   AgendaPoint({required this.level, required this.text});
 
   int level = 0;
+  String text = "";
   // Internal! Used to animate indentation
   late int prevLevel = level;
-  String text = "";
 }
 
 class _AgendaPointWidget extends StatefulWidget {
@@ -16,12 +16,14 @@ class _AgendaPointWidget extends StatefulWidget {
       {required super.key,
       required this.index,
       required this.agendaPoint,
-      required this.indent});
+      required this.indentPoint,
+      required this.deletePoint});
 
   final fontSize = 20.0;
   final int index;
   final AgendaPoint agendaPoint;
-  final void Function(int, int) indent;
+  final void Function(int, int) indentPoint;
+  final void Function(int) deletePoint;
 
   @override
   State<_AgendaPointWidget> createState() => _AgendaPointWidgetState();
@@ -31,6 +33,7 @@ class _AgendaPointWidgetState extends State<_AgendaPointWidget> {
   int swipeDirection = 0;
   Color bgColor = Colors.white;
   late bool takingInput = widget.agendaPoint.text == '';
+  bool showDelete = false;
   late int prevIndentLevel = widget.agendaPoint.level;
 
   final textController = TextEditingController();
@@ -39,6 +42,7 @@ class _AgendaPointWidgetState extends State<_AgendaPointWidget> {
     setState(() {
       widget.agendaPoint.text = textController.text;
       takingInput = !takingInput;
+      showDelete = false;
     });
   }
 
@@ -65,7 +69,8 @@ class _AgendaPointWidgetState extends State<_AgendaPointWidget> {
         onPanEnd: (details) {
           setState(() {
             prevIndentLevel = widget.agendaPoint.level;
-            widget.indent(widget.index, swipeDirection);
+            widget.indentPoint(widget.index, swipeDirection);
+            if (swipeDirection < 0) showDelete = !showDelete;
             swipeDirection = 0;
             bgColor = Colors.white;
           });
@@ -120,7 +125,15 @@ class _AgendaPointWidgetState extends State<_AgendaPointWidget> {
                         ),
                       );
                     }
-                  }))
+                  })),
+                  if (showDelete)
+                    GestureDetector(
+                        onTap: () {
+                          setState(() {
+                            widget.deletePoint(widget.index);
+                          });
+                        },
+                        child: const Icon(Icons.delete, color: orange))
                 ]));
           },
         ));
@@ -172,6 +185,12 @@ class MeetingAgendaState extends State<MeetingAgenda> {
     indentPoint(index, indentDirection);
   }
 
+  void deletePoint(int index) {
+    setState(() {
+      agenda.removeAt(index);
+    });
+  }
+
   void _addAgendaPoint() {
     setState(() {
       agenda.add(AgendaPoint(text: '', level: 0));
@@ -188,10 +207,11 @@ class MeetingAgendaState extends State<MeetingAgenda> {
           children: [
             for (int index = 0; index < agenda.length; index += 1)
               _AgendaPointWidget(
-                  key: UniqueKey(),
+                  key: Key(agenda[index].text),
                   index: index,
                   agendaPoint: agenda[index],
-                  indent: indentPoint),
+                  indentPoint: indentPoint,
+                  deletePoint: deletePoint),
           ],
           onReorder: (int oldIndex, int newIndex) {
             setState(() {
