@@ -1,29 +1,33 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:coordimate/components/appbar.dart';
 import 'package:coordimate/components/colors.dart';
+import 'package:coordimate/models/agenda_point.dart';
+import 'package:coordimate/keys.dart';
+import 'package:coordimate/api_client.dart';
 
-class AgendaPoint {
-  AgendaPoint({required this.level, required this.text});
-
-  int level = 0;
-  String text = "";
-  // Internal! Used to animate indentation
-  late int prevLevel = level;
-}
+const maxIndentLevel = 3;
 
 class _AgendaPointWidget extends StatefulWidget {
   const _AgendaPointWidget(
       {required super.key,
       required this.index,
-      required this.agendaPoint,
+      required this.text,
+      required this.level,
       required this.indentPoint,
+      required this.editPoint,
+      required this.updateAgenda,
       required this.deletePoint});
 
   final fontSize = 20.0;
   final int index;
-  final AgendaPoint agendaPoint;
+  final String text;
+  final int level;
   final void Function(int, int) indentPoint;
   final void Function(int) deletePoint;
+  final void Function(int, String) editPoint;
+  final Future<void> Function() updateAgenda;
 
   @override
   State<_AgendaPointWidget> createState() => _AgendaPointWidgetState();
@@ -32,18 +36,23 @@ class _AgendaPointWidget extends StatefulWidget {
 class _AgendaPointWidgetState extends State<_AgendaPointWidget> {
   int swipeDirection = 0;
   Color bgColor = Colors.white;
-  late bool takingInput = widget.agendaPoint.text == '';
+  late String text = widget.text;
+  late int level = widget.level;
+
   bool showDelete = false;
-  late int prevIndentLevel = widget.agendaPoint.level;
+  late int prevLevel = level;
+  late bool takingInput = text == '';
 
   final textController = TextEditingController();
 
-  void storeEdit(event) {
+  void storeEdit(event) async {
     setState(() {
-      widget.agendaPoint.text = textController.text;
+      text = textController.text;
       takingInput = !takingInput;
       showDelete = false;
     });
+    widget.editPoint(widget.index, text);
+    await widget.updateAgenda();
   }
 
   @override
@@ -66,23 +75,28 @@ class _AgendaPointWidgetState extends State<_AgendaPointWidget> {
             });
           }
         },
-        onPanEnd: (details) {
+        onPanEnd: (details) async {
           setState(() {
-            prevIndentLevel = widget.agendaPoint.level;
             widget.indentPoint(widget.index, swipeDirection);
-            if (swipeDirection < 0) showDelete = !showDelete;
+
+            prevLevel = level;
+            showDelete =
+                (level == 0 && swipeDirection < 0 && showDelete == false);
+            level += swipeDirection;
+            if (level < 0) level = 0;
+            if (level > maxIndentLevel) level = maxIndentLevel;
+
             swipeDirection = 0;
             bgColor = Colors.white;
           });
         },
         child: TweenAnimationBuilder(
-          tween: Tween<double>(
-              begin: widget.agendaPoint.prevLevel.toDouble(),
-              end: widget.agendaPoint.level.toDouble()),
+          tween:
+              Tween<double>(begin: prevLevel.toDouble(), end: level.toDouble()),
           duration: const Duration(milliseconds: 200),
           builder: (context, double indentLevel, child) {
             // Update prevLevel once the Animation has played out
-            widget.agendaPoint.prevLevel = widget.agendaPoint.level;
+            prevLevel = level;
 
             return Container(
                 decoration: BoxDecoration(
@@ -99,17 +113,12 @@ class _AgendaPointWidgetState extends State<_AgendaPointWidget> {
                   SizedBox(width: widget.fontSize / 2),
                   Expanded(child: Builder(builder: (context) {
                     if (takingInput) {
-                      textController.text = widget.agendaPoint.text;
+                      textController.text = text;
                       return TextField(
                         autofocus: true,
                         controller: textController,
                         onTapOutside: storeEdit,
-                        onChanged: (event) {
-                          setState(() {
-                            widget.agendaPoint.text = textController.text;
-                          });
-                        },
-                        maxLines: null,
+                        decoration: null,
                         style: TextStyle(
                           fontSize: widget.fontSize,
                           color: darkBlue,
@@ -117,7 +126,7 @@ class _AgendaPointWidgetState extends State<_AgendaPointWidget> {
                       );
                     } else {
                       return Text(
-                        widget.agendaPoint.text,
+                        text,
                         softWrap: true,
                         style: TextStyle(
                           fontSize: widget.fontSize,
@@ -141,31 +150,69 @@ class _AgendaPointWidgetState extends State<_AgendaPointWidget> {
 }
 
 class MeetingAgenda extends StatefulWidget {
-  const MeetingAgenda({super.key});
+  const MeetingAgenda({super.key, required this.meetingId});
+
+  final String meetingId;
 
   @override
   State<MeetingAgenda> createState() => MeetingAgendaState();
 }
 
 class MeetingAgendaState extends State<MeetingAgenda> {
-  final maxIndentLevel = 3;
+  Future<List<AgendaPoint>>? _agendaPoints;
 
-  // TODO: temporary measure for testing
-  List<AgendaPoint> agenda = [
-    AgendaPoint(
-        level: 0,
-        text:
-            'hello, this is a really long agenda point that would never fit on the screen'),
-    AgendaPoint(level: 0, text: 'hello 1'),
-    AgendaPoint(level: 1, text: 'hello 2'),
-    AgendaPoint(level: 1, text: 'hello 3'),
-    AgendaPoint(level: 2, text: 'hello 4'),
-    AgendaPoint(level: 0, text: 'hello 5'),
-  ];
+  @override
+  void initState() {
+    super.initState();
+    _agendaPoints = getAgendaPoints();
+  }
 
-  void indentPoint(int index, int indentDirection) {
+  List<AgendaPoint> agenda = [];
+
+  Future<List<AgendaPoint>> getAgendaPoints() async {
+    final response = await client.get(
+        Uri.parse("$apiUrl/meetings/${widget.meetingId}/agenda"),
+        headers: {"Content-Type": "application/json"});
+    final List body = json.decode(response.body)["agenda"];
+    agenda = body.map((e) => AgendaPoint.fromJson(e)).toList();
+    return agenda;
+  }
+
+  Future<void> createAgendaPoint(String text, int level) async {
+    await client.post(Uri.parse("$apiUrl/meetings/${widget.meetingId}/agenda"),
+        headers: {"Content-Type": "application/json"},
+        body: json.encode(<String, dynamic>{
+          'text': text,
+          'level': level,
+        }));
     setState(() {
-      agenda[index].prevLevel = agenda[index].level;
+      _agendaPoints = getAgendaPoints();
+    });
+  }
+
+  Future<void> deleteAgendaPoint(int index) async {
+    await client.delete(
+        Uri.parse("$apiUrl/meetings/${widget.meetingId}/agenda/$index"),
+        headers: {"Content-Type": "application/json"});
+    setState(() {
+      _agendaPoints = getAgendaPoints();
+    });
+  }
+
+  Future<void> updateAgenda() async {
+    await client.patch(Uri.parse("$apiUrl/meetings/${widget.meetingId}/agenda"),
+        headers: {"Content-Type": "application/json"},
+        body: json.encode(<String, dynamic>{
+          'agenda':
+              agenda.map((ap) => {'text': ap.text, 'level': ap.level}).toList(),
+        }));
+    setState(() {
+      _agendaPoints = getAgendaPoints();
+    });
+  }
+
+  void indentPoint(int index, int indentDirection) async {
+    setState(() {
       agenda[index].level += indentDirection;
       if (agenda[index].level < 0) {
         agenda[index].level = 0;
@@ -173,27 +220,12 @@ class MeetingAgendaState extends State<MeetingAgenda> {
         agenda[index].level = maxIndentLevel;
       }
     });
+    await updateAgenda();
   }
 
-  // TODO: move the children along when indenting
-  void indentWithChildren(int index, int indentDirection) {
-    int i = index + 1;
-    while (i < agenda.length && agenda[i].level > agenda[index].level) {
-      indentPoint(i, indentDirection);
-      i++;
-    }
-    indentPoint(index, indentDirection);
-  }
-
-  void deletePoint(int index) {
+  void editPoint(int index, String text) {
     setState(() {
-      agenda.removeAt(index);
-    });
-  }
-
-  void _addAgendaPoint() {
-    setState(() {
-      agenda.add(AgendaPoint(text: '', level: 0));
+      agenda[index].text = text;
     });
   }
 
@@ -202,51 +234,46 @@ class MeetingAgendaState extends State<MeetingAgenda> {
     return Scaffold(
         backgroundColor: Colors.white,
         appBar: CustomAppBar(
-            title: 'Agenda', needButton: true, onPressed: _addAgendaPoint),
-        body: ReorderableListView(
-          children: [
-            for (int index = 0; index < agenda.length; index += 1)
-              _AgendaPointWidget(
-                  key: Key(agenda[index].text),
-                  index: index,
-                  agendaPoint: agenda[index],
-                  indentPoint: indentPoint,
-                  deletePoint: deletePoint),
-          ],
-          onReorder: (int oldIndex, int newIndex) {
-            setState(() {
-              if (oldIndex < newIndex) {
-                newIndex -= 1;
+            title: 'Agenda',
+            needButton: true,
+            onPressed: () {
+              createAgendaPoint('', 0);
+            }),
+        body: FutureBuilder(
+            future: _agendaPoints,
+            builder: (context, snapshot) {
+              if (snapshot.hasData) {
+                return ReorderableListView(
+                  children: [
+                    for (int index = 0;
+                        index < snapshot.data!.length;
+                        index += 1)
+                      _AgendaPointWidget(
+                          // key: Key(snapshot.data![index].text),
+                          key: Key(
+                              snapshot.data![index].text + index.toString()),
+                          index: index,
+                          text: snapshot.data![index].text,
+                          level: snapshot.data![index].level,
+                          editPoint: editPoint,
+                          indentPoint: indentPoint,
+                          updateAgenda: updateAgenda,
+                          deletePoint: deleteAgendaPoint),
+                  ],
+                  onReorder: (int oldIndex, int newIndex) async {
+                    setState(() {
+                      if (oldIndex < newIndex) {
+                        newIndex -= 1;
+                      }
+                      AgendaPoint item = agenda.removeAt(oldIndex);
+                      agenda.insert(newIndex, item);
+                    });
+                    await updateAgenda();
+                  },
+                );
+              } else {
+                return const CircularProgressIndicator();
               }
-              AgendaPoint item = agenda.removeAt(oldIndex);
-              agenda.insert(newIndex, item);
-
-              // Avoid indent animation when reordering list items
-              for (final ap in agenda) {
-                ap.prevLevel = ap.level;
-              }
-              // TODO: Move the children along on reorder (lacking animation)
-              // int level = agenda[newIndex].level;
-              // int i = oldIndex + 1;
-              // int j = 1;
-              // if (oldIndex < newIndex) {
-              //   i -= 1;
-              //   j -= 1;
-              // }
-              // while (i < agenda.length && agenda[i].level > level) {
-              //   item = agenda.removeAt(i);
-              //   if (newIndex + j > agenda.length) {
-              //     agenda.add(item);
-              //   } else {
-              //     agenda.insert(newIndex + j, item);
-              //   }
-              //   if (oldIndex > newIndex) {
-              //     i += 1;
-              //     j += 1;
-              //   }
-              // }
-            });
-          },
-        ));
+            }));
   }
 }
