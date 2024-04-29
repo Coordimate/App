@@ -30,11 +30,6 @@ class MeetingTile extends StatelessWidget {
         title: Row(
           children: [
             Expanded(
-                child: GestureDetector(
-              onTap: () {
-                Navigator.of(context).push(MaterialPageRoute(
-                    builder: (context) => MeetingAgenda(key: UniqueKey())));
-              },
               child: Text(
                 meeting.title,
                 style: const TextStyle(
@@ -44,7 +39,7 @@ class MeetingTile extends StatelessWidget {
                 ),
                 overflow: TextOverflow.ellipsis,
               ),
-            )),
+            ),
           ],
         ),
         subtitle: Column(
@@ -175,4 +170,3 @@ class ArchivedMeetingTile extends MeetingTile {
         );
   static void defaultOnPressed() {}
 }
-
