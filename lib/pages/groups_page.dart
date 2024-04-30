@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 
+import 'package:coordimate/components/colors.dart';
+
 class GroupsPage extends StatefulWidget {
-  const GroupsPage({Key? key}) : super(key: key);
+  const GroupsPage({super.key});
 
   @override
   State<GroupsPage> createState() => _GroupsPageState();
@@ -19,7 +21,7 @@ class _GroupsPageState extends State<GroupsPage> {
             ''; // Variable to store the entered description
 
         return AlertDialog(
-          title: Text(
+          title: const Text(
             'Create Group',
             style:
                 TextStyle(color: Colors.white), // Change title color to white
@@ -36,26 +38,26 @@ class _GroupsPageState extends State<GroupsPage> {
                   decoration: InputDecoration(
                     contentPadding: const EdgeInsets.all(10),
                     labelText: 'Title', // Label text for the title field
-                    border: OutlineInputBorder(
+                    border: const OutlineInputBorder(
                         borderSide: BorderSide(
                             color: Colors.white)), // Use white outline
-                    enabledBorder: OutlineInputBorder(
+                    enabledBorder: const OutlineInputBorder(
                         borderSide: BorderSide(
                             color: Colors.white)), // Use white outline
-                    focusedBorder: OutlineInputBorder(
+                    focusedBorder: const OutlineInputBorder(
                         borderSide: BorderSide(
-                            color: Color(
-                                0xFF293241))), // Change focused border color to hex value 293241
-                    labelStyle: TextStyle(
+                            color:
+                                darkBlue)), // Change focused border color to hex value 293241
+                    labelStyle: const TextStyle(
                         color: Colors.white), // Change label color to white
                     counterText:
                         '${newNoteTitle.length}/20', // Add character counter
-                    counterStyle: TextStyle(
+                    counterStyle: const TextStyle(
                         color:
                             Colors.white), // Change counter text color to white
                   ),
                   maxLength: 20, // Set maximum length for the title
-                  style: TextStyle(
+                  style: const TextStyle(
                       color: Colors.white), // Change input text color to white
                 ),
                 const SizedBox(
@@ -73,32 +75,32 @@ class _GroupsPageState extends State<GroupsPage> {
                     contentPadding: const EdgeInsets.all(10),
                     labelText:
                         'Description', // Label text for the description field
-                    border: OutlineInputBorder(
+                    border: const OutlineInputBorder(
                         borderSide: BorderSide(
                             color: Colors.white)), // Use white outline
-                    enabledBorder: OutlineInputBorder(
+                    enabledBorder: const OutlineInputBorder(
                         borderSide: BorderSide(
                             color: Colors.white)), // Use white outline
-                    focusedBorder: OutlineInputBorder(
+                    focusedBorder: const OutlineInputBorder(
                         borderSide: BorderSide(
-                            color: Color(
-                                0xFF293241))), // Change focused border color to hex value 293241
-                    labelStyle: TextStyle(
+                            color:
+                                darkBlue)), // Change focused border color to hex value 293241
+                    labelStyle: const TextStyle(
                         color: Colors.white), // Change label color to white
                     counterText:
                         '${newNoteDescription.length}/300', // Add character counter
-                    counterStyle: TextStyle(
+                    counterStyle: const TextStyle(
                         color:
                             Colors.white), // Change counter text color to white
                   ),
-                  style: TextStyle(
+                  style: const TextStyle(
                       color: Colors.white), // Change input text color to white
                 ),
               ],
             ),
           ),
           backgroundColor:
-              Color(0xFF3D5A80), // Set background color to hex value 3D5A80
+              mediumBlue, // Set background color to hex value 3D5A80
           actions: [
             SizedBox(
               width: double.infinity, // Set width to match screen width
@@ -143,19 +145,19 @@ class _GroupsPageState extends State<GroupsPage> {
     return Scaffold(
       appBar: PreferredSize(
         preferredSize:
-            Size.fromHeight(kToolbarHeight + 20), // Keep the same height
+            const Size.fromHeight(kToolbarHeight + 20), // Keep the same height
         child: Container(
-          padding: EdgeInsets.only(
+          padding: const EdgeInsets.only(
               top: 20), // Indent the app bar from the top by 20 pixels
           child: AppBar(
             backgroundColor: Colors.white, // Set background color to white
             title: Stack(
               children: [
-                Center(
+                const Center(
                   child: Text(
                     'GROUPS',
                     style: TextStyle(
-                      color: const Color(0xFF293241), // Hex color value 293241
+                      color: darkBlue, // Hex color value 293241
                       fontWeight: FontWeight.w900,
                       fontSize: 24, // Adjust font size as needed
                     ),
@@ -172,20 +174,19 @@ class _GroupsPageState extends State<GroupsPage> {
                       FloatingActionButton(
                         onPressed: _showAlertDialog,
                         tooltip: 'Add Group',
-                        backgroundColor: Color(
-                            0xFF293241), // Set background color to hex value 3D5A80
+                        backgroundColor:
+                            darkBlue, // Set background color to hex value 3D5A80
                         elevation: 0, // Remove shadow
                         child: Image.asset(
                           'lib/images/create.png', // Path to custom icon
-                          // Color of the icon
                         ),
                       ),
                       const SizedBox(width: 8),
                       FloatingActionButton(
                         onPressed: _resetNotes,
                         tooltip: 'Reset Groups',
-                        backgroundColor: Color(
-                            0xFF293241), // Set background color to hex value 3D5A80
+                        backgroundColor:
+                            darkBlue, // Set background color to hex value 3D5A80
                         elevation: 0, // Remove shadow
                         child: const Icon(
                           Icons.replay,
@@ -213,8 +214,7 @@ class _GroupsPageState extends State<GroupsPage> {
 
           return Container(
             decoration: BoxDecoration(
-              color:
-                  Color(0xFF293241), // Set background color of the card to grey
+              color: darkBlue, // Set background color of the card to grey
               borderRadius: BorderRadius.circular(
                   10), // Add border radius to make it look like a card
             ),
@@ -225,7 +225,7 @@ class _GroupsPageState extends State<GroupsPage> {
                 Container(
                   width: 70, // Set the width of the circle
                   height: 70, // Set the height of the circle
-                  decoration: BoxDecoration(
+                  decoration: const BoxDecoration(
                     shape: BoxShape.circle, // Make it a circle
                     color: Colors.white, // Set color to white
                   ),
@@ -238,18 +238,18 @@ class _GroupsPageState extends State<GroupsPage> {
                     children: [
                       Text(
                         title,
-                        style: TextStyle(
+                        style: const TextStyle(
                           fontSize: 30, // Font size for title
                           color: Colors.white,
                           fontWeight: FontWeight.bold, // Make the title bold
                         ),
                       ),
-                      SizedBox(
+                      const SizedBox(
                           height:
                               5), // Add some vertical space between title and description
                       Text(
                         description,
-                        style: TextStyle(
+                        style: const TextStyle(
                           fontSize: 16, // Font size for description
                           color: Colors.white,
                         ),
