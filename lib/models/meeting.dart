@@ -5,7 +5,7 @@ enum MeetingStatus {
   accepted,
   needsAcceptance,
 }
-
+// TODO: technically it's not used
 class Meeting {
 
   final String id;
@@ -14,8 +14,6 @@ class Meeting {
   final DateTime dateTime;
   final String adminId;
   final String description;
-  // for meeting tiles
-  // final MeetingStatus status;
 
   Meeting({
     this.id = '',
@@ -24,7 +22,6 @@ class Meeting {
     this.description = '',
     this.adminId = '',
     this.group = '',
-    // this.status = MeetingStatus.needsAcceptance,
   });
 
   String getFormattedDate() {
@@ -61,7 +58,7 @@ class MeetingTileModel {
     this.status = MeetingStatus.needsAcceptance,
   });
 
-  String getFormattedDate() { 
+  String getFormattedDate() {
     return DateFormat('EEE, MMMM d, HH:mm').format(dateTime);
   }
 
@@ -74,4 +71,67 @@ class MeetingTileModel {
       status: json['status'] == 'accepted' ? MeetingStatus.accepted : json['status'] == 'declined' ? MeetingStatus.declined : MeetingStatus.needsAcceptance,
     );
   }
+}
+
+class Participant {
+  final String id;
+  final String username;
+  final String email;
+  final String status;
+
+  Participant({
+    this.id = '',
+    required this.username,
+    required this.email,
+    this.status = 'needsAcceptance',
+  });
+
+  factory Participant.fromJson(Map<String, dynamic> json) {
+    return Participant(
+      id: json['id'].toString(),
+      username: json['username'],
+      email: json['email'],
+      status: json['status'],
+    );
+  }
+}
+
+class MeetingDetails {
+  final String id;
+  final String title;
+  final String group;
+  final DateTime dateTime;
+  final String adminId;
+  final String description;
+  final List<Participant> participants;
+  final MeetingStatus status;
+
+  MeetingDetails({
+    this.id = '',
+    required this.title,
+    required this.dateTime,
+    required this.participants,
+    required this.description,
+    required this.adminId,
+    required this.group,
+    required this.status,
+  });
+
+  String getFormattedDate() {
+    return DateFormat('EEE, MMMM d, HH:mm').format(dateTime);
+  }
+
+  factory MeetingDetails.fromJson(Map<String, dynamic> json) {
+    return MeetingDetails(
+      id: json['id'].toString(),
+      title: json['title'],
+      group: json['group_id'].toString(),
+      dateTime: DateTime.parse(json['start']),
+      adminId: json['admin_id'] ?? '',
+      description: json['description'] ?? '',
+      status: json['status'] == 'accepted' ? MeetingStatus.accepted : json['status'] == 'declined' ? MeetingStatus.declined : MeetingStatus.needsAcceptance,
+      participants: (json['participants'] as List).map((e) => Participant.fromJson(e)).toList(),
+    );
+  }
+
 }

@@ -4,7 +4,7 @@ import 'package:coordimate/components/colors.dart';
 import 'package:coordimate/models/meeting.dart';
 
 class MeetingDetailsPage extends StatefulWidget {
-  final MeetingTileModel meeting;
+  final MeetingDetails meeting;
 
   const MeetingDetailsPage({super.key, required this.meeting});
 

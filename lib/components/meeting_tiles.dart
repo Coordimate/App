@@ -1,8 +1,11 @@
+import 'dart:convert';
 import 'package:coordimate/components/meeting_action_button.dart';
 import 'package:coordimate/pages/meeting_info_page.dart';
 import 'package:coordimate/models/meeting.dart';
 import 'package:flutter/material.dart';
 import 'package:coordimate/components/colors.dart';
+import 'package:coordimate/api_client.dart';
+import 'package:coordimate/keys.dart';
 
 class MeetingTile extends StatelessWidget {
   final bool isArchived;
@@ -17,6 +20,18 @@ class MeetingTile extends StatelessWidget {
     required this.onAccepted,
     required this.onDeclined,
   });
+
+  Future<MeetingDetails> _fetchMeetingDetails() async {
+    final response = await client.get(Uri.parse("$apiUrl/meetings/details/${meeting.id}"));
+    if (response.statusCode == 200) {
+
+      final meetingDetails = MeetingDetails.fromJson(json.decode(response.body));
+      print(meetingDetails);
+      return meetingDetails;
+    } else {
+      throw Exception('Failed to load meetings');
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -68,13 +83,14 @@ class MeetingTile extends StatelessWidget {
           ],
         ),
         onTap: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => MeetingDetailsPage(meeting: meeting),
-            ),
-          );
-          // Navigate to the meeting details page
+          _fetchMeetingDetails().then((meetingDetails) {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => MeetingDetailsPage(meeting: meetingDetails),
+              ),
+            );
+          });
         },
       ),
     );
@@ -139,13 +155,14 @@ class NewMeetingTile extends MeetingTile {
                   ],
                 ),
                 onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => MeetingDetailsPage(meeting: meeting),
-                    ),
-                  );
-                  // Navigate to the meeting details page
+                  _fetchMeetingDetails().then((meetingDetails) {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => MeetingDetailsPage(meeting: meetingDetails),
+                      ),
+                    );
+                  });
                 },
               ),
             ),
