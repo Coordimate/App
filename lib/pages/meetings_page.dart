@@ -296,17 +296,22 @@ class _MeetingsPageState extends State<MeetingsPage> {
       itemCount: meetings.length,
       itemBuilder: (context, index) {
         // Build meeting tile based on meeting status
-        print("list size " + meetings.length.toString());
-        print("index " + index.toString());
-        print("selected date " + selectedDate.day.toString());
-        print("date " + meetings[index].dateTime.day.toString());
-        if (meetings[index].dateTime.day == selectedDate.day && meetings[index].status == MeetingStatus.needsAcceptance) {
+        // print("list size " + meetings.length.toString());
+        // print("index " + index.toString());
+        // print("selected date " + selectedDate.day.toString());
+        // print("date " + meetings[index].dateTime.day.toString());
+        if (meetings[index].dateTime.day == selectedDate.day &&
+            meetings[index].dateTime.month == selectedDate.month &&
+            meetings[index].dateTime.year == selectedDate.year &&
+            meetings[index].status == MeetingStatus.needsAcceptance) {
           return NewMeetingTile(
             meeting: meetings[index],
             onAccepted: () => _acceptMeeting(meetings[index].id),
             onDeclined: () => _declineMeeting(meetings[index].id),
           );
-        } else if (meetings[index].dateTime.day == selectedDate.day) {
+        } else if (meetings[index].dateTime.day == selectedDate.day &&
+            meetings[index].dateTime.month == selectedDate.month &&
+            meetings[index].dateTime.year == selectedDate.year) {
           return AcceptedMeetingTile(
             meeting: meetings[index],
           );
