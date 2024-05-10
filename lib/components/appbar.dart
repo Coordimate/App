@@ -4,12 +4,14 @@ import 'package:coordimate/components/colors.dart';
 class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   final String title;
   final VoidCallback onPressed;
-  final bool needCreateButton;
+  final bool needButton;
+  final IconData buttonIcon;
 
   const CustomAppBar({
     super.key,
     required this.title,
-    required this.needCreateButton,
+    required this.needButton,
+    this.buttonIcon = Icons.add_circle_outline_rounded,
     this.onPressed = defaultOnPressed,
   });
 
@@ -23,25 +25,19 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
     return AppBar(
       title: Text(title,
           style: const TextStyle(
-              color: darkBlue,
-              fontSize: 34,
-              fontWeight: FontWeight.bold)
-      ),
+              color: darkBlue, fontSize: 34, fontWeight: FontWeight.bold)),
       centerTitle: true,
-      actions: needCreateButton ?
-      <Widget>[
-        Padding(
-          padding: const EdgeInsets.only(right: 16.0),
-          child: IconButton(
-            icon: const Icon(
-                Icons.add_circle_outline_rounded,
-                color: darkBlue,
-                size: 40
-            ),
-            onPressed: onPressed,
-          ),
-        ),
-      ] : null,
+      actions: needButton
+          ? <Widget>[
+              Padding(
+                padding: const EdgeInsets.only(right: 16.0),
+                child: IconButton(
+                  icon: Icon(buttonIcon, color: darkBlue, size: 40),
+                  onPressed: onPressed,
+                ),
+              ),
+            ]
+          : null,
     );
   }
 }

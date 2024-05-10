@@ -36,6 +36,7 @@ class _StartPageState extends State<StartPage> {
     }
     final response = await client.get(Uri.parse('$apiUrl/me'));
     if (response.statusCode == 200) {
+      setState(() {});
       WidgetsBinding.instance.addPostFrameCallback((_) {
         Navigator.pushReplacement(
           context,

@@ -238,7 +238,8 @@ class _MeetingsPageState extends State<MeetingsPage> {
 
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar: CustomAppBar(title: "Meetings", needCreateButton: true, onPressed: _onCreateMeeting),
+      appBar: CustomAppBar(
+          title: "Meetings", needButton: true, onPressed: _onCreateMeeting),
       body: Stack(
         children: [
           ListView(

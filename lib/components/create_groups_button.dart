@@ -18,7 +18,7 @@ class CreateGroupsButton extends StatelessWidget {
                 color: Colors.black.withOpacity(0.2),
                 spreadRadius: 2,
                 blurRadius: 5,
-                offset: Offset(0, 3),
+                offset: const Offset(0, 3),
               ),
             ],
           ),
@@ -28,14 +28,14 @@ class CreateGroupsButton extends StatelessWidget {
                 top: 10,
                 right: 10,
                 child: IconButton(
-                  icon: Icon(Icons.close),
+                  icon: const Icon(Icons.close),
                   color: Colors.white,
                   onPressed: () {
                     Navigator.of(context).pop();
                   },
                 ),
               ),
-              Center(
+              const Center(
                 child: Text(
                   'Create Group',
                   style: TextStyle(
