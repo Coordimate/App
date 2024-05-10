@@ -25,7 +25,7 @@ class _MeetingsPageState extends State<MeetingsPage> {
   final TextEditingController _titleController = TextEditingController();
   final TextEditingController _descriptionController = TextEditingController();
   DateTime _selectedDate = DateTime.now();
-  List<Meeting> meetings = [];
+  List<MeetingTileModel> meetings = [];
 
   Future<void> _selectDate() async {
     final DateTime? pickedDate = await showDatePicker(
@@ -158,7 +158,7 @@ class _MeetingsPageState extends State<MeetingsPage> {
       // print(json.decode(response.body)['meetings'][0]);
       setState(() {
         meetings = (json.decode(response.body)['meetings'] as List)
-            .map((data) => Meeting.fromJson(data))
+            .map((data) => MeetingTileModel.fromJson(data))
             .toList();
         meetings.sort((a, b) => a.dateTime.difference(DateTime.now()).inMilliseconds - b.dateTime.difference(DateTime.now()).inMilliseconds);
       });
@@ -225,9 +225,9 @@ class _MeetingsPageState extends State<MeetingsPage> {
 
   @override
   Widget build(BuildContext context) {
-    List<Meeting> declinedMeetings = meetings.where((meeting) => meeting.status == MeetingStatus.declined).toList();
-    List<Meeting> newInvitations = meetings.where((meeting) => meeting.status == MeetingStatus.needsAcceptance).toList();
-    List<Meeting> acceptedMeetings = meetings.where((meeting) => meeting.status == MeetingStatus.accepted).toList();
+    List<MeetingTileModel> declinedMeetings = meetings.where((meeting) => meeting.status == MeetingStatus.declined).toList();
+    List<MeetingTileModel> newInvitations = meetings.where((meeting) => meeting.status == MeetingStatus.needsAcceptance).toList();
+    List<MeetingTileModel> acceptedMeetings = meetings.where((meeting) => meeting.status == MeetingStatus.accepted).toList();
 
 
     double screenHeight = MediaQuery.of(context).size.height;
@@ -289,7 +289,7 @@ class _MeetingsPageState extends State<MeetingsPage> {
     );
   }
 
-  Widget _buildDailyMeetingList(List<Meeting> meetings, DateTime selectedDate) {
+  Widget _buildDailyMeetingList(List<MeetingTileModel> meetings, DateTime selectedDate) {
     return ListView.builder(
       padding: const EdgeInsets.symmetric(horizontal: 16),
       shrinkWrap: true,
@@ -323,7 +323,7 @@ class _MeetingsPageState extends State<MeetingsPage> {
     );
   }
 
-  Widget _buildMeetingList(List<Meeting> meetings, String title) {
+  Widget _buildMeetingList(List<MeetingTileModel> meetings, String title) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [

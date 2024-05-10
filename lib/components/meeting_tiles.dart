@@ -6,7 +6,7 @@ import 'package:coordimate/components/colors.dart';
 
 class MeetingTile extends StatelessWidget {
   final bool isArchived;
-  final Meeting meeting;
+  final MeetingTileModel meeting;
   final VoidCallback onAccepted;
   final VoidCallback onDeclined;
 

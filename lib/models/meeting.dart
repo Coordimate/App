@@ -15,7 +15,7 @@ class Meeting {
   final String adminId;
   final String description;
   // for meeting tiles
-  final MeetingStatus status;
+  // final MeetingStatus status;
 
   Meeting({
     this.id = '',
@@ -24,7 +24,7 @@ class Meeting {
     this.description = '',
     this.adminId = '',
     this.group = '',
-    this.status = MeetingStatus.needsAcceptance,
+    // this.status = MeetingStatus.needsAcceptance,
   });
 
   String getFormattedDate() {
@@ -41,6 +41,36 @@ class Meeting {
       dateTime: DateTime.parse(json['start']),
       adminId: json['admin_id'] ?? '',
       description: json['description'] ?? '',
+      // status: json['status'] == 'accepted' ? MeetingStatus.accepted : json['status'] == 'declined' ? MeetingStatus.declined : MeetingStatus.needsAcceptance,
+    );
+  }
+}
+
+class MeetingTileModel {
+  final String id;
+  final String title;
+  final String group;
+  final DateTime dateTime;
+  final MeetingStatus status;
+
+  MeetingTileModel({
+    this.id = '',
+    required this.title,
+    required this.dateTime,
+    this.group = '',
+    this.status = MeetingStatus.needsAcceptance,
+  });
+
+  String getFormattedDate() { 
+    return DateFormat('EEE, MMMM d, HH:mm').format(dateTime);
+  }
+
+  factory MeetingTileModel.fromJson(Map<String, dynamic> json) {
+    return MeetingTileModel(
+      id: json['id'].toString(),
+      title: json['title'],
+      group: json['group_id'].toString(),
+      dateTime: DateTime.parse(json['start']),
       status: json['status'] == 'accepted' ? MeetingStatus.accepted : json['status'] == 'declined' ? MeetingStatus.declined : MeetingStatus.needsAcceptance,
     );
   }
