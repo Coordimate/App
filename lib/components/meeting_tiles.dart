@@ -1,4 +1,5 @@
 import 'package:coordimate/components/meeting_action_button.dart';
+import 'package:coordimate/pages/meeting_info_page.dart';
 import 'package:coordimate/models/meeting.dart';
 import 'package:flutter/material.dart';
 import 'package:coordimate/components/colors.dart';
@@ -67,6 +68,12 @@ class MeetingTile extends StatelessWidget {
           ],
         ),
         onTap: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => MeetingDetailsPage(meeting: meeting),
+            ),
+          );
           // Navigate to the meeting details page
         },
       ),
