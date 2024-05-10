@@ -138,6 +138,15 @@ class NewMeetingTile extends MeetingTile {
                     ),
                   ],
                 ),
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => MeetingDetailsPage(meeting: meeting),
+                    ),
+                  );
+                  // Navigate to the meeting details page
+                },
               ),
             ),
           Padding(

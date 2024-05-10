@@ -35,7 +35,7 @@ class _MeetingDetailsPageState extends State<MeetingDetailsPage> {
             ),
             SizedBox(height: 16),
             Text(
-              'Status: ${widget.meeting.status}',
+              'Status: ${widget.meeting.status.name}',
               style: TextStyle(fontSize: 20),
             ),
             // Add more fields as needed
