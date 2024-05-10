@@ -1,3 +1,4 @@
+import 'package:coordimate/components/appbar.dart';
 import 'package:flutter/material.dart';
 import 'package:coordimate/components/colors.dart';
 import 'package:coordimate/models/meeting.dart';
@@ -15,9 +16,9 @@ class _MeetingDetailsPageState extends State<MeetingDetailsPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text('Meeting Details'),
-        backgroundColor: darkBlue,
+      appBar: const CustomAppBar(
+        title: 'Meeting Details',
+        needButton: false
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
