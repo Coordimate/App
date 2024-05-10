@@ -76,21 +76,18 @@ class MeetingTileModel {
 class Participant {
   final String id;
   final String username;
-  final String email;
   final String status;
 
   Participant({
     this.id = '',
     required this.username,
-    required this.email,
-    this.status = 'needsAcceptance',
+    required this.status,
   });
 
   factory Participant.fromJson(Map<String, dynamic> json) {
     return Participant(
       id: json['id'].toString(),
       username: json['username'],
-      email: json['email'],
       status: json['status'],
     );
   }
