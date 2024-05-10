@@ -1,5 +1,7 @@
-import 'package:coordimate/components/colors.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:uni_links/uni_links.dart';
+import 'package:coordimate/components/colors.dart';
 import 'package:coordimate/pages/personal_schedule_page.dart';
 import 'package:coordimate/pages/meetings_page.dart';
 import 'package:coordimate/pages/groups_page.dart';
@@ -19,8 +21,42 @@ class HomeScreenState extends State<HomeScreen> {
   static final List<Widget> _screens = [
     const PersonalSchedulePage(),
     const MeetingsPage(),
-    GroupsPage()
+    const GroupsPage()
   ];
+
+  @override
+  void initState() {
+    super.initState();
+    initUniLinks().whenComplete(() {});
+  }
+
+  Future<void> initUniLinks() async {
+    try {
+      final initialUri = await getInitialUri();
+      if (initialUri != null) {
+        _handleDeepLink(initialUri);
+      }
+    } on PlatformException {
+      print("Failed to get UniLink");
+      return;
+    }
+  }
+
+  void _handleDeepLink(Uri uri) {
+    setState(() {
+      switch (uri.path) {
+        case '/schedule':
+          _selectedScreen = 0;
+          break;
+        case '/meetings':
+          _selectedScreen = 1;
+          break;
+        case '/groups':
+          _selectedScreen = 2;
+          break;
+      }
+    });
+  }
 
   void _onButtonPressed(int index) {
     setState(() {
