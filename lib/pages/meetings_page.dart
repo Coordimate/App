@@ -67,8 +67,6 @@ class _MeetingsPageState extends State<MeetingsPage> {
         'start': _selectedDate.toIso8601String(),
         'description': _descriptionController.text,
         'group_id': '1',
-        'needs_acceptance': true,
-        'accepted': false,
       }),
     );
     if (response.statusCode == 201) {
@@ -167,57 +165,28 @@ class _MeetingsPageState extends State<MeetingsPage> {
     }
   }
 
-  Future<void> _acceptMeeting(String id) async {
+  Future<void> _answerInvitation(String id, bool accept) async {
+    String status = 'accepted';
+    if (!accept) {
+      status = 'declined';
+    }
     final response = await client.patch(
         Uri.parse("$apiUrl/invites/$id"),
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
         },
         body: json.encode(<String, dynamic>{
-          'status': 'accepted',
+          'status': status,
         })
     );
-
-    // print(response);
-
-    if (!mounted) {
-      return;
-    }
+    if (!mounted) {return;}
     if (response.statusCode == 200) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Meeting accepted')),
+        SnackBar(content: Text("Meeting $status")),
       );
-      // Fetch the meetings again after accepting
       _fetchMeetings();
     } else {
-      throw Exception('Failed to accept meeting');
-    }
-  }
-
-  Future<void> _declineMeeting(String id) async {
-    final response = await client.patch(
-      Uri.parse("$apiUrl/invites/$id"),
-      headers: <String, String>{
-        'Content-Type': 'application/json; charset=UTF-8',
-      },
-      body: json.encode(<String, dynamic>{
-        'status': 'declined',
-      }),
-    );
-
-    // print(response);
-
-    if (!mounted) {
-      return;
-    }
-    if (response.statusCode == 200) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Meeting declined')),
-      );
-      // Fetch the meetings again after accepting
-      _fetchMeetings();
-    } else {
-      throw Exception('Failed to accept meeting');
+      throw Exception('Failed to answer invitation');
     }
   }
 
@@ -307,8 +276,8 @@ class _MeetingsPageState extends State<MeetingsPage> {
             meetings[index].status == MeetingStatus.needsAcceptance) {
           return NewMeetingTile(
             meeting: meetings[index],
-            onAccepted: () => _acceptMeeting(meetings[index].id),
-            onDeclined: () => _declineMeeting(meetings[index].id),
+            onAccepted: () => _answerInvitation(meetings[index].id, true),
+            onDeclined: () => _answerInvitation(meetings[index].id, false),
           );
         } else if (meetings[index].dateTime.day == selectedDate.day &&
             meetings[index].dateTime.month == selectedDate.month &&
@@ -339,8 +308,8 @@ class _MeetingsPageState extends State<MeetingsPage> {
             if (meetings[index].status == MeetingStatus.needsAcceptance) {
               return NewMeetingTile(
                 meeting: meetings[index],
-                onAccepted: () => _acceptMeeting(meetings[index].id),
-                onDeclined: () => _declineMeeting(meetings[index].id),
+                onAccepted: () => _answerInvitation(meetings[index].id, true),
+                onDeclined: () => _answerInvitation(meetings[index].id, false),
               );
             } else if (meetings[index].status == MeetingStatus.declined) {
               return ArchivedMeetingTile(

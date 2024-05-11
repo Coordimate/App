@@ -22,11 +22,10 @@ class MeetingTile extends StatelessWidget {
   });
 
   Future<MeetingDetails> _fetchMeetingDetails() async {
-    final response = await client.get(Uri.parse("$apiUrl/meetings/details/${meeting.id}"));
+    final response = await client.get(Uri.parse("$apiUrl/meetings/${meeting.id}/details"));
     if (response.statusCode == 200) {
 
       final meetingDetails = MeetingDetails.fromJson(json.decode(response.body));
-      print(meetingDetails);
       return meetingDetails;
     } else {
       throw Exception('Failed to load meetings');

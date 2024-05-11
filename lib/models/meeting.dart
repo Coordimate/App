@@ -86,8 +86,8 @@ class Participant {
 
   factory Participant.fromJson(Map<String, dynamic> json) {
     return Participant(
-      id: json['id'].toString(),
-      username: json['username'],
+      id: json['user_id'].toString(),
+      username: json['user_username'],
       status: json['status'],
     );
   }
