@@ -27,7 +27,6 @@ class _CalendarDayBoxState extends State<CalendarDayBox> {
     return GestureDetector(
       onTap: () {
         setState(() {
-          print("func called");
           widget.onSelected(widget.date);
           // print(widget.date);
           // print(isSelected);

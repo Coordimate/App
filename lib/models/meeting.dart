@@ -29,8 +29,6 @@ class Meeting {
   }
 
   factory Meeting.fromJson(Map<String, dynamic> json) {
-    print("json data ${json['start']}");
-    print(DateTime.parse(json['start']));
     return Meeting(
       id: json['id'].toString(),
       title: json['title'],
