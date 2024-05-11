@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:coordimate/components/colors.dart';
 import 'package:coordimate/api_client.dart';
 import 'package:coordimate/keys.dart';
+import 'package:coordimate/components/agenda.dart';
 
 class MeetingTile extends StatelessWidget {
   final bool isArchived;
@@ -22,10 +23,11 @@ class MeetingTile extends StatelessWidget {
   });
 
   Future<MeetingDetails> _fetchMeetingDetails() async {
-    final response = await client.get(Uri.parse("$apiUrl/meetings/${meeting.id}/details"));
+    final response =
+        await client.get(Uri.parse("$apiUrl/meetings/${meeting.id}/details"));
     if (response.statusCode == 200) {
-
-      final meetingDetails = MeetingDetails.fromJson(json.decode(response.body));
+      final meetingDetails =
+          MeetingDetails.fromJson(json.decode(response.body));
       return meetingDetails;
     } else {
       throw Exception('Failed to load meetings');
@@ -72,10 +74,7 @@ class MeetingTile extends StatelessWidget {
                 const SizedBox(width: 8),
                 Text(
                   meeting.group,
-                  style: const TextStyle(
-                      fontSize: 20,
-                      color: Colors.white70
-                  ),
+                  style: const TextStyle(fontSize: 20, color: Colors.white70),
                 ),
               ],
             ),
@@ -86,7 +85,8 @@ class MeetingTile extends StatelessWidget {
             Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (context) => MeetingDetailsPage(meeting: meetingDetails),
+                builder: (context) =>
+                    MeetingDetailsPage(meeting: meetingDetails),
               ),
             );
           });
@@ -97,15 +97,14 @@ class MeetingTile extends StatelessWidget {
 }
 
 class NewMeetingTile extends MeetingTile {
-
   const NewMeetingTile({
     super.key,
     required super.meeting,
     required super.onAccepted,
     required super.onDeclined,
   }) : super(
-    isArchived: false,
-  );
+          isArchived: false,
+        );
 
   @override
   Widget build(BuildContext context) {
@@ -118,53 +117,52 @@ class NewMeetingTile extends MeetingTile {
       child: Row(
         children: [
           Expanded(
-              child: ListTile(
-                title: Text(
-                  meeting.title,
-                  style: const TextStyle(
-                    fontSize: 22,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
-                  ),
-                  overflow: TextOverflow.ellipsis,
+            child: ListTile(
+              title: Text(
+                meeting.title,
+                style: const TextStyle(
+                  fontSize: 22,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
                 ),
-                subtitle: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      meeting.getFormattedDate(),
-                      style: const TextStyle(
-                        fontSize: 20,
-                        color: Colors.white,
-                      ),
-                    ),
-                    Row(
-                      children: [
-                        const Icon(Icons.calendar_today, color: Colors.white70),
-                        const SizedBox(width: 8),
-                        Text(
-                          meeting.group,
-                          style: const TextStyle(
-                              fontSize: 20,
-                              color: Colors.white70
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-                onTap: () {
-                  _fetchMeetingDetails().then((meetingDetails) {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => MeetingDetailsPage(meeting: meetingDetails),
-                      ),
-                    );
-                  });
-                },
+                overflow: TextOverflow.ellipsis,
               ),
+              subtitle: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    meeting.getFormattedDate(),
+                    style: const TextStyle(
+                      fontSize: 20,
+                      color: Colors.white,
+                    ),
+                  ),
+                  Row(
+                    children: [
+                      const Icon(Icons.calendar_today, color: Colors.white70),
+                      const SizedBox(width: 8),
+                      Text(
+                        meeting.group,
+                        style: const TextStyle(
+                            fontSize: 20, color: Colors.white70),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+              onTap: () {
+                _fetchMeetingDetails().then((meetingDetails) {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) =>
+                          MeetingDetailsPage(meeting: meetingDetails),
+                    ),
+                  );
+                });
+              },
             ),
+          ),
           Padding(
             padding: const EdgeInsets.fromLTRB(0, 10, 10, 10),
             child: Column(
@@ -173,14 +171,12 @@ class NewMeetingTile extends MeetingTile {
                 ActionButton(
                     onPressed: onAccepted,
                     color: lightBlue,
-                    iconPath: 'lib/images/tick.png'
-                ),
+                    iconPath: 'lib/images/tick.png'),
                 const SizedBox(height: 10),
                 ActionButton(
                     onPressed: onDeclined,
                     color: orange,
-                    iconPath: 'lib/images/cross.png'
-                ),
+                    iconPath: 'lib/images/cross.png'),
               ],
             ),
           ),
@@ -191,25 +187,21 @@ class NewMeetingTile extends MeetingTile {
 }
 
 class AcceptedMeetingTile extends MeetingTile {
-  const AcceptedMeetingTile({
-    super.key,
-    required super.meeting
-  }) : super(
-    isArchived: false, // Set isArchived to false
-    onAccepted: defaultOnPressed, // Set onAccepted to an empty function
-    onDeclined: defaultOnPressed, // Set onDeclined to an empty function
-  );
+  const AcceptedMeetingTile({super.key, required super.meeting})
+      : super(
+          isArchived: false, // Set isArchived to false
+          onAccepted: defaultOnPressed, // Set onAccepted to an empty function
+          onDeclined: defaultOnPressed, // Set onDeclined to an empty function
+        );
   static void defaultOnPressed() {}
 }
 
 class ArchivedMeetingTile extends MeetingTile {
-  const ArchivedMeetingTile({
-    super.key,
-    required super.meeting
-  }) : super(
-    isArchived: true, // Set isArchived to true
-    onAccepted: defaultOnPressed, // Set onAccepted to an empty function
-    onDeclined: defaultOnPressed, // Set onDeclined to an empty function
-  );
+  const ArchivedMeetingTile({super.key, required super.meeting})
+      : super(
+          isArchived: true, // Set isArchived to true
+          onAccepted: defaultOnPressed, // Set onAccepted to an empty function
+          onDeclined: defaultOnPressed, // Set onDeclined to an empty function
+        );
   static void defaultOnPressed() {}
 }
