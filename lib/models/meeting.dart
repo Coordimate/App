@@ -77,7 +77,7 @@ class Participant {
   final String status;
 
   Participant({
-    this.id = '',
+    required this.id,
     required this.username,
     required this.status,
   });
@@ -94,9 +94,10 @@ class Participant {
 class MeetingDetails {
   final String id;
   final String title;
-  final String group;
+  final String groupId;
+  final String groupName;
   final DateTime dateTime;
-  final String adminId;
+  final Participant admin;
   final String description;
   final List<Participant> participants;
   final MeetingStatus status;
@@ -107,22 +108,28 @@ class MeetingDetails {
     required this.dateTime,
     required this.participants,
     required this.description,
-    required this.adminId,
-    required this.group,
+    required this.admin,
+    required this.groupId,
+    required this.groupName,
     required this.status,
   });
 
   String getFormattedDate() {
-    return DateFormat('EEE, MMMM d, HH:mm').format(dateTime);
+    return DateFormat('EEEE, MMMM d').format(dateTime);
+  }
+
+  String getFormattedTime() {
+    return DateFormat('HH:mm').format(dateTime);
   }
 
   factory MeetingDetails.fromJson(Map<String, dynamic> json) {
     return MeetingDetails(
       id: json['id'].toString(),
       title: json['title'],
-      group: json['group_id'].toString(),
+      groupId: json['group_id'].toString(),
+      groupName: json['group_name'],
       dateTime: DateTime.parse(json['start']),
-      adminId: json['admin_id'] ?? '',
+      admin: Participant.fromJson(json['admin']),
       description: json['description'] ?? '',
       status: json['status'] == 'accepted' ? MeetingStatus.accepted : json['status'] == 'declined' ? MeetingStatus.declined : MeetingStatus.needsAcceptance,
       participants: (json['participants'] as List).map((e) => Participant.fromJson(e)).toList(),
