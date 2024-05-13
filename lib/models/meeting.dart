@@ -100,7 +100,7 @@ class MeetingDetails {
   final Participant admin;
   final String description;
   final List<Participant> participants;
-  final MeetingStatus status;
+  MeetingStatus status;
 
   MeetingDetails({
     this.id = '',

@@ -8,7 +8,6 @@ import 'package:coordimate/models/meeting.dart';
 import 'package:coordimate/keys.dart';
 import 'dart:convert';
 import 'package:intl/intl.dart';
-
 import 'package:coordimate/api_client.dart';
 
 class MeetingsPage extends StatefulWidget {
@@ -205,56 +204,61 @@ class _MeetingsPageState extends State<MeetingsPage> {
     double paddingBottom = 8.0; // space between calendar row and meeting list
     double initialChildSize = (boxWidth + paddingBottom + kBottomNavigationBarHeight) / screenHeight;
 
-    return Scaffold(
-      backgroundColor: Colors.white,
-      appBar: CustomAppBar(
-          title: "Meetings", needButton: true, onPressed: _onCreateMeeting),
-      body: Stack(
-        children: [
-          ListView(
-            padding: EdgeInsets.only(bottom: MediaQuery.of(context).size.height * 0.17), // Add padding to the bottom
-            children: [
-              if (declinedMeetings.isNotEmpty) ...[
-                _buildMeetingList(declinedMeetings, "Declined Meetings"),
-              ],
-              if (newInvitations.isNotEmpty) ...[
-                _buildMeetingList(newInvitations, "Invitations"),
-              ],
-              if (acceptedMeetings.isNotEmpty) ...[
-                _buildMeetingList(acceptedMeetings, "Accepted Meetings"),
-              ],
-            ],
-          ),
-          DraggableBottomSheet(
-            initialChildSize: initialChildSize,
-            child: Column(
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: List<DateTime>.generate(5, (i) => DateTime.now().add(Duration(days: i))).map(
-                        (date) => CalendarDayBox(
-                      date: date,
-                      isSelected: selectedDate.day == date.day, // Pass isSelected based on selectedDate
-                      onSelected: (selectedDate) {
-                        setState(() {
-                          this.selectedDate = selectedDate; // Update the selected date
-                        });
-                      },
+    return FutureBuilder(
+        future: _fetchMeetings(),
+        builder: (context, snapshot) {
+            return Scaffold(
+              backgroundColor: Colors.white,
+              appBar: CustomAppBar(
+                  title: "Meetings", needButton: true, onPressed: _onCreateMeeting),
+              body: Stack(
+                children: [
+                  ListView(
+                    padding: EdgeInsets.only(bottom: MediaQuery.of(context).size.height * 0.17), // Add padding to the bottom
+                    children: [
+                      if (declinedMeetings.isNotEmpty) ...[
+                        _buildMeetingList(declinedMeetings, "Declined Meetings"),
+                      ],
+                      if (newInvitations.isNotEmpty) ...[
+                        _buildMeetingList(newInvitations, "Invitations"),
+                      ],
+                      if (acceptedMeetings.isNotEmpty) ...[
+                        _buildMeetingList(acceptedMeetings, "Accepted Meetings"),
+                      ],
+                    ],
+                  ),
+                  DraggableBottomSheet(
+                    initialChildSize: initialChildSize,
+                    child: Column(
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          children: List<DateTime>.generate(5, (i) => DateTime.now().add(Duration(days: i))).map(
+                                (date) => CalendarDayBox(
+                              date: date,
+                              isSelected: selectedDate.day == date.day, // Pass isSelected based on selectedDate
+                              onSelected: (selectedDate) {
+                                setState(() {
+                                  this.selectedDate = selectedDate; // Update the selected date
+                                });
+                              },
+                            ),
+                          ).toList(),
+                        ),
+                        const SizedBox(height: 16),
+                        if (newInvitations.isNotEmpty) ...[
+                          _buildDailyMeetingList(newInvitations, selectedDate),
+                        ],
+                        if (acceptedMeetings.isNotEmpty) ...[
+                          _buildDailyMeetingList(acceptedMeetings, selectedDate),
+                        ],
+                      ],
                     ),
-                  ).toList(),
-                ),
-                const SizedBox(height: 16),
-                if (newInvitations.isNotEmpty) ...[
-                  _buildDailyMeetingList(newInvitations, selectedDate),
+                  ),
                 ],
-                if (acceptedMeetings.isNotEmpty) ...[
-                  _buildDailyMeetingList(acceptedMeetings, selectedDate),
-                ],
-              ],
-            ),
-          ),
-        ],
-      ),
+              ),
+            );
+        }
     );
   }
 

@@ -2,6 +2,10 @@ import 'package:coordimate/components/appbar.dart';
 import 'package:flutter/material.dart';
 import 'package:coordimate/components/colors.dart';
 import 'package:coordimate/models/meeting.dart';
+import 'package:coordimate/api_client.dart';
+import 'package:coordimate/keys.dart';
+import 'dart:convert';
+
 
 class MeetingDetailsPage extends StatefulWidget {
   final MeetingDetails meeting;
@@ -13,6 +17,34 @@ class MeetingDetailsPage extends StatefulWidget {
 }
 
 class _MeetingDetailsPageState extends State<MeetingDetailsPage> {
+
+  Future<void> _answerInvitation(String id, bool accept) async {
+    String status = 'accepted';
+    if (!accept) {
+      status = 'declined';
+    }
+    final response = await client.patch(
+        Uri.parse("$apiUrl/invites/$id"),
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+        },
+        body: json.encode(<String, dynamic>{
+          'status': status,
+        })
+    );
+    if (!mounted) {return;}
+    if (response.statusCode == 200) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Meeting $status")),
+      );
+      setState(() {
+        widget.meeting.status = accept ? MeetingStatus.accepted : MeetingStatus.declined;
+      });
+    } else {
+      throw Exception('Failed to answer invitation');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -130,9 +162,9 @@ class _MeetingDetailsPageState extends State<MeetingDetailsPage> {
                 Row(
                   // mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: <Widget>[
-                    answerButton("Accept", lightBlue),
+                    answerButton("Accept", lightBlue, () => _answerInvitation(widget.meeting.id, true)),
                     const SizedBox(width: 16),
-                    answerButton("Decline", orange),
+                    answerButton("Decline", orange, () => _answerInvitation(widget.meeting.id, false)),
                   ],
                 ),
           
@@ -193,10 +225,10 @@ class _MeetingDetailsPageState extends State<MeetingDetailsPage> {
     );
   }
 
-  Widget answerButton(String text, Color color) {
+  Widget answerButton(String text, Color color, Future<void> Function() onPressed){
     return Expanded(
       child: ElevatedButton(
-        onPressed: () {},
+        onPressed: onPressed,
         style: ButtonStyle(
           backgroundColor: MaterialStateProperty.all(color),
           shape: MaterialStateProperty.all<RoundedRectangleBorder>(
