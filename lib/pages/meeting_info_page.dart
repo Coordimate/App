@@ -6,7 +6,6 @@ import 'package:coordimate/api_client.dart';
 import 'package:coordimate/keys.dart';
 import 'dart:convert';
 
-
 class MeetingDetailsPage extends StatefulWidget {
   final MeetingDetails meeting;
 
@@ -43,6 +42,66 @@ class _MeetingDetailsPageState extends State<MeetingDetailsPage> {
     } else {
       throw Exception('Failed to answer invitation');
     }
+  }
+
+  Future<void> showPopUpDialog(BuildContext context, String id) async {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          backgroundColor: Colors.white,
+          title: const Align (
+            alignment: Alignment.center,
+            child: Text("Do you want to attend the meeting?",
+                textAlign: TextAlign.center,
+                style: TextStyle(color: darkBlue, fontWeight: FontWeight.bold)
+            )
+          ),
+          actions: <Widget>[
+            Row(
+              children: <Widget>[
+                Expanded(
+                  child: ElevatedButton(
+                    onPressed: () {
+                      _answerInvitation(id, true);
+                      Navigator.of(context).pop();
+                    },
+                    style: ButtonStyle(
+                      backgroundColor: MaterialStateProperty.all(mediumBlue),
+                      shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+                        RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                      ),
+                    ),
+                    child: const Text("Yes",
+                        style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 20)),
+                  ),
+                ),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: ElevatedButton(
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                    },
+                    style: ButtonStyle(
+                      side: MaterialStateProperty.all(const BorderSide(color: mediumBlue, width: 3)),
+                      shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+                        RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                      ),
+                    ),
+                    child: const Text("No",
+                        style: TextStyle(color: mediumBlue, fontWeight: FontWeight.bold, fontSize: 20)),
+                  ),
+                ),
+      ]
+            ),
+          ],
+        );
+      },
+    );
   }
 
   @override
@@ -172,7 +231,9 @@ class _MeetingDetailsPageState extends State<MeetingDetailsPage> {
                 SizedBox(
                   width: double.infinity,
                   child: ElevatedButton(
-                    onPressed: (){},
+                    onPressed: () async {
+                      await showPopUpDialog(context, widget.meeting.id);
+                    },
                     style: ButtonStyle(
                       backgroundColor: MaterialStateProperty.all(Colors.grey),
                       shape: MaterialStateProperty.all<RoundedRectangleBorder>(
