@@ -17,13 +17,13 @@ class MeetingDetailsPage extends StatefulWidget {
 
 class _MeetingDetailsPageState extends State<MeetingDetailsPage> {
 
-  Future<void> _answerInvitation(String id, bool accept) async {
+  Future<void> _answerInvitation(bool accept) async {
     String status = 'accepted';
     if (!accept) {
       status = 'declined';
     }
     final response = await client.patch(
-        Uri.parse("$apiUrl/invites/$id"),
+        Uri.parse("$apiUrl/invites/${widget.meeting.id}"),
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
         },
@@ -44,17 +44,17 @@ class _MeetingDetailsPageState extends State<MeetingDetailsPage> {
     }
   }
 
-  Future<void> showPopUpDialog(BuildContext context, String id) async {
+  Future<void> showPopUpDialog(BuildContext context, bool accept) async {
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
           backgroundColor: Colors.white,
-          title: const Align (
+          title: Align (
             alignment: Alignment.center,
-            child: Text("Do you want to attend the meeting?",
+            child: Text(accept ? "Do you want to attend the meeting?" : "Do you want to decline the invitation?",
                 textAlign: TextAlign.center,
-                style: TextStyle(color: darkBlue, fontWeight: FontWeight.bold)
+                style: const TextStyle(color: darkBlue, fontWeight: FontWeight.bold)
             )
           ),
           actions: <Widget>[
@@ -63,7 +63,7 @@ class _MeetingDetailsPageState extends State<MeetingDetailsPage> {
                 Expanded(
                   child: ElevatedButton(
                     onPressed: () {
-                      _answerInvitation(id, true);
+                      _answerInvitation(accept);
                       Navigator.of(context).pop();
                     },
                     style: ButtonStyle(
@@ -107,9 +107,13 @@ class _MeetingDetailsPageState extends State<MeetingDetailsPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: const CustomAppBar(
+      appBar: CustomAppBar(
           title: '',
-          needButton: false
+          needButton: true,
+          buttonIcon: Icons.settings,
+          onPressed: () {
+            showPopUpDialog(context, widget.meeting.status != MeetingStatus.accepted);
+          },
       ),
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 0),
@@ -221,9 +225,9 @@ class _MeetingDetailsPageState extends State<MeetingDetailsPage> {
                 Row(
                   // mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: <Widget>[
-                    answerButton("Accept", lightBlue, () => _answerInvitation(widget.meeting.id, true)),
+                    answerButton("Accept", lightBlue, () => _answerInvitation(true)),
                     const SizedBox(width: 16),
-                    answerButton("Decline", orange, () => _answerInvitation(widget.meeting.id, false)),
+                    answerButton("Decline", orange, () => _answerInvitation(false)),
                   ],
                 ),
           
@@ -232,7 +236,7 @@ class _MeetingDetailsPageState extends State<MeetingDetailsPage> {
                   width: double.infinity,
                   child: ElevatedButton(
                     onPressed: () async {
-                      await showPopUpDialog(context, widget.meeting.id);
+                      await showPopUpDialog(context, true);
                     },
                     style: ButtonStyle(
                       backgroundColor: MaterialStateProperty.all(Colors.grey),
