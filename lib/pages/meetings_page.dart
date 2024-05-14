@@ -153,8 +153,6 @@ class _MeetingsPageState extends State<MeetingsPage> {
   Future<void> _fetchMeetings() async {
     final response = await client.get(Uri.parse("$apiUrl/meetings/"));
     if (response.statusCode == 200) {
-      // print(response.body);
-      // print(json.decode(response.body)['meetings'][0]);
       if (!mounted) {return;}
       setState(() {
         meetings = (json.decode(response.body)['meetings'] as List)
@@ -205,7 +203,7 @@ class _MeetingsPageState extends State<MeetingsPage> {
     double screenWidth = MediaQuery.of(context).size.width;
     double boxWidth = screenWidth / 5 * 0.85;
     double paddingBottom = 8.0; // space between calendar row and meeting list
-    double initialChildSize = (boxWidth + paddingBottom + kBottomNavigationBarHeight) / screenHeight;
+    double initialChildSize = (boxWidth + paddingBottom + kBottomNavigationBarHeight - 3) / screenHeight;
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -228,7 +226,7 @@ class _MeetingsPageState extends State<MeetingsPage> {
                           onTap: () {
                             Navigator.push(
                               context,
-                              MaterialPageRoute(builder: (context) => MeetingsArchivePage()),
+                              MaterialPageRoute(builder: (context) => MeetingsArchivePage(meetings: declinedMeetings.reversed.toList(), fetchMeetings: _fetchMeetings)),
                             );
                           },
                           child: const Align(
@@ -256,9 +254,9 @@ class _MeetingsPageState extends State<MeetingsPage> {
                 SliverList(
                   delegate: SliverChildListDelegate(
                       [
-                        if (declinedMeetings.isNotEmpty) ...[
-                          _buildMeetingList(declinedMeetings, "Declined Meetings"),
-                        ],
+                        // if (declinedMeetings.isNotEmpty) ...[
+                        //   _buildMeetingList(declinedMeetings, "Declined Meetings"),
+                        // ],
                         if (newInvitations.isNotEmpty) ...[
                           _buildMeetingList(newInvitations, "Invitations"),
                         ],
