@@ -9,6 +9,7 @@ import 'package:coordimate/keys.dart';
 import 'dart:convert';
 import 'package:intl/intl.dart';
 import 'package:coordimate/api_client.dart';
+import 'package:coordimate/components/archive_scroll.dart';
 
 class MeetingsPage extends StatefulWidget {
   const MeetingsPage({
@@ -210,19 +211,55 @@ class _MeetingsPageState extends State<MeetingsPage> {
           title: "Meetings", needButton: true, onPressed: _onCreateMeeting),
       body: Stack(
         children: [
-          ListView(
-            padding: EdgeInsets.only(bottom: MediaQuery.of(context).size.height * 0.17), // Add padding to the bottom
-            children: [
-              if (declinedMeetings.isNotEmpty) ...[
-                _buildMeetingList(declinedMeetings, "Declined Meetings"),
+          Padding(
+            padding: EdgeInsets.only(bottom: MediaQuery.of(context).size.height * 0.1),
+            child: CustomScrollView(
+              slivers: <Widget>[
+                SliverHidedHeader(
+                    child: Container(
+                      margin: const EdgeInsets.only(bottom: 8),
+                      height: 50,
+                      color: Colors.white,
+                      child: Container(
+                        padding: const EdgeInsets.only(left: 16),
+                        child: const Align(
+                          alignment: Alignment.center,
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            children: [
+                              Icon(
+                                Icons.archive,
+                                color: Colors.grey,
+                                size: 30,
+                              ),
+                              SizedBox(width: 8),
+                              Text(
+                                  "Archive",
+                                  style: TextStyle(color: Colors.grey, fontSize: 20, fontWeight: FontWeight.bold)
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    )
+                ),
+                SliverList(
+                  delegate: SliverChildListDelegate(
+                      [
+                        if (declinedMeetings.isNotEmpty) ...[
+                          _buildMeetingList(declinedMeetings, "Declined Meetings"),
+                        ],
+                        if (newInvitations.isNotEmpty) ...[
+                          _buildMeetingList(newInvitations, "Invitations"),
+                        ],
+                        if (acceptedMeetings.isNotEmpty) ...[
+                          _buildMeetingList(acceptedMeetings, "Accepted Meetings"),
+                        ],
+                      ]
+                  ),
+                ),
               ],
-              if (newInvitations.isNotEmpty) ...[
-                _buildMeetingList(newInvitations, "Invitations"),
-              ],
-              if (acceptedMeetings.isNotEmpty) ...[
-                _buildMeetingList(acceptedMeetings, "Accepted Meetings"),
-              ],
-            ],
+            ),
           ),
           DraggableBottomSheet(
             initialChildSize: initialChildSize,
