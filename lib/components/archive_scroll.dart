@@ -38,6 +38,7 @@ class RenderSliverHidedHeader extends RenderSliverSingleBoxAdapter {
 
   /// The context is used to get the [Scrollable]
   BuildContext _context;
+  ScrollableState? _scrollableState;
 
   @override
   void performLayout() {
@@ -102,19 +103,26 @@ class RenderSliverHidedHeader extends RenderSliverSingleBoxAdapter {
     setChildParentData(child!, constraints, geometry!);
   }
 
+  @override
+  void attach(PipelineOwner owner) {
+    super.attach(owner);
+    _scrollableState = Scrollable.of(_context);
+  }
+
   /// Override to remove the listeners if needed
   @override
   void dispose() {
-    final scrollPosition = Scrollable.of(_context).position;
-    if (_subscribedSnapScrollNotifierListener != null) {
-      scrollPosition.isScrollingNotifier
-          .removeListener(_subscribedSnapScrollNotifierListener!);
+    if (_scrollableState != null && _scrollableState!.context != null) {
+      final scrollPosition = _scrollableState!.position;
+      if (_subscribedSnapScrollNotifierListener != null) {
+        scrollPosition.isScrollingNotifier
+            .removeListener(_subscribedSnapScrollNotifierListener!);
+      }
+      if (_subscribedInsertChildScrollNotifierListener != null) {
+        scrollPosition.isScrollingNotifier
+            .removeListener(_subscribedInsertChildScrollNotifierListener!);
+      }
     }
-    if (_subscribedInsertChildScrollNotifierListener != null) {
-      scrollPosition.isScrollingNotifier
-          .removeListener(_subscribedInsertChildScrollNotifierListener!);
-    }
-
     super.dispose();
   }
 

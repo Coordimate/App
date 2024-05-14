@@ -10,6 +10,7 @@ import 'dart:convert';
 import 'package:intl/intl.dart';
 import 'package:coordimate/api_client.dart';
 import 'package:coordimate/components/archive_scroll.dart';
+import 'package:coordimate/pages/meetings_archive.dart';
 
 class MeetingsPage extends StatefulWidget {
   const MeetingsPage({
@@ -154,6 +155,7 @@ class _MeetingsPageState extends State<MeetingsPage> {
     if (response.statusCode == 200) {
       // print(response.body);
       // print(json.decode(response.body)['meetings'][0]);
+      if (!mounted) {return;}
       setState(() {
         meetings = (json.decode(response.body)['meetings'] as List)
             .map((data) => MeetingTileModel.fromJson(data))
@@ -222,22 +224,30 @@ class _MeetingsPageState extends State<MeetingsPage> {
                       color: Colors.white,
                       child: Container(
                         padding: const EdgeInsets.only(left: 16),
-                        child: const Align(
-                          alignment: Alignment.center,
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            children: [
-                              Icon(
-                                Icons.archive,
-                                color: Colors.grey,
-                                size: 30,
-                              ),
-                              SizedBox(width: 8),
-                              Text(
-                                  "Archive",
-                                  style: TextStyle(color: Colors.grey, fontSize: 20, fontWeight: FontWeight.bold)
-                              ),
-                            ],
+                        child: GestureDetector(
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(builder: (context) => MeetingsArchivePage()),
+                            );
+                          },
+                          child: const Align(
+                            alignment: Alignment.center,
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              children: [
+                                Icon(
+                                  Icons.archive,
+                                  color: Colors.grey,
+                                  size: 30,
+                                ),
+                                SizedBox(width: 8),
+                                Text(
+                                    "Archive",
+                                    style: TextStyle(color: Colors.grey, fontSize: 20, fontWeight: FontWeight.bold)
+                                ),
+                              ],
+                            ),
                           ),
                         ),
                       ),
