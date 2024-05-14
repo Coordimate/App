@@ -18,6 +18,13 @@ class MeetingDetailsPage extends StatefulWidget {
 class _MeetingDetailsPageState extends State<MeetingDetailsPage> {
 
   Future<void> _answerInvitation(bool accept) async {
+    if (!mounted) {return;}
+    if (widget.meeting.isInPast()) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Meeting is in the past")),
+      );
+      return;
+    }
     String status = 'accepted';
     if (!accept) {
       status = 'declined';
@@ -111,7 +118,7 @@ class _MeetingDetailsPageState extends State<MeetingDetailsPage> {
           title: '',
           needButton: true,
           buttonIcon: Icons.settings,
-          onPressed: () {
+          onPressed: widget.meeting.isInPast() ? null : () {
             showPopUpDialog(context, widget.meeting.status != MeetingStatus.accepted);
           },
       ),
@@ -216,7 +223,9 @@ class _MeetingDetailsPageState extends State<MeetingDetailsPage> {
                           borderRadius: BorderRadius.circular(10),
                         ),),
                     ),
-                    child: const Text("Finish Meeting", style: TextStyle(fontSize: 20, color: Colors.white, fontWeight: FontWeight.bold)),
+                    child: Text(
+                        widget.meeting.isInPast() ? "Finish Meeting" : "Summary",
+                        style: const TextStyle(fontSize: 20, color: Colors.white, fontWeight: FontWeight.bold)),
                   ),
                 ),
           
@@ -235,17 +244,20 @@ class _MeetingDetailsPageState extends State<MeetingDetailsPage> {
                 SizedBox(
                   width: double.infinity,
                   child: ElevatedButton(
-                    onPressed: () async {
+                    onPressed: widget.meeting.isInPast() ? null : () async {
                       await showPopUpDialog(context, true);
                     },
                     style: ButtonStyle(
-                      backgroundColor: MaterialStateProperty.all(Colors.grey),
+                      backgroundColor:  MaterialStateProperty.all(widget.meeting.isInPast() ? Colors.grey[300] : Colors.grey),
                       shape: MaterialStateProperty.all<RoundedRectangleBorder>(
                         RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(10),
                         ),),
                     ),
-                    child: const Text("Invitation Declined", style: TextStyle(fontSize: 20, color: darkBlue, fontWeight: FontWeight.bold)),
+                    child: Text(
+                        "Invitation Declined",
+                        style: TextStyle(fontSize: 20, color: widget.meeting.isInPast() ? alphaDarkBlue : darkBlue, fontWeight: FontWeight.bold)
+                    ),
                   ),
                 ),
           

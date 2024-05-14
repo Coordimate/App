@@ -60,6 +60,10 @@ class MeetingTileModel {
     return DateFormat('EEE, MMMM d, HH:mm').format(dateTime);
   }
 
+  bool isInPast() {
+    return dateTime.isBefore(DateTime.now());
+  }
+
   factory MeetingTileModel.fromJson(Map<String, dynamic> json) {
     return MeetingTileModel(
       id: json['id'].toString(),
@@ -120,6 +124,10 @@ class MeetingDetails {
 
   String getFormattedTime() {
     return DateFormat('HH:mm').format(dateTime);
+  }
+
+  bool isInPast() {
+    return dateTime.isBefore(DateTime.now());
   }
 
   factory MeetingDetails.fromJson(Map<String, dynamic> json) {

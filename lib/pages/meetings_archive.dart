@@ -1,4 +1,5 @@
 import 'package:coordimate/components/appbar.dart';
+import 'package:coordimate/components/divider.dart';
 import 'package:flutter/material.dart';
 import 'package:coordimate/models/meeting.dart';
 import 'package:coordimate/components/meeting_tiles.dart';
@@ -36,7 +37,9 @@ class _MeetingsArchivePageState extends State<MeetingsArchivePage> {
       setState(() {
         meetings = (json.decode(response.body)['meetings'] as List)
             .map((data) => MeetingTileModel.fromJson(data))
-            .where((meeting) => meeting.status == MeetingStatus.declined)
+            .where((meeting) => meeting.status == MeetingStatus.declined
+            || (meeting.status == MeetingStatus.accepted
+                && meeting.dateTime.isBefore(DateTime.now())))
             .toList();
         meetings.sort((a, b) => b.dateTime.compareTo(a.dateTime));
       });
@@ -45,16 +48,10 @@ class _MeetingsArchivePageState extends State<MeetingsArchivePage> {
     }
   }
 
-  void _removeMeetingFromList(String id) {
-    setState(() {
-      meetings.removeWhere((element) => element.id == id);
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: CustomAppBar(
+      appBar: const CustomAppBar(
           title: 'Archive',
           needButton: false
       ),
@@ -63,13 +60,30 @@ class _MeetingsArchivePageState extends State<MeetingsArchivePage> {
         child: ListView.builder(
           itemCount: meetings.length,
           itemBuilder: (context, index) {
-            return ArchivedMeetingTile(
-              meeting: meetings[index],
-              fetchMeetings: () {
-                _fetchDeclinedMeetings();
-                widget.fetchMeetings();
+            if (index == meetings.indexWhere((meeting) => meeting.isInPast())) {
+              return const Padding(
+                padding: EdgeInsets.only(bottom: 10.0),
+                child: CustomDivider(
+                  text: 'Passed Meetings',
+                ),
+              );
+            } else if (meetings[index].status == MeetingStatus.declined) {
+              return ArchivedMeetingTile(
+                meeting: meetings[index],
+                fetchMeetings: () {
+                  _fetchDeclinedMeetings();
+                  widget.fetchMeetings();
                 },
-            );
+              );
+            } else {
+              return AcceptedMeetingTile(
+                meeting: meetings[index],
+                fetchMeetings: () {
+                  _fetchDeclinedMeetings();
+                  widget.fetchMeetings();
+                },
+              );
+            }
           },
         ),
       ),

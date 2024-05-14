@@ -158,14 +158,19 @@ class _MeetingsPageState extends State<MeetingsPage> {
         meetings = (json.decode(response.body)['meetings'] as List)
             .map((data) => MeetingTileModel.fromJson(data))
             .toList();
-        meetings.sort((a, b) => a.dateTime.difference(DateTime.now()).inMilliseconds - b.dateTime.difference(DateTime.now()).inMilliseconds);
+        for (var meeting in meetings.where((meeting) => meeting.status == MeetingStatus.needsAcceptance).toList()) {
+          if (meeting.dateTime.isBefore(DateTime.now())) {
+            _answerInvitation(meeting.id, false, showSnackBar: false);
+          }
+        }
+        meetings.sort((a, b) => a.dateTime.difference(DateTime.now()).inSeconds.abs() - b.dateTime.difference(DateTime.now()).inSeconds.abs());
       });
     } else {
       throw Exception('Failed to load meetings');
     }
   }
 
-  Future<void> _answerInvitation(String id, bool accept) async {
+  Future<void> _answerInvitation(String id, bool accept, {bool showSnackBar = true}) async {
     String status = 'accepted';
     if (!accept) {
       status = 'declined';
@@ -181,9 +186,11 @@ class _MeetingsPageState extends State<MeetingsPage> {
     );
     if (!mounted) {return;}
     if (response.statusCode == 200) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Meeting $status")),
-      );
+      if (showSnackBar) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("Meeting $status")),
+        );
+      }
       _fetchMeetings();
     } else {
       throw Exception('Failed to answer invitation');
@@ -197,7 +204,10 @@ class _MeetingsPageState extends State<MeetingsPage> {
     List<MeetingTileModel> declinedMeetings = meetings.where((meeting) => meeting.status == MeetingStatus.declined).toList();
     List<MeetingTileModel> newInvitations = meetings.where((meeting) => meeting.status == MeetingStatus.needsAcceptance).toList();
     List<MeetingTileModel> acceptedMeetings = meetings.where((meeting) => meeting.status == MeetingStatus.accepted).toList();
-
+    List<MeetingTileModel> acceptedPassedMeetings = acceptedMeetings.where((meeting) => meeting.dateTime.isBefore(DateTime.now())).toList();
+    List<MeetingTileModel> acceptedFutureMeetings = acceptedMeetings.where((meeting) => meeting.dateTime.isAfter(DateTime.now())).toList();
+    List<MeetingTileModel> archivedMeetings = acceptedPassedMeetings + declinedMeetings;
+    archivedMeetings.sort((a, b) => b.dateTime.compareTo(a.dateTime));
 
     double screenHeight = MediaQuery.of(context).size.height;
     double screenWidth = MediaQuery.of(context).size.width;
@@ -226,7 +236,7 @@ class _MeetingsPageState extends State<MeetingsPage> {
                           onTap: () {
                             Navigator.push(
                               context,
-                              MaterialPageRoute(builder: (context) => MeetingsArchivePage(meetings: declinedMeetings.reversed.toList(), fetchMeetings: _fetchMeetings)),
+                              MaterialPageRoute(builder: (context) => MeetingsArchivePage(meetings: archivedMeetings, fetchMeetings: _fetchMeetings)),
                             );
                           },
                           child: const Align(
@@ -260,8 +270,8 @@ class _MeetingsPageState extends State<MeetingsPage> {
                         if (newInvitations.isNotEmpty) ...[
                           _buildMeetingList(newInvitations, "Invitations"),
                         ],
-                        if (acceptedMeetings.isNotEmpty) ...[
-                          _buildMeetingList(acceptedMeetings, "Accepted Meetings"),
+                        if (acceptedFutureMeetings.isNotEmpty) ...[
+                          _buildMeetingList(acceptedFutureMeetings, "Upcoming Meetings"),
                         ],
                       ]
                   ),
