@@ -204,61 +204,56 @@ class _MeetingsPageState extends State<MeetingsPage> {
     double paddingBottom = 8.0; // space between calendar row and meeting list
     double initialChildSize = (boxWidth + paddingBottom + kBottomNavigationBarHeight) / screenHeight;
 
-    return FutureBuilder(
-        future: _fetchMeetings(),
-        builder: (context, snapshot) {
-            return Scaffold(
-              backgroundColor: Colors.white,
-              appBar: CustomAppBar(
-                  title: "Meetings", needButton: true, onPressed: _onCreateMeeting),
-              body: Stack(
-                children: [
-                  ListView(
-                    padding: EdgeInsets.only(bottom: MediaQuery.of(context).size.height * 0.17), // Add padding to the bottom
-                    children: [
-                      if (declinedMeetings.isNotEmpty) ...[
-                        _buildMeetingList(declinedMeetings, "Declined Meetings"),
-                      ],
-                      if (newInvitations.isNotEmpty) ...[
-                        _buildMeetingList(newInvitations, "Invitations"),
-                      ],
-                      if (acceptedMeetings.isNotEmpty) ...[
-                        _buildMeetingList(acceptedMeetings, "Accepted Meetings"),
-                      ],
-                    ],
-                  ),
-                  DraggableBottomSheet(
-                    initialChildSize: initialChildSize,
-                    child: Column(
-                      children: [
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                          children: List<DateTime>.generate(5, (i) => DateTime.now().add(Duration(days: i))).map(
-                                (date) => CalendarDayBox(
-                              date: date,
-                              isSelected: selectedDate.day == date.day, // Pass isSelected based on selectedDate
-                              onSelected: (selectedDate) {
-                                setState(() {
-                                  this.selectedDate = selectedDate; // Update the selected date
-                                });
-                              },
-                            ),
-                          ).toList(),
-                        ),
-                        const SizedBox(height: 16),
-                        if (newInvitations.isNotEmpty) ...[
-                          _buildDailyMeetingList(newInvitations, selectedDate),
-                        ],
-                        if (acceptedMeetings.isNotEmpty) ...[
-                          _buildDailyMeetingList(acceptedMeetings, selectedDate),
-                        ],
-                      ],
+    return Scaffold(
+      backgroundColor: Colors.white,
+      appBar: CustomAppBar(
+          title: "Meetings", needButton: true, onPressed: _onCreateMeeting),
+      body: Stack(
+        children: [
+          ListView(
+            padding: EdgeInsets.only(bottom: MediaQuery.of(context).size.height * 0.17), // Add padding to the bottom
+            children: [
+              if (declinedMeetings.isNotEmpty) ...[
+                _buildMeetingList(declinedMeetings, "Declined Meetings"),
+              ],
+              if (newInvitations.isNotEmpty) ...[
+                _buildMeetingList(newInvitations, "Invitations"),
+              ],
+              if (acceptedMeetings.isNotEmpty) ...[
+                _buildMeetingList(acceptedMeetings, "Accepted Meetings"),
+              ],
+            ],
+          ),
+          DraggableBottomSheet(
+            initialChildSize: initialChildSize,
+            child: Column(
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: List<DateTime>.generate(5, (i) => DateTime.now().add(Duration(days: i))).map(
+                        (date) => CalendarDayBox(
+                      date: date,
+                      isSelected: selectedDate.day == date.day, // Pass isSelected based on selectedDate
+                      onSelected: (selectedDate) {
+                        setState(() {
+                          this.selectedDate = selectedDate; // Update the selected date
+                        });
+                      },
                     ),
-                  ),
+                  ).toList(),
+                ),
+                const SizedBox(height: 16),
+                if (newInvitations.isNotEmpty) ...[
+                  _buildDailyMeetingList(newInvitations, selectedDate),
                 ],
-              ),
-            );
-        }
+                if (acceptedMeetings.isNotEmpty) ...[
+                  _buildDailyMeetingList(acceptedMeetings, selectedDate),
+                ],
+              ],
+            ),
+          ),
+        ],
+      ),
     );
   }
 
@@ -269,11 +264,6 @@ class _MeetingsPageState extends State<MeetingsPage> {
       physics: const NeverScrollableScrollPhysics(),
       itemCount: meetings.length,
       itemBuilder: (context, index) {
-        // Build meeting tile based on meeting status
-        // print("list size " + meetings.length.toString());
-        // print("index " + index.toString());
-        // print("selected date " + selectedDate.day.toString());
-        // print("date " + meetings[index].dateTime.day.toString());
         if (meetings[index].dateTime.day == selectedDate.day &&
             meetings[index].dateTime.month == selectedDate.month &&
             meetings[index].dateTime.year == selectedDate.year &&
@@ -282,12 +272,14 @@ class _MeetingsPageState extends State<MeetingsPage> {
             meeting: meetings[index],
             onAccepted: () => _answerInvitation(meetings[index].id, true),
             onDeclined: () => _answerInvitation(meetings[index].id, false),
+            fetchMeetings: _fetchMeetings,
           );
         } else if (meetings[index].dateTime.day == selectedDate.day &&
             meetings[index].dateTime.month == selectedDate.month &&
             meetings[index].dateTime.year == selectedDate.year) {
           return AcceptedMeetingTile(
             meeting: meetings[index],
+            fetchMeetings: _fetchMeetings,
           );
         } else {
           return Container();
@@ -314,14 +306,17 @@ class _MeetingsPageState extends State<MeetingsPage> {
                 meeting: meetings[index],
                 onAccepted: () => _answerInvitation(meetings[index].id, true),
                 onDeclined: () => _answerInvitation(meetings[index].id, false),
+                fetchMeetings: _fetchMeetings,
               );
             } else if (meetings[index].status == MeetingStatus.declined) {
               return ArchivedMeetingTile(
                 meeting: meetings[index],
+                fetchMeetings: _fetchMeetings,
               );
             } else {
               return AcceptedMeetingTile(
                 meeting: meetings[index],
+                fetchMeetings: _fetchMeetings,
               );
             }
           },
