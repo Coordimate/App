@@ -69,21 +69,21 @@ class _StartPageState extends State<StartPage> {
       backgroundColor: Colors.white,
       body: Center(
         child: Column(
-          // mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
 
             // circles background
-            ClipRect(
-              child: Align(
-                alignment: Alignment.bottomCenter,
-                heightFactor: 1, // Adjust this value to crop from the top
-                child: Image.asset(
-                  backgroundImage,
-                  fit: BoxFit.cover,
-                  width: double.infinity,
-                ),
-              ),
-            ),
+            // ClipRect(
+            //   child: Align(
+            //     alignment: Alignment.bottomCenter,
+            //     heightFactor: 1, // Adjust this value to crop from the top
+            //     child: Image.asset(
+            //       backgroundImage,
+            //       fit: BoxFit.cover,
+            //       width: double.infinity,
+            //     ),
+            //   ),
+            // ),
 
             const SizedBox(height: 70),
 
@@ -115,11 +115,11 @@ class _StartPageState extends State<StartPage> {
             const Row (
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                SquareTile(imagePath: 'lib/images/google.png'),
+                SquareTile(imagePath: 'lib/images/google.png', authType: AuthType.google),
 
                 SizedBox(width: 50),
 
-                SquareTile(imagePath: 'lib/images/facebook.png'),
+                SquareTile(imagePath: 'lib/images/facebook.png', authType: AuthType.facebook),
               ],
             ),
 

@@ -185,11 +185,11 @@ class _RegisterPageState extends State<RegisterPage> {
             const Row (
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                SquareTile(imagePath: 'lib/images/google.png'),
+                SquareTile(imagePath: 'lib/images/google.png', authType: AuthType.google),
 
                 SizedBox(width: 50),
 
-                SquareTile(imagePath: 'lib/images/facebook.png'),
+                SquareTile(imagePath: 'lib/images/facebook.png', authType: AuthType.facebook),
               ],
             ),
 
