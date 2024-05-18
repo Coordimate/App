@@ -1,8 +1,12 @@
+import 'dart:convert';
 import 'package:coordimate/components/colors.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:coordimate/pages/personal_schedule_page.dart';
 import 'package:coordimate/pages/meetings_page.dart';
 import 'package:coordimate/pages/groups_page.dart';
+import 'package:coordimate/api_client.dart';
+import 'package:coordimate/keys.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({
@@ -19,13 +23,39 @@ class HomeScreenState extends State<HomeScreen> {
   static final List<Widget> _screens = [
     const PersonalSchedulePage(),
     const MeetingsPage(),
-    GroupsPage()
+    const GroupsPage()
   ];
 
   void _onButtonPressed(int index) {
     setState(() {
       _selectedScreen = index;
     });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _initNotifications();
+    });
+  }
+
+  void _initNotifications() async {
+    await FirebaseMessaging.instance.requestPermission();
+    // await FirebaseMessaging.instance.getAPNSToken();
+    final fcmToken = await FirebaseMessaging.instance.getToken();
+    if (fcmToken != null) {
+      await _setFcmToken(fcmToken);
+    }
+    FirebaseMessaging.instance.onTokenRefresh.listen((fcmToken) async {
+      await _setFcmToken(fcmToken);
+    });
+  }
+
+  Future<void> _setFcmToken(String fcmToken) async {
+    await client.post(Uri.parse('$apiUrl/enable_notifications'),
+        headers: <String, String>{'Content-Type': 'application/json'},
+        body: json.encode(<String, dynamic>{'fcm_token': fcmToken}));
   }
 
   @override

@@ -40,6 +40,8 @@ dependencies:
   http_interceptor: ^2.0.0-beta.8
   intl: ^0.17.0
   shared_preferences: ^2.2.2
+  firebase_core: ^2.31.0
+  firebase_messaging: ^14.9.2
 
 dev_dependencies:
   flutter_test:
