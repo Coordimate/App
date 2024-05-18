@@ -4,6 +4,7 @@ import 'package:coordimate/components/colors.dart';
 import 'package:coordimate/models/meeting.dart';
 import 'package:coordimate/api_client.dart';
 import 'package:coordimate/keys.dart';
+import 'package:coordimate/components/agenda.dart';
 import 'dart:convert';
 
 class MeetingDetailsPage extends StatefulWidget {
@@ -199,7 +200,11 @@ class _MeetingDetailsPageState extends State<MeetingDetailsPage> {
                 SizedBox(
                   width: double.infinity,
                   child: ElevatedButton(
-                    onPressed: (){},
+                    onPressed: () {
+                      Navigator.of(context).push(MaterialPageRoute(
+                          builder: (context) => MeetingAgenda(
+                              key: UniqueKey(), meetingId: widget.meeting.id)));
+                    },
                     style: ButtonStyle(
                       backgroundColor: MaterialStateProperty.all(darkBlue),
                       shape: MaterialStateProperty.all<RoundedRectangleBorder>(
