@@ -37,13 +37,12 @@ class _LoginPageState extends State<LoginPage> {
 
       if (mounted) {
         if (signInOK) {
-          Navigator.of(context).push(
+          Navigator.of(context).pushAndRemoveUntil(
             MaterialPageRoute(
-              builder: (context) => HomeScreen(key: UniqueKey()),
-            ),
+              builder: (context) => HomeScreen(key: UniqueKey()),),
+                (route) => false,
           );
         } else {
-          print("Sign in failed");
           showDialog(
             context: context,
             builder: (BuildContext context) {
@@ -59,7 +58,7 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   void _goToRegisterPage() {
-    Navigator.of(context).push(
+    Navigator.of(context).pushReplacement(
       MaterialPageRoute(
         builder: (context) => const RegisterPage(),
       ),

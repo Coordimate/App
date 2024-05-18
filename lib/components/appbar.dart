@@ -3,7 +3,7 @@ import 'package:coordimate/components/colors.dart';
 
 class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   final String title;
-  final VoidCallback onPressed;
+  final VoidCallback? onPressed;
   final bool needButton;
   final IconData buttonIcon;
 

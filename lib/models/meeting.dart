@@ -5,7 +5,7 @@ enum MeetingStatus {
   accepted,
   needsAcceptance,
 }
-
+// TODO: technically it's not used
 class Meeting {
 
   final String id;
@@ -14,8 +14,6 @@ class Meeting {
   final DateTime dateTime;
   final String adminId;
   final String description;
-  // for meeting tiles
-  final MeetingStatus status;
 
   Meeting({
     this.id = '',
@@ -24,7 +22,6 @@ class Meeting {
     this.description = '',
     this.adminId = '',
     this.group = '',
-    this.status = MeetingStatus.needsAcceptance,
   });
 
   String getFormattedDate() {
@@ -32,8 +29,6 @@ class Meeting {
   }
 
   factory Meeting.fromJson(Map<String, dynamic> json) {
-    print("json data ${json['start']}");
-    print(DateTime.parse(json['start']));
     return Meeting(
       id: json['id'].toString(),
       title: json['title'],
@@ -41,7 +36,112 @@ class Meeting {
       dateTime: DateTime.parse(json['start']),
       adminId: json['admin_id'] ?? '',
       description: json['description'] ?? '',
+      // status: json['status'] == 'accepted' ? MeetingStatus.accepted : json['status'] == 'declined' ? MeetingStatus.declined : MeetingStatus.needsAcceptance,
+    );
+  }
+}
+
+class MeetingTileModel {
+  final String id;
+  final String title;
+  final String group;
+  final DateTime dateTime;
+  final MeetingStatus status;
+
+  MeetingTileModel({
+    this.id = '',
+    required this.title,
+    required this.dateTime,
+    this.group = '',
+    this.status = MeetingStatus.needsAcceptance,
+  });
+
+  String getFormattedDate() {
+    return DateFormat('EEE, MMMM d, HH:mm').format(dateTime);
+  }
+
+  bool isInPast() {
+    return dateTime.isBefore(DateTime.now());
+  }
+
+  factory MeetingTileModel.fromJson(Map<String, dynamic> json) {
+    return MeetingTileModel(
+      id: json['id'].toString(),
+      title: json['title'],
+      group: json['group_id'].toString(),
+      dateTime: DateTime.parse(json['start']),
       status: json['status'] == 'accepted' ? MeetingStatus.accepted : json['status'] == 'declined' ? MeetingStatus.declined : MeetingStatus.needsAcceptance,
     );
   }
+}
+
+class Participant {
+  final String id;
+  final String username;
+  final String status;
+
+  Participant({
+    required this.id,
+    required this.username,
+    required this.status,
+  });
+
+  factory Participant.fromJson(Map<String, dynamic> json) {
+    return Participant(
+      id: json['user_id'].toString(),
+      username: json['user_username'],
+      status: json['status'],
+    );
+  }
+}
+
+class MeetingDetails {
+  final String id;
+  final String title;
+  final String groupId;
+  final String groupName;
+  final DateTime dateTime;
+  final Participant admin;
+  final String description;
+  final List<Participant> participants;
+  MeetingStatus status;
+
+  MeetingDetails({
+    this.id = '',
+    required this.title,
+    required this.dateTime,
+    required this.participants,
+    required this.description,
+    required this.admin,
+    required this.groupId,
+    required this.groupName,
+    required this.status,
+  });
+
+  String getFormattedDate() {
+    return DateFormat('EEEE, MMMM d').format(dateTime);
+  }
+
+  String getFormattedTime() {
+    return DateFormat('HH:mm').format(dateTime);
+  }
+
+  bool isInPast() {
+    return dateTime.isBefore(DateTime.now());
+  }
+
+  factory MeetingDetails.fromJson(Map<String, dynamic> json) {
+    return MeetingDetails(
+      id: json['id'].toString(),
+      title: json['title'],
+      groupId: json['group_id'].toString(),
+      groupName: json['group_name'],
+      dateTime: DateTime.parse(json['start']),
+      admin: Participant.fromJson(json['admin']),
+      description: json['description'] ?? '',
+      status: json['status'] == 'accepted' ? MeetingStatus.accepted : json['status'] == 'declined' ? MeetingStatus.declined : MeetingStatus.needsAcceptance,
+      participants: (json['participants'] as List).map((e) => Participant.fromJson(e)).toList(),
+    );
+  }
+
 }
