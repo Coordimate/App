@@ -8,8 +8,9 @@ import 'package:coordimate/models/meeting.dart';
 import 'package:coordimate/keys.dart';
 import 'dart:convert';
 import 'package:intl/intl.dart';
-
 import 'package:coordimate/api_client.dart';
+import 'package:coordimate/components/archive_scroll.dart';
+import 'package:coordimate/pages/meetings_archive.dart';
 
 class MeetingsPage extends StatefulWidget {
   const MeetingsPage({
@@ -25,7 +26,7 @@ class _MeetingsPageState extends State<MeetingsPage> {
   final TextEditingController _titleController = TextEditingController();
   final TextEditingController _descriptionController = TextEditingController();
   DateTime _selectedDate = DateTime.now();
-  List<Meeting> meetings = [];
+  List<MeetingTileModel> meetings = [];
 
   Future<void> _selectDate() async {
     final DateTime? pickedDate = await showDatePicker(
@@ -67,8 +68,6 @@ class _MeetingsPageState extends State<MeetingsPage> {
         'start': _selectedDate.toIso8601String(),
         'description': _descriptionController.text,
         'group_id': '1',
-        'needs_acceptance': true,
-        'accepted': false,
       }),
     );
     if (response.statusCode == 201) {
@@ -154,84 +153,67 @@ class _MeetingsPageState extends State<MeetingsPage> {
   Future<void> _fetchMeetings() async {
     final response = await client.get(Uri.parse("$apiUrl/meetings/"));
     if (response.statusCode == 200) {
-      // print(response.body);
-      // print(json.decode(response.body)['meetings'][0]);
+      if (!mounted) {return;}
       setState(() {
         meetings = (json.decode(response.body)['meetings'] as List)
-            .map((data) => Meeting.fromJson(data))
+            .map((data) => MeetingTileModel.fromJson(data))
             .toList();
-        meetings.sort((a, b) => a.dateTime.difference(DateTime.now()).inMilliseconds - b.dateTime.difference(DateTime.now()).inMilliseconds);
+        for (var meeting in meetings.where((meeting) => meeting.status == MeetingStatus.needsAcceptance).toList()) {
+          if (meeting.dateTime.isBefore(DateTime.now())) {
+            _answerInvitation(meeting.id, false, showSnackBar: false);
+          }
+        }
+        meetings.sort((a, b) => a.dateTime.difference(DateTime.now()).inSeconds.abs() - b.dateTime.difference(DateTime.now()).inSeconds.abs());
       });
     } else {
       throw Exception('Failed to load meetings');
     }
   }
 
-  Future<void> _acceptMeeting(String id) async {
+  Future<void> _answerInvitation(String id, bool accept, {bool showSnackBar = true}) async {
+    String status = 'accepted';
+    if (!accept) {
+      status = 'declined';
+    }
     final response = await client.patch(
         Uri.parse("$apiUrl/invites/$id"),
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
         },
         body: json.encode(<String, dynamic>{
-          'status': 'accepted',
+          'status': status,
         })
     );
-
-    // print(response);
-
-    if (!mounted) {
-      return;
-    }
+    if (!mounted) {return;}
     if (response.statusCode == 200) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Meeting accepted')),
-      );
-      // Fetch the meetings again after accepting
+      if (showSnackBar) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("Meeting $status")),
+        );
+      }
       _fetchMeetings();
     } else {
-      throw Exception('Failed to accept meeting');
+      throw Exception('Failed to answer invitation');
     }
   }
 
-  Future<void> _declineMeeting(String id) async {
-    final response = await client.patch(
-      Uri.parse("$apiUrl/invites/$id"),
-      headers: <String, String>{
-        'Content-Type': 'application/json; charset=UTF-8',
-      },
-      body: json.encode(<String, dynamic>{
-        'status': 'declined',
-      }),
-    );
-
-    // print(response);
-
-    if (!mounted) {
-      return;
-    }
-    if (response.statusCode == 200) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Meeting declined')),
-      );
-      // Fetch the meetings again after accepting
-      _fetchMeetings();
-    } else {
-      throw Exception('Failed to accept meeting');
-    }
-  }
+  DateTime selectedDate = DateTime.now();
 
   @override
   Widget build(BuildContext context) {
-    List<Meeting> declinedMeetings = meetings.where((meeting) => meeting.status == MeetingStatus.declined).toList();
-    List<Meeting> newInvitations = meetings.where((meeting) => meeting.status == MeetingStatus.needsAcceptance).toList();
-    List<Meeting> acceptedMeetings = meetings.where((meeting) => meeting.status == MeetingStatus.accepted).toList();
+    List<MeetingTileModel> declinedMeetings = meetings.where((meeting) => meeting.status == MeetingStatus.declined).toList();
+    List<MeetingTileModel> newInvitations = meetings.where((meeting) => meeting.status == MeetingStatus.needsAcceptance).toList();
+    List<MeetingTileModel> acceptedMeetings = meetings.where((meeting) => meeting.status == MeetingStatus.accepted).toList();
+    List<MeetingTileModel> acceptedPassedMeetings = acceptedMeetings.where((meeting) => meeting.dateTime.isBefore(DateTime.now())).toList();
+    List<MeetingTileModel> acceptedFutureMeetings = acceptedMeetings.where((meeting) => meeting.dateTime.isAfter(DateTime.now())).toList();
+    List<MeetingTileModel> archivedMeetings = acceptedPassedMeetings + declinedMeetings;
+    archivedMeetings.sort((a, b) => b.dateTime.compareTo(a.dateTime));
 
     double screenHeight = MediaQuery.of(context).size.height;
     double screenWidth = MediaQuery.of(context).size.width;
     double boxWidth = screenWidth / 5 * 0.85;
     double paddingBottom = 8.0; // space between calendar row and meeting list
-    double initialChildSize = (boxWidth + paddingBottom + kBottomNavigationBarHeight) / screenHeight;
+    double initialChildSize = (boxWidth + paddingBottom + kBottomNavigationBarHeight - 3) / screenHeight;
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -239,19 +221,63 @@ class _MeetingsPageState extends State<MeetingsPage> {
           title: "Meetings", needButton: true, onPressed: _onCreateMeeting),
       body: Stack(
         children: [
-          ListView(
-            padding: EdgeInsets.only(bottom: MediaQuery.of(context).size.height * 0.17), // Add padding to the bottom
-            children: [
-              if (declinedMeetings.isNotEmpty) ...[
-                _buildMeetingList(declinedMeetings, "Declined Meetings"),
+          Padding(
+            padding: EdgeInsets.only(bottom: MediaQuery.of(context).size.height * 0.1),
+            child: CustomScrollView(
+              slivers: <Widget>[
+                SliverHidedHeader(
+                    child: Container(
+                      margin: const EdgeInsets.only(bottom: 8),
+                      height: 50,
+                      color: Colors.white,
+                      child: Container(
+                        padding: const EdgeInsets.only(left: 16),
+                        child: GestureDetector(
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(builder: (context) => MeetingsArchivePage(meetings: archivedMeetings, fetchMeetings: _fetchMeetings)),
+                            );
+                          },
+                          child: const Align(
+                            alignment: Alignment.center,
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              children: [
+                                Icon(
+                                  Icons.archive,
+                                  color: Colors.grey,
+                                  size: 30,
+                                ),
+                                SizedBox(width: 8),
+                                Text(
+                                    "Archive",
+                                    style: TextStyle(color: Colors.grey, fontSize: 20, fontWeight: FontWeight.bold)
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                    )
+                ),
+                SliverList(
+                  delegate: SliverChildListDelegate(
+                      [
+                        // if (declinedMeetings.isNotEmpty) ...[
+                        //   _buildMeetingList(declinedMeetings, "Declined Meetings"),
+                        // ],
+                        if (newInvitations.isNotEmpty) ...[
+                          _buildMeetingList(newInvitations, "Invitations"),
+                        ],
+                        if (acceptedFutureMeetings.isNotEmpty) ...[
+                          _buildMeetingList(acceptedFutureMeetings, "Upcoming Meetings"),
+                        ],
+                      ]
+                  ),
+                ),
               ],
-              if (newInvitations.isNotEmpty) ...[
-                _buildMeetingList(newInvitations, "Invitations"),
-              ],
-              if (acceptedMeetings.isNotEmpty) ...[
-                _buildMeetingList(acceptedMeetings, "Accepted Meetings"),
-              ],
-            ],
+            ),
           ),
           DraggableBottomSheet(
             initialChildSize: initialChildSize,
@@ -259,33 +285,25 @@ class _MeetingsPageState extends State<MeetingsPage> {
               children: [
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    CalendarDayBox(date: DateTime.now(), isSelected: false),
-                    CalendarDayBox(date: DateTime.now().add(const Duration(days: 1)), isSelected: false),
-                    CalendarDayBox(date: DateTime.now().add(const Duration(days: 2)), isSelected: true),
-                    CalendarDayBox(date: DateTime.now().add(const Duration(days: 3)), isSelected: true),
-                    CalendarDayBox(date: DateTime.now().add(const Duration(days: 4)), isSelected: false),
-                  ],
+                  children: List<DateTime>.generate(5, (i) => DateTime.now().add(Duration(days: i))).map(
+                        (date) => CalendarDayBox(
+                      date: date,
+                      isSelected: selectedDate.day == date.day, // Pass isSelected based on selectedDate
+                      onSelected: (selectedDate) {
+                        setState(() {
+                          this.selectedDate = selectedDate; // Update the selected date
+                        });
+                      },
+                    ),
+                  ).toList(),
                 ),
                 const SizedBox(height: 16),
-                AcceptedMeetingTile(meeting: Meeting(
-                  title: "BUBABOBA",
-                  dateTime: DateTime.now(),
-                  description: "BUBABOBA",
-                  status: MeetingStatus.accepted,
-                ),),
-                AcceptedMeetingTile(meeting: Meeting(
-                  title: "BUBABOBA2",
-                  dateTime: DateTime.now(),
-                  description: "BUBABOBA2",
-                  status: MeetingStatus.accepted,
-                ),),
-                AcceptedMeetingTile(meeting: Meeting(
-                  title: "BUBABOBA3",
-                  dateTime: DateTime.now(),
-                  description: "BUBABOBA3",
-                  status: MeetingStatus.accepted,
-                ),),
+                if (newInvitations.isNotEmpty) ...[
+                  _buildDailyMeetingList(newInvitations, selectedDate),
+                ],
+                if (acceptedMeetings.isNotEmpty) ...[
+                  _buildDailyMeetingList(acceptedMeetings, selectedDate),
+                ],
               ],
             ),
           ),
@@ -294,7 +312,38 @@ class _MeetingsPageState extends State<MeetingsPage> {
     );
   }
 
-  Widget _buildMeetingList(List<Meeting> meetings, String title) {
+  Widget _buildDailyMeetingList(List<MeetingTileModel> meetings, DateTime selectedDate) {
+    return ListView.builder(
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      itemCount: meetings.length,
+      itemBuilder: (context, index) {
+        if (meetings[index].dateTime.day == selectedDate.day &&
+            meetings[index].dateTime.month == selectedDate.month &&
+            meetings[index].dateTime.year == selectedDate.year &&
+            meetings[index].status == MeetingStatus.needsAcceptance) {
+          return NewMeetingTile(
+            meeting: meetings[index],
+            onAccepted: () => _answerInvitation(meetings[index].id, true),
+            onDeclined: () => _answerInvitation(meetings[index].id, false),
+            fetchMeetings: _fetchMeetings,
+          );
+        } else if (meetings[index].dateTime.day == selectedDate.day &&
+            meetings[index].dateTime.month == selectedDate.month &&
+            meetings[index].dateTime.year == selectedDate.year) {
+          return AcceptedMeetingTile(
+            meeting: meetings[index],
+            fetchMeetings: _fetchMeetings,
+          );
+        } else {
+          return Container();
+        }
+      },
+    );
+  }
+
+  Widget _buildMeetingList(List<MeetingTileModel> meetings, String title) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
@@ -310,16 +359,19 @@ class _MeetingsPageState extends State<MeetingsPage> {
             if (meetings[index].status == MeetingStatus.needsAcceptance) {
               return NewMeetingTile(
                 meeting: meetings[index],
-                onAccepted: () => _acceptMeeting(meetings[index].id),
-                onDeclined: () => _declineMeeting(meetings[index].id),
+                onAccepted: () => _answerInvitation(meetings[index].id, true),
+                onDeclined: () => _answerInvitation(meetings[index].id, false),
+                fetchMeetings: _fetchMeetings,
               );
             } else if (meetings[index].status == MeetingStatus.declined) {
               return ArchivedMeetingTile(
                 meeting: meetings[index],
+                fetchMeetings: _fetchMeetings,
               );
             } else {
               return AcceptedMeetingTile(
                 meeting: meetings[index],
+                fetchMeetings: _fetchMeetings,
               );
             }
           },
@@ -421,31 +473,27 @@ class _DraggableBottomSheetState extends State<DraggableBottomSheet> {
 
   SliverToBoxAdapter topButtonIndicator() {
     return SliverToBoxAdapter(
-      child: Container(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Container(
-              child: Center(
-                child: Wrap(
-                  children: [
-                    Container(
-                      width: 100,
-                      margin: const EdgeInsets.symmetric(vertical: 10),
-                      height: 5,
-                      decoration: BoxDecoration(
-                        color: darkBlue,
-                        shape: BoxShape.rectangle,
-                        borderRadius: BorderRadius.circular(5),
-                      ),
-                    ),
-                  ],
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Center(
+            child: Wrap(
+              children: [
+                Container(
+                  width: 100,
+                  margin: const EdgeInsets.symmetric(vertical: 10),
+                  height: 5,
+                  decoration: BoxDecoration(
+                    color: darkBlue,
+                    shape: BoxShape.rectangle,
+                    borderRadius: BorderRadius.circular(5),
+                  ),
                 ),
-              ),
+              ],
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }

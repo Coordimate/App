@@ -1,4 +1,3 @@
-import 'package:coordimate/components/appbar.dart';
 import 'package:coordimate/components/login_button.dart';
 import 'package:coordimate/components/login_text_field.dart';
 import 'package:coordimate/screens/home_screen.dart';
@@ -46,10 +45,10 @@ class _RegisterPageState extends State<RegisterPage> {
 
         if (mounted) {
           if (registrationOK) {
-            Navigator.of(context).push(
+            Navigator.of(context).pushAndRemoveUntil(
               MaterialPageRoute(
-                builder: (context) => HomeScreen(key: UniqueKey()),
-              ),
+                builder: (context) => HomeScreen(key: UniqueKey()),),
+                  (route) => false,
             );
           } else {
             showDialog(
@@ -81,7 +80,7 @@ class _RegisterPageState extends State<RegisterPage> {
   }
 
   void _goToLogInPage() {
-    Navigator.of(context).push(
+    Navigator.of(context).pushReplacement(
       MaterialPageRoute(
         builder: (context) => const LoginPage(),
       ),
