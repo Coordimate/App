@@ -4,6 +4,7 @@ import 'package:coordimate/components/colors.dart';
 import 'package:coordimate/components/appbar.dart';
 import 'package:coordimate/models/groups.dart';
 import 'package:coordimate/keys.dart';
+import 'group_details_page.dart'; // Import the new GroupDetailsPage
 
 import 'dart:convert';
 import 'package:coordimate/api_client.dart';
@@ -77,6 +78,14 @@ class _GroupsPageState extends State<GroupsPage> {
     );
   }
 
+  void _navigateToGroupDetails(Group group) {
+    // Function to navigate to GroupDetailsPage
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => GroupDetailsPage(group: group)),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return FutureBuilder<List<Group>>(
@@ -101,49 +110,53 @@ class _GroupsPageState extends State<GroupsPage> {
             body: ListView.builder(
               itemCount: _groups.length,
               itemBuilder: (context, index) {
-                return Container(
-                  decoration: BoxDecoration(
-                    color: darkBlue,
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  margin:
-                      const EdgeInsets.symmetric(vertical: 5, horizontal: 10),
-                  padding: const EdgeInsets.all(10),
-                  child: Row(
-                    children: [
-                      Container(
-                        width: 70,
-                        height: 70,
-                        decoration: const BoxDecoration(
-                          shape: BoxShape.circle,
-                          color: Colors.white,
+                return GestureDetector(
+                  onTap: () => _navigateToGroupDetails(
+                      _groups[index]), // Make card clickable
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: darkBlue,
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    margin:
+                        const EdgeInsets.symmetric(vertical: 5, horizontal: 10),
+                    padding: const EdgeInsets.all(10),
+                    child: Row(
+                      children: [
+                        Container(
+                          width: 70,
+                          height: 70,
+                          decoration: const BoxDecoration(
+                            shape: BoxShape.circle,
+                            color: Colors.white,
+                          ),
                         ),
-                      ),
-                      const SizedBox(width: 10),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              _groups[index].name,
-                              style: const TextStyle(
-                                fontSize: 30,
-                                color: Colors.white,
-                                fontWeight: FontWeight.bold,
+                        const SizedBox(width: 10),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                _groups[index].name,
+                                style: const TextStyle(
+                                  fontSize: 30,
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold,
+                                ),
                               ),
-                            ),
-                            const SizedBox(height: 5),
-                            Text(
-                              _groups[index].description,
-                              style: const TextStyle(
-                                fontSize: 16,
-                                color: Colors.white,
+                              const SizedBox(height: 5),
+                              Text(
+                                _groups[index].description,
+                                style: const TextStyle(
+                                  fontSize: 16,
+                                  color: Colors.white,
+                                ),
                               ),
-                            ),
-                          ],
+                            ],
+                          ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 );
               },
@@ -219,7 +232,7 @@ class _CreateGroupDialogState extends State<CreateGroupDialog> {
                 });
               },
               maxLines: 3,
-              maxLength: 100,
+              maxLength: 300,
               decoration: InputDecoration(
                 contentPadding: const EdgeInsets.all(10),
                 labelText: 'Description',
@@ -233,7 +246,7 @@ class _CreateGroupDialogState extends State<CreateGroupDialog> {
                   borderSide: BorderSide(color: darkBlue),
                 ),
                 labelStyle: const TextStyle(color: Colors.white),
-                counterText: '${groupDescription.length}/100',
+                counterText: '${groupDescription.length}/300',
                 counterStyle: const TextStyle(color: Colors.white),
               ),
               style: const TextStyle(color: Colors.white),
