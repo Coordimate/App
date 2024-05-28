@@ -1,3 +1,4 @@
+import 'package:coordimate/api/google_api.dart';
 import 'package:coordimate/keys.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
@@ -6,22 +7,47 @@ import 'package:coordimate/models/user.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 const storage = FlutterSecureStorage();
+enum AuthType {
+  google,
+  facebook,
+  email,
+}
+const signInType = {
+  AuthType.google : 'google',
+  AuthType.facebook : 'facebook',
+  AuthType.email : 'email',
+};
 
 void logUserOutStorage() async {
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+  String? signInMethod = prefs.getString('sign_in_method');
+  print("sign method: $signInMethod");
+
   storage.delete(key: 'refresh_token');
   storage.delete(key: 'access_token');
-  SharedPreferences prefs = await SharedPreferences.getInstance();
+
   prefs.remove('access_token');
   prefs.remove('refresh_token');
+
+  if (signInMethod == signInType[AuthType.google]) {
+    await GoogleSignInApi.logout();
+  } else if (signInMethod == signInType[AuthType.facebook]) {
+    // Call Facebook logout function
+  }
 }
 
-Future<bool> signUserInStorage(pswd, email) async {
+Future<bool> signUserInStorage(email, signInMethod, {pswd}) async {
   var url = Uri.parse("$apiUrl/login");
 
-  final User user = User(
+  User user = User(
     email: email,
-    password: pswd,
   );
+  if (signInMethod == AuthType.email) {
+    user = User(
+      email: email,
+      password: pswd,
+    );
+  }
 
   final response = await http.post(
     url,
@@ -43,6 +69,13 @@ Future<bool> signUserInStorage(pswd, email) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     prefs.setString('access_token', accessToken);
     prefs.setString('refresh_token', refreshToken);
+    if (signInMethod == AuthType.google) {
+      prefs.setString('sign_in_method', signInType[AuthType.google]!);
+    } else if (signInMethod == AuthType.facebook) {
+      prefs.setString('sign_in_method', signInType[AuthType.facebook]!);
+    } else {
+      prefs.setString('sign_in_method', signInType[AuthType.email]!);
+    }
 
     return true;
   } else {
@@ -51,14 +84,21 @@ Future<bool> signUserInStorage(pswd, email) async {
   }
 }
 
-Future<bool> registerUserStorage(pswd, email, username) async {
+Future<bool> registerUserStorage(email, username, signInMethod, {pswd}) async {
   var url = Uri.parse("$apiUrl/register");
 
-  final User user = User(
+  User user = User(
     username: username,
     email: email,
-    password: pswd,
   );
+
+  if (signInMethod == AuthType.email) {
+    user = User(
+      username: username,
+      email: email,
+      password: pswd,
+    );
+  }
 
   final jsonUser = json.encode(user);
   // print(jsonUser);
@@ -75,7 +115,7 @@ Future<bool> registerUserStorage(pswd, email, username) async {
 
   if (response.statusCode == 201) {
     print("User registered successfully");
-    return await signUserInStorage(pswd, email);
+    return await signUserInStorage(email, signInMethod, pswd : pswd);
   } else if (response.statusCode == 400) {
     print("User with email $email already exists");
     return false;

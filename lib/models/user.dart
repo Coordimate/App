@@ -3,13 +3,13 @@ class User {
     this.id = 0,
     this.username = '',
     required this.email,
-    required this.password
+    this.password,
   });
 
   final int id;
   final String username;
   final String email;
-  final String password;
+  final String? password;
 
   factory User.fromJson(Map<String, dynamic> json) {
     return User(
@@ -21,10 +21,17 @@ class User {
   }
 
   Map<String, dynamic> toJson() {
-    return {
-      'username': username,
-      'email': email,
-      'password': password,
-    };
+    if (password == null) {
+      return {
+        'username': username,
+        'email': email,
+      };
+    } else {
+      return {
+        'username': username,
+        'email': email,
+        'password': password,
+      };
+    }
   }
 }

@@ -1,10 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:coordimate/api/google_api.dart';
-
-enum AuthType {
-  google,
-  facebook,
-}
+import 'package:coordimate/screens/home_screen.dart';
+import 'package:coordimate/keys.dart';
+import 'package:coordimate/data/storage.dart';
 
 class SquareTile extends StatelessWidget {
   final String imagePath;
@@ -16,13 +14,15 @@ class SquareTile extends StatelessWidget {
     required this.authType,
   });
 
-  Future<void> _authGoogle() async {
+  Future<bool> _authGoogle() async {
     print('Google Auth');
     final user = await GoogleSignInApi.login();
     if (user != null) {
-      print('Google User: ${user.displayName}, ${user.email}');
+      print('Google User: ${user.displayName}, ${user.email}, ${user.id}');
+      return true;
     } else {
       print('Google Sign In Failed');
+      return false;
     }
   }
 
@@ -30,15 +30,31 @@ class SquareTile extends StatelessWidget {
     print('Facebook Auth');
   }
 
-  void _authUser() {
+  Future<void> _authUser() async {
+    bool auth = false;
     switch (authType) {
       case AuthType.google:
-        _authGoogle();
+        auth = await _authGoogle();
         break;
+
       case AuthType.facebook:
         _authFacebook();
         break;
+
+      default:
+        break;
     }
+
+    if (auth) {
+      print('User Authenticated');
+      navigatorKey.currentState!.pushAndRemoveUntil(
+        MaterialPageRoute(builder: (BuildContext context) => HomeScreen(key: UniqueKey())),
+            (route) => false,
+      );
+    } else {
+      print('User Not Authenticated');
+    }
+    // GoogleSignInApi.logout();
   }
 
   @override

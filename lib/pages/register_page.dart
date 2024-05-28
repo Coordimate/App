@@ -39,9 +39,10 @@ class _RegisterPageState extends State<RegisterPage> {
     if (passwordController.text.isNotEmpty && emailController.text.isNotEmpty && usernameController.text.isNotEmpty && confirmPasswordController.text.isNotEmpty) {
       if (passwordController.text == confirmPasswordController.text) {
         final registrationOK = await registerUserStorage(
-            passwordController.text,
             emailController.text,
-            usernameController.text
+            usernameController.text,
+            AuthType.email,
+            pswd : passwordController.text
         );
 
         if (mounted) {

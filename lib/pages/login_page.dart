@@ -33,7 +33,7 @@ class _LoginPageState extends State<LoginPage> {
     }
     if (passwordController.text.isNotEmpty && emailController.text.isNotEmpty) {
       final signInOK = await signUserInStorage(
-          passwordController.text, emailController.text);
+          emailController.text, AuthType.email, pswd : passwordController.text);
 
       if (mounted) {
         if (signInOK) {

@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:coordimate/pages/start_page.dart';
 import 'package:flutter/material.dart';
 
 import 'package:coordimate/components/colors.dart';
@@ -514,8 +515,10 @@ class PersonalSchedulePage extends StatelessWidget {
 
   void logOut(BuildContext context) {
     logUserOutStorage();
-    Navigator.popUntil(
-        context, (Route<dynamic> predicate) => predicate.isFirst);
+    // Navigator.popUntil(
+    //     context, (Route<dynamic> predicate) => predicate.isFirst);
+    Navigator.pushReplacement(context,
+        MaterialPageRoute(builder: (context) => StartPage(key: UniqueKey())));
   }
 
   @override
