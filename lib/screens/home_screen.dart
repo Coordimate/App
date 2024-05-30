@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:uni_links/uni_links.dart';
@@ -17,6 +18,7 @@ class HomeScreen extends StatefulWidget {
 
 class HomeScreenState extends State<HomeScreen> {
   int _selectedScreen = 1;
+  late StreamSubscription _sub;
 
   static final List<Widget> _screens = [
     const PersonalSchedulePage(),
@@ -30,12 +32,25 @@ class HomeScreenState extends State<HomeScreen> {
     initUniLinks().whenComplete(() {});
   }
 
+  @override
+  void dispose() {
+    _sub.cancel();
+    super.dispose();
+  }
+
   Future<void> initUniLinks() async {
     try {
       final initialUri = await getInitialUri();
       if (initialUri != null) {
         _handleDeepLink(initialUri);
       }
+      _sub = uriLinkStream.listen((Uri? link) {
+        if (link != null) {
+          _handleDeepLink(link);
+        }
+      }, onError: (err) {
+        print("Error parsing change in uniLink");
+      });
     } on PlatformException {
       print("Failed to get UniLink");
       return;
