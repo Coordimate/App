@@ -61,11 +61,20 @@ class _MeetingsArchivePageState extends State<MeetingsArchivePage> {
           itemCount: meetings.length,
           itemBuilder: (context, index) {
             if (index == meetings.indexWhere((meeting) => meeting.isInPast())) {
-              return const Padding(
-                padding: EdgeInsets.only(bottom: 10.0),
-                child: CustomDivider(
-                  text: 'Passed Meetings',
-                ),
+              return Column(
+                children: [
+                  const CustomDivider(
+                    text: 'Passed Meetings',
+                  ),
+                  const SizedBox(height: 16.0),
+                  ArchivedMeetingTile(
+                    meeting: meetings[index],
+                    fetchMeetings: () {
+                      _fetchDeclinedMeetings();
+                      widget.fetchMeetings();
+                    },
+                  ),
+                ],
               );
             } else if (meetings[index].status == MeetingStatus.declined) {
               return ArchivedMeetingTile(
