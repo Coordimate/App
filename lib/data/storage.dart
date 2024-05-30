@@ -4,6 +4,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
 import 'package:coordimate/models/user.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:coordimate/api_client.dart';
 
 const storage = FlutterSecureStorage();
 
@@ -44,6 +45,14 @@ Future<bool> signUserInStorage(pswd, email) async {
     prefs.setString('access_token', accessToken);
     prefs.setString('refresh_token', refreshToken);
 
+    final meResponse = await client.get(Uri.parse('$apiUrl/me'));
+    if (meResponse.statusCode != 200) {
+      print("error requesting user account from /me");
+      return false;
+    }
+    final body = json.decode(meResponse.body);
+    await storage.write(key: 'id_account', value: body['id']);
+
     return true;
   } else {
     print("Failed to sign in with response code ${response.statusCode}");
@@ -83,4 +92,3 @@ Future<bool> registerUserStorage(pswd, email, username) async {
   print("User registration failed ${response.statusCode}");
   return false;
 }
-
