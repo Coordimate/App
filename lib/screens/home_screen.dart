@@ -32,12 +32,6 @@ class HomeScreenState extends State<HomeScreen> {
   ];
 
   @override
-  void initState() {
-    super.initState();
-    initUniLinks().whenComplete(() {});
-  }
-
-  @override
   void dispose() {
     _sub.cancel();
     super.dispose();
@@ -90,6 +84,7 @@ class HomeScreenState extends State<HomeScreen> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _initNotifications();
     });
+    initUniLinks().whenComplete(() {});
   }
 
   void _initNotifications() async {
