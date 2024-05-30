@@ -1,4 +1,5 @@
 import 'package:coordimate/api/google_api.dart';
+import 'package:coordimate/api/facebook_api.dart';
 import 'package:coordimate/keys.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
@@ -32,7 +33,7 @@ void logUserOutStorage() async {
   if (signInMethod == signInType[AuthType.google]) {
     await GoogleSignInApi.logout();
   } else if (signInMethod == signInType[AuthType.facebook]) {
-    // Call Facebook logout function
+    await FacebookSignInApi.logout();
   }
 }
 

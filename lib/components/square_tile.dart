@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:coordimate/api/google_api.dart';
+import 'package:coordimate/api/facebook_api.dart';
 import 'package:coordimate/screens/home_screen.dart';
 import 'package:coordimate/keys.dart';
 import 'package:coordimate/data/storage.dart';
@@ -26,8 +27,16 @@ class SquareTile extends StatelessWidget {
     }
   }
 
-  void _authFacebook() {
+  Future<bool> _authFacebook() async {
     print('Facebook Auth');
+    final user = await FacebookSignInApi.login();
+    if (user != null) {
+      print("${user['name']} ${user['email']}");
+      return true;
+    } else {
+      print('Facebook Sign In Failed');
+      return false;
+    }
   }
 
   Future<void> _authUser() async {
@@ -38,7 +47,7 @@ class SquareTile extends StatelessWidget {
         break;
 
       case AuthType.facebook:
-        _authFacebook();
+        auth = await _authFacebook();
         break;
 
       default:
