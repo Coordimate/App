@@ -6,7 +6,7 @@ import 'package:coordimate/api_client.dart';
 import 'package:coordimate/keys.dart';
 import 'package:coordimate/components/agenda.dart';
 import 'dart:convert';
-
+import 'package:share_plus/share_plus.dart';
 import 'package:flutter/services.dart';
 
 class MeetingDetailsPage extends StatefulWidget {
@@ -199,7 +199,9 @@ class _MeetingDetailsPageState extends State<MeetingDetailsPage> {
                             color: darkBlue,
                           ),
                           IconButton(
-                            onPressed: () => {},
+                            onPressed: () {
+                              Share.share(textController.text);
+                            },
                             icon: const Icon(Icons.share, color: darkBlue),
                             color: darkBlue,
                           ),
