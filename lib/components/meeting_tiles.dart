@@ -1,14 +1,18 @@
+import 'dart:convert';
 import 'package:coordimate/components/meeting_action_button.dart';
+import 'package:coordimate/pages/meeting_info_page.dart';
 import 'package:coordimate/models/meeting.dart';
 import 'package:flutter/material.dart';
 import 'package:coordimate/components/colors.dart';
-import 'package:coordimate/components/agenda.dart';
+import 'package:coordimate/api_client.dart';
+import 'package:coordimate/keys.dart';
 
 class MeetingTile extends StatelessWidget {
   final bool isArchived;
-  final Meeting meeting;
+  final MeetingTileModel meeting;
   final VoidCallback onAccepted;
   final VoidCallback onDeclined;
+  final Function fetchMeetings;
 
   const MeetingTile({
     super.key,
@@ -16,7 +20,20 @@ class MeetingTile extends StatelessWidget {
     required this.meeting,
     required this.onAccepted,
     required this.onDeclined,
+    required this.fetchMeetings,
   });
+
+  Future<MeetingDetails> _fetchMeetingDetails() async {
+    final response =
+        await client.get(Uri.parse("$apiUrl/meetings/${meeting.id}/details"));
+    if (response.statusCode == 200) {
+      final meetingDetails =
+          MeetingDetails.fromJson(json.decode(response.body));
+      return meetingDetails;
+    } else {
+      throw Exception('Failed to load meetings');
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -65,7 +82,17 @@ class MeetingTile extends StatelessWidget {
           ],
         ),
         onTap: () {
-          // Navigate to the meeting details page
+          _fetchMeetingDetails().then((meetingDetails) {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) =>
+                    MeetingDetailsPage(meeting: meetingDetails),
+              ),
+            ).then((_) {
+              fetchMeetings();
+            });
+          });
         },
       ),
     );
@@ -78,6 +105,7 @@ class NewMeetingTile extends MeetingTile {
     required super.meeting,
     required super.onAccepted,
     required super.onDeclined,
+    required super.fetchMeetings,
   }) : super(
           isArchived: false,
         );
@@ -126,6 +154,19 @@ class NewMeetingTile extends MeetingTile {
                   ),
                 ],
               ),
+              onTap: () {
+                _fetchMeetingDetails().then((meetingDetails) {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) =>
+                          MeetingDetailsPage(meeting: meetingDetails),
+                    ),
+                  ).then((_) {
+                    fetchMeetings();
+                  });
+                });
+              },
             ),
           ),
           Padding(
@@ -152,7 +193,7 @@ class NewMeetingTile extends MeetingTile {
 }
 
 class AcceptedMeetingTile extends MeetingTile {
-  const AcceptedMeetingTile({super.key, required super.meeting})
+  const AcceptedMeetingTile({super.key, required super.meeting, required super.fetchMeetings})
       : super(
           isArchived: false, // Set isArchived to false
           onAccepted: defaultOnPressed, // Set onAccepted to an empty function
@@ -162,7 +203,7 @@ class AcceptedMeetingTile extends MeetingTile {
 }
 
 class ArchivedMeetingTile extends MeetingTile {
-  const ArchivedMeetingTile({super.key, required super.meeting})
+  const ArchivedMeetingTile({super.key, required super.meeting, required super.fetchMeetings})
       : super(
           isArchived: true, // Set isArchived to true
           onAccepted: defaultOnPressed, // Set onAccepted to an empty function

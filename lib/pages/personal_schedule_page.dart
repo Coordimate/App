@@ -515,10 +515,10 @@ class PersonalSchedulePage extends StatelessWidget {
 
   void logOut(BuildContext context) {
     logUserOutStorage();
-    // Navigator.popUntil(
-    //     context, (Route<dynamic> predicate) => predicate.isFirst);
     Navigator.pushReplacement(context,
         MaterialPageRoute(builder: (context) => StartPage(key: UniqueKey())));
+    // Navigator.popUntil(
+    //     context, (Route<dynamic> predicate) => predicate.isFirst);
   }
 
   @override
