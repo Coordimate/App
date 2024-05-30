@@ -47,16 +47,23 @@
 	<true/>
 	<key>GIDClientID</key>
 	<string>317991147959-640akvpitg1mt6ln0bgskj840vvk4sj0.apps.googleusercontent.com</string>
+	<key>FacebookAppID</key>
+    <string>407464202270747</string>
+    <key>FacebookClientToken</key>
+    <string>9a9c61af3131466495895467320c975c</string>
+    <key>FacebookDisplayName</key>
+    <string>Coordimate</string>
 	<key>CFBundleURLTypes</key>
-	<array>
-	<dict>
-        <key>CFBundleTypeRole</key>
-        <string>Editor</string>
-        <key>CFBundleURLSchemes</key>
-        <array>
-            <string>com.googleusercontent.apps.317991147959-640akvpitg1mt6ln0bgskj840vvk4sj0</string>
-        </array>
-    </dict>
-</array>
+    <array>
+        <dict>
+            <key>CFBundleTypeRole</key>
+            <string>Editor</string>
+            <key>CFBundleURLSchemes</key>
+            <array>
+                <string>com.googleusercontent.apps.317991147959-640akvpitg1mt6ln0bgskj840vvk4sj0</string>
+                <string>fb407464202270747</string>
+            </array>
+        </dict>
+    </array>
 </dict>
 </plist>
