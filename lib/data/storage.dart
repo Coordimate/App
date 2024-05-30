@@ -42,6 +42,7 @@ Future<bool> signUserInStorage(email, signInMethod, {pswd}) async {
 
   User user = User(
     email: email,
+    authType: signInType[signInMethod],
   );
   if (signInMethod == AuthType.email) {
     user = User(
@@ -91,6 +92,7 @@ Future<bool> registerUserStorage(email, username, signInMethod, {pswd}) async {
   User user = User(
     username: username,
     email: email,
+    authType: signInType[signInMethod],
   );
 
   if (signInMethod == AuthType.email) {

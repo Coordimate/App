@@ -2,7 +2,7 @@ import 'package:coordimate/components/appbar.dart';
 import 'package:coordimate/components/login_button.dart';
 import 'package:coordimate/components/login_text_field.dart';
 import 'package:coordimate/screens/home_screen.dart';
-import 'package:coordimate/components/square_tile.dart';
+import 'package:coordimate/components/external_service_tile.dart';
 import 'package:coordimate/components/colors.dart';
 import 'package:coordimate/components/divider.dart';
 import 'package:coordimate/pages/login_page.dart';
