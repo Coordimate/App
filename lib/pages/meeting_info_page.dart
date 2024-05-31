@@ -6,6 +6,8 @@ import 'package:coordimate/api_client.dart';
 import 'package:coordimate/keys.dart';
 import 'package:coordimate/components/agenda.dart';
 import 'dart:convert';
+import 'package:share_plus/share_plus.dart';
+import 'package:flutter/services.dart';
 
 class MeetingDetailsPage extends StatefulWidget {
   final MeetingDetails meeting;
@@ -17,6 +19,8 @@ class MeetingDetailsPage extends StatefulWidget {
 }
 
 class _MeetingDetailsPageState extends State<MeetingDetailsPage> {
+
+  final textController = TextEditingController();
 
   Future<void> _answerInvitation(bool accept) async {
     if (!mounted) {return;}
@@ -163,6 +167,7 @@ class _MeetingDetailsPageState extends State<MeetingDetailsPage> {
           
               if (widget.meeting.status == MeetingStatus.accepted)
                 TextField(
+                  controller: textController,
                   decoration: InputDecoration(
                       enabledBorder: UnderlineInputBorder(
                         borderSide: BorderSide(
@@ -180,13 +185,24 @@ class _MeetingDetailsPageState extends State<MeetingDetailsPage> {
                         mainAxisSize: MainAxisSize.min,
                         children: <Widget>[
                           IconButton(
-                            onPressed: (){},
-                            icon: const Icon(Icons.copy),
+                            onPressed: (){
+                              Clipboard.setData(ClipboardData(text: textController.text));
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                    content: Text("Copied to clipboard"),
+                                    backgroundColor: darkBlue,
+                                    duration: Duration(seconds: 1)
+                                ),
+                              );
+                            },
+                            icon: const Icon(Icons.copy, color: darkBlue),
                             color: darkBlue,
                           ),
                           IconButton(
-                            onPressed: (){},
-                            icon: const Icon(Icons.share),
+                            onPressed: () {
+                              Share.share(textController.text);
+                            },
+                            icon: const Icon(Icons.share, color: darkBlue),
                             color: darkBlue,
                           ),
                         ],
