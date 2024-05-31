@@ -1,13 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:coordimate/models/groups.dart';
-import 'package:coordimate/components/colors.dart';
-import 'package:coordimate/components/appbar.dart';
 import 'package:coordimate/components/divider.dart';
 import 'package:coordimate/components/meeting_tiles.dart';
 import 'package:coordimate/models/meeting.dart';
 import 'package:coordimate/keys.dart';
 import 'dart:convert';
-import 'package:intl/intl.dart';
 import 'package:coordimate/api_client.dart';
 
 class GroupDetailsPage extends StatefulWidget {
@@ -65,6 +62,15 @@ class _GroupDetailsPageState extends State<GroupDetailsPage> {
                 Navigator.pop(context); // Navigate back
               },
             ),
+            SizedBox(width: 17.0), // Add space here
+            IconButton(
+              icon: Icon(Icons.archive),
+              iconSize: 43.0,
+              onPressed: () {
+                //later
+              },
+            ),
+            SizedBox(width: 0.0), // Add space here
             TextButton(
               onPressed: () {
                 // Functionality to be added later
@@ -76,21 +82,41 @@ class _GroupDetailsPageState extends State<GroupDetailsPage> {
       ),
       body: SingleChildScrollView(
         child: Padding(
-          padding: const EdgeInsets.all(16.0),
+          padding: const EdgeInsets.all(4.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: <Widget>[
-              Center(
-                child: CircleAvatar(
-                  radius: 52.0, // Adjust the size as needed
-                  backgroundColor: Colors.grey[300], // Placeholder color
-                  child: Icon(
-                    Icons.group,
-                    size: 40.0, // Adjust the size as needed
-                    color: Colors.white,
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  IconButton(
+                    icon: Icon(Icons
+                        .add_circle_outline_rounded), // Replace with your first button icon
+                    iconSize: 43.0, // Adjust size as needed
+                    onPressed: () {
+                      // Add functionality for the first button
+                    },
                   ),
-                ),
+                  CircleAvatar(
+                    radius: 52.0, // Adjust the size as needed
+                    backgroundColor: Colors.grey[300], // Placeholder color
+                    child: Icon(
+                      Icons.group,
+                      size: 40.0, // Adjust the size as needed
+                      color: Colors.white,
+                    ),
+                  ),
+                  IconButton(
+                    icon: Icon(Icons
+                        .add_circle_outline_rounded), // Replace with your second button icon
+                    iconSize: 43.0, // Adjust size as needed
+                    onPressed: () {
+                      // Add functionality for the second button
+                    },
+                  ),
+                ],
               ),
+              SizedBox(height: 16.0), // Added spacing
               Center(
                 child: Text(
                   widget.group.name,
@@ -125,31 +151,6 @@ class _GroupDetailsPageState extends State<GroupDetailsPage> {
                         fontWeight: FontWeight.bold,
                       ),
                     ),
-                    SizedBox(height: 16.0), // Added spacing
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      children: <Widget>[
-                        ElevatedButton(
-                          onPressed: () {
-                            // Archive button functionality
-                          },
-                          child: Text('Archive'),
-                        ),
-                        ElevatedButton(
-                          onPressed: () {
-                            // Invite button functionality
-                          },
-                          child: Text('Invite'),
-                        ),
-                        ElevatedButton(
-                          onPressed: () {
-                            // Create button functionality
-                          },
-                          child: Text('Create'),
-                        ),
-                      ],
-                    ),
-                    SizedBox(height: 16.0), // Added spacing
                     Container(
                       padding: EdgeInsets.symmetric(horizontal: 8.0),
                       child: TextField(
@@ -157,7 +158,6 @@ class _GroupDetailsPageState extends State<GroupDetailsPage> {
                             text: widget.group.description),
                         decoration: InputDecoration(
                           border: OutlineInputBorder(),
-                          labelText: 'Description',
                         ),
                         maxLines: 3,
                         readOnly: true,
