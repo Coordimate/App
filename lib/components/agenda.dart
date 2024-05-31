@@ -56,6 +56,12 @@ class _AgendaPointWidgetState extends State<_AgendaPointWidget> {
   }
 
   @override
+    void dispose() {
+      textController.dispose();
+      super.dispose();
+    }
+
+  @override
   Widget build(BuildContext context) {
     return GestureDetector(
         onTap: () {
@@ -118,6 +124,7 @@ class _AgendaPointWidgetState extends State<_AgendaPointWidget> {
                         autofocus: true,
                         controller: textController,
                         onTapOutside: storeEdit,
+                        onSubmitted: storeEdit,
                         decoration: null,
                         style: TextStyle(
                           fontSize: widget.fontSize,

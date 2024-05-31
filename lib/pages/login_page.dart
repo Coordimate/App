@@ -2,7 +2,7 @@ import 'package:coordimate/components/divider.dart';
 import 'package:coordimate/components/login_button.dart';
 import 'package:coordimate/components/login_text_field.dart';
 import 'package:coordimate/screens/home_screen.dart';
-import 'package:coordimate/components/square_tile.dart';
+import 'package:coordimate/components/external_service_tile.dart';
 import 'package:coordimate/components/colors.dart';
 import 'package:coordimate/pages/register_page.dart';
 import 'package:flutter/material.dart';
@@ -17,7 +17,6 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
-
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
 
@@ -33,14 +32,15 @@ class _LoginPageState extends State<LoginPage> {
     }
     if (passwordController.text.isNotEmpty && emailController.text.isNotEmpty) {
       final signInOK = await signUserInStorage(
-          passwordController.text, emailController.text);
+          emailController.text, AuthType.email, pswd : passwordController.text);
 
       if (mounted) {
         if (signInOK) {
           Navigator.of(context).pushAndRemoveUntil(
             MaterialPageRoute(
-              builder: (context) => HomeScreen(key: UniqueKey()),),
-                (route) => false,
+              builder: (context) => HomeScreen(key: UniqueKey()),
+            ),
+            (route) => false,
           );
         } else {
           showDialog(
@@ -98,7 +98,6 @@ class _LoginPageState extends State<LoginPage> {
 
             const SizedBox(height: 30),
 
-
             Form(
               key: _formKey,
               child: Column(
@@ -111,9 +110,7 @@ class _LoginPageState extends State<LoginPage> {
                     icon: pathEmail,
                     keyboardType: TextInputType.emailAddress,
                   ),
-
                   const SizedBox(height: 25),
-
                   LoginTextField(
                     controller: passwordController,
                     hintText: "Password",
@@ -122,9 +119,7 @@ class _LoginPageState extends State<LoginPage> {
                     icon: pathLock,
                     keyboardType: TextInputType.visiblePassword,
                   ),
-
                   const SizedBox(height: 20),
-
                   const Padding(
                     padding: EdgeInsets.symmetric(horizontal: 25.0),
                     child: Row(
@@ -140,23 +135,20 @@ class _LoginPageState extends State<LoginPage> {
                       ],
                     ),
                   ),
-
                   const SizedBox(height: 25),
-
                   LoginButton(onTap: signUserIn, text: "Log In"),
                 ],
               ),
             ),
-
 
             const SizedBox(height: 30),
 
             const Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                SquareTile(imagePath: 'lib/images/google.png'),
+                SquareTile(imagePath: 'lib/images/google.png', authType: AuthType.google),
                 SizedBox(width: 50),
-                SquareTile(imagePath: 'lib/images/facebook.png'),
+                SquareTile(imagePath: 'lib/images/facebook.png', authType: AuthType.facebook),
               ],
             ),
 
@@ -166,11 +158,7 @@ class _LoginPageState extends State<LoginPage> {
 
             const SizedBox(height: 20),
 
-            LoginEmptyButton(
-                text: "Register",
-                onTap: _goToRegisterPage
-            ),
-
+            LoginEmptyButton(text: "Register", onTap: _goToRegisterPage),
           ],
         ),
       ),
