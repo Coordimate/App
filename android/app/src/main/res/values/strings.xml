@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Coordimate</string>
+    <string name="facebook_app_id">407464202270747</string>
+    <string name="fb_login_protocol_scheme">fb407464202270747</string>
+    <string name="facebook_client_token">9a9c61af3131466495895467320c975c</string>
+</resources>

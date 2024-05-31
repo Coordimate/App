@@ -2,7 +2,7 @@ import 'package:coordimate/components/divider.dart';
 import 'package:coordimate/components/login_button.dart';
 import 'package:coordimate/components/login_text_field.dart';
 import 'package:coordimate/screens/home_screen.dart';
-import 'package:coordimate/components/square_tile.dart';
+import 'package:coordimate/components/external_service_tile.dart';
 import 'package:coordimate/components/colors.dart';
 import 'package:coordimate/pages/register_page.dart';
 import 'package:flutter/material.dart';
@@ -32,7 +32,7 @@ class _LoginPageState extends State<LoginPage> {
     }
     if (passwordController.text.isNotEmpty && emailController.text.isNotEmpty) {
       final signInOK = await signUserInStorage(
-          passwordController.text, emailController.text);
+          emailController.text, AuthType.email, pswd : passwordController.text);
 
       if (mounted) {
         if (signInOK) {
@@ -146,9 +146,9 @@ class _LoginPageState extends State<LoginPage> {
             const Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                SquareTile(imagePath: 'lib/images/google.png'),
+                SquareTile(imagePath: 'lib/images/google.png', authType: AuthType.google),
                 SizedBox(width: 50),
-                SquareTile(imagePath: 'lib/images/facebook.png'),
+                SquareTile(imagePath: 'lib/images/facebook.png', authType: AuthType.facebook),
               ],
             ),
 
