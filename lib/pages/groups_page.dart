@@ -4,6 +4,7 @@ import 'package:coordimate/components/colors.dart';
 import 'package:coordimate/components/appbar.dart';
 import 'package:coordimate/models/groups.dart';
 import 'package:coordimate/keys.dart';
+import 'group_details_page.dart'; // Import the new GroupDetailsPage
 
 import 'dart:convert';
 import 'package:coordimate/api_client.dart';
@@ -26,177 +27,96 @@ class _GroupsPageState extends State<GroupsPage> {
   }
 
   Future<List<Group>> _getGroups() async {
-    final response = await client.get(Uri.parse("$apiUrl/groups/"));
-    final List body = json.decode(response.body)["groups"];
-    setState(() {
-      _groups = body.map((e) => Group.fromJson(e)).toList();
-    });
-    return _groups;
-  }
-
-  Future<void> _createGroup(String name, String description) async {
-    final response = await client.post(
-      Uri.parse("$apiUrl/groups/"),
-      headers: <String, String>{
-        'Content-Type': 'application/json; charset=UTF-8',
-      },
-      body: jsonEncode(<String, dynamic>{
-        'name': name,
-        'description': description,
-      }),
-    );
-    if (response.statusCode == 201) {
-      _getGroups();
-    } else {
-      throw Exception('Failed to create meeting');
+    try {
+      // Added error handling to catch exceptions
+      final response = await client.get(Uri.parse("$apiUrl/groups/"));
+      if (response.statusCode == 200) {
+        // Checks for successful response
+        final List body = json.decode(response.body)["groups"];
+        setState(() {
+          _groups = body.map((e) => Group.fromJson(e)).toList();
+        });
+        return _groups;
+      } else {
+        throw Exception('Failed to load groups'); // Handles failed response
+      }
+    } catch (e) {
+      print(e);
+      return [];
     }
   }
 
-  _showAlertDialog() {
+  Future<void> _createGroup(String name, String description) async {
+    try {
+      // Added error handling to catch exceptions
+      final response = await client.post(
+        Uri.parse("$apiUrl/groups/"),
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+        },
+        body: jsonEncode(<String, dynamic>{
+          'name': name,
+          'description': description,
+        }),
+      );
+      if (response.statusCode == 201) {
+        await _getGroups(); // Added await to ensure groups are reloaded after creation
+      } else {
+        throw Exception('Failed to create group'); // Handles failed response
+      }
+    } catch (e) {
+      print(e);
+    }
+  }
+
+  void _showCreateGroupDialog() {
     showDialog(
       context: context,
       builder: (context) {
-        String groupName = ''; // Variable to store the entered title
-        String groupDescription =
-            ''; // Variable to store the entered description
-
-        return AlertDialog(
-          title: const Text(
-            'Create Group',
-            style:
-                TextStyle(color: Colors.white), // Change title color to white
-          ),
-          content: SingleChildScrollView(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                TextFormField(
-                  onChanged: (val) {
-                    groupName =
-                        val; // Update the newNoteTitle variable with the entered title
-                  },
-                  decoration: InputDecoration(
-                    contentPadding: const EdgeInsets.all(10),
-                    labelText: 'Title', // Label text for the title field
-                    border: const OutlineInputBorder(
-                        borderSide: BorderSide(
-                            color: Colors.white)), // Use white outline
-                    enabledBorder: const OutlineInputBorder(
-                        borderSide: BorderSide(
-                            color: Colors.white)), // Use white outline
-                    focusedBorder: const OutlineInputBorder(
-                        borderSide: BorderSide(
-                            color:
-                                darkBlue)), // Change focused border color to hex value 293241
-                    labelStyle: const TextStyle(
-                        color: Colors.white), // Change label color to white
-                    counterText:
-                        '${groupName.length}/20', // Add character counter
-                    counterStyle: const TextStyle(
-                        color:
-                            Colors.white), // Change counter text color to white
-                  ),
-                  maxLength: 20, // Set maximum length for the title
-                  style: const TextStyle(
-                      color: Colors.white), // Change input text color to white
-                ),
-                const SizedBox(
-                    height:
-                        10), // Add some space between title and description fields
-                TextFormField(
-                  onChanged: (val) {
-                    groupDescription =
-                        val; // Update the newNoteDescription variable with the entered description
-                  },
-                  maxLines:
-                      3, // Increase the number of lines for the description field
-                  maxLength: 300, // Set maximum length for the description
-                  decoration: InputDecoration(
-                    contentPadding: const EdgeInsets.all(10),
-                    labelText:
-                        'Description', // Label text for the description field
-                    border: const OutlineInputBorder(
-                        borderSide: BorderSide(
-                            color: Colors.white)), // Use white outline
-                    enabledBorder: const OutlineInputBorder(
-                        borderSide: BorderSide(
-                            color: Colors.white)), // Use white outline
-                    focusedBorder: const OutlineInputBorder(
-                        borderSide: BorderSide(
-                            color:
-                                darkBlue)), // Change focused border color to hex value 293241
-                    labelStyle: const TextStyle(
-                        color: Colors.white), // Change label color to white
-                    counterText:
-                        '${groupDescription.length}/300', // Add character counter
-                    counterStyle: const TextStyle(
-                        color:
-                            Colors.white), // Change counter text color to white
-                  ),
-                  style: const TextStyle(
-                      color: Colors.white), // Change input text color to white
-                ),
-              ],
-            ),
-          ),
-          backgroundColor:
-              mediumBlue, // Set background color to hex value 3D5A80
-          actions: [
-            SizedBox(
-              width: double.infinity, // Set width to match screen width
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.end, // Align to the right
-                children: [
-                  OutlinedButton(
-                    onPressed: () async {
-                      if (groupName.isNotEmpty && groupName.length <= 20) {
-                        await _createGroup(groupName, groupDescription);
-                        Navigator.of(context).pop();
-                      }
-                    },
-                    child: const Text(
-                      'Create Group',
-                      style: TextStyle(
-                          color: Colors
-                              .white), // Change button text color to white
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ],
-        );
+        return CreateGroupDialog(onCreateGroup: _createGroup);
       },
     );
   }
 
-  _resetNotes() {
-    setState(() {
-      _groups.clear(); // Clear the list to reset notes
-    });
+  void _navigateToGroupDetails(Group group) {
+    // Function to navigate to GroupDetailsPage
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => GroupDetailsPage(group: group)),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder(
-        future: _groupsFuture,
-        builder: (context, snapshot) {
-          if (snapshot.hasData) {
-            return Scaffold(
-              appBar: CustomAppBar(
-                  title: "Groups",
-                  needButton: true,
-                  onPressed: _showAlertDialog),
-              body: ListView.builder(
-                itemCount: _groups.length,
-                itemBuilder: (context, index) {
-                  // Splitting the note into title and description
-                  return Container(
+    return FutureBuilder<List<Group>>(
+      future: _groupsFuture,
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Center(child: CircularProgressIndicator());
+        } else if (snapshot.hasError) {
+          return Scaffold(
+            appBar: CustomAppBar(
+                title: "Groups",
+                needButton: false), // Added needButton parameter
+            body: const Center(child: Text('Failed to load groups')),
+          );
+        } else if (snapshot.hasData) {
+          return Scaffold(
+            appBar: CustomAppBar(
+              title: "Groups",
+              needButton: true,
+              onPressed: _showCreateGroupDialog,
+            ),
+            body: ListView.builder(
+              itemCount: _groups.length,
+              itemBuilder: (context, index) {
+                return GestureDetector(
+                  onTap: () => _navigateToGroupDetails(
+                      _groups[index]), // Make card clickable
+                  child: Container(
                     decoration: BoxDecoration(
-                      color:
-                          darkBlue, // Set background color of the card to grey
-                      borderRadius: BorderRadius.circular(
-                          10), // Add border radius to make it look like a card
+                      color: darkBlue,
+                      borderRadius: BorderRadius.circular(10),
                     ),
                     margin:
                         const EdgeInsets.symmetric(vertical: 5, horizontal: 10),
@@ -204,16 +124,14 @@ class _GroupsPageState extends State<GroupsPage> {
                     child: Row(
                       children: [
                         Container(
-                          width: 70, // Set the width of the circle
-                          height: 70, // Set the height of the circle
+                          width: 70,
+                          height: 70,
                           decoration: const BoxDecoration(
-                            shape: BoxShape.circle, // Make it a circle
-                            color: Colors.white, // Set color to white
+                            shape: BoxShape.circle,
+                            color: Colors.white,
                           ),
                         ),
-                        const SizedBox(
-                            width:
-                                10), // Add some space between the circle and text
+                        const SizedBox(width: 10),
                         Expanded(
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
@@ -221,19 +139,16 @@ class _GroupsPageState extends State<GroupsPage> {
                               Text(
                                 _groups[index].name,
                                 style: const TextStyle(
-                                  fontSize: 30, // Font size for title
+                                  fontSize: 30,
                                   color: Colors.white,
-                                  fontWeight:
-                                      FontWeight.bold, // Make the title bold
+                                  fontWeight: FontWeight.bold,
                                 ),
                               ),
-                              const SizedBox(
-                                  height:
-                                      5), // Add some vertical space between title and description
+                              const SizedBox(height: 5),
                               Text(
                                 _groups[index].description,
                                 style: const TextStyle(
-                                  fontSize: 16, // Font size for description
+                                  fontSize: 16,
                                   color: Colors.white,
                                 ),
                               ),
@@ -242,13 +157,126 @@ class _GroupsPageState extends State<GroupsPage> {
                         ),
                       ],
                     ),
-                  );
-                },
+                  ),
+                );
+              },
+            ),
+          );
+        } else {
+          return Scaffold(
+            appBar: CustomAppBar(
+                title: "Groups",
+                needButton: false), // Added needButton parameter
+            body: const Center(child: Text('No groups available')),
+          );
+        }
+      },
+    );
+  }
+}
+
+class CreateGroupDialog extends StatefulWidget {
+  final Future<void> Function(String name, String description) onCreateGroup;
+
+  const CreateGroupDialog({required this.onCreateGroup});
+
+  @override
+  _CreateGroupDialogState createState() => _CreateGroupDialogState();
+}
+
+class _CreateGroupDialogState extends State<CreateGroupDialog> {
+  String groupName = '';
+  String groupDescription = '';
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      title: const Text(
+        'Create Group',
+        style: TextStyle(color: Colors.white),
+      ),
+      content: SingleChildScrollView(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            TextFormField(
+              onChanged: (val) {
+                setState(() {
+                  groupName = val;
+                });
+              },
+              decoration: InputDecoration(
+                contentPadding: const EdgeInsets.all(10),
+                labelText: 'Title',
+                border: const OutlineInputBorder(
+                  borderSide: BorderSide(color: Colors.white),
+                ),
+                enabledBorder: const OutlineInputBorder(
+                  borderSide: BorderSide(color: Colors.white),
+                ),
+                focusedBorder: const OutlineInputBorder(
+                  borderSide: BorderSide(color: darkBlue),
+                ),
+                labelStyle: const TextStyle(color: Colors.white),
+                counterText: '${groupName.length}/20',
+                counterStyle: const TextStyle(color: Colors.white),
               ),
-            );
-          } else {
-            return Text("Oh Shit!");
-          }
-        });
+              maxLength: 20,
+              style: const TextStyle(color: Colors.white),
+            ),
+            const SizedBox(height: 10),
+            TextFormField(
+              onChanged: (val) {
+                setState(() {
+                  groupDescription = val;
+                });
+              },
+              maxLines: 3,
+              maxLength: 300,
+              decoration: InputDecoration(
+                contentPadding: const EdgeInsets.all(10),
+                labelText: 'Description',
+                border: const OutlineInputBorder(
+                  borderSide: BorderSide(color: Colors.white),
+                ),
+                enabledBorder: const OutlineInputBorder(
+                  borderSide: BorderSide(color: Colors.white),
+                ),
+                focusedBorder: const OutlineInputBorder(
+                  borderSide: BorderSide(color: darkBlue),
+                ),
+                labelStyle: const TextStyle(color: Colors.white),
+                counterText: '${groupDescription.length}/300',
+                counterStyle: const TextStyle(color: Colors.white),
+              ),
+              style: const TextStyle(color: Colors.white),
+            ),
+          ],
+        ),
+      ),
+      backgroundColor: mediumBlue,
+      actions: [
+        SizedBox(
+          width: double.infinity,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              OutlinedButton(
+                onPressed: () async {
+                  if (groupName.isNotEmpty && groupName.length <= 20) {
+                    await widget.onCreateGroup(groupName, groupDescription);
+                    Navigator.of(context).pop();
+                  }
+                },
+                child: const Text(
+                  'Create Group',
+                  style: TextStyle(color: Colors.white),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
   }
 }
