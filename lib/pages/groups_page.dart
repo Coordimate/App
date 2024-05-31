@@ -1,11 +1,9 @@
 import 'package:flutter/material.dart';
-
 import 'package:coordimate/components/colors.dart';
 import 'package:coordimate/components/appbar.dart';
 import 'package:coordimate/models/groups.dart';
 import 'package:coordimate/keys.dart';
 import 'group_details_page.dart'; // Import the new GroupDetailsPage
-
 import 'dart:convert';
 import 'package:coordimate/api_client.dart';
 
@@ -82,7 +80,9 @@ class _GroupsPageState extends State<GroupsPage> {
     // Function to navigate to GroupDetailsPage
     Navigator.push(
       context,
-      MaterialPageRoute(builder: (context) => GroupDetailsPage(group: group)),
+      MaterialPageRoute(
+        builder: (context) => GroupDetailsPage(group: group),
+      ),
     );
   }
 
