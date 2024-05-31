@@ -17,7 +17,6 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
-
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
 
@@ -39,8 +38,9 @@ class _LoginPageState extends State<LoginPage> {
         if (signInOK) {
           Navigator.of(context).pushAndRemoveUntil(
             MaterialPageRoute(
-              builder: (context) => HomeScreen(key: UniqueKey()),),
-                (route) => false,
+              builder: (context) => HomeScreen(key: UniqueKey()),
+            ),
+            (route) => false,
           );
         } else {
           showDialog(
@@ -98,7 +98,6 @@ class _LoginPageState extends State<LoginPage> {
 
             const SizedBox(height: 30),
 
-
             Form(
               key: _formKey,
               child: Column(
@@ -111,9 +110,7 @@ class _LoginPageState extends State<LoginPage> {
                     icon: pathEmail,
                     keyboardType: TextInputType.emailAddress,
                   ),
-
                   const SizedBox(height: 25),
-
                   LoginTextField(
                     controller: passwordController,
                     hintText: "Password",
@@ -122,9 +119,7 @@ class _LoginPageState extends State<LoginPage> {
                     icon: pathLock,
                     keyboardType: TextInputType.visiblePassword,
                   ),
-
                   const SizedBox(height: 20),
-
                   const Padding(
                     padding: EdgeInsets.symmetric(horizontal: 25.0),
                     child: Row(
@@ -140,14 +135,11 @@ class _LoginPageState extends State<LoginPage> {
                       ],
                     ),
                   ),
-
                   const SizedBox(height: 25),
-
                   LoginButton(onTap: signUserIn, text: "Log In"),
                 ],
               ),
             ),
-
 
             const SizedBox(height: 30),
 
@@ -166,11 +158,7 @@ class _LoginPageState extends State<LoginPage> {
 
             const SizedBox(height: 20),
 
-            LoginEmptyButton(
-                text: "Register",
-                onTap: _goToRegisterPage
-            ),
-
+            LoginEmptyButton(text: "Register", onTap: _goToRegisterPage),
           ],
         ),
       ),

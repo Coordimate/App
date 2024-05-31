@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "844482763788",
+    "project_id": "coordimate-decc2",
+    "storage_bucket": "coordimate-decc2.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:844482763788:android:5b30c55d6f93479f90e229",
+        "android_client_info": {
+          "package_name": "com.example.coordimate"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC8Ig-ELFvh6ViQF_ANmYqzC5FfeO6nL90"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
