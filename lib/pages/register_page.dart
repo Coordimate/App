@@ -128,46 +128,58 @@ class _RegisterPageState extends State<RegisterPage> {
               key: _formKey,
               child: Column(
                 children: [
-                  LoginTextField(
-                    controller: usernameController,
-                    hintText: "Name",
-                    label: "name",
-                    obscureText: false,
-                    icon: pathPerson,
-                    keyboardType: TextInputType.name,
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 25.0),
+                    child: LoginTextField(
+                      controller: usernameController,
+                      hintText: "Name",
+                      label: "name",
+                      obscureText: false,
+                      icon: pathPerson,
+                      keyboardType: TextInputType.name,
+                    ),
                   ),
 
                   const SizedBox(height: 15),
 
-                  LoginTextField(
-                    controller: emailController,
-                    hintText: "E-mail",
-                    label: "e-mail",
-                    obscureText: false,
-                    icon: pathEmail,
-                    keyboardType: TextInputType.emailAddress,
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 25.0),
+                    child: LoginTextField(
+                      controller: emailController,
+                      hintText: "E-mail",
+                      label: "e-mail",
+                      obscureText: false,
+                      icon: pathEmail,
+                      keyboardType: TextInputType.emailAddress,
+                    ),
                   ),
 
                   const SizedBox(height: 15),
 
-                  LoginTextField(
-                    controller: passwordController,
-                    hintText: "Password",
-                    label: "password",
-                    obscureText: true,
-                    icon: pathLock,
-                    keyboardType: TextInputType.visiblePassword,
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 25.0),
+                    child: LoginTextField(
+                      controller: passwordController,
+                      hintText: "Password",
+                      label: "password",
+                      obscureText: true,
+                      icon: pathLock,
+                      keyboardType: TextInputType.visiblePassword,
+                    ),
                   ),
 
                   const SizedBox(height: 15),
 
-                  LoginTextField(
-                    controller: confirmPasswordController,
-                    hintText: "Confirm Password",
-                    label: "password",
-                    obscureText: true,
-                    icon: pathLock,
-                    keyboardType: TextInputType.visiblePassword,
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 25.0),
+                    child: LoginTextField(
+                      controller: confirmPasswordController,
+                      hintText: "Confirm Password",
+                      label: "password",
+                      obscureText: true,
+                      icon: pathLock,
+                      keyboardType: TextInputType.visiblePassword,
+                    ),
                   ),
 
                   const SizedBox(height: 20),
