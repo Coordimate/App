@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:coordimate/pages/personal_info_page.dart';
 import 'package:coordimate/pages/start_page.dart';
 import 'package:flutter/material.dart';
 
@@ -555,15 +556,6 @@ class SchedulePage extends StatelessWidget {
   static String scheduleUrl = "";
   static bool isModifiable = false;
 
-  // TODO: logout function serves as an example and should not live in the schedule page
-  void logOut(BuildContext context) {
-    logUserOutStorage();
-    Navigator.pushReplacement(context,
-        MaterialPageRoute(builder: (context) => StartPage(key: UniqueKey())));
-    // Navigator.popUntil(
-    //     context, (Route<dynamic> predicate) => predicate.isFirst);
-  }
-
   @override
   Widget build(BuildContext context) {
     if (isGroupSchedule) {
@@ -583,7 +575,8 @@ class SchedulePage extends StatelessWidget {
             title: 'Schedule',
             needButton: true,
             onPressed: () {
-              logOut(context);
+              Navigator.push(context, MaterialPageRoute(builder: (context) => PersonalPage()));
+              // logOut(context);
             },
             buttonIcon: Icons.settings_outlined),
         body: const ScheduleGrid());

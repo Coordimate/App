@@ -18,7 +18,7 @@ class User {
       id: json['id'] ?? 0,
       username: json['username'],
       email: json['email'],
-      password: json['password'],
+      password: json['password'] ?? '',
     );
   }
 
