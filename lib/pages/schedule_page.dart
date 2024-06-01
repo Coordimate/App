@@ -43,7 +43,7 @@ class _ScheduleGridState extends State<ScheduleGrid> {
   }
 
   Future<List<TimeSlot>> getTimeSlots() async {
-    var url = Uri.parse("$apiUrl/time_slots/");
+    var url = Uri.parse(SchedulePage.scheduleUrl);
     final response =
         await client.get(url, headers: {"Content-Type": "application/json"});
     final List body = json.decode(response.body)['time_slots'];
@@ -51,7 +51,10 @@ class _ScheduleGridState extends State<ScheduleGrid> {
   }
 
   Future<void> createTimeSlot(int day, double start, double length) async {
-    await client.post(Uri.parse("$apiUrl/time_slots/"),
+    if (!SchedulePage.isModifiable) {
+      return;
+    }
+    await client.post(Uri.parse(SchedulePage.scheduleUrl),
         headers: {"Content-Type": "application/json"},
         body: json.encode(<String, dynamic>{
           'is_meeting': false,
@@ -65,6 +68,9 @@ class _ScheduleGridState extends State<ScheduleGrid> {
   }
 
   Future<void> deleteTimeSlot(int id) async {
+    if (!SchedulePage.isModifiable) {
+      return;
+    }
     await client.delete(Uri.parse("$apiUrl/time_slots/$id"),
         headers: {"Content-Type": "application/json"});
     setState(() {
@@ -73,6 +79,9 @@ class _ScheduleGridState extends State<ScheduleGrid> {
   }
 
   Future<void> updateTimeSlot(int id, double start, double length) async {
+    if (!SchedulePage.isModifiable) {
+      return;
+    }
     await client.patch(Uri.parse("$apiUrl/time_slots/$id"),
         headers: {"Content-Type": "application/json"},
         body: json.encode(<String, dynamic>{
@@ -225,10 +234,16 @@ class _DayColumn extends StatelessWidget {
       NewTimeSlot(key: _newTimeSlotKey),
       GestureDetector(
           onLongPressStart: (details) {
+            if (!SchedulePage.isModifiable) {
+              return;
+            }
             _newTimeSlotKey.currentState
                 ?.updateStart(roundToFraction(details.localPosition.dy));
           },
           onLongPressMoveUpdate: (details) {
+            if (!SchedulePage.isModifiable) {
+              return;
+            }
             var start = _newTimeSlotKey.currentState?._start ?? 0.0;
             if (details.localPosition.dy < start) {
               _newTimeSlotKey.currentState
@@ -242,6 +257,9 @@ class _DayColumn extends StatelessWidget {
             }
           },
           onLongPressEnd: (details) {
+            if (!SchedulePage.isModifiable) {
+              return;
+            }
             final start = _newTimeSlotKey.currentState!._top / hourHeight;
             final length = _newTimeSlotKey.currentState!._height / hourHeight;
             createTimeSlot(day, start, length);
@@ -317,6 +335,9 @@ class TimeSlotWidget extends StatelessWidget {
         height: hourHeight * length,
         child: GestureDetector(
             onTap: () {
+              if (!SchedulePage.isModifiable) {
+                return;
+              }
               showDialog(
                   context: context,
                   builder: (context) => _buildTimePickerPopup(context, day));
@@ -391,6 +412,9 @@ class _TimePickerState extends State<_TimePicker> {
                     child: Text("from", style: TextStyle(fontSize: 20)))),
             GestureDetector(
                 onTap: () async {
+                  if (!SchedulePage.isModifiable) {
+                    return;
+                  }
                   final TimeOfDay? time = await showTimePicker(
                       initialTime: hoursToTime(widget.start), context: context);
                   if (time != null &&
@@ -422,6 +446,9 @@ class _TimePickerState extends State<_TimePicker> {
                     Center(child: Text("to", style: TextStyle(fontSize: 20)))),
             GestureDetector(
                 onTap: () async {
+                  if (!SchedulePage.isModifiable) {
+                    return;
+                  }
                   final TimeOfDay? time = await showTimePicker(
                       initialTime: hoursToTime(widget.start + widget.length),
                       context: context);
@@ -452,6 +479,9 @@ class _TimePickerState extends State<_TimePicker> {
                       side: MaterialStatePropertyAll(
                           BorderSide(color: Colors.red))),
                   onPressed: () {
+                    if (!SchedulePage.isModifiable) {
+                      return;
+                    }
                     widget.deleteTimeSlot(widget.id);
                     Navigator.of(context).pop();
                   },
@@ -510,9 +540,22 @@ class _NewTimeSlotState extends State<NewTimeSlot> {
   }
 }
 
-class PersonalSchedulePage extends StatelessWidget {
-  const PersonalSchedulePage({super.key});
+class SchedulePage extends StatelessWidget {
+  const SchedulePage({
+    super.key,
+    this.ownerId = "",
+    this.isPersonalSchedule = true,
+    this.isGroupSchedule = false,
+  });
 
+  final bool isPersonalSchedule;
+  final bool isGroupSchedule;
+  final String ownerId;
+
+  static String scheduleUrl = "";
+  static bool isModifiable = false;
+
+  // TODO: logout function serves as an example and should not live in the schedule page
   void logOut(BuildContext context) {
     logUserOutStorage();
     Navigator.pushReplacement(context,
@@ -523,6 +566,17 @@ class PersonalSchedulePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    if (isGroupSchedule) {
+      SchedulePage.scheduleUrl = "$apiUrl/groups/$ownerId/time_slots";
+      SchedulePage.isModifiable = false;
+    } else if (isPersonalSchedule) {
+      SchedulePage.scheduleUrl = "$apiUrl/time_slots";
+      SchedulePage.isModifiable = true;
+    } else {
+      SchedulePage.scheduleUrl = "$apiUrl/users/$ownerId/time_slots";
+      SchedulePage.isModifiable = false;
+    }
+
     return Scaffold(
         backgroundColor: Colors.white,
         appBar: CustomAppBar(

@@ -7,7 +7,7 @@ import 'package:flutter/services.dart';
 import 'package:uni_links/uni_links.dart';
 import 'package:coordimate/components/colors.dart';
 import 'package:coordimate/components/join_group_dialog.dart';
-import 'package:coordimate/pages/personal_schedule_page.dart';
+import 'package:coordimate/pages/schedule_page.dart';
 import 'package:coordimate/pages/meetings_page.dart';
 import 'package:coordimate/pages/groups_page.dart';
 import 'package:coordimate/models/groups.dart';
@@ -28,7 +28,7 @@ class HomeScreenState extends State<HomeScreen> {
   late StreamSubscription _sub;
 
   static final List<Widget> _screens = [
-    const PersonalSchedulePage(),
+    const SchedulePage(),
     const MeetingsPage(),
     const GroupsPage()
   ];
