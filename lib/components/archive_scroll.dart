@@ -112,7 +112,7 @@ class RenderSliverHidedHeader extends RenderSliverSingleBoxAdapter {
   /// Override to remove the listeners if needed
   @override
   void dispose() {
-    if (_scrollableState != null && _scrollableState!.context != null) {
+    if (_scrollableState != null) {
       final scrollPosition = _scrollableState!.position;
       if (_subscribedSnapScrollNotifierListener != null) {
         scrollPosition.isScrollingNotifier

@@ -220,22 +220,26 @@ class _ChangePasswordDialogState extends State<ChangePasswordDialog> {
   static const pathLock = 'lib/images/lock.png';
   final _formKey = GlobalKey<FormState>();
 
-  Future<void> sendChangePswdRequest() async {
-    final id = await storage.read(key: 'id_account');
-    var url = Uri.parse("$apiUrl/users/$id");
-    final response = await client.put(
+  Future<bool> sendChangePswdRequest() async {
+    var url = Uri.parse("$apiUrl/change_password");
+    final response = await client.post(
         url,
         headers: {"Content-Type": "application/json"},
         body: jsonEncode(<String, dynamic>{
-          'password': newPasswordController.text,
+          'new_password': newPasswordController.text,
+          'old_password': oldPasswordController.text,
         })
     );
-    if (response.statusCode != 200) {
+    if (response.statusCode == 201) {
+      return true;
+    } else if (response.statusCode == 403) {
+      return false;
+    } else {
       throw Exception('Failed to save data');
     }
   }
 
-   bool changePassword() {
+   Future<bool> changePassword() async {
     if (_formKey.currentState!.validate() == false) {
       return false;
     }
@@ -248,7 +252,26 @@ class _ChangePasswordDialogState extends State<ChangePasswordDialog> {
         ).show(context);
       return false;
     }
-    sendChangePswdRequest();
+    if (newPasswordController.text == oldPasswordController.text) {
+      Flushbar(
+        message: 'New password is the same as the old one',
+        duration: const Duration(seconds: 2),
+        backgroundColor: orange,
+        flushbarPosition: FlushbarPosition.TOP,
+      ).show(context);
+      return false;
+    }
+    var res = await sendChangePswdRequest();
+    if (res == false) {
+      if (!mounted) return false;
+      Flushbar(
+        message: 'Old password is incorrect',
+        duration: const Duration(seconds: 2),
+        backgroundColor: orange,
+        flushbarPosition: FlushbarPosition.TOP,
+      ).show(context);
+      return false;
+    }
     return true;
   }
 
@@ -296,8 +319,10 @@ class _ChangePasswordDialogState extends State<ChangePasswordDialog> {
           children: <Widget>[
             Expanded(
               child: ElevatedButton(
-                onPressed: () {
-                  if (changePassword()) {
+                onPressed: () async { 
+                  if (!mounted) return;
+                  var isValid = await changePassword();
+                  if (isValid) {
                     Navigator.of(context).pop();
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(
