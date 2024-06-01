@@ -102,22 +102,28 @@ class _LoginPageState extends State<LoginPage> {
               key: _formKey,
               child: Column(
                 children: [
-                  LoginTextField(
-                    controller: emailController,
-                    hintText: "E-mail",
-                    label: "e-mail",
-                    obscureText: false,
-                    icon: pathEmail,
-                    keyboardType: TextInputType.emailAddress,
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 25.0),
+                    child: LoginTextField(
+                      controller: emailController,
+                      hintText: "E-mail",
+                      label: "e-mail",
+                      obscureText: false,
+                      icon: pathEmail,
+                      keyboardType: TextInputType.emailAddress,
+                    ),
                   ),
                   const SizedBox(height: 25),
-                  LoginTextField(
-                    controller: passwordController,
-                    hintText: "Password",
-                    label: "password",
-                    obscureText: true,
-                    icon: pathLock,
-                    keyboardType: TextInputType.visiblePassword,
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 25.0),
+                    child: LoginTextField(
+                      controller: passwordController,
+                      hintText: "Password",
+                      label: "password",
+                      obscureText: true,
+                      icon: pathLock,
+                      keyboardType: TextInputType.visiblePassword,
+                    ),
                   ),
                   const SizedBox(height: 20),
                   const Padding(

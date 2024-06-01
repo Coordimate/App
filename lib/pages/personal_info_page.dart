@@ -1,3 +1,4 @@
+import 'package:another_flushbar/flushbar.dart';
 import 'package:coordimate/components/appbar.dart';
 import 'package:coordimate/components/colors.dart';
 import 'package:coordimate/components/login_button.dart';
@@ -9,6 +10,7 @@ import 'dart:convert';
 import 'package:coordimate/api_client.dart';
 import 'package:coordimate/keys.dart';
 import 'package:coordimate/models/user.dart';
+import 'package:coordimate/components/login_text_field.dart';
 
 class PersonalPage extends StatefulWidget {
   const PersonalPage({super.key});
@@ -44,7 +46,6 @@ class _PersonalPageState extends State<PersonalPage> {
       throw Exception('Failed to load data');
     }
     user = User.fromJson(json.decode(response.body));
-    print("got user info");
     usernameController.text = user.username;
     userEmail = user.email;
   }
@@ -87,7 +88,7 @@ class _PersonalPageState extends State<PersonalPage> {
     }
   }
 
-  void showPopUpDialog() {
+  void showDeleteAccountDialog() {
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -95,6 +96,15 @@ class _PersonalPageState extends State<PersonalPage> {
           question: "Do you want to delete your account?",
           onYes: () async { await deleteUser(); },
         );
+      },
+    );
+  }
+
+  void showChangePasswordDialog() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return ChangePasswordDialog();
       },
     );
   }
@@ -160,13 +170,14 @@ class _PersonalPageState extends State<PersonalPage> {
                         ),
                       ),
                     ),
+
                     const SizedBox(height: 8),
                     Text(userEmail, style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w600, color: darkBlue)),
                     const SizedBox(height: 16),
 
                     LoginEmptyButton(
                       text: "Change Password",
-                      onTap: (){}
+                      onTap: showChangePasswordDialog,
                     ),
                     const SizedBox(height: 8),
                     LoginButton(
@@ -176,11 +187,12 @@ class _PersonalPageState extends State<PersonalPage> {
                   ],
                 ),
               ),
+
               bottomSheet: Container(
                 color: Colors.white,
                 padding: const EdgeInsets.only(bottom: 16.0),
                 child: TextButton(
-                  onPressed: showPopUpDialog,
+                  onPressed: showDeleteAccountDialog,
                   child: const Text(
                     'Delete Account',
                     style: TextStyle(color: mediumBlue, fontSize: 20, fontWeight: FontWeight.w500 ),
@@ -190,6 +202,146 @@ class _PersonalPageState extends State<PersonalPage> {
             );
           }
         }
+    );
+  }
+}
+
+class ChangePasswordDialog extends StatefulWidget {
+  const ChangePasswordDialog({super.key});
+
+  @override
+  State<ChangePasswordDialog> createState() => _ChangePasswordDialogState();
+}
+
+class _ChangePasswordDialogState extends State<ChangePasswordDialog> {
+  final oldPasswordController = TextEditingController();
+  final newPasswordController = TextEditingController();
+  final repeatPasswordController = TextEditingController();
+  static const pathLock = 'lib/images/lock.png';
+  final _formKey = GlobalKey<FormState>();
+
+  Future<void> sendChangePswdRequest() async {
+    final id = await storage.read(key: 'id_account');
+    var url = Uri.parse("$apiUrl/users/$id");
+    final response = await client.put(
+        url,
+        headers: {"Content-Type": "application/json"},
+        body: jsonEncode(<String, dynamic>{
+          'password': newPasswordController.text,
+        })
+    );
+    if (response.statusCode != 200) {
+      throw Exception('Failed to save data');
+    }
+  }
+
+   bool changePassword() {
+    if (_formKey.currentState!.validate() == false) {
+      return false;
+    }
+    if (newPasswordController.text != repeatPasswordController.text) {
+        Flushbar(
+          message: 'Passwords do not match',
+          duration: const Duration(seconds: 2),
+          backgroundColor: orange,
+          flushbarPosition: FlushbarPosition.TOP,
+        ).show(context);
+      return false;
+    }
+    sendChangePswdRequest();
+    return true;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      backgroundColor: Colors.white,
+      alignment: Alignment.center,
+      title: const Center(child: Text('Change Password')),
+      titleTextStyle: const TextStyle(color: darkBlue, fontSize: 24, fontWeight: FontWeight.bold),
+      content: Form(
+        key: _formKey,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: <Widget>[
+            LoginTextField(
+              controller: oldPasswordController,
+              obscureText: true,
+              hintText: 'Old password',
+              label: 'old password',
+              icon: pathLock,
+              keyboardType: TextInputType.visiblePassword,
+            ),
+            LoginTextField(
+              controller: newPasswordController,
+              obscureText: true,
+              hintText: 'New password',
+              label: 'new password',
+              icon: pathLock,
+              keyboardType: TextInputType.visiblePassword,
+            ),
+            LoginTextField(
+              controller: repeatPasswordController,
+              obscureText: true,
+              hintText: 'Repeat password',
+              label: 'new password',
+              icon: pathLock,
+              keyboardType: TextInputType.visiblePassword,
+            ),
+          ],
+        ),
+      ),
+      actions: <Widget>[
+        Row(
+          children: <Widget>[
+            Expanded(
+              child: ElevatedButton(
+                onPressed: () {
+                  if (changePassword()) {
+                    Navigator.of(context).pop();
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('Password changed successfully'),
+                        duration: Duration(seconds: 1),
+                        backgroundColor: darkBlue,
+                      ),
+                    );
+                  }
+                },
+                style: ButtonStyle(
+                  backgroundColor: MaterialStateProperty.all(mediumBlue),
+                  shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+                    RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                  ),
+                ),
+                child: const Text("Continue",
+                    style: TextStyle(
+                        color: Colors.white, fontWeight: FontWeight.bold, fontSize: 20)),
+              ),
+            ),
+            const SizedBox(width: 16),
+            Expanded(
+              child: ElevatedButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+                style: ButtonStyle(
+                  side: MaterialStateProperty.all(const BorderSide(color: mediumBlue, width: 3)),
+                  shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+                    RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                  ),
+                ),
+                child: const Text("Cancel",
+                    style: TextStyle(color: mediumBlue, fontWeight: FontWeight.bold, fontSize: 20)),
+              ),
+            ),
+          ],
+        ),
+      ],
     );
   }
 }

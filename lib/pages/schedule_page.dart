@@ -1,13 +1,11 @@
 import 'dart:convert';
 
 import 'package:coordimate/pages/personal_info_page.dart';
-import 'package:coordimate/pages/start_page.dart';
 import 'package:flutter/material.dart';
 
 import 'package:coordimate/components/colors.dart';
 import 'package:coordimate/components/appbar.dart';
 import 'package:coordimate/models/time_slot.dart';
-import 'package:coordimate/data/storage.dart';
 import 'package:coordimate/keys.dart';
 import 'package:coordimate/api_client.dart';
 
