@@ -569,12 +569,12 @@ class SchedulePage extends StatelessWidget {
     if (isGroupSchedule) {
       SchedulePage.scheduleUrl = "$apiUrl/groups/$ownerId/time_slots";
       SchedulePage.isModifiable = false;
-    } else if (isPersonalSchedule) {
-      SchedulePage.scheduleUrl = "$apiUrl/time_slots";
-      SchedulePage.isModifiable = true;
-    } else {
+    } else if (!isPersonalSchedule) {
       SchedulePage.scheduleUrl = "$apiUrl/users/$ownerId/time_slots";
       SchedulePage.isModifiable = false;
+    } else {
+      SchedulePage.scheduleUrl = "$apiUrl/time_slots";
+      SchedulePage.isModifiable = true;
     }
 
     return Scaffold(
