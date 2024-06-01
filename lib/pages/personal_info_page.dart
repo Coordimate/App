@@ -22,7 +22,8 @@ class _PersonalPageState extends State<PersonalPage> {
   bool isEditing = false;
   final usernameController = TextEditingController();
   final FocusNode focusNode = FocusNode();
-
+  static const usernameFontSize = 30.0;
+  static const horPadding = 24.0;
 
   @override
   void initState() {
@@ -67,13 +68,15 @@ class _PersonalPageState extends State<PersonalPage> {
             ),
             const SizedBox(height: 16),
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 26.0),
+              padding: const EdgeInsets.symmetric(horizontal: horPadding),
               child: TextField(
                 controller: usernameController,
                 textAlign: TextAlign.center,
                 readOnly: isEditing == false,
                 focusNode: focusNode,
-                style: const TextStyle(fontSize: 30, fontWeight: FontWeight.bold, color: darkBlue),
+                maxLines: null,
+                keyboardType: TextInputType.text, // makes Enter a submission button
+                style: const TextStyle(fontSize: usernameFontSize, fontWeight: FontWeight.bold, color: darkBlue),
                 onSubmitted: (value) {
                   setState(() { isEditing = false; });
                   // Implement your save username functionality here // TODO
@@ -96,8 +99,10 @@ class _PersonalPageState extends State<PersonalPage> {
                     icon: Icon(
                       isEditing ? Icons.check : Icons.edit, // Change the icon based on the editing state
                       color: darkBlue,
+                      size: usernameFontSize - 4,
                     ),
                   ),
+                  contentPadding: const EdgeInsets.only(left: usernameFontSize + horPadding),
                 ),
               ),
             ),
