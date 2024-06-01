@@ -1,6 +1,7 @@
 import 'package:coordimate/components/appbar.dart';
 import 'package:coordimate/components/colors.dart';
 import 'package:coordimate/components/login_button.dart';
+import 'package:coordimate/components/pop_up_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:coordimate/pages/start_page.dart';
 import 'package:coordimate/data/storage.dart';
@@ -72,12 +73,30 @@ class _PersonalPageState extends State<PersonalPage> {
         url,
         headers: {"Content-Type": "application/json"}
     );
-    if (response.statusCode != 200) {
+    if (response.statusCode != 204) {
       throw Exception('Failed to delete user');
     } else {
       if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Account deleted successfully'),
+          duration: Duration(seconds: 2),
+        ),
+      );
       logOut(context);
     }
+  }
+
+  void showPopUpDialog() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return CustomPopUpDialog(
+          question: "Do you want to delete your account?",
+          onYes: () async { await deleteUser(); },
+        );
+      },
+    );
   }
 
   @override
@@ -161,9 +180,7 @@ class _PersonalPageState extends State<PersonalPage> {
                 color: Colors.white,
                 padding: const EdgeInsets.only(bottom: 16.0),
                 child: TextButton(
-                  onPressed: () {
-                    deleteUser();
-                  },
+                  onPressed: showPopUpDialog,
                   child: const Text(
                     'Delete Account',
                     style: TextStyle(color: mediumBlue, fontSize: 20, fontWeight: FontWeight.w500 ),
