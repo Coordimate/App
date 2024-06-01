@@ -1,13 +1,13 @@
 class User {
   User({
-    this.id = 0,
+    this.id = '',
     this.username = '',
     required this.email,
     this.password,
     this.authType,
   });
 
-  final int id;
+  final String id;
   final String username;
   final String email;
   final String? password;
@@ -15,7 +15,7 @@ class User {
 
   factory User.fromJson(Map<String, dynamic> json) {
     return User(
-      id: json['id'] ?? 0,
+      id: json['id'] ?? '',
       username: json['username'],
       email: json['email'],
       password: json['password'] ?? '',

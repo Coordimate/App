@@ -28,9 +28,7 @@ class _PersonalPageState extends State<PersonalPage> {
   @override
   void initState() {
     super.initState();
-    // getInfo(); // TODO: Uncomment this line
-    // usernameController.text = user.username; // TODO: Uncomment this line
-    usernameController.text = "John Doe";
+    getInfo();
   }
 
   void logOut(BuildContext context) {
@@ -40,7 +38,8 @@ class _PersonalPageState extends State<PersonalPage> {
   }
 
   Future<void> getInfo() async {
-    var url = Uri.parse("$apiUrl/???"); // TODO: Add the correct endpoint
+    final id = await storage.read(key: 'id_account');
+    var url = Uri.parse("$apiUrl/users/$id");
     final response = await client.get(
         url,
         headers: {"Content-Type": "application/json"}
@@ -48,7 +47,32 @@ class _PersonalPageState extends State<PersonalPage> {
     if (response.statusCode != 200) {
       throw Exception('Failed to load data');
     }
-    user = json.decode(response.body);
+    user = User.fromJson(json.decode(response.body));
+    usernameController.text = user.username;
+  }
+
+  Future<void> saveUsername() async {
+    var url = Uri.parse("$apiUrl/???"); // TODO: Add the correct endpoint
+    final response = await client.put(
+        url,
+        headers: {"Content-Type": "application/json"},
+        body: json.encode(user.toJson())
+    );
+    if (response.statusCode != 200) {
+      throw Exception('Failed to save data');
+    }
+  }
+
+  Future<void> deleteUser() async {
+    final id = user.id;
+    var url = Uri.parse("$apiUrl/users/"); // TODO: Add the correct endpoint
+    final response = await client.delete(
+        url,
+        headers: {"Content-Type": "application/json"}
+    );
+    if (response.statusCode != 200) {
+      throw Exception('Failed to delete user');
+    }
   }
 
   @override
