@@ -9,6 +9,7 @@ import 'dart:convert';
 import 'package:coordimate/api_client.dart';
 import 'package:coordimate/keys.dart';
 import 'package:coordimate/models/user.dart';
+import 'package:flutter/widgets.dart';
 
 class PersonalPage extends StatefulWidget {
   const PersonalPage({super.key});
@@ -52,18 +53,6 @@ class _PersonalPageState extends State<PersonalPage> {
 
   @override
   Widget build(BuildContext context) {
-
-    final textSpan = TextSpan(
-      text: usernameController.text,
-      style: const TextStyle(fontSize: 30, fontWeight: FontWeight.bold, color: darkBlue),
-    );
-    final textPainter = TextPainter(
-      text: textSpan,
-      textDirection: TextDirection.ltr,
-    );
-    textPainter.layout();
-    final textWidth = textPainter.width;
-
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: const CustomAppBar(
@@ -83,28 +72,52 @@ class _PersonalPageState extends State<PersonalPage> {
                     backgroundImage: const NetworkImage('https://www.w3schools.com/w3images/avatar2.png'),
                   ),
                   const SizedBox(height: 16),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 26.0),
-                    child: Stack(
-                      alignment: Alignment.center,
-                      children: <Widget>[
-                        TextField(
-                          textAlign: TextAlign.center,
-                          decoration: const InputDecoration(border: InputBorder.none,),
-                          controller: usernameController,
-                          style: const TextStyle(fontSize: 30, fontWeight: FontWeight.bold, color: darkBlue)),
-                        Positioned(
-                          right: 0,
-                          child:
+                  LayoutBuilder(
+                    builder: (BuildContext context, BoxConstraints constraints) {
+                      final textSpan = TextSpan(
+                        text: usernameController.text,
+                        style: const TextStyle(fontSize: 30, fontWeight: FontWeight.bold, color: darkBlue),
+                      );
+                      final textPainter = TextPainter(
+                        text: textSpan,
+                        textDirection: TextDirection.ltr,
+                      );
+                      textPainter.layout();
+                      double textWidth = textPainter.width;
+
+                      double screenWidth = MediaQuery.of(context).size.width;
+                      double padding = 26.0; // Change this value as needed
+                      double iconWidth = 50; // Change this value as needed
+                      double maxWidth = screenWidth - padding * 2 - iconWidth;
+
+                      if (textWidth > maxWidth) {
+                        textWidth = maxWidth;
+                      }
+
+                      return Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: <Widget>[
+                          Container(
+                            width: textWidth < constraints.maxWidth ? textWidth : constraints.maxWidth,
+                            child: TextField(
+                              onChanged: (value) {
+                                setState(() {}); // Rebuild the widget when text changes
+                              },
+                              textAlign: TextAlign.center,
+                              decoration: const InputDecoration(border: InputBorder.none,),
+                              controller: usernameController,
+                              style: const TextStyle(fontSize: 30, fontWeight: FontWeight.bold, color: darkBlue),
+                            ),
+                          ),
                           IconButton(
                             icon: const Icon(Icons.edit, color: darkBlue),
                             onPressed: () {
                               // Implement your change username functionality here
                             },
                           ),
-                        ),
-                      ],
-                    ),
+                        ],
+                      );
+                    },
                   ),
                   const SizedBox(height: 8),
                   const Text('string@email.com', style: TextStyle(fontSize: 20, fontWeight: FontWeight.w600, color: darkBlue)),
