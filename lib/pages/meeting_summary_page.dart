@@ -15,9 +15,9 @@ class SummaryPage extends StatefulWidget {
 }
 
 class _SummaryPageState extends State<SummaryPage> {
-
   var summaryController = TextEditingController();
   FocusNode focusNode = FocusNode();
+  double fontSize = 16.0; // Initial font size
 
   @override
   void initState() {
@@ -36,26 +36,49 @@ class _SummaryPageState extends State<SummaryPage> {
           Scaffold(
             backgroundColor: Colors.white,
             body: Padding(
-              padding: const EdgeInsets.only(top: 110.0),
-              child: Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: TextField(
-                  focusNode: focusNode,
-                  controller: summaryController,
-                  maxLines: null,
-                  decoration: InputDecoration(
-                    border: InputBorder.none,
-                    hintText: 'Enter summary of the meeting...',
-                    hintStyle: TextStyle(
-                      fontSize: 16.0,
-                      color: alphaDarkBlue,
+              padding: EdgeInsets.only(top: 120.0),
+              child: Column(
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                    child: Row(
+                      children: [
+                        Icon(Icons.text_fields, color: darkBlue),
+                        Expanded(
+                            child: Slider(
+                              value: fontSize,
+                              min: 10.0,
+                              max: 30.0,
+                              activeColor: darkBlue,
+                              onChanged: (newSize) {
+                                setState(() {
+                                  fontSize = newSize;
+                                });
+                              },
+                            ),
+                        ),
+                      ],
                     ),
                   ),
-                  style: const TextStyle(
-                    fontSize: 16.0,
-                    color: darkBlue,
+                  Expanded(
+                    child: Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: TextField(
+                        focusNode: focusNode,
+                        controller: summaryController,
+                        maxLines: null,
+                        decoration: const InputDecoration(
+                          border: InputBorder.none,
+                          hintText: 'Enter summary of the meeting...',
+                        ),
+                        style: TextStyle(
+                          fontSize: fontSize,
+                          color: darkBlue,
+                        ),
+                      ),
+                    ),
                   ),
-                ),
+                ],
               ),
             ),
           ),
