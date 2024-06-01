@@ -8,6 +8,7 @@ import 'package:coordimate/components/agenda.dart';
 import 'dart:convert';
 import 'package:share_plus/share_plus.dart';
 import 'package:flutter/services.dart';
+import 'package:coordimate/pages/meeting_summary_page.dart';
 
 class MeetingDetailsPage extends StatefulWidget {
   final MeetingDetails meeting;
@@ -236,7 +237,11 @@ class _MeetingDetailsPageState extends State<MeetingDetailsPage> {
                 SizedBox(
                   width: double.infinity,
                   child: ElevatedButton(
-                    onPressed: (){},
+                    onPressed: (){
+                      Navigator.of(context).push(MaterialPageRoute(
+                          builder: (context) => SummaryPage()
+                      ));
+                    },
                     style: ButtonStyle(
                       backgroundColor: MaterialStateProperty.all(mediumBlue),
                       shape: MaterialStateProperty.all<RoundedRectangleBorder>(
@@ -245,7 +250,7 @@ class _MeetingDetailsPageState extends State<MeetingDetailsPage> {
                         ),),
                     ),
                     child: Text(
-                        widget.meeting.isInPast() ? "Finish Meeting" : "Summary",
+                        widget.meeting.isInPast() ? "Finish Meeting" : "Summary" ,
                         style: const TextStyle(fontSize: 20, color: Colors.white, fontWeight: FontWeight.bold)),
                   ),
                 ),

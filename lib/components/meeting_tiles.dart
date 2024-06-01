@@ -2,10 +2,12 @@ import 'dart:convert';
 import 'package:coordimate/components/meeting_action_button.dart';
 import 'package:coordimate/pages/meeting_info_page.dart';
 import 'package:coordimate/models/meeting.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:coordimate/components/colors.dart';
 import 'package:coordimate/api_client.dart';
 import 'package:coordimate/keys.dart';
+import 'package:flutter/widgets.dart';
 
 class MeetingTile extends StatelessWidget {
   final bool isArchived;
@@ -73,9 +75,12 @@ class MeetingTile extends StatelessWidget {
               children: [
                 const Icon(Icons.calendar_today, color: Colors.white70),
                 const SizedBox(width: 8),
-                Text(
-                  meeting.group,
-                  style: const TextStyle(fontSize: 20, color: Colors.white70),
+                Expanded(
+                  child: Text(
+                    meeting.group,
+                    style: const TextStyle(fontSize: 20, color: Colors.white70),
+                    overflow: TextOverflow.ellipsis,
+                  ),
                 ),
               ],
             ),
@@ -145,10 +150,13 @@ class NewMeetingTile extends MeetingTile {
                     children: [
                       const Icon(Icons.calendar_today, color: Colors.white70),
                       const SizedBox(width: 8),
-                      Text(
-                        meeting.group,
-                        style: const TextStyle(
-                            fontSize: 20, color: Colors.white70),
+                      Expanded(
+                        child: Text(
+                          meeting.group,
+                          style: const TextStyle(
+                              fontSize: 20, color: Colors.white70),
+                          overflow: TextOverflow.ellipsis,
+                        ),
                       ),
                     ],
                   ),
