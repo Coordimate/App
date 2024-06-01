@@ -319,7 +319,7 @@ class _ChangePasswordDialogState extends State<ChangePasswordDialog> {
           children: <Widget>[
             Expanded(
               child: ElevatedButton(
-                onPressed: () async { 
+                onPressed: () async {
                   if (!mounted) return;
                   var isValid = await changePassword();
                   if (isValid) {
