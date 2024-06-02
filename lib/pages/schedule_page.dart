@@ -287,6 +287,7 @@ class _DayColumn extends StatelessWidget {
         TimeSlotWidget(
             id: timeSlot.id,
             day: day,
+            isMeeting: timeSlot.isMeeting,
             hourHeight: hourHeight,
             start: timeSlot.start,
             length: timeSlot.length,
@@ -301,6 +302,7 @@ class TimeSlotWidget extends StatelessWidget {
     super.key,
     required this.id,
     required this.day,
+    required this.isMeeting,
     required this.start,
     required this.length,
     required this.hourHeight,
@@ -310,6 +312,7 @@ class TimeSlotWidget extends StatelessWidget {
 
   final int id;
   final int day;
+  final bool isMeeting;
   final double start;
   final double length;
   final double hourHeight;
@@ -343,7 +346,10 @@ class TimeSlotWidget extends StatelessWidget {
             },
             child: Container(
                 width: screenWidth / 8 - gridBorderWidth,
-                decoration: BoxDecoration(color: orange.withOpacity(0.7)))));
+                decoration: BoxDecoration(
+                    color: isMeeting
+                        ? orange.withOpacity(0.7)
+                        : darkBlue.withOpacity(0.7)))));
   }
 }
 
@@ -552,6 +558,7 @@ class SchedulePage extends StatelessWidget {
   final String ownerId;
 
   static String scheduleUrl = "";
+  static String pageTitle = "Schedule";
   static bool isModifiable = false;
 
   @override
@@ -559,21 +566,26 @@ class SchedulePage extends StatelessWidget {
     if (isGroupSchedule) {
       SchedulePage.scheduleUrl = "$apiUrl/groups/$ownerId/time_slots";
       SchedulePage.isModifiable = false;
+      SchedulePage.pageTitle = "Group Schedule";
     } else if (!isPersonalSchedule) {
       SchedulePage.scheduleUrl = "$apiUrl/users/$ownerId/time_slots";
       SchedulePage.isModifiable = false;
     } else {
       SchedulePage.scheduleUrl = "$apiUrl/time_slots";
       SchedulePage.isModifiable = true;
+      SchedulePage.pageTitle = "User Schedule";
     }
 
     return Scaffold(
         backgroundColor: Colors.white,
         appBar: CustomAppBar(
-            title: 'Schedule',
+            title: SchedulePage.pageTitle,
             needButton: true,
             onPressed: () {
-              Navigator.push(context, MaterialPageRoute(builder: (context) => PersonalPage()));
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => const PersonalPage()));
               // logOut(context);
             },
             buttonIcon: Icons.settings_outlined),
