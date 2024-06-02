@@ -66,7 +66,7 @@ class _ScheduleGridState extends State<ScheduleGrid> {
     });
   }
 
-  Future<void> deleteTimeSlot(int id) async {
+  Future<void> deleteTimeSlot(String id) async {
     if (!SchedulePage.isModifiable) {
       return;
     }
@@ -77,7 +77,7 @@ class _ScheduleGridState extends State<ScheduleGrid> {
     });
   }
 
-  Future<void> updateTimeSlot(int id, double start, double length) async {
+  Future<void> updateTimeSlot(String id, double start, double length) async {
     if (!SchedulePage.isModifiable) {
       return;
     }
@@ -195,8 +195,8 @@ class _TimeColumn extends StatelessWidget {
 
 class _DayColumn extends StatelessWidget {
   final void Function(int day, double start, double length) createTimeSlot;
-  final void Function(int id, double start, double length) updateTimeSlot;
-  final void Function(int id) deleteTimeSlot;
+  final void Function(String id, double start, double length) updateTimeSlot;
+  final void Function(String id) deleteTimeSlot;
 
   final List<TimeSlot> timeSlots;
   final int day;
@@ -310,14 +310,14 @@ class TimeSlotWidget extends StatelessWidget {
     required this.updateTimeSlot,
   });
 
-  final int id;
+  final String id;
   final int day;
   final bool isMeeting;
   final double start;
   final double length;
   final double hourHeight;
-  final void Function(int id) deleteTimeSlot;
-  final void Function(int id, double start, double length) updateTimeSlot;
+  final void Function(String id) deleteTimeSlot;
+  final void Function(String id, double start, double length) updateTimeSlot;
 
   Widget _buildTimePickerPopup(BuildContext context, int day) {
     return _TimePicker(
@@ -348,8 +348,8 @@ class TimeSlotWidget extends StatelessWidget {
                 width: screenWidth / 8 - gridBorderWidth,
                 decoration: BoxDecoration(
                     color: isMeeting
-                        ? orange.withOpacity(0.7)
-                        : darkBlue.withOpacity(0.7)))));
+                        ? darkBlue.withOpacity(0.7)
+                        : orange.withOpacity(0.7)))));
   }
 }
 
@@ -363,12 +363,12 @@ class _TimePicker extends StatefulWidget {
     required this.updateTimeSlot,
   });
 
-  final int id;
+  final String id;
   final int day;
   final double start;
   final double length;
-  final void Function(int id) deleteTimeSlot;
-  final void Function(int id, double start, double length) updateTimeSlot;
+  final void Function(String id) deleteTimeSlot;
+  final void Function(String id, double start, double length) updateTimeSlot;
 
   @override
   State<_TimePicker> createState() => _TimePickerState();

@@ -7,7 +7,7 @@ class TimeSlot {
     this.isMeeting = false,
   });
 
-  int id = -1;
+  String id = "";
   int day = 2;
   double start = 20.0;
   double length = 20.0;
