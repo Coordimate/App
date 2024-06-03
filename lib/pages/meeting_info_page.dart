@@ -1,4 +1,6 @@
 import 'package:coordimate/components/appbar.dart';
+import 'package:coordimate/components/pop_up_dialog.dart';
+import 'package:coordimate/components/snack_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:coordimate/components/colors.dart';
 import 'package:coordimate/models/meeting.dart';
@@ -23,12 +25,38 @@ class _MeetingDetailsPageState extends State<MeetingDetailsPage> {
 
   final textController = TextEditingController();
 
-  Future<void> _answerInvitation(bool accept) async {
+  Future<void> _finishMeeting() async {
+    if (widget.meeting.isFinished) {
+      CustomSnackBar.show(context, "Meeting is already finished");
+      return;
+    }
+    final response = await client.patch(
+        Uri.parse("$apiUrl/meetings/${widget.meeting.id}"),
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+        },
+        body: json.encode(<String, dynamic>{
+          'is_finished': true,
+        })
+    );
     if (!mounted) {return;}
+    if (response.statusCode == 200) {
+      CustomSnackBar.show(context, "Meeting is finished");
+      setState(() {
+        widget.meeting.isFinished = true;
+      });
+    } else {
+      throw Exception('Failed to finish meeting');
+    }
+  }
+
+  Future<void> _answerInvitation(bool accept) async {
     if (widget.meeting.isInPast()) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Meeting is in the past")),
-      );
+      CustomSnackBar.show(context, "Meeting is in the past");
+      return;
+    }
+    if (widget.meeting.isFinished) {
+      CustomSnackBar.show(context, "Meeting is already finished");
       return;
     }
     String status = 'accepted';
@@ -46,9 +74,7 @@ class _MeetingDetailsPageState extends State<MeetingDetailsPage> {
     );
     if (!mounted) {return;}
     if (response.statusCode == 200) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Meeting $status")),
-      );
+      CustomSnackBar.show(context, "Meeting $status");
       setState(() {
         widget.meeting.status = accept ? MeetingStatus.accepted : MeetingStatus.declined;
       });
@@ -64,52 +90,21 @@ class _MeetingDetailsPageState extends State<MeetingDetailsPage> {
         return AlertDialog(
           backgroundColor: Colors.white,
           title: Align (
-            alignment: Alignment.center,
-            child: Text(accept ? "Do you want to attend the meeting?" : "Do you want to decline the invitation?",
-                textAlign: TextAlign.center,
-                style: const TextStyle(color: darkBlue, fontWeight: FontWeight.bold)
-            )
+              alignment: Alignment.center,
+              child: Text(accept ? "Do you want to attend the meeting?" : "Do you want to decline the invitation?",
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(color: darkBlue, fontWeight: FontWeight.bold)
+              )
           ),
           actions: <Widget>[
-            Row(
-              children: <Widget>[
-                Expanded(
-                  child: ElevatedButton(
-                    onPressed: () {
-                      _answerInvitation(accept);
-                      Navigator.of(context).pop();
-                    },
-                    style: ButtonStyle(
-                      backgroundColor: MaterialStateProperty.all(mediumBlue),
-                      shape: MaterialStateProperty.all<RoundedRectangleBorder>(
-                        RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                      ),
-                    ),
-                    child: const Text("Yes",
-                        style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 20)),
-                  ),
-                ),
-                const SizedBox(width: 16),
-                Expanded(
-                  child: ElevatedButton(
-                    onPressed: () {
-                      Navigator.of(context).pop();
-                    },
-                    style: ButtonStyle(
-                      side: MaterialStateProperty.all(const BorderSide(color: mediumBlue, width: 3)),
-                      shape: MaterialStateProperty.all<RoundedRectangleBorder>(
-                        RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                      ),
-                    ),
-                    child: const Text("No",
-                        style: TextStyle(color: mediumBlue, fontWeight: FontWeight.bold, fontSize: 20)),
-                  ),
-                ),
-      ]
+            ConfirmationButtons(
+                onYes: () {
+                  _answerInvitation(accept);
+                  Navigator.of(context).pop();
+                },
+                onNo: () {
+                  Navigator.of(context).pop();
+                }
             ),
           ],
         );
@@ -121,17 +116,17 @@ class _MeetingDetailsPageState extends State<MeetingDetailsPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: CustomAppBar(
-          title: '',
-          needButton: true,
-          buttonIcon: Icons.settings,
-          onPressed: widget.meeting.isInPast() ? null : () {
-            showPopUpDialog(context, widget.meeting.status != MeetingStatus.accepted);
-          },
+        title: '',
+        needButton: true,
+        buttonIcon: Icons.settings,
+        onPressed: widget.meeting.isInPast() ? null : () {
+          showPopUpDialog(context, widget.meeting.status != MeetingStatus.accepted);
+        },
       ),
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 0),
         child: SingleChildScrollView(
-          child: Column( 
+          child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
               Text(
@@ -145,9 +140,9 @@ class _MeetingDetailsPageState extends State<MeetingDetailsPage> {
                   widget.meeting.description,
                   style: const TextStyle(fontSize: 20, color: darkBlue),
                 ),
-          
+
               const SizedBox(height: 16),
-          
+
               Container(
                 padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
@@ -163,9 +158,9 @@ class _MeetingDetailsPageState extends State<MeetingDetailsPage> {
                   ],
                 ),
               ),
-          
+
               const SizedBox(height: 8),
-          
+
               if (widget.meeting.status == MeetingStatus.accepted)
                 TextField(
                   controller: textController,
@@ -188,13 +183,7 @@ class _MeetingDetailsPageState extends State<MeetingDetailsPage> {
                           IconButton(
                             onPressed: (){
                               Clipboard.setData(ClipboardData(text: textController.text));
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                    content: Text("Copied to clipboard"),
-                                    backgroundColor: darkBlue,
-                                    duration: Duration(seconds: 1)
-                                ),
-                              );
+                              CustomSnackBar.show(context, "Copied to clipboard", duration: const Duration(seconds: 1));
                             },
                             icon: const Icon(Icons.copy, color: darkBlue),
                             color: darkBlue,
@@ -210,9 +199,9 @@ class _MeetingDetailsPageState extends State<MeetingDetailsPage> {
                       )
                   ),
                 ),
-          
+
               const SizedBox(height: 10),
-          
+
               if (widget.meeting.status == MeetingStatus.accepted)
                 SizedBox(
                   width: double.infinity,
@@ -232,15 +221,30 @@ class _MeetingDetailsPageState extends State<MeetingDetailsPage> {
                     child: const Text("Meeting Agenda", style: TextStyle(fontSize: 20, color: Colors.white, fontWeight: FontWeight.bold)),
                   ),
                 ),
-          
+
               if (widget.meeting.status == MeetingStatus.accepted)
                 SizedBox(
                   width: double.infinity,
                   child: ElevatedButton(
-                    onPressed: (){
-                      Navigator.of(context).push(MaterialPageRoute(
-                          builder: (context) => SummaryPage()
-                      ));
+                    onPressed: () async {
+                      // if (widget.meeting.isFinished) {
+                      Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (context) => SummaryPage(
+                            id: widget.meeting.id,
+                            summary: widget.meeting.summary,
+                          ),
+                        ),
+                      ).then((updatedSummary) {
+                        if (updatedSummary != null) {
+                          setState(() {
+                            widget.meeting.summary = updatedSummary;
+                          });
+                        }
+                      });
+                      // } else {
+                      //   await _finishMeeting();
+                      // }
                     },
                     style: ButtonStyle(
                       backgroundColor: MaterialStateProperty.all(mediumBlue),
@@ -250,12 +254,12 @@ class _MeetingDetailsPageState extends State<MeetingDetailsPage> {
                         ),),
                     ),
                     child: Text(
-                        widget.meeting.isInPast() ? "Finish Meeting" : "Summary" ,
+                        widget.meeting.isFinished ? "Summary" : "Finish Meeting",
                         style: const TextStyle(fontSize: 20, color: Colors.white, fontWeight: FontWeight.bold)),
                   ),
                 ),
-          
-          
+
+
               if (widget.meeting.status == MeetingStatus.needsAcceptance)
                 Row(
                   // mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -265,7 +269,7 @@ class _MeetingDetailsPageState extends State<MeetingDetailsPage> {
                     answerButton("Decline", orange, () => _answerInvitation(false)),
                   ],
                 ),
-          
+
               if (widget.meeting.status == MeetingStatus.declined)
                 SizedBox(
                   width: double.infinity,
@@ -286,9 +290,9 @@ class _MeetingDetailsPageState extends State<MeetingDetailsPage> {
                     ),
                   ),
                 ),
-          
+
               const SizedBox(height: 16),
-          
+
               const Text(
                 "Participants",
                 style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: darkBlue),
