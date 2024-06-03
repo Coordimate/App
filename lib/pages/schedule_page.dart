@@ -614,7 +614,7 @@ class SchedulePage extends StatelessWidget {
             buttonIcon: Icons.settings_outlined),
         body: const ScheduleGrid(),
         floatingActionButton:
-        isPersonalSchedule
+        (ownerId == "")
             ? FloatingActionButton(
                 onPressed: () async {
                   await shareSchedule();
