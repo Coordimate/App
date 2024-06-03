@@ -3,6 +3,7 @@ import 'package:coordimate/components/colors.dart';
 import 'package:coordimate/components/login_button.dart';
 import 'package:coordimate/components/pop_up_dialog.dart';
 import 'package:duration_picker/duration_picker.dart';
+import 'package:coordimate/components/appbar.dart';
 import 'package:flutter/material.dart';
 import 'package:coordimate/models/groups.dart';
 import 'package:coordimate/components/divider.dart';
@@ -12,6 +13,7 @@ import 'package:coordimate/keys.dart';
 import 'dart:convert';
 import 'package:coordimate/api_client.dart';
 import 'package:intl/intl.dart';
+import 'dart:ui' as ui;
 
 class GroupDetailsPage extends StatefulWidget {
   final Group group;
@@ -63,11 +65,10 @@ class _GroupDetailsPageState extends State<GroupDetailsPage> {
         return Theme(
           data: ThemeData.light().copyWith(
             colorScheme: const ColorScheme.light(
-              primary: lightBlue,
-              onPrimary: darkBlue,
-              onSurface: darkBlue,
-              surfaceTint: Colors.white
-            ),
+                primary: lightBlue,
+                onPrimary: darkBlue,
+                onSurface: darkBlue,
+                surfaceTint: Colors.white),
             textButtonTheme: TextButtonThemeData(
               style: TextButton.styleFrom(
                 foregroundColor: darkBlue,
@@ -102,8 +103,7 @@ class _GroupDetailsPageState extends State<GroupDetailsPage> {
                 primary: lightBlue,
                 onPrimary: darkBlue,
                 onSurface: darkBlue,
-                surfaceTint: Colors.white
-            ),
+                surfaceTint: Colors.white),
             textButtonTheme: TextButtonThemeData(
               style: TextButton.styleFrom(
                 foregroundColor: darkBlue,
@@ -147,43 +147,6 @@ class _GroupDetailsPageState extends State<GroupDetailsPage> {
       });
     }
   }
-
-
-
-  // Future<String?> _fetchGroupId(String groupId) async {
-  //   final response = await client.get(Uri.parse("$apiUrl/groups/$groupId"));
-  //   if (response.statusCode == 200) {
-  //     final group = json.decode(response.body);
-  //     return group['_id'];
-  //   } else {
-  //     throw Exception('Failed to load group');
-  //   }
-  // }
-
-  // Future<void> _createMeeting(String groupId) async {
-  //   String? actualGroupId = await _fetchGroupId(groupId);
-  //   if (actualGroupId != null) {
-  //     final response = await client.post(
-  //       Uri.parse("$apiUrl/meetings/"),
-  //       headers: <String, String>{
-  //         'Content-Type': 'application/json; charset=UTF-8',
-  //       },
-  //       body: jsonEncode(<String, dynamic>{
-  //         'title': _titleController.text,
-  //         'start': _selectedDate.toIso8601String(),
-  //         'description': _descriptionController.text,
-  //         'group_id': group.id,
-  //       }),
-  //     );
-  //     if (response.statusCode == 201) {
-  //       _fetchMeetings();
-  //     } else {
-  //       throw Exception('Failed to create meeting');
-  //     }
-  //   } else {
-  //     throw Exception('Failed to fetch group ID');
-  //   }
-  // }
 
   Future<void> _createMeeting() async {
     final response = await client.post(
@@ -271,7 +234,8 @@ class _GroupDetailsPageState extends State<GroupDetailsPage> {
                     const SizedBox(height: 16),
                     LoginEmptyButton(
                       text: DateFormat('EEE, MMMM d, y')
-                          .format(_selectedDate.toLocal()).toString(),
+                          .format(_selectedDate.toLocal())
+                          .toString(),
                       onTap: () async {
                         await _selectDate();
                         setState(() {});
@@ -280,7 +244,8 @@ class _GroupDetailsPageState extends State<GroupDetailsPage> {
                     const SizedBox(height: 16),
                     LoginEmptyButton(
                       text: DateFormat('HH:mm')
-                          .format(_selectedDate.toLocal()).toString(),
+                          .format(_selectedDate.toLocal())
+                          .toString(),
                       onTap: () async {
                         await _selectTime();
                         setState(() {});
@@ -298,7 +263,8 @@ class _GroupDetailsPageState extends State<GroupDetailsPage> {
                       ),
                     ),
                     const SizedBox(height: 16),
-                    LoginEmptyButton(text: _printDuration(_selectedDuration),
+                    LoginEmptyButton(
+                      text: _printDuration(_selectedDuration),
                       onTap: () async {
                         await _setDuration();
                         setState(() {});
@@ -327,7 +293,9 @@ class _GroupDetailsPageState extends State<GroupDetailsPage> {
               actions: <Widget>[
                 ConfirmationButtons(
                   onYes: () {
-                    if (_formKey.currentState!.validate() == false) { return; }
+                    if (_formKey.currentState!.validate() == false) {
+                      return;
+                    }
                     if (_selectedDate.isBefore(
                         DateTime.now().add(const Duration(minutes: 5)))) {
                       Flushbar(
@@ -340,7 +308,6 @@ class _GroupDetailsPageState extends State<GroupDetailsPage> {
                       _createMeeting();
                       clearControllers();
                       Navigator.of(context).pop();
-
                     }
                   },
                   onNo: () {
@@ -368,35 +335,12 @@ class _GroupDetailsPageState extends State<GroupDetailsPage> {
         .toList();
 
     return Scaffold(
-      appBar: AppBar(
-        automaticallyImplyLeading: false, // Disable the default back button
-        title: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: <Widget>[
-            IconButton(
-              icon: Icon(Icons.arrow_back),
-              onPressed: () {
-                Navigator.pop(context); // Navigate back
-              },
-            ),
-            SizedBox(width: 17.0), // Add space here
-            IconButton(
-              icon: Icon(Icons.archive),
-              iconSize: 43.0,
-              onPressed: () {
-                //later
-              },
-            ),
-            SizedBox(width: 0.0), // Add space here
-            TextButton(
-              onPressed: () {
-                // Functionality to be added later
-              },
-              child: Text('Edit'),
-            ),
-          ],
-        ),
-      ),
+      backgroundColor: Colors.white,
+      appBar: CustomAppBar(
+          title: "",
+          needButton: true,
+          buttonIcon: Icons.archive,
+          onPressed: () {}),
       body: SingleChildScrollView(
         child: Padding(
           padding: const EdgeInsets.all(4.0),
@@ -452,40 +396,47 @@ class _GroupDetailsPageState extends State<GroupDetailsPage> {
                   ),
                 ),
               ),
+              SizedBox(height: 16.0),
+              Container(
+                width: double.infinity,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: <Widget>[
+                    if (widget.group.description.isNotEmpty)
+                      Container(
+                        constraints: BoxConstraints(minWidth: double.infinity),
+                        padding: EdgeInsets.symmetric(horizontal: 8.0),
+                        decoration: BoxDecoration(
+                          border: Border.all(color: darkBlue),
+                        ),
+                        child: Text(
+                          widget.group.description,
+                          style: TextStyle(
+                            fontSize: 16.0,
+                          ),
+                        ),
+                      )
+                    else
+                      Padding(
+                        padding: EdgeInsets.symmetric(horizontal: 8.0),
+                        child: Text(
+                          'No group description',
+                          style: TextStyle(
+                            fontSize: 16.0,
+                            color: Colors.grey,
+                          ),
+                        ),
+                      ),
+                  ],
+                ),
+              ),
+
               SizedBox(height: 16.0), // Added spacing
               if (acceptedFutureMeetings.isNotEmpty)
                 _buildMeetingList(acceptedFutureMeetings, "Upcoming Meetings")
               else
                 _buildMeetingList(
                     acceptedFutureMeetings, "No Upcoming Meetings"),
-              SizedBox(height: 16.0), // Added spacing
-              Container(
-                width: double.infinity,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: <Widget>[
-                    Text(
-                      'Group Actions',
-                      style: TextStyle(
-                        fontSize: 18.0,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    Container(
-                      padding: EdgeInsets.symmetric(horizontal: 8.0),
-                      child: TextField(
-                        controller: TextEditingController(
-                            text: widget.group.description),
-                        decoration: InputDecoration(
-                          border: OutlineInputBorder(),
-                        ),
-                        maxLines: 3,
-                        readOnly: true,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
             ],
           ),
         ),

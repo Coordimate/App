@@ -3,7 +3,7 @@ import 'package:coordimate/components/colors.dart';
 import 'package:coordimate/components/appbar.dart';
 import 'package:coordimate/models/groups.dart';
 import 'package:coordimate/keys.dart';
-import 'group_details_page.dart'; // Import the new GroupDetailsPage
+import 'group_details_page.dart';
 import 'dart:convert';
 import 'package:coordimate/api_client.dart';
 
@@ -58,9 +58,9 @@ class _GroupsPageState extends State<GroupsPage> {
         }),
       );
       if (response.statusCode == 201) {
-        await _getGroups(); // Added await to ensure groups are reloaded after creation
+        await _getGroups();
       } else {
-        throw Exception('Failed to create group'); // Handles failed response
+        throw Exception('Failed to create group');
       }
     } catch (e) {
       print(e);
@@ -102,6 +102,7 @@ class _GroupsPageState extends State<GroupsPage> {
           );
         } else if (snapshot.hasData) {
           return Scaffold(
+            backgroundColor: Colors.white,
             appBar: CustomAppBar(
               title: "Groups",
               needButton: true,
@@ -111,8 +112,7 @@ class _GroupsPageState extends State<GroupsPage> {
               itemCount: _groups.length,
               itemBuilder: (context, index) {
                 return GestureDetector(
-                  onTap: () => _navigateToGroupDetails(
-                      _groups[index]), // Make card clickable
+                  onTap: () => _navigateToGroupDetails(_groups[index]),
                   child: Container(
                     decoration: BoxDecoration(
                       color: darkBlue,
@@ -143,6 +143,8 @@ class _GroupsPageState extends State<GroupsPage> {
                                   color: Colors.white,
                                   fontWeight: FontWeight.bold,
                                 ),
+                                overflow: TextOverflow
+                                    .ellipsis, // Truncate text with ellipsis
                               ),
                               const SizedBox(height: 5),
                               Text(
@@ -151,6 +153,8 @@ class _GroupsPageState extends State<GroupsPage> {
                                   fontSize: 16,
                                   color: Colors.white,
                                 ),
+                                overflow: TextOverflow
+                                    .ellipsis, // Truncate text with ellipsis
                               ),
                             ],
                           ),
@@ -231,8 +235,9 @@ class _CreateGroupDialogState extends State<CreateGroupDialog> {
                   groupDescription = val;
                 });
               },
-              maxLines: 3,
-              maxLength: 300,
+              maxLines:
+                  null, // Allow the TextField to expand vertically based on content
+              maxLength: 100,
               decoration: InputDecoration(
                 contentPadding: const EdgeInsets.all(10),
                 labelText: 'Description',
@@ -246,7 +251,7 @@ class _CreateGroupDialogState extends State<CreateGroupDialog> {
                   borderSide: BorderSide(color: darkBlue),
                 ),
                 labelStyle: const TextStyle(color: Colors.white),
-                counterText: '${groupDescription.length}/300',
+                counterText: '${groupDescription.length}/100',
                 counterStyle: const TextStyle(color: Colors.white),
               ),
               style: const TextStyle(color: Colors.white),
