@@ -1,3 +1,8 @@
+import 'package:another_flushbar/flushbar.dart';
+import 'package:coordimate/components/colors.dart';
+import 'package:coordimate/components/login_button.dart';
+import 'package:coordimate/components/pop_up_dialog.dart';
+import 'package:duration_picker/duration_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:coordimate/models/groups.dart';
 import 'package:coordimate/components/divider.dart';
@@ -21,7 +26,10 @@ class _GroupDetailsPageState extends State<GroupDetailsPage> {
   List<MeetingTileModel> meetings = [];
   final TextEditingController _titleController = TextEditingController();
   final TextEditingController _descriptionController = TextEditingController();
-  DateTime _selectedDate = DateTime.now();
+  DateTime _selectedDate = DateTime.now().add(const Duration(minutes: 5));
+  Duration _selectedDuration = const Duration(minutes: 60);
+  final String pathPerson = 'lib/images/person.png';
+  final _formKey = GlobalKey<FormState>();
 
   @override
   void initState() {
@@ -30,7 +38,7 @@ class _GroupDetailsPageState extends State<GroupDetailsPage> {
   }
 
   Future<void> _fetchMeetings() async {
-    final response = await client.get(Uri.parse("$apiUrl/meetings/"));
+    final response = await client.get(Uri.parse("$apiUrl/meetings"));
     if (response.statusCode == 200) {
       if (!mounted) {
         return;
@@ -49,30 +57,98 @@ class _GroupDetailsPageState extends State<GroupDetailsPage> {
     final DateTime? pickedDate = await showDatePicker(
       context: context,
       initialDate: _selectedDate,
-      firstDate: DateTime(2022, 1),
-      lastDate: DateTime(2025),
+      firstDate: DateTime.now(),
+      lastDate: DateTime.now().add(const Duration(days: 365)),
+      builder: (BuildContext context, Widget? child) {
+        return Theme(
+          data: ThemeData.light().copyWith(
+            colorScheme: const ColorScheme.light(
+              primary: lightBlue,
+              onPrimary: darkBlue,
+              onSurface: darkBlue,
+              surfaceTint: Colors.white
+            ),
+            textButtonTheme: TextButtonThemeData(
+              style: TextButton.styleFrom(
+                foregroundColor: darkBlue,
+              ),
+            ),
+          ),
+          child: child!,
+        );
+      },
     );
-    if (!mounted) {
-      return;
-    }
-    if (pickedDate != null && pickedDate != _selectedDate) {
-      final TimeOfDay? pickedTime = await showTimePicker(
-        context: context,
-        initialTime: TimeOfDay.fromDateTime(_selectedDate),
-      );
-      if (pickedTime != null) {
-        setState(() {
-          _selectedDate = DateTime(
-            pickedDate.year,
-            pickedDate.month,
-            pickedDate.day,
-            pickedTime.hour,
-            pickedTime.minute,
-          );
-        });
-      }
+    if (pickedDate != null) {
+      setState(() {
+        _selectedDate = DateTime(
+          pickedDate.year,
+          pickedDate.month,
+          pickedDate.day,
+          _selectedDate.hour,
+          _selectedDate.minute,
+        );
+      });
     }
   }
+
+  Future<void> _selectTime() async {
+    final TimeOfDay? pickedTime = await showTimePicker(
+      context: context,
+      initialTime: TimeOfDay.fromDateTime(_selectedDate),
+      builder: (BuildContext context, Widget? child) {
+        return Theme(
+          data: ThemeData.light().copyWith(
+            colorScheme: const ColorScheme.light(
+                primary: lightBlue,
+                onPrimary: darkBlue,
+                onSurface: darkBlue,
+                surfaceTint: Colors.white
+            ),
+            textButtonTheme: TextButtonThemeData(
+              style: TextButton.styleFrom(
+                foregroundColor: darkBlue,
+              ),
+            ),
+          ),
+          child: child!,
+        );
+      },
+    );
+    if (pickedTime != null) {
+      setState(() {
+        _selectedDate = DateTime(
+          _selectedDate.year,
+          _selectedDate.month,
+          _selectedDate.day,
+          pickedTime.hour,
+          pickedTime.minute,
+        );
+      });
+    }
+  }
+
+  Future<void> _setDuration() async {
+    final Duration? pickedDuration = await showDurationPicker(
+      context: context,
+      initialTime: _selectedDuration,
+      baseUnit: BaseUnit.minute,
+      upperBound: const Duration(hours: 24),
+      lowerBound: const Duration(minutes: 15),
+      decoration: const BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.all(Radius.circular(10)),
+      ),
+    );
+    if (pickedDuration != null) {
+      setState(() {
+        _selectedDuration = Duration(
+            hours: pickedDuration.inHours,
+            minutes: pickedDuration.inMinutes.remainder(60));
+      });
+    }
+  }
+
+
 
   // Future<String?> _fetchGroupId(String groupId) async {
   //   final response = await client.get(Uri.parse("$apiUrl/groups/$groupId"));
@@ -111,7 +187,7 @@ class _GroupDetailsPageState extends State<GroupDetailsPage> {
 
   Future<void> _createMeeting() async {
     final response = await client.post(
-      Uri.parse("$apiUrl/meetings/"),
+      Uri.parse("$apiUrl/meetings"),
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
       },
@@ -132,64 +208,148 @@ class _GroupDetailsPageState extends State<GroupDetailsPage> {
   void clearControllers() {
     _titleController.clear();
     _descriptionController.clear();
-    _selectedDate = DateTime.now();
+    _selectedDate = DateTime.now().add(const Duration(minutes: 5));
+    _selectedDuration = const Duration(minutes: 60);
+  }
+
+  String _printDuration(Duration duration) {
+    String twoDigits(int n) => n.toString().padLeft(2, "0");
+    String twoDigitMinutes = twoDigits(duration.inMinutes.remainder(60).abs());
+    if (duration.inHours == 0) {
+      return "${twoDigitMinutes}m";
+    } else if (duration.inMinutes.remainder(60) == 0) {
+      return "${duration.inHours}h";
+    }
+    return "${duration.inHours}h ${twoDigitMinutes}m";
   }
 
   void _onCreateMeeting() {
+    _selectedDate = DateTime.now().add(const Duration(minutes: 5));
+
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return StatefulBuilder(
           builder: (BuildContext context, StateSetter setState) {
             return AlertDialog(
-              title: const Text('Create Meeting'),
+              elevation: 0,
+              title: const Center(child: Text('Create Meeting')),
+              titleTextStyle: const TextStyle(
+                color: darkBlue,
+                fontWeight: FontWeight.bold,
+                fontSize: 24,
+              ),
+              alignment: Alignment.center,
+              backgroundColor: Colors.white,
               content: SingleChildScrollView(
                 child: ListBody(
                   children: <Widget>[
-                    TextField(
-                      controller: _titleController,
-                      decoration: const InputDecoration(
-                        labelText: 'Title',
-                        hintText: 'Enter the title of the meeting',
+                    Form(
+                      key: _formKey,
+                      child: TextFormField(
+                        controller: _titleController,
+                        style: const TextStyle(color: darkBlue),
+                        decoration: const InputDecoration(
+                          labelText: 'Title',
+                          labelStyle: TextStyle(color: darkBlue),
+                          hintText: 'Enter the title of the meeting',
+                          enabledBorder: UnderlineInputBorder(
+                            borderSide: BorderSide(color: darkBlue),
+                          ),
+                          focusedBorder: UnderlineInputBorder(
+                            borderSide: BorderSide(color: darkBlue, width: 2.0),
+                          ),
+                        ),
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Please enter a title';
+                          }
+                          return null;
+                        },
                       ),
                     ),
-                    ListTile(
-                      title: Text(DateFormat('EEE, MMMM d, HH:mm')
-                          .format(_selectedDate.toLocal())),
-                      trailing: const Icon(Icons.keyboard_arrow_down),
+                    const SizedBox(height: 16),
+                    LoginEmptyButton(
+                      text: DateFormat('EEE, MMMM d, y')
+                          .format(_selectedDate.toLocal()).toString(),
                       onTap: () async {
                         await _selectDate();
-                        setState(
-                            () {}); // Rebuild the dialog to update the date
+                        setState(() {});
                       },
                     ),
+                    const SizedBox(height: 16),
+                    LoginEmptyButton(
+                      text: DateFormat('HH:mm')
+                          .format(_selectedDate.toLocal()).toString(),
+                      onTap: () async {
+                        await _selectTime();
+                        setState(() {});
+                      },
+                    ),
+                    const SizedBox(height: 16),
+                    const Center(
+                      child: Text(
+                        "Estimated duration",
+                        style: TextStyle(
+                          color: darkBlue,
+                          fontSize: 20,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    LoginEmptyButton(text: _printDuration(_selectedDuration),
+                      onTap: () async {
+                        await _setDuration();
+                        setState(() {});
+                      },
+                    ),
+                    const SizedBox(height: 16),
                     TextField(
                       controller: _descriptionController,
+                      style: const TextStyle(color: darkBlue),
                       decoration: const InputDecoration(
                         labelText: 'Description',
                         hintText: 'Enter the description of the meeting',
+                        labelStyle: TextStyle(color: darkBlue),
+                        enabledBorder: UnderlineInputBorder(
+                          borderSide: BorderSide(color: darkBlue),
+                        ),
+                        focusedBorder: UnderlineInputBorder(
+                          borderSide: BorderSide(color: darkBlue, width: 2.0),
+                        ),
                       ),
-                      maxLines: 3,
+                      maxLines: null,
                     ),
                   ],
                 ),
               ),
               actions: <Widget>[
-                TextButton(
-                  child: const Text('Cancel'),
-                  onPressed: () {
+                ConfirmationButtons(
+                  onYes: () {
+                    if (_formKey.currentState!.validate() == false) { return; }
+                    if (_selectedDate.isBefore(
+                        DateTime.now().add(const Duration(minutes: 5)))) {
+                      Flushbar(
+                        message: 'Meeting needs to be at least in 5 minutes',
+                        backgroundColor: orange,
+                        duration: const Duration(seconds: 2),
+                        flushbarPosition: FlushbarPosition.TOP,
+                      ).show(context);
+                    } else {
+                      _createMeeting();
+                      clearControllers();
+                      Navigator.of(context).pop();
+
+                    }
+                  },
+                  onNo: () {
                     clearControllers();
                     Navigator.of(context).pop();
                   },
-                ),
-                TextButton(
-                  child: const Text('Create'),
-                  onPressed: () {
-                    _createMeeting();
-                    clearControllers();
-                    Navigator.of(context).pop();
-                  },
-                ),
+                  yes: "Create",
+                  no: "Cancel",
+                )
               ],
             );
           },

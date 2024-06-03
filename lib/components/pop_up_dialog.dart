@@ -28,47 +28,67 @@ class CustomPopUpDialog extends StatelessWidget {
         ),
       ),
       actions: <Widget>[
-        Row(
-          children: <Widget>[
-            Expanded(
-              child: ElevatedButton(
-                onPressed: () {
-                  Navigator.of(context).pop();
-                  onYes();
-                  },
-                style: ButtonStyle(
-                  backgroundColor: MaterialStateProperty.all(mediumBlue),
-                  shape: MaterialStateProperty.all<RoundedRectangleBorder>(
-                    RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                  ),
+        ConfirmationButtons(onYes: onYes, onNo: onNo),
+      ],
+    );
+  }
+}
+
+class ConfirmationButtons extends StatelessWidget {
+  final VoidCallback onYes;
+  final VoidCallback onNo;
+  final String yes;
+  final String no;
+
+  const ConfirmationButtons({
+    super.key,
+    required this.onYes,
+    required this.onNo,
+    this.yes = "Yes",
+    this.no = "No",
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: <Widget>[
+        Expanded(
+          child: ElevatedButton(
+            onPressed: onYes,
+            style: ButtonStyle(
+              elevation: MaterialStateProperty.all(0),
+              backgroundColor: MaterialStateProperty.all(mediumBlue),
+              shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+                RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
                 ),
-                child: const Text("Yes",
-                    style: TextStyle(
-                        color: Colors.white, fontWeight: FontWeight.bold, fontSize: 20)),
               ),
             ),
-            const SizedBox(width: 16),
-            Expanded(
-              child: ElevatedButton(
-                onPressed: () {
-                  Navigator.of(context).pop();
-                  onNo();
-                  },
-                style: ButtonStyle(
-                  side: MaterialStateProperty.all(const BorderSide(color: mediumBlue, width: 3)),
-                  shape: MaterialStateProperty.all<RoundedRectangleBorder>(
-                    RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                  ),
+            child: Text(
+                yes,
+                style:const TextStyle(
+                    color: Colors.white, fontWeight: FontWeight.bold, fontSize: 20)),
+          ),
+        ),
+        const SizedBox(width: 16),
+        Expanded(
+          child: ElevatedButton(
+            onPressed: onNo,
+            style: ButtonStyle(
+              backgroundColor: MaterialStateProperty.all(Colors.white),
+              elevation: MaterialStateProperty.all(0),
+              side: MaterialStateProperty.all(const BorderSide(color: mediumBlue, width: 3)),
+              shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+                RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
                 ),
-                child: const Text("No",
-                    style: TextStyle(color: mediumBlue, fontWeight: FontWeight.bold, fontSize: 20)),
               ),
             ),
-          ],
+            child: Text(
+                no,
+                style: const TextStyle(
+                    color: mediumBlue, fontWeight: FontWeight.bold, fontSize: 20)),
+          ),
         ),
       ],
     );
