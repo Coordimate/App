@@ -15,6 +15,19 @@ import 'package:coordimate/api_client.dart';
 import 'package:intl/intl.dart';
 import 'package:coordimate/components/archive_scroll.dart';
 import 'package:coordimate/pages/meetings_archive.dart';
+import 'package:coordimate/components/appbar.dart';
+import 'package:coordimate/components/pop_up_dialog.dart';
+import 'package:coordimate/components/snack_bar.dart';
+import 'package:flutter/material.dart';
+import 'package:coordimate/components/colors.dart';
+import 'package:coordimate/models/meeting.dart';
+import 'package:coordimate/api_client.dart';
+import 'package:coordimate/keys.dart';
+import 'package:coordimate/components/agenda.dart';
+import 'dart:convert';
+import 'package:share_plus/share_plus.dart';
+import 'package:flutter/services.dart';
+import 'package:coordimate/pages/meeting_summary_page.dart';
 
 class GroupDetailsPage extends StatefulWidget {
   final Group group;
@@ -33,6 +46,8 @@ class _GroupDetailsPageState extends State<GroupDetailsPage> {
   Duration _selectedDuration = const Duration(minutes: 60);
   final String pathPerson = 'lib/images/person.png';
   final _formKey = GlobalKey<FormState>();
+
+  final textController = TextEditingController();
 
   @override
   void initState() {
@@ -417,6 +432,45 @@ class _GroupDetailsPageState extends State<GroupDetailsPage> {
                     color: Colors.grey,
                   ),
                 ),
+              ),
+              SizedBox(height: 16.0),
+              TextField(
+                controller: textController,
+                decoration: InputDecoration(
+                    enabledBorder: UnderlineInputBorder(
+                      borderSide: BorderSide(
+                        color: alphaDarkBlue,
+                      ),
+                    ),
+                    focusedBorder: const UnderlineInputBorder(
+                      borderSide: BorderSide(
+                        color: darkBlue,
+                      ),
+                    ),
+                    hintText: 'Insert link or address here',
+                    hintStyle: TextStyle(color: alphaDarkBlue),
+                    suffixIcon: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: <Widget>[
+                        IconButton(
+                          onPressed: () {
+                            Clipboard.setData(
+                                ClipboardData(text: textController.text));
+                            CustomSnackBar.show(context, "Copied to clipboard",
+                                duration: const Duration(seconds: 1));
+                          },
+                          icon: const Icon(Icons.copy, color: darkBlue),
+                          color: darkBlue,
+                        ),
+                        IconButton(
+                          onPressed: () {
+                            Share.share(textController.text);
+                          },
+                          icon: const Icon(Icons.share, color: darkBlue),
+                          color: darkBlue,
+                        ),
+                      ],
+                    )),
               ),
               SizedBox(height: 16.0),
               Container(
