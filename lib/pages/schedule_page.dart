@@ -219,11 +219,11 @@ class _DayColumn extends StatelessWidget {
   double roundToFraction(double hours) {
     var fraction = 1;
     if (hourHeight <= 30) {
-      fraction = 2;
+      fraction = 1;
     } else if (hourHeight <= 50) {
-      fraction = 4;
+      fraction = 2;
     } else {
-      fraction = 6;
+      fraction = 4;
     }
     return (hours / (hourHeight / fraction) + 0.5).floor() *
         (hourHeight / fraction);
@@ -269,21 +269,32 @@ class _DayColumn extends StatelessWidget {
           },
           child: Column(children: [
             for (var i = 0; i < 24; i++)
-              SizedBox(
-                  height: hourHeight,
-                  child: Container(
-                    decoration: BoxDecoration(
-                        border: Border(
-                            bottom: BorderSide(
-                                width: gridBorderWidth,
-                                color:
-                                    (i != 23) ? gridBorderColor : Colors.white),
-                            right: BorderSide(
-                                width: gridBorderWidth,
-                                color: (day != 6)
-                                    ? gridBorderColor
-                                    : Colors.white))),
-                  )),
+              GestureDetector(
+                  onTap: () {
+                    if (SchedulePage.canCreateMeeting) {
+                      print("would show meeting pop-up");
+                    } else if (SchedulePage.isModifiable) {
+                      createTimeSlot(day, i.toDouble(), 1.0);
+                      _newTimeSlotKey.currentState?.updateTop(0);
+                      _newTimeSlotKey.currentState?.updateHeight(0);
+                    }
+                  },
+                  child: SizedBox(
+                      height: hourHeight,
+                      child: Container(
+                        decoration: BoxDecoration(
+                            border: Border(
+                                bottom: BorderSide(
+                                    width: gridBorderWidth,
+                                    color: (i != 23)
+                                        ? gridBorderColor
+                                        : Colors.white),
+                                right: BorderSide(
+                                    width: gridBorderWidth,
+                                    color: (day != 6)
+                                        ? gridBorderColor
+                                        : Colors.white))),
+                      ))),
           ])),
       for (var timeSlot in timeSlots.where((e) => e.day == day).toList())
         TimeSlotWidget(
@@ -340,21 +351,21 @@ class TimeSlotWidget extends StatelessWidget {
         child: GestureDetector(
             onTap: () {
               if (!SchedulePage.isModifiable) {
-                if (SchedulePage.canCreateMeeting) {
-                  
-                }
+                if (SchedulePage.canCreateMeeting) {}
                 return;
               }
               showDialog(
                   context: context,
                   builder: (context) => _buildTimePickerPopup(context, day));
             },
-            child: Container(
-                width: screenWidth / 8 - gridBorderWidth,
-                decoration: BoxDecoration(
-                    color: isMeeting
-                        ? darkBlue.withOpacity(0.7)
-                        : orange.withOpacity(0.7)))));
+            child: Stack(children: [
+              Container(
+                  width: screenWidth / 8 - gridBorderWidth,
+                  decoration: BoxDecoration(
+                      color: isMeeting
+                          ? darkBlue.withOpacity(0.7)
+                          : orange.withOpacity(0.7)))
+            ])));
   }
 }
 
@@ -569,10 +580,8 @@ class SchedulePage extends StatelessWidget {
 
   Future<void> shareSchedule() async {
     var url = Uri.parse("$apiUrl/share_schedule");
-    final response = await client.get(
-        url,
-        headers: {"Content-Type": "application/json"}
-    );
+    final response =
+        await client.get(url, headers: {"Content-Type": "application/json"});
     if (response.statusCode != 200) {
       throw Exception('Failed to share schedule');
     }
@@ -613,16 +622,14 @@ class SchedulePage extends StatelessWidget {
             },
             buttonIcon: Icons.settings_outlined),
         body: const ScheduleGrid(),
-        floatingActionButton:
-        (ownerId == "")
+        floatingActionButton: (ownerId == "")
             ? FloatingActionButton(
                 onPressed: () async {
                   await shareSchedule();
                 },
                 backgroundColor: mediumBlue,
                 child: const Icon(Icons.share, color: Colors.white),
-            )
-            : null
-    );
+              )
+            : null);
   }
 }
