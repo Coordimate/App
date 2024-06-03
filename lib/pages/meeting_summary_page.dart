@@ -62,7 +62,7 @@ class _SummaryPageState extends State<SummaryPage> {
           if (didPop) { return; }
           await _saveSummary();
           if (context.mounted) {
-            Navigator.pop(context, summaryController.text);
+            Navigator.pop(context);
           }
         },
         child: Stack(

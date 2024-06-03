@@ -25,6 +25,20 @@ class _MeetingDetailsPageState extends State<MeetingDetailsPage> {
 
   final textController = TextEditingController();
 
+  Future<void> _fetchMeetingSummary() async {
+    final response =
+    await client.get(Uri.parse("$apiUrl/meetings/${widget.meeting.id}/details"));
+    if (!mounted) { return; }
+    if (response.statusCode == 200) {
+      final data = MeetingDetails.fromJson(json.decode(response.body)).summary;
+      setState(() {
+        widget.meeting.summary = data;
+      });
+    } else {
+      throw Exception('Failed to load meeting summary');
+    }
+  }
+
   Future<void> _finishMeeting() async {
     if (widget.meeting.isFinished) {
       CustomSnackBar.show(context, "Meeting is already finished");
@@ -227,7 +241,7 @@ class _MeetingDetailsPageState extends State<MeetingDetailsPage> {
                   width: double.infinity,
                   child: ElevatedButton(
                     onPressed: () async {
-                      // if (widget.meeting.isFinished) {
+                      if (widget.meeting.isFinished) {
                       Navigator.of(context).push(
                         MaterialPageRoute(
                           builder: (context) => SummaryPage(
@@ -235,16 +249,10 @@ class _MeetingDetailsPageState extends State<MeetingDetailsPage> {
                             summary: widget.meeting.summary,
                           ),
                         ),
-                      ).then((updatedSummary) {
-                        if (updatedSummary != null) {
-                          setState(() {
-                            widget.meeting.summary = updatedSummary;
-                          });
-                        }
-                      });
-                      // } else {
-                      //   await _finishMeeting();
-                      // }
+                      ).then((_) async => await _fetchMeetingSummary());
+                      } else {
+                        await _finishMeeting();
+                      }
                     },
                     style: ButtonStyle(
                       backgroundColor: MaterialStateProperty.all(mediumBlue),
