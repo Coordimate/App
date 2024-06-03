@@ -13,7 +13,8 @@ import 'package:coordimate/keys.dart';
 import 'dart:convert';
 import 'package:coordimate/api_client.dart';
 import 'package:intl/intl.dart';
-import 'dart:ui' as ui;
+import 'package:coordimate/components/archive_scroll.dart';
+import 'package:coordimate/pages/meetings_archive.dart';
 
 class GroupDetailsPage extends StatefulWidget {
   final Group group;
@@ -327,20 +328,41 @@ class _GroupDetailsPageState extends State<GroupDetailsPage> {
 
   @override
   Widget build(BuildContext context) {
+    List<MeetingTileModel> declinedMeetings = meetings
+        .where((meeting) => meeting.status == MeetingStatus.declined)
+        .toList();
+    List<MeetingTileModel> newInvitations = meetings
+        .where((meeting) => meeting.status == MeetingStatus.needsAcceptance)
+        .toList();
     List<MeetingTileModel> acceptedMeetings = meetings
         .where((meeting) => meeting.status == MeetingStatus.accepted)
+        .toList();
+    List<MeetingTileModel> acceptedPassedMeetings = acceptedMeetings
+        .where((meeting) => meeting.dateTime.isBefore(DateTime.now()))
         .toList();
     List<MeetingTileModel> acceptedFutureMeetings = acceptedMeetings
         .where((meeting) => meeting.dateTime.isAfter(DateTime.now()))
         .toList();
+    List<MeetingTileModel> archivedMeetings =
+        acceptedPassedMeetings + declinedMeetings;
+    archivedMeetings.sort((a, b) => b.dateTime.compareTo(a.dateTime));
 
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: CustomAppBar(
-          title: "",
-          needButton: true,
-          buttonIcon: Icons.archive,
-          onPressed: () {}),
+        title: "",
+        needButton: true,
+        buttonIcon: Icons.archive,
+        onPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => MeetingsArchivePage(
+                  meetings: archivedMeetings, fetchMeetings: _fetchMeetings),
+            ),
+          );
+        },
+      ),
       body: SingleChildScrollView(
         child: Padding(
           padding: const EdgeInsets.all(4.0),
@@ -456,10 +478,17 @@ class _GroupDetailsPageState extends State<GroupDetailsPage> {
           physics: const NeverScrollableScrollPhysics(),
           itemCount: meetings.length,
           itemBuilder: (context, index) {
-            return AcceptedMeetingTile(
-              meeting: meetings[index],
-              fetchMeetings: _fetchMeetings,
-            );
+            if (meetings[index].status == MeetingStatus.declined) {
+              return ArchivedMeetingTile(
+                meeting: meetings[index],
+                fetchMeetings: _fetchMeetings,
+              );
+            } else if (meetings[index].status == MeetingStatus.accepted) {
+              return AcceptedMeetingTile(
+                meeting: meetings[index],
+                fetchMeetings: _fetchMeetings,
+              );
+            }
           },
         ),
       ],
