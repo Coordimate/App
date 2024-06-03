@@ -2,6 +2,7 @@ import 'package:another_flushbar/flushbar.dart';
 import 'package:coordimate/components/colors.dart';
 import 'package:coordimate/components/login_button.dart';
 import 'package:coordimate/components/pop_up_dialog.dart';
+import 'package:coordimate/pages/schedule_page.dart';
 import 'package:duration_picker/duration_picker.dart';
 import 'package:coordimate/components/appbar.dart';
 import 'package:flutter/material.dart';
@@ -514,7 +515,15 @@ class _GroupDetailsPageState extends State<GroupDetailsPage> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        CustomDivider(text: title),
+        GestureDetector(
+            onTap: () {
+              Navigator.of(context).push(MaterialPageRoute(
+                  builder: (context) => SchedulePage(
+                      isGroupSchedule: true,
+                      ownerId: widget.group.id,
+                      ownerName: widget.group.name)));
+            },
+            child: CustomDivider(text: title)),
         const SizedBox(height: 16),
         ListView.builder(
           padding: const EdgeInsets.symmetric(horizontal: 16),
