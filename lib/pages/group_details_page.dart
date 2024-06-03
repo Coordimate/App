@@ -13,21 +13,10 @@ import 'package:coordimate/keys.dart';
 import 'dart:convert';
 import 'package:coordimate/api_client.dart';
 import 'package:intl/intl.dart';
-import 'package:coordimate/components/archive_scroll.dart';
 import 'package:coordimate/pages/meetings_archive.dart';
-import 'package:coordimate/components/appbar.dart';
-import 'package:coordimate/components/pop_up_dialog.dart';
 import 'package:coordimate/components/snack_bar.dart';
-import 'package:flutter/material.dart';
-import 'package:coordimate/components/colors.dart';
-import 'package:coordimate/models/meeting.dart';
-import 'package:coordimate/api_client.dart';
-import 'package:coordimate/keys.dart';
-import 'package:coordimate/components/agenda.dart';
-import 'dart:convert';
 import 'package:share_plus/share_plus.dart';
 import 'package:flutter/services.dart';
-import 'package:coordimate/pages/meeting_summary_page.dart';
 
 class GroupDetailsPage extends StatefulWidget {
   final Group group;
@@ -388,7 +377,7 @@ class _GroupDetailsPageState extends State<GroupDetailsPage> {
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
                   IconButton(
-                    icon: Icon(Icons
+                    icon: const Icon(Icons
                         .add_circle_outline_rounded), // Replace with your first button icon
                     iconSize: 43.0, // Adjust size as needed
                     onPressed: () {
@@ -398,14 +387,14 @@ class _GroupDetailsPageState extends State<GroupDetailsPage> {
                   CircleAvatar(
                     radius: 52.0, // Adjust the size as needed
                     backgroundColor: Colors.grey[300], // Placeholder color
-                    child: Icon(
+                    child: const Icon(
                       Icons.group,
                       size: 40.0, // Adjust the size as needed
                       color: Colors.white,
                     ),
                   ),
                   IconButton(
-                    icon: Icon(Icons
+                    icon: const Icon(Icons
                         .add_circle_outline_rounded), // Replace with your second button icon
                     iconSize: 43.0, // Adjust size as needed
                     onPressed: () {
@@ -414,17 +403,17 @@ class _GroupDetailsPageState extends State<GroupDetailsPage> {
                   ),
                 ],
               ),
-              SizedBox(height: 16.0), // Added spacing
+              const SizedBox(height: 16.0), // Added spacing
               Center(
                 child: Text(
                   widget.group.name,
-                  style: TextStyle(
+                  style: const TextStyle(
                     fontSize: 24.0,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
               ),
-              Center(
+              const Center(
                 child: Text(
                   'Members',
                   style: TextStyle(
@@ -433,7 +422,7 @@ class _GroupDetailsPageState extends State<GroupDetailsPage> {
                   ),
                 ),
               ),
-              SizedBox(height: 16.0),
+              const SizedBox(height: 16.0),
               TextField(
                 controller: textController,
                 decoration: InputDecoration(
@@ -472,7 +461,7 @@ class _GroupDetailsPageState extends State<GroupDetailsPage> {
                       ],
                     )),
               ),
-              SizedBox(height: 16.0),
+              const SizedBox(height: 16.0),
               Container(
                 width: double.infinity,
                 child: Column(
@@ -480,20 +469,21 @@ class _GroupDetailsPageState extends State<GroupDetailsPage> {
                   children: <Widget>[
                     if (widget.group.description.isNotEmpty)
                       Container(
-                        constraints: BoxConstraints(minWidth: double.infinity),
-                        padding: EdgeInsets.symmetric(horizontal: 8.0),
+                        constraints:
+                            const BoxConstraints(minWidth: double.infinity),
+                        padding: const EdgeInsets.symmetric(horizontal: 8.0),
                         decoration: BoxDecoration(
                           border: Border.all(color: darkBlue),
                         ),
                         child: Text(
                           widget.group.description,
-                          style: TextStyle(
+                          style: const TextStyle(
                             fontSize: 16.0,
                           ),
                         ),
                       )
                     else
-                      Padding(
+                      const Padding(
                         padding: EdgeInsets.symmetric(horizontal: 8.0),
                         child: Text(
                           'No group description',
@@ -507,7 +497,7 @@ class _GroupDetailsPageState extends State<GroupDetailsPage> {
                 ),
               ),
 
-              SizedBox(height: 16.0), // Added spacing
+              const SizedBox(height: 16.0), // Added spacing
               if (acceptedFutureMeetings.isNotEmpty)
                 _buildMeetingList(acceptedFutureMeetings, "Upcoming Meetings")
               else
