@@ -105,7 +105,9 @@ class MeetingDetails {
   final Participant admin;
   final String description;
   final List<Participant> participants;
+  bool isFinished;
   MeetingStatus status;
+  String summary;
 
   MeetingDetails({
     this.id = '',
@@ -117,6 +119,8 @@ class MeetingDetails {
     required this.groupId,
     required this.groupName,
     required this.status,
+    required this.isFinished,
+    required this.summary,
   });
 
   String getFormattedDate() {
@@ -142,6 +146,8 @@ class MeetingDetails {
       description: json['description'] ?? '',
       status: json['status'] == 'accepted' ? MeetingStatus.accepted : json['status'] == 'declined' ? MeetingStatus.declined : MeetingStatus.needsAcceptance,
       participants: (json['participants'] as List).map((e) => Participant.fromJson(e)).toList(),
+      isFinished: json['is_finished'] as bool,
+      summary: json['summary'] ?? '',
     );
   }
 

@@ -11,6 +11,7 @@ import 'package:coordimate/api_client.dart';
 import 'package:coordimate/keys.dart';
 import 'package:coordimate/models/user.dart';
 import 'package:coordimate/components/login_text_field.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class PersonalPage extends StatefulWidget {
   const PersonalPage({super.key});
@@ -28,6 +29,12 @@ class _PersonalPageState extends State<PersonalPage> {
   static const usernameFontSize = 30.0;
   static const horPadding = 24.0;
   var userEmail = '';
+  var showChangePasswordButton = true;
+
+  Future<bool> checkAuthType() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    return prefs.getString('sign_in_method') == signInType[AuthType.email];
+  }
 
   void logOut(BuildContext context) {
     logUserOutStorage();
@@ -48,6 +55,7 @@ class _PersonalPageState extends State<PersonalPage> {
     user = User.fromJson(json.decode(response.body));
     usernameController.text = user.username;
     userEmail = user.email;
+    showChangePasswordButton = await checkAuthType();
   }
 
   Future<void> changeUsername(username) async {
@@ -55,7 +63,7 @@ class _PersonalPageState extends State<PersonalPage> {
       return;
     }
     var url = Uri.parse("$apiUrl/users/${user.id}");
-    final response = await client.put(
+    final response = await client.patch(
         url,
         headers: {"Content-Type": "application/json"},
         body: jsonEncode(<String, dynamic>{
@@ -104,7 +112,7 @@ class _PersonalPageState extends State<PersonalPage> {
     showDialog(
       context: context,
       builder: (BuildContext context) {
-        return ChangePasswordDialog();
+        return const ChangePasswordDialog();
       },
     );
   }
@@ -175,11 +183,13 @@ class _PersonalPageState extends State<PersonalPage> {
                     Text(userEmail, style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w600, color: darkBlue)),
                     const SizedBox(height: 16),
 
-                    LoginEmptyButton(
-                      text: "Change Password",
-                      onTap: showChangePasswordDialog,
-                    ),
-                    const SizedBox(height: 8),
+                    if (showChangePasswordButton)
+                      LoginEmptyButton(
+                        text: "Change Password",
+                        onTap: showChangePasswordDialog,
+                      ),
+                    if (showChangePasswordButton)
+                      const SizedBox(height: 8),
                     LoginButton(
                       text: "Logout",
                       onTap: () { logOut(context); }
@@ -278,6 +288,7 @@ class _ChangePasswordDialogState extends State<ChangePasswordDialog> {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
+      elevation: 0.0,
       backgroundColor: Colors.white,
       alignment: Alignment.center,
       title: const Center(child: Text('Change Password')),
@@ -315,56 +326,25 @@ class _ChangePasswordDialogState extends State<ChangePasswordDialog> {
         ),
       ),
       actions: <Widget>[
-        Row(
-          children: <Widget>[
-            Expanded(
-              child: ElevatedButton(
-                onPressed: () async {
-                  if (!mounted) return;
-                  var isValid = await changePassword();
-                  if (isValid) {
-                    Navigator.of(context).pop();
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text('Password changed successfully'),
-                        duration: Duration(seconds: 1),
-                        backgroundColor: darkBlue,
-                      ),
-                    );
-                  }
-                },
-                style: ButtonStyle(
-                  backgroundColor: MaterialStateProperty.all(mediumBlue),
-                  shape: MaterialStateProperty.all<RoundedRectangleBorder>(
-                    RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
-                    ),
+        ConfirmationButtons(
+            onYes: () async {
+              var isValid = await changePassword();
+              if (isValid) {
+                Navigator.of(context).pop();
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('Password changed successfully'),
+                    duration: Duration(seconds: 1),
+                    backgroundColor: darkBlue,
                   ),
-                ),
-                child: const Text("Continue",
-                    style: TextStyle(
-                        color: Colors.white, fontWeight: FontWeight.bold, fontSize: 20)),
-              ),
-            ),
-            const SizedBox(width: 16),
-            Expanded(
-              child: ElevatedButton(
-                onPressed: () {
-                  Navigator.of(context).pop();
-                },
-                style: ButtonStyle(
-                  side: MaterialStateProperty.all(const BorderSide(color: mediumBlue, width: 3)),
-                  shape: MaterialStateProperty.all<RoundedRectangleBorder>(
-                    RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                  ),
-                ),
-                child: const Text("Cancel",
-                    style: TextStyle(color: mediumBlue, fontWeight: FontWeight.bold, fontSize: 20)),
-              ),
-            ),
-          ],
+                );
+              }
+            },
+            onNo: () {
+              Navigator.of(context).pop();
+            },
+            yes: "Continue",
+            no: "Cancel",
         ),
       ],
     );

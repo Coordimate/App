@@ -1,6 +1,9 @@
+import 'dart:convert';
+import 'package:coordimate/models/groups.dart';
 import 'package:flutter/material.dart';
 import 'package:coordimate/components/colors.dart';
 import 'package:coordimate/keys.dart';
+import 'package:coordimate/pages/group_details_page.dart';
 import 'package:coordimate/api_client.dart';
 
 class JoinGroupDialog extends StatelessWidget {
@@ -37,6 +40,15 @@ class JoinGroupDialog extends StatelessWidget {
                 headers: {"Content-Type": "application/json"});
             if (context.mounted) {
               Navigator.of(context).pop();
+            }
+            final response = await client.get(Uri.parse("$apiUrl/groups/$groupId"));
+            if (response.statusCode == 200) {
+              final group = Group.fromJson(json.decode(response.body));
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (context) => GroupDetailsPage(group: group),
+                ),
+              );
             }
           },
         ),

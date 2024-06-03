@@ -1,12 +1,19 @@
+import 'dart:convert';
+
 import 'package:coordimate/components/appbar.dart';
 import 'package:coordimate/components/colors.dart';
 import 'package:flutter/material.dart';
+import 'package:coordimate/api_client.dart';
+import 'package:coordimate/keys.dart';
+
 
 class SummaryPage extends StatefulWidget {
   final String summary;
+  final String id;
 
   const SummaryPage({
     super.key,
+    required this.id,
     this.summary = '',
   });
 
@@ -25,73 +32,103 @@ class _SummaryPageState extends State<SummaryPage> {
     summaryController.text = widget.summary;
   }
 
+  Future<void> _saveSummary() async {
+    if (summaryController.text.isEmpty) {
+      return;
+    }
+    final response = await client.patch(
+        Uri.parse("$apiUrl/meetings/${widget.id}"),
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+        },
+        body: json.encode(<String, dynamic>{
+          'summary': summaryController.text,
+        })
+    );
+    if (response.statusCode != 200) {
+      throw Exception('Failed to save summary');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () {
         FocusScope.of(context).requestFocus(focusNode);
       },
-      child: Stack(
-        children: [
-          Scaffold(
-            backgroundColor: Colors.white,
-            body: Padding(
-              padding: EdgeInsets.only(top: 120.0),
-              child: Column(
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                    child: Row(
-                      children: [
-                        Icon(Icons.text_fields, color: darkBlue),
-                        Expanded(
-                            child: Slider(
-                              value: fontSize,
-                              min: 10.0,
-                              max: 30.0,
-                              activeColor: darkBlue,
-                              onChanged: (newSize) {
-                                setState(() {
-                                  fontSize = newSize;
-                                });
-                              },
-                            ),
-                        ),
-                      ],
+      child: PopScope(
+        canPop: false,
+        onPopInvoked: (bool didPop) async {
+          if (didPop) { return; }
+          await _saveSummary();
+          if (context.mounted) {
+            Navigator.pop(context);
+          }
+        },
+        child: Stack(
+          children: [
+            Scaffold(
+              backgroundColor: Colors.white,
+              body: Padding(
+                padding: const EdgeInsets.only(top: 120.0),
+                child: Column(
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                      child: Row(
+                        children: [
+                          const Icon(Icons.text_fields, color: darkBlue),
+                          Expanded(
+                              child: Slider(
+                                value: fontSize,
+                                min: 10.0,
+                                max: 30.0,
+                                activeColor: darkBlue,
+                                onChanged: (newSize) {
+                                  setState(() {
+                                    fontSize = newSize;
+                                  });
+                                },
+                              ),
+                          ),
+                        ],
+                      ),
                     ),
-                  ),
-                  Expanded(
-                    child: Padding(
-                      padding: const EdgeInsets.all(16.0),
-                      child: TextField(
-                        focusNode: focusNode,
-                        controller: summaryController,
-                        maxLines: null,
-                        decoration: const InputDecoration(
-                          border: InputBorder.none,
-                          hintText: 'Enter summary of the meeting...',
-                        ),
-                        style: TextStyle(
-                          fontSize: fontSize,
-                          color: darkBlue,
+                    Expanded(
+                      child: Padding(
+                        padding: const EdgeInsets.all(16.0),
+                        child: TextField(
+                          focusNode: focusNode,
+                          controller: summaryController,
+                          maxLines: null,
+                          decoration: const InputDecoration(
+                            border: InputBorder.none,
+                            hintText: 'Enter summary of the meeting...',
+                          ),
+                          style: TextStyle(
+                            fontSize: fontSize,
+                            color: darkBlue,
+                          ),
                         ),
                       ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
-          ),
-          const Positioned(
-            top: 0.0,
-            left: 0.0,
-            right: 0.0,
-            child: CustomAppBar(
-                title: 'Meeting Summary',
-                needButton: false
+            Positioned(
+              top: 0.0,
+              left: 0.0,
+              right: 0.0,
+              child: CustomAppBar(
+                title: 'Summary',
+                needButton: true,
+                buttonIcon: Icons.check,
+                onPressed: _saveSummary,
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

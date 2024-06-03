@@ -28,7 +28,7 @@ class _GroupDetailsPageState extends State<GroupDetailsPage> {
   List<MeetingTileModel> meetings = [];
   final TextEditingController _titleController = TextEditingController();
   final TextEditingController _descriptionController = TextEditingController();
-  DateTime _selectedDate = DateTime.now().add(const Duration(minutes: 5));
+  DateTime _selectedDate = DateTime.now().add(const Duration(minutes: 10));
   Duration _selectedDuration = const Duration(minutes: 60);
   final String pathPerson = 'lib/images/person.png';
   final _formKey = GlobalKey<FormState>();
@@ -171,7 +171,7 @@ class _GroupDetailsPageState extends State<GroupDetailsPage> {
   void clearControllers() {
     _titleController.clear();
     _descriptionController.clear();
-    _selectedDate = DateTime.now().add(const Duration(minutes: 5));
+    _selectedDate = DateTime.now().add(const Duration(minutes: 10));
     _selectedDuration = const Duration(minutes: 60);
   }
 
@@ -187,7 +187,7 @@ class _GroupDetailsPageState extends State<GroupDetailsPage> {
   }
 
   void _onCreateMeeting() {
-    _selectedDate = DateTime.now().add(const Duration(minutes: 5));
+    _selectedDate = DateTime.now().add(const Duration(minutes: 10));
 
     showDialog(
       context: context,
