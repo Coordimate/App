@@ -55,7 +55,7 @@ class _PersonalPageState extends State<PersonalPage> {
       return;
     }
     var url = Uri.parse("$apiUrl/users/${user.id}");
-    final response = await client.put(
+    final response = await client.patch(
         url,
         headers: {"Content-Type": "application/json"},
         body: jsonEncode(<String, dynamic>{
@@ -104,7 +104,7 @@ class _PersonalPageState extends State<PersonalPage> {
     showDialog(
       context: context,
       builder: (BuildContext context) {
-        return ChangePasswordDialog();
+        return const ChangePasswordDialog();
       },
     );
   }
