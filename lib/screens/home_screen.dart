@@ -71,10 +71,23 @@ class HomeScreenState extends State<HomeScreen> {
           return;
       }
     });
-    await _tryParseGroupId(uri);
+    await _tryParseGroupJoinLink(uri);
+    await _tryParseUserScheduleLink(uri);
   }
 
-  Future<void> _tryParseGroupId(Uri uri) async {
+  Future<void> _tryParseUserScheduleLink(Uri uri) async {
+    final regex = RegExp(r'^/users/([0-9a-z]+)/time_slots$');
+    final match = regex.firstMatch(uri.path);
+    if (match != null) {
+      final userId = match.group(1)!;
+      final response = await client.get(Uri.parse("$apiUrl/users/$userId"));
+      if (response.statusCode == 200) {
+        Navigator.of(context).push(MaterialPageRoute(builder: (context) => SchedulePage(ownerId: userId, ownerName: json.decode(response.body)["username"])));
+      }
+    }
+  }
+
+  Future<void> _tryParseGroupJoinLink(Uri uri) async {
     final regex = RegExp(r'^/groups/([0-9a-z]+)/join$');
     final match = regex.firstMatch(uri.path);
     if (match != null) {

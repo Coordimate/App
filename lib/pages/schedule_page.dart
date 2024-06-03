@@ -340,6 +340,9 @@ class TimeSlotWidget extends StatelessWidget {
         child: GestureDetector(
             onTap: () {
               if (!SchedulePage.isModifiable) {
+                if (SchedulePage.canCreateMeeting) {
+                  
+                }
                 return;
               }
               showDialog(
@@ -551,17 +554,18 @@ class SchedulePage extends StatelessWidget {
   const SchedulePage({
     super.key,
     this.ownerId = "",
-    this.isPersonalSchedule = true,
+    this.ownerName = "",
     this.isGroupSchedule = false,
   });
 
-  final bool isPersonalSchedule;
   final bool isGroupSchedule;
   final String ownerId;
+  final String ownerName;
 
   static String scheduleUrl = "";
   static String pageTitle = "Schedule";
   static bool isModifiable = false;
+  static bool canCreateMeeting = false;
 
   Future<void> shareSchedule() async {
     var url = Uri.parse("$apiUrl/share_schedule");
@@ -581,21 +585,25 @@ class SchedulePage extends StatelessWidget {
     if (isGroupSchedule) {
       SchedulePage.scheduleUrl = "$apiUrl/groups/$ownerId/time_slots";
       SchedulePage.isModifiable = false;
-      SchedulePage.pageTitle = "Group Schedule";
-    } else if (!isPersonalSchedule) {
+      SchedulePage.canCreateMeeting = true;
+      SchedulePage.pageTitle = (ownerName == "") ? "Group Schedule" : ownerName;
+    } else if (ownerId != "") {
       SchedulePage.scheduleUrl = "$apiUrl/users/$ownerId/time_slots";
+      SchedulePage.canCreateMeeting = false;
       SchedulePage.isModifiable = false;
+      SchedulePage.pageTitle = (ownerName == "") ? "User Schedule" : ownerName;
     } else {
       SchedulePage.scheduleUrl = "$apiUrl/time_slots";
+      SchedulePage.canCreateMeeting = false;
       SchedulePage.isModifiable = true;
-      SchedulePage.pageTitle = "User Schedule";
+      SchedulePage.pageTitle = "Schedule";
     }
 
     return Scaffold(
         backgroundColor: Colors.white,
         appBar: CustomAppBar(
             title: SchedulePage.pageTitle,
-            needButton: true,
+            needButton: (ownerId == ""),
             onPressed: () {
               Navigator.push(
                   context,
