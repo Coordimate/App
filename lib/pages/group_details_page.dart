@@ -42,7 +42,8 @@ class _GroupDetailsPageState extends State<GroupDetailsPage> {
   @override
   void initState() {
     super.initState();
-    _fetchMeetings();
+    // _fetchMeetings();
+    _fetchGroupMeetings();
   }
 
   Future<void> _fetchMeetings() async {
@@ -58,6 +59,22 @@ class _GroupDetailsPageState extends State<GroupDetailsPage> {
       });
     } else {
       throw Exception('Failed to load meetings');
+    }
+  }
+
+  Future<void> _fetchGroupMeetings() async {
+    final response = await client
+        .get(Uri.parse("$apiUrl/groups/${widget.group.id}/meetings"));
+
+    if (response.statusCode == 200) {
+      print(response.body);
+      setState(() {
+        meetings = (json.decode(response.body)['meetings'] as List)
+            .map((data) => MeetingTileModel.fromJson(data))
+            .toList();
+      });
+    } else {
+      throw Exception('Failed to load group meetings');
     }
   }
 
@@ -168,7 +185,7 @@ class _GroupDetailsPageState extends State<GroupDetailsPage> {
       }),
     );
     if (response.statusCode == 201) {
-      _fetchMeetings();
+      _fetchGroupMeetings();
     } else {
       throw Exception('Failed to create meeting');
     }
@@ -363,7 +380,8 @@ class _GroupDetailsPageState extends State<GroupDetailsPage> {
             context,
             MaterialPageRoute(
               builder: (context) => MeetingsArchivePage(
-                  meetings: archivedMeetings, fetchMeetings: _fetchMeetings),
+                  meetings: archivedMeetings,
+                  fetchMeetings: _fetchGroupMeetings),
             ),
           );
         },
@@ -534,12 +552,12 @@ class _GroupDetailsPageState extends State<GroupDetailsPage> {
             if (meetings[index].status == MeetingStatus.declined) {
               return ArchivedMeetingTile(
                 meeting: meetings[index],
-                fetchMeetings: _fetchMeetings,
+                fetchMeetings: _fetchGroupMeetings,
               );
             } else if (meetings[index].status == MeetingStatus.accepted) {
               return AcceptedMeetingTile(
                 meeting: meetings[index],
-                fetchMeetings: _fetchMeetings,
+                fetchMeetings: _fetchGroupMeetings,
               );
             }
           },
