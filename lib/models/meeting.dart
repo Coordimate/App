@@ -1,3 +1,4 @@
+import 'package:coordimate/models/groups.dart';
 import 'package:intl/intl.dart';
 
 enum MeetingStatus {
@@ -44,7 +45,7 @@ class Meeting {
 class MeetingTileModel {
   final String id;
   final String title;
-  final String group;
+  final GroupCard group;
   final DateTime dateTime;
   final MeetingStatus status;
 
@@ -52,7 +53,7 @@ class MeetingTileModel {
     this.id = '',
     required this.title,
     required this.dateTime,
-    this.group = '',
+    required this.group,
     this.status = MeetingStatus.needsAcceptance,
   });
 
@@ -68,7 +69,7 @@ class MeetingTileModel {
     return MeetingTileModel(
       id: json['id'].toString(),
       title: json['title'],
-      group: json['group_id'].toString(),
+      group: GroupCard.fromJson(json['group']),
       dateTime: DateTime.parse(json['start']),
       status: json['status'] == 'accepted' ? MeetingStatus.accepted : json['status'] == 'declined' ? MeetingStatus.declined : MeetingStatus.needsAcceptance,
     );

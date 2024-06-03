@@ -27,7 +27,7 @@ class _GroupsPageState extends State<GroupsPage> {
   Future<List<Group>> _getGroups() async {
     try {
       // Added error handling to catch exceptions
-      final response = await client.get(Uri.parse("$apiUrl/groups/"));
+      final response = await client.get(Uri.parse("$apiUrl/groups"));
       if (response.statusCode == 200) {
         // Checks for successful response
         final List body = json.decode(response.body)["groups"];
@@ -48,7 +48,7 @@ class _GroupsPageState extends State<GroupsPage> {
     try {
       // Added error handling to catch exceptions
       final response = await client.post(
-        Uri.parse("$apiUrl/groups/"),
+        Uri.parse("$apiUrl/groups"),
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
         },

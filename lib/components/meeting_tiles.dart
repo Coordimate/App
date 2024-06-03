@@ -77,7 +77,7 @@ class MeetingTile extends StatelessWidget {
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(
-                    meeting.group,
+                    meeting.group.name,
                     style: const TextStyle(fontSize: 20, color: Colors.white70),
                     overflow: TextOverflow.ellipsis,
                   ),
@@ -152,7 +152,7 @@ class NewMeetingTile extends MeetingTile {
                       const SizedBox(width: 8),
                       Expanded(
                         child: Text(
-                          meeting.group,
+                          meeting.group.name,
                           style: const TextStyle(
                               fontSize: 20, color: Colors.white70),
                           overflow: TextOverflow.ellipsis,

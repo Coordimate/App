@@ -17,3 +17,20 @@ class Group {
     );
   }
 }
+
+class GroupCard {
+  final String id;
+  final String name;
+
+  GroupCard({
+    this.id = '',
+    required this.name,
+  });
+
+  factory GroupCard.fromJson(Map<String, dynamic> json) {
+    return GroupCard(
+      id: json['id'].toString(),
+      name: json['name'],
+    );
+  }
+}
