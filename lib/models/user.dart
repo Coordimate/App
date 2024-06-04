@@ -38,3 +38,20 @@ class User {
     }
   }
 }
+
+class UserCard {
+  UserCard({
+    this.id = '',
+    this.username = '',
+  });
+
+  final String id;
+  String username;
+
+  factory UserCard.fromJson(Map<String, dynamic> json) {
+    return UserCard(
+      id: json['id'] ?? '',
+      username: json['username'],
+    );
+  }
+}

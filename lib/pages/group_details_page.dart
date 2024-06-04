@@ -2,6 +2,7 @@ import 'package:another_flushbar/flushbar.dart';
 import 'package:coordimate/components/colors.dart';
 import 'package:coordimate/components/login_button.dart';
 import 'package:coordimate/components/pop_up_dialog.dart';
+import 'package:coordimate/models/user.dart';
 import 'package:coordimate/pages/schedule_page.dart';
 import 'package:duration_picker/duration_picker.dart';
 import 'package:coordimate/components/appbar.dart';
@@ -30,6 +31,7 @@ class GroupDetailsPage extends StatefulWidget {
 
 class _GroupDetailsPageState extends State<GroupDetailsPage> {
   List<MeetingTileModel> meetings = [];
+  List<UserCard> users = [];
   final TextEditingController _titleController = TextEditingController();
   final TextEditingController _descriptionController = TextEditingController();
   DateTime _selectedDate = DateTime.now().add(const Duration(minutes: 10));
@@ -42,24 +44,8 @@ class _GroupDetailsPageState extends State<GroupDetailsPage> {
   @override
   void initState() {
     super.initState();
-    // _fetchMeetings();
     _fetchGroupMeetings();
-  }
-
-  Future<void> _fetchMeetings() async {
-    final response = await client.get(Uri.parse("$apiUrl/meetings"));
-    if (response.statusCode == 200) {
-      if (!mounted) {
-        return;
-      }
-      setState(() {
-        meetings = (json.decode(response.body)['meetings'] as List)
-            .map((data) => MeetingTileModel.fromJson(data))
-            .toList();
-      });
-    } else {
-      throw Exception('Failed to load meetings');
-    }
+    _fetchGroupUsers();
   }
 
   Future<void> _fetchGroupMeetings() async {
@@ -76,6 +62,33 @@ class _GroupDetailsPageState extends State<GroupDetailsPage> {
     } else {
       throw Exception('Failed to load group meetings');
     }
+  }
+
+  Future<void> _fetchGroupUsers() async {
+    final response =
+        await client.get(Uri.parse("$apiUrl/groups/${widget.group.id}"));
+
+    if (response.statusCode == 200) {
+      print(response.body);
+      setState(() {
+        users = (json.decode(response.body)['users'] as List)
+            .map((data) => UserCard.fromJson(data))
+            .toList();
+      });
+    } else {
+      throw Exception('Failed to load group users');
+    }
+  }
+
+  Future<void> shareInviteLink() async {
+    var url = Uri.parse("$apiUrl/groups/${widget.group.id}/invite");
+    final response =
+        await client.get(url, headers: {"Content-Type": "application/json"});
+    if (response.statusCode != 200) {
+      throw Exception('Failed to share schedule');
+    }
+    final body = json.decode(response.body)['join_link'].toString();
+    Share.share(body);
   }
 
   Future<void> _selectDate() async {
@@ -396,33 +409,31 @@ class _GroupDetailsPageState extends State<GroupDetailsPage> {
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
                   IconButton(
-                    icon: const Icon(Icons
-                        .add_circle_outline_rounded), // Replace with your first button icon
-                    iconSize: 43.0, // Adjust size as needed
+                    icon: const Icon(Icons.add_circle_outline_rounded),
+                    iconSize: 43.0,
                     onPressed: () {
-                      // Add functionality for the first button
+                      shareInviteLink();
                     },
                   ),
                   CircleAvatar(
-                    radius: 52.0, // Adjust the size as needed
-                    backgroundColor: Colors.grey[300], // Placeholder color
+                    radius: 52.0,
+                    backgroundColor: Colors.grey[300],
                     child: const Icon(
                       Icons.group,
-                      size: 40.0, // Adjust the size as needed
+                      size: 40.0,
                       color: Colors.white,
                     ),
                   ),
                   IconButton(
-                    icon: const Icon(Icons
-                        .add_circle_outline_rounded), // Replace with your second button icon
-                    iconSize: 43.0, // Adjust size as needed
+                    icon: const Icon(Icons.add_circle_outline_rounded),
+                    iconSize: 43.0,
                     onPressed: () {
                       _onCreateMeeting();
                     },
                   ),
                 ],
               ),
-              const SizedBox(height: 16.0), // Added spacing
+              const SizedBox(height: 16.0),
               Center(
                 child: Text(
                   widget.group.name,
@@ -515,13 +526,17 @@ class _GroupDetailsPageState extends State<GroupDetailsPage> {
                   ],
                 ),
               ),
-
-              const SizedBox(height: 16.0), // Added spacing
+              const SizedBox(height: 16.0),
               if (acceptedFutureMeetings.isNotEmpty)
                 _buildMeetingList(acceptedFutureMeetings, "Upcoming Meetings")
               else
                 _buildMeetingList(
                     acceptedFutureMeetings, "No Upcoming Meetings"),
+              const SizedBox(height: 16.0),
+              if (users.isNotEmpty)
+                _buildUserList(users, "Group Members")
+              else
+                _buildUserList(users, "No Group Members"),
             ],
           ),
         ),
@@ -560,6 +575,62 @@ class _GroupDetailsPageState extends State<GroupDetailsPage> {
                 fetchMeetings: _fetchGroupMeetings,
               );
             }
+          },
+        ),
+      ],
+    );
+  }
+
+  Widget _buildUserList(List<UserCard> users, String title) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        CustomDivider(text: title),
+        const SizedBox(height: 16),
+        ListView.builder(
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          itemCount: users.length,
+          itemBuilder: (context, index) {
+            return Container(
+              decoration: BoxDecoration(
+                color: darkBlue,
+                borderRadius: BorderRadius.circular(10),
+              ),
+              margin: const EdgeInsets.symmetric(vertical: 5, horizontal: 10),
+              padding: const EdgeInsets.all(10),
+              child: Row(
+                children: [
+                  Container(
+                    width: 70,
+                    height: 70,
+                    decoration: const BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: Colors.white,
+                    ),
+                    child: Image.asset(pathPerson), // Placeholder image
+                  ),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          users[index].username,
+                          style: const TextStyle(
+                            fontSize: 20,
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                          ),
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            );
           },
         ),
       ],
