@@ -3,6 +3,7 @@ import 'package:coordimate/components/appbar.dart';
 import 'package:coordimate/components/colors.dart';
 import 'package:coordimate/components/login_button.dart';
 import 'package:coordimate/components/pop_up_dialog.dart';
+import 'package:coordimate/components/text_field_with_edit.dart';
 import 'package:flutter/material.dart';
 import 'package:coordimate/pages/start_page.dart';
 import 'package:coordimate/data/storage.dart';
@@ -142,40 +143,12 @@ class _PersonalPageState extends State<PersonalPage> {
                     const SizedBox(height: 16),
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: horPadding),
-                      child: TextField(
+                      child: EditableTextField(
                         controller: usernameController,
-                        textAlign: TextAlign.center,
-                        readOnly: isEditing == false,
                         focusNode: focusNode,
-                        maxLines: null,
-                        keyboardType: TextInputType.text, // makes Enter a submission button
-                        style: const TextStyle(fontSize: usernameFontSize, fontWeight: FontWeight.bold, color: darkBlue),
-                        onSubmitted: (value) {
-                          setState(() { isEditing = false; });
-                          changeUsername(value);
-                        },
-                        decoration: InputDecoration(
-                          enabledBorder: InputBorder.none,
-                          focusedBorder: isEditing ?
-                          const UnderlineInputBorder(borderSide: BorderSide(color: darkBlue))
-                              : InputBorder.none,
-                          suffixIcon: IconButton(
-                            onPressed: () {
-                              setState(() { isEditing = !isEditing; });
-                              if (isEditing) {
-                                focusNode.requestFocus();
-                              } else if (!isEditing) {
-                                changeUsername(usernameController.text);
-                              }
-                            },
-                            icon: Icon(
-                              isEditing ? Icons.check : Icons.edit, // Change the icon based on the editing state
-                              color: darkBlue,
-                              size: usernameFontSize - 4,
-                            ),
-                          ),
-                          contentPadding: const EdgeInsets.only(left: usernameFontSize + horPadding),
-                        ),
+                        onChanged: changeUsername,
+                        fontSize: usernameFontSize, // not required
+                        padding: horPadding, // not required
                       ),
                     ),
 
