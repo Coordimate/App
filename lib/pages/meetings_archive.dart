@@ -33,13 +33,16 @@ class _MeetingsArchivePageState extends State<MeetingsArchivePage> {
   Future<void> _fetchDeclinedMeetings() async {
     final response = await client.get(Uri.parse("$apiUrl/meetings/"));
     if (response.statusCode == 200) {
-      if (!mounted) {return;}
+      if (!mounted) {
+        return;
+      }
       setState(() {
         meetings = (json.decode(response.body)['meetings'] as List)
             .map((data) => MeetingTileModel.fromJson(data))
-            .where((meeting) => meeting.status == MeetingStatus.declined
-            || (meeting.status == MeetingStatus.accepted
-                && meeting.dateTime.isBefore(DateTime.now())))
+            .where((meeting) =>
+                meeting.status == MeetingStatus.declined ||
+                (meeting.status == MeetingStatus.accepted &&
+                    meeting.dateTime.isBefore(DateTime.now())))
             .toList();
         meetings.sort((a, b) => b.dateTime.compareTo(a.dateTime));
       });
@@ -51,10 +54,8 @@ class _MeetingsArchivePageState extends State<MeetingsArchivePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: const CustomAppBar(
-          title: 'Archive',
-          needButton: false
-      ),
+      backgroundColor: Colors.white,
+      appBar: const CustomAppBar(title: 'Archive', needButton: false),
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
         child: ListView.builder(
