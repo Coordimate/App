@@ -1,7 +1,7 @@
 class Group {
   final String id;
-  final String name;
-  final String description;
+  String name;
+  String description;
 
   Group({
     this.id = '',
