@@ -19,6 +19,7 @@ import 'package:coordimate/pages/meetings_archive.dart';
 import 'package:coordimate/components/snack_bar.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:flutter/services.dart';
+import 'package:coordimate/components/text_field_with_edit.dart';
 
 class GroupDetailsPage extends StatefulWidget {
   final Group group;
@@ -39,6 +40,16 @@ class _GroupDetailsPageState extends State<GroupDetailsPage> {
   final String pathPerson = 'lib/images/person.png';
   final _formKey = GlobalKey<FormState>();
 
+  final groupDescriptionController = TextEditingController();
+  final groupNameController = TextEditingController();
+  final FocusNode focusNode = FocusNode();
+  static const universalFontSize = 16.0;
+  static const horPadding = 0.0;
+  var userEmail = '';
+  var showChangePasswordButton = true;
+
+  // fontSize: universalFontSize, // not required
+
   final textController = TextEditingController();
 
   @override
@@ -46,6 +57,8 @@ class _GroupDetailsPageState extends State<GroupDetailsPage> {
     super.initState();
     _fetchGroupMeetings();
     _fetchGroupUsers();
+    groupDescriptionController.text = widget.group.description;
+    groupNameController.text = widget.group.name;
   }
 
   Future<void> _fetchGroupMeetings() async {
@@ -62,6 +75,46 @@ class _GroupDetailsPageState extends State<GroupDetailsPage> {
     } else {
       throw Exception('Failed to load group meetings');
     }
+  }
+
+  Future<void> updateGroupDescription(description) async {
+    var url = Uri.parse("$apiUrl/groups/${widget.group.id}");
+    final response = await client.patch(url,
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: jsonEncode(<String, dynamic>{
+          'description': description,
+        }));
+    if (response.statusCode != 200) {
+      throw Exception('Failed to update group description');
+    }
+    widget.group.description = description;
+  }
+
+  // void limitDescriptionLength(String text) {
+  //   final maxLength = 100;
+  //   if (text.length > maxLength) {
+  //     groupDescriptionController.text = text.substring(0, maxLength);
+  //     groupDescriptionController.selection = TextSelection.fromPosition(
+  //       TextPosition(offset: groupDescriptionController.text.length),
+  //     );
+  //   }
+  // }
+
+  Future<void> updateGroupName(name) async {
+    var url = Uri.parse("$apiUrl/groups/${widget.group.id}");
+    final response = await client.patch(url,
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: jsonEncode(<String, dynamic>{
+          'name': name,
+        }));
+    if (response.statusCode != 200) {
+      throw Exception('Failed to update group name');
+    }
+    widget.group.name = name;
   }
 
   Future<void> _fetchGroupUsers() async {
@@ -409,7 +462,7 @@ class _GroupDetailsPageState extends State<GroupDetailsPage> {
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
                   IconButton(
-                    icon: const Icon(Icons.add_circle_outline_rounded),
+                    icon: const Icon(Icons.add_link),
                     iconSize: 43.0,
                     onPressed: () {
                       shareInviteLink();
@@ -435,17 +488,22 @@ class _GroupDetailsPageState extends State<GroupDetailsPage> {
               ),
               const SizedBox(height: 16.0),
               Center(
-                child: Text(
-                  widget.group.name,
-                  style: const TextStyle(
-                    fontSize: 24.0,
-                    fontWeight: FontWeight.bold,
-                  ),
+                child: EditableTextField(
+                  controller: groupNameController,
+                  focusNode: focusNode,
+                  onSubmit: updateGroupName,
+                  fontSize: universalFontSize,
+                  padding: horPadding,
+                  maxLength: 20,
+                  iconSize: 20.0,
+                  horizontalPadding: 40.0,
+                  textAlign: TextAlign.center,
+                  minChars: 3, // Specify the text alignment here
                 ),
               ),
-              const Center(
+              Center(
                 child: Text(
-                  'Members',
+                  '${users.length} Members',
                   style: TextStyle(
                     fontSize: 16.0,
                     color: Colors.grey,
@@ -501,15 +559,21 @@ class _GroupDetailsPageState extends State<GroupDetailsPage> {
                       Container(
                         constraints:
                             const BoxConstraints(minWidth: double.infinity),
-                        padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                        decoration: BoxDecoration(
-                          border: Border.all(color: darkBlue),
-                        ),
-                        child: Text(
-                          widget.group.description,
-                          style: const TextStyle(
-                            fontSize: 16.0,
-                          ),
+                        child: EditableTextField(
+                          controller: groupDescriptionController,
+                          focusNode: focusNode,
+                          onSubmit:
+                              updateGroupDescription, // Now it's onSubmit instead of onChanged
+                          fontSize: universalFontSize,
+                          padding: horPadding,
+                          maxLength: 100,
+                          iconSize: 20.0,
+                          horizontalPadding: 40.0,
+                          textAlign: TextAlign.justify,
+                          minChars: 5,
+                          errorMessage: 'Please enter at least 5 characters',
+                          maxLines:
+                              null, // Optional: If you want to set max lines, otherwise it's fine
                         ),
                       )
                     else
