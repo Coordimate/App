@@ -38,7 +38,7 @@ void logUserOutStorage() async {
   }
 }
 
-Future<bool> signUserInStorage(email, signInMethod, {pswd}) async {
+Future<bool> signUserInStorage(http.Client client, email, signInMethod, {pswd}) async {
   var url = Uri.parse("$apiUrl/login");
 
   User user = User(
@@ -52,7 +52,7 @@ Future<bool> signUserInStorage(email, signInMethod, {pswd}) async {
     );
   }
 
-  final response = await http.post(
+  final response = await client.post(
     url,
     headers: <String, String>{
       'Content-Type': 'application/json; charset=UTF-8',
@@ -95,7 +95,7 @@ Future<bool> signUserInStorage(email, signInMethod, {pswd}) async {
   }
 }
 
-Future<bool> registerUserStorage(email, username, signInMethod, {pswd}) async {
+Future<bool> registerUserStorage(http.Client client, email, username, signInMethod, {pswd}) async {
   var url = Uri.parse("$apiUrl/register");
 
   User user = User(
@@ -115,7 +115,7 @@ Future<bool> registerUserStorage(email, username, signInMethod, {pswd}) async {
   final jsonUser = json.encode(user);
   // print(jsonUser);
 
-  final response = await http.post(
+  final response = await client.post(
     url,
     headers: <String, String>{
       'Content-Type': 'application/json; charset=UTF-8',
@@ -127,7 +127,7 @@ Future<bool> registerUserStorage(email, username, signInMethod, {pswd}) async {
 
   if (response.statusCode == 201) {
     print("User registered successfully");
-    return await signUserInStorage(email, signInMethod, pswd : pswd);
+    return await signUserInStorage(client, email, signInMethod, pswd : pswd);
   } else if (response.statusCode == 400) {
     print("User with email $email already exists");
     return false;
