@@ -425,6 +425,13 @@ class _GroupDetailsPageState extends State<GroupDetailsPage> {
       backgroundColor: Colors.white,
       appBar: CustomAppBar(
         title: "",
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () {
+            Navigator.pop(
+                context, true); // Pass a result of `true` when popping
+          },
+        ),
         needButton: true,
         buttonIcon: Icons.archive,
         onPressed: () {
@@ -448,7 +455,7 @@ class _GroupDetailsPageState extends State<GroupDetailsPage> {
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
                   IconButton(
-                    icon: const Icon(Icons.add_link),
+                    icon: const Icon(Icons.group_add),
                     iconSize: 43.0,
                     onPressed: () {
                       shareInviteLink();
@@ -565,7 +572,7 @@ class _GroupDetailsPageState extends State<GroupDetailsPage> {
                       )
                     else
                       Padding(
-                        padding: EdgeInsets.symmetric(horizontal: 8.0),
+                        padding: const EdgeInsets.symmetric(horizontal: 8.0),
                         child: EditableTextField(
                           placeHolderText: "No Group Description",
                           controller: groupDescriptionController,
@@ -589,10 +596,10 @@ class _GroupDetailsPageState extends State<GroupDetailsPage> {
               const SizedBox(height: 16.0),
               if (acceptedFutureMeetings.isNotEmpty)
                 _buildMeetingList(
-                    acceptedFutureMeetings, "Upcoming Meetings", true, 45)
+                    acceptedFutureMeetings, "Upcoming Meetings", true, 55)
               else
                 _buildMeetingList(
-                    acceptedFutureMeetings, "No Upcoming Meetings", true, 30),
+                    acceptedFutureMeetings, "No Upcoming Meetings", true, 40),
               const SizedBox(height: 16.0),
               if (users.isNotEmpty)
                 _buildUserList(users, "Group Members")
@@ -621,7 +628,7 @@ class _GroupDetailsPageState extends State<GroupDetailsPage> {
                       color: darkBlue,
                       width: stripeWidth,
                     ),
-                    SizedBox(width: 5),
+                    const SizedBox(width: 5),
                     ElevatedButton(
                       style: ElevatedButton.styleFrom(
                         backgroundColor: darkBlue,
@@ -636,14 +643,14 @@ class _GroupDetailsPageState extends State<GroupDetailsPage> {
                       },
                       child: Padding(
                         padding: const EdgeInsets.symmetric(
-                            vertical: 10.0, horizontal: 20.0),
+                            vertical: 10.0, horizontal: 10.0),
                         child: Text(
                           title,
-                          style: TextStyle(fontSize: 20),
+                          style: const TextStyle(fontSize: 20),
                         ),
                       ),
                     ),
-                    SizedBox(width: 5),
+                    const SizedBox(width: 5),
                     Container(
                       height: 1,
                       color: darkBlue,
@@ -684,47 +691,40 @@ class _GroupDetailsPageState extends State<GroupDetailsPage> {
         CustomDivider(text: title),
         const SizedBox(height: 8),
         ListView.builder(
-          padding: const EdgeInsets.symmetric(horizontal: 16),
+          padding: const EdgeInsets.symmetric(horizontal: 8),
           shrinkWrap: true,
           physics: const NeverScrollableScrollPhysics(),
           itemCount: users.length,
           itemBuilder: (context, index) {
-            return Container(
-              width: double.infinity,
-              decoration: BoxDecoration(
-                color: darkBlue,
-                borderRadius: BorderRadius.circular(10),
-              ),
-              margin: const EdgeInsets.symmetric(vertical: 5, horizontal: 10),
-              padding: const EdgeInsets.all(8),
-              child: Row(
-                children: [
-                  Container(
-                    width: 40,
-                    height: 40,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      border: Border.all(color: Colors.white),
+            return GestureDetector(
+              onTap: () {
+                Navigator.of(context).push(MaterialPageRoute(
+                    builder: (context) => SchedulePage(
+                        isGroupSchedule: false,
+                        ownerId: users[index].id,
+                        ownerName: "${users[index].username}'s schedule")));
+              },
+              child: Container(
+                margin: const EdgeInsets.symmetric(vertical: 5, horizontal: 10),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(10),
+                  border: Border.all(color: darkBlue, width: 1),
+                ),
+                child: ListTile(
+                  leading: const CircleAvatar(
+                    backgroundColor: darkBlue,
+                    child: Icon(Icons.person, color: Colors.white),
+                  ),
+                  title: Text(
+                    users[index].username,
+                    style: const TextStyle(
+                      fontSize: 16,
+                      color: darkBlue,
+                      fontWeight: FontWeight.bold,
                     ),
                   ),
-                  const SizedBox(width: 10),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          users[index].username,
-                          style: const TextStyle(
-                            fontSize: 16,
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold,
-                          ),
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
+                ),
               ),
             );
           },
