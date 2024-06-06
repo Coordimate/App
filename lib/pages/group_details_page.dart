@@ -729,6 +729,7 @@ class _GroupDetailsPageState extends State<GroupDetailsPage> {
             );
           },
         ),
+        const SizedBox(height: 16),
       ],
     );
   }
