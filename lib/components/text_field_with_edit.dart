@@ -14,9 +14,12 @@ class EditableTextField extends StatefulWidget {
   final TextAlign textAlign;
   final int? minChars;
   final String? errorMessage;
+  final Color textColor;
+  final Color borderColor;
+  final String? placeHolderText; // New optional field
 
   const EditableTextField({
-    super.key,
+    Key? key,
     required this.controller,
     required this.focusNode,
     required this.onSubmit,
@@ -29,7 +32,10 @@ class EditableTextField extends StatefulWidget {
     this.textAlign = TextAlign.center,
     this.minChars,
     this.errorMessage,
-  });
+    this.textColor = darkBlue,
+    this.borderColor = darkBlue,
+    this.placeHolderText, // Define placeHolderText as an optional argument
+  }) : super(key: key);
 
   @override
   State<EditableTextField> createState() => _EditableTextFieldState();
@@ -109,6 +115,9 @@ class _EditableTextFieldState extends State<EditableTextField> {
   Widget build(BuildContext context) {
     bool isSubmitEnabled = widget.minChars == null ||
         widget.controller.text.length >= widget.minChars!;
+    String displayedText = widget.controller.text.isNotEmpty
+        ? widget.controller.text
+        : widget.placeHolderText ?? '';
 
     return Stack(
       alignment: Alignment.centerRight,
@@ -126,7 +135,7 @@ class _EditableTextFieldState extends State<EditableTextField> {
               style: TextStyle(
                 fontSize: widget.fontSize,
                 fontWeight: FontWeight.bold,
-                color: darkBlue,
+                color: widget.textColor,
               ),
               onChanged: (value) {
                 setState(() {
@@ -143,10 +152,11 @@ class _EditableTextFieldState extends State<EditableTextField> {
                 _validateAndSubmit();
               },
               decoration: InputDecoration(
+                hintText: displayedText, // Use displayedText as placeholder
                 enabledBorder: InputBorder.none,
                 focusedBorder: isEditing
-                    ? const UnderlineInputBorder(
-                        borderSide: BorderSide(color: darkBlue))
+                    ? UnderlineInputBorder(
+                        borderSide: BorderSide(color: widget.borderColor))
                     : InputBorder.none,
                 errorText: errorText,
                 errorMaxLines: 2,

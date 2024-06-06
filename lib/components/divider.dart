@@ -3,37 +3,55 @@ import 'package:coordimate/components/colors.dart';
 
 class CustomDivider extends StatelessWidget {
   final String text;
+  final Color textColor; // Optional field for text color
+  final bool stripes; // Optional field for stripes
+  final Color dashColor; // Optional field for dash color
 
   const CustomDivider({
     super.key,
-    required this.text
+    required this.text,
+    this.textColor = darkBlue, // Default to darkBlue
+    this.stripes = true, // Default to false
+    this.dashColor = darkBlue, // Default to darkBlue
   });
 
   @override
   Widget build(BuildContext context) {
     return Row(
       children: [
-        const Expanded(
-          child: Divider(
-            thickness: 1,
-            color: darkBlue,
-          ),
+        Expanded(
+          child: stripes
+              ? Divider(
+                  thickness: 1,
+                  color: dashColor,
+                )
+              : Divider(
+                  thickness: 1,
+                  color: Colors
+                      .transparent, // Invisible line when stripes is false
+                ),
         ),
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 15.0),
           child: Text(
             text,
-            style: const TextStyle(
-              color: darkBlue,
+            style: TextStyle(
+              color: textColor, // Use the textColor parameter
               fontSize: 24,
             ),
           ),
         ),
-        const Expanded(
-          child: Divider(
-            thickness: 1,
-            color: darkBlue,
-          ),
+        Expanded(
+          child: stripes
+              ? Divider(
+                  thickness: 1,
+                  color: dashColor,
+                )
+              : Divider(
+                  thickness: 1,
+                  color: Colors
+                      .transparent, // Invisible line when stripes is false
+                ),
         ),
       ],
     );

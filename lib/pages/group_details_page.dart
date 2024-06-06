@@ -23,8 +23,8 @@ import 'package:coordimate/components/text_field_with_edit.dart';
 
 class GroupDetailsPage extends StatefulWidget {
   final Group group;
-
-  GroupDetailsPage({required this.group});
+  //ToDo: understand whatever this blue line means here
+  const GroupDetailsPage({required this.group});
 
   @override
   _GroupDetailsPageState createState() => _GroupDetailsPageState();
@@ -42,13 +42,13 @@ class _GroupDetailsPageState extends State<GroupDetailsPage> {
 
   final groupDescriptionController = TextEditingController();
   final groupNameController = TextEditingController();
+  final groupEmptyDescriptionController = TextEditingController();
+
   final FocusNode focusNode = FocusNode();
   static const universalFontSize = 16.0;
   static const horPadding = 0.0;
   var userEmail = '';
   var showChangePasswordButton = true;
-
-  // fontSize: universalFontSize, // not required
 
   final textController = TextEditingController();
 
@@ -59,6 +59,7 @@ class _GroupDetailsPageState extends State<GroupDetailsPage> {
     _fetchGroupUsers();
     groupDescriptionController.text = widget.group.description;
     groupNameController.text = widget.group.name;
+    groupEmptyDescriptionController.text = "No group description";
   }
 
   Future<void> _fetchGroupMeetings() async {
@@ -66,7 +67,6 @@ class _GroupDetailsPageState extends State<GroupDetailsPage> {
         .get(Uri.parse("$apiUrl/groups/${widget.group.id}/meetings"));
 
     if (response.statusCode == 200) {
-      print(response.body);
       setState(() {
         meetings = (json.decode(response.body)['meetings'] as List)
             .map((data) => MeetingTileModel.fromJson(data))
@@ -92,16 +92,6 @@ class _GroupDetailsPageState extends State<GroupDetailsPage> {
     widget.group.description = description;
   }
 
-  // void limitDescriptionLength(String text) {
-  //   final maxLength = 100;
-  //   if (text.length > maxLength) {
-  //     groupDescriptionController.text = text.substring(0, maxLength);
-  //     groupDescriptionController.selection = TextSelection.fromPosition(
-  //       TextPosition(offset: groupDescriptionController.text.length),
-  //     );
-  //   }
-  // }
-
   Future<void> updateGroupName(name) async {
     var url = Uri.parse("$apiUrl/groups/${widget.group.id}");
     final response = await client.patch(url,
@@ -122,7 +112,6 @@ class _GroupDetailsPageState extends State<GroupDetailsPage> {
         await client.get(Uri.parse("$apiUrl/groups/${widget.group.id}"));
 
     if (response.statusCode == 200) {
-      print(response.body);
       setState(() {
         users = (json.decode(response.body)['users'] as List)
             .map((data) => UserCard.fromJson(data))
@@ -419,9 +408,6 @@ class _GroupDetailsPageState extends State<GroupDetailsPage> {
     List<MeetingTileModel> declinedMeetings = meetings
         .where((meeting) => meeting.status == MeetingStatus.declined)
         .toList();
-    List<MeetingTileModel> newInvitations = meetings
-        .where((meeting) => meeting.status == MeetingStatus.needsAcceptance)
-        .toList();
     List<MeetingTileModel> acceptedMeetings = meetings
         .where((meeting) => meeting.status == MeetingStatus.accepted)
         .toList();
@@ -498,57 +484,60 @@ class _GroupDetailsPageState extends State<GroupDetailsPage> {
                   iconSize: 20.0,
                   horizontalPadding: 40.0,
                   textAlign: TextAlign.center,
-                  minChars: 3, // Specify the text alignment here
+                  minChars: 3,
                 ),
               ),
               Center(
                 child: Text(
                   '${users.length} Members',
-                  style: TextStyle(
+                  style: const TextStyle(
                     fontSize: 16.0,
                     color: Colors.grey,
                   ),
                 ),
               ),
               const SizedBox(height: 16.0),
-              TextField(
-                controller: textController,
-                decoration: InputDecoration(
-                    enabledBorder: UnderlineInputBorder(
-                      borderSide: BorderSide(
-                        color: alphaDarkBlue,
-                      ),
-                    ),
-                    focusedBorder: const UnderlineInputBorder(
-                      borderSide: BorderSide(
-                        color: darkBlue,
-                      ),
-                    ),
-                    hintText: 'Insert link or address here',
-                    hintStyle: TextStyle(color: alphaDarkBlue),
-                    suffixIcon: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: <Widget>[
-                        IconButton(
-                          onPressed: () {
-                            Clipboard.setData(
-                                ClipboardData(text: textController.text));
-                            CustomSnackBar.show(context, "Copied to clipboard",
-                                duration: const Duration(seconds: 1));
-                          },
-                          icon: const Icon(Icons.copy, color: darkBlue),
-                          color: darkBlue,
+              Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 20),
+                  child: TextField(
+                    controller: textController,
+                    decoration: InputDecoration(
+                        enabledBorder: UnderlineInputBorder(
+                          borderSide: BorderSide(
+                            color: alphaDarkBlue,
+                          ),
                         ),
-                        IconButton(
-                          onPressed: () {
-                            Share.share(textController.text);
-                          },
-                          icon: const Icon(Icons.share, color: darkBlue),
-                          color: darkBlue,
+                        focusedBorder: const UnderlineInputBorder(
+                          borderSide: BorderSide(
+                            color: darkBlue,
+                          ),
                         ),
-                      ],
-                    )),
-              ),
+                        hintText: 'Insert link or address here',
+                        hintStyle: TextStyle(color: alphaDarkBlue),
+                        suffixIcon: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: <Widget>[
+                            IconButton(
+                              onPressed: () {
+                                Clipboard.setData(
+                                    ClipboardData(text: textController.text));
+                                CustomSnackBar.show(
+                                    context, "Copied to clipboard",
+                                    duration: const Duration(seconds: 1));
+                              },
+                              icon: const Icon(Icons.copy, color: darkBlue),
+                              color: darkBlue,
+                            ),
+                            IconButton(
+                              onPressed: () {
+                                Share.share(textController.text);
+                              },
+                              icon: const Icon(Icons.share, color: darkBlue),
+                              color: darkBlue,
+                            ),
+                          ],
+                        )),
+                  )),
               const SizedBox(height: 16.0),
               Container(
                 width: double.infinity,
@@ -562,29 +551,36 @@ class _GroupDetailsPageState extends State<GroupDetailsPage> {
                         child: EditableTextField(
                           controller: groupDescriptionController,
                           focusNode: focusNode,
-                          onSubmit:
-                              updateGroupDescription, // Now it's onSubmit instead of onChanged
+                          onSubmit: updateGroupDescription,
                           fontSize: universalFontSize,
                           padding: horPadding,
                           maxLength: 100,
                           iconSize: 20.0,
                           horizontalPadding: 40.0,
                           textAlign: TextAlign.justify,
-                          minChars: 5,
-                          errorMessage: 'Please enter at least 5 characters',
-                          maxLines:
-                              null, // Optional: If you want to set max lines, otherwise it's fine
+                          // minChars: 5,
+                          //errorMessage: 'Please enter at least 5 characters',
+                          //maxLines: null,
                         ),
                       )
                     else
-                      const Padding(
+                      Padding(
                         padding: EdgeInsets.symmetric(horizontal: 8.0),
-                        child: Text(
-                          'No group description',
-                          style: TextStyle(
-                            fontSize: 16.0,
-                            color: Colors.grey,
-                          ),
+                        child: EditableTextField(
+                          placeHolderText: "No Group Description",
+                          controller: groupDescriptionController,
+                          focusNode: focusNode,
+                          onSubmit: updateGroupDescription,
+                          fontSize: universalFontSize,
+                          padding: horPadding,
+                          maxLength: 100,
+                          iconSize: 20.0,
+                          horizontalPadding: 40.0,
+                          textAlign: TextAlign.center,
+                          // minChars: 5,
+                          textColor: darkBlue,
+                          //errorMessage: 'Please enter at least 5 characters',
+                          //maxLines: null,
                         ),
                       ),
                   ],
@@ -592,10 +588,11 @@ class _GroupDetailsPageState extends State<GroupDetailsPage> {
               ),
               const SizedBox(height: 16.0),
               if (acceptedFutureMeetings.isNotEmpty)
-                _buildMeetingList(acceptedFutureMeetings, "Upcoming Meetings")
+                _buildMeetingList(
+                    acceptedFutureMeetings, "Upcoming Meetings", true, 45)
               else
                 _buildMeetingList(
-                    acceptedFutureMeetings, "No Upcoming Meetings"),
+                    acceptedFutureMeetings, "No Upcoming Meetings", true, 30),
               const SizedBox(height: 16.0),
               if (users.isNotEmpty)
                 _buildUserList(users, "Group Members")
@@ -608,19 +605,54 @@ class _GroupDetailsPageState extends State<GroupDetailsPage> {
     );
   }
 
-  Widget _buildMeetingList(List<MeetingTileModel> meetings, String title) {
+  Widget _buildMeetingList(
+      List<MeetingTileModel> meetings, String title, bool button,
+      [double stripeWidth = 0]) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        GestureDetector(
-            onTap: () {
-              Navigator.of(context).push(MaterialPageRoute(
-                  builder: (context) => SchedulePage(
-                      isGroupSchedule: true,
-                      ownerId: widget.group.id,
-                      ownerName: widget.group.name)));
-            },
-            child: CustomDivider(text: title)),
+        button
+            ? Center(
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Container(
+                      height: 1,
+                      color: darkBlue,
+                      width: stripeWidth,
+                    ),
+                    SizedBox(width: 5),
+                    ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: darkBlue,
+                        foregroundColor: white,
+                      ),
+                      onPressed: () {
+                        Navigator.of(context).push(MaterialPageRoute(
+                            builder: (context) => SchedulePage(
+                                isGroupSchedule: true,
+                                ownerId: widget.group.id,
+                                ownerName: widget.group.name)));
+                      },
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(
+                            vertical: 10.0, horizontal: 20.0),
+                        child: Text(
+                          title,
+                          style: TextStyle(fontSize: 20),
+                        ),
+                      ),
+                    ),
+                    SizedBox(width: 5),
+                    Container(
+                      height: 1,
+                      color: darkBlue,
+                      width: stripeWidth,
+                    ),
+                  ],
+                ),
+              )
+            : CustomDivider(text: title),
         const SizedBox(height: 16),
         ListView.builder(
           padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -650,7 +682,7 @@ class _GroupDetailsPageState extends State<GroupDetailsPage> {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         CustomDivider(text: title),
-        const SizedBox(height: 16),
+        const SizedBox(height: 8),
         ListView.builder(
           padding: const EdgeInsets.symmetric(horizontal: 16),
           shrinkWrap: true,
@@ -658,22 +690,22 @@ class _GroupDetailsPageState extends State<GroupDetailsPage> {
           itemCount: users.length,
           itemBuilder: (context, index) {
             return Container(
+              width: double.infinity,
               decoration: BoxDecoration(
                 color: darkBlue,
                 borderRadius: BorderRadius.circular(10),
               ),
               margin: const EdgeInsets.symmetric(vertical: 5, horizontal: 10),
-              padding: const EdgeInsets.all(10),
+              padding: const EdgeInsets.all(8),
               child: Row(
                 children: [
                   Container(
-                    width: 70,
-                    height: 70,
-                    decoration: const BoxDecoration(
+                    width: 40,
+                    height: 40,
+                    decoration: BoxDecoration(
                       shape: BoxShape.circle,
-                      color: Colors.white,
+                      border: Border.all(color: Colors.white),
                     ),
-                    child: Image.asset(pathPerson), // Placeholder image
                   ),
                   const SizedBox(width: 10),
                   Expanded(
@@ -683,7 +715,7 @@ class _GroupDetailsPageState extends State<GroupDetailsPage> {
                         Text(
                           users[index].username,
                           style: const TextStyle(
-                            fontSize: 20,
+                            fontSize: 16,
                             color: Colors.white,
                             fontWeight: FontWeight.bold,
                           ),
