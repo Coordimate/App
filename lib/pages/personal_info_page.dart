@@ -5,7 +5,7 @@ import 'package:coordimate/components/login_button.dart';
 import 'package:coordimate/components/pop_up_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:coordimate/pages/start_page.dart';
-import 'package:coordimate/data/storage.dart';
+import 'package:coordimate/controllers/auth_controller.dart';
 import 'dart:convert';
 import 'package:coordimate/api_client.dart';
 import 'package:coordimate/keys.dart';
@@ -37,15 +37,15 @@ class _PersonalPageState extends State<PersonalPage> {
   }
 
   void logOut(BuildContext context) {
-    logUserOutStorage();
+    logOut();
     Navigator.pushReplacement(context,
         MaterialPageRoute(builder: (context) => StartPage(key: UniqueKey())));
   }
 
   Future<void> getInfo() async {
-    final id = await storage.read(key: 'id_account');
+    final id = await _storage.read(key: 'id_account');
     var url = Uri.parse("$apiUrl/users/$id");
-    final response = await client.get(
+    final response = await plainClient.get(
         url,
         headers: {"Content-Type": "application/json"}
     );
@@ -63,7 +63,7 @@ class _PersonalPageState extends State<PersonalPage> {
       return;
     }
     var url = Uri.parse("$apiUrl/users/${user.id}");
-    final response = await client.patch(
+    final response = await plainClient.patch(
         url,
         headers: {"Content-Type": "application/json"},
         body: jsonEncode(<String, dynamic>{
@@ -78,7 +78,7 @@ class _PersonalPageState extends State<PersonalPage> {
 
   Future<void> deleteUser() async {
     var url = Uri.parse("$apiUrl/users/${user.id}");
-    final response = await client.delete(
+    final response = await plainClient.delete(
         url,
         headers: {"Content-Type": "application/json"}
     );
@@ -232,7 +232,7 @@ class _ChangePasswordDialogState extends State<ChangePasswordDialog> {
 
   Future<bool> sendChangePswdRequest() async {
     var url = Uri.parse("$apiUrl/change_password");
-    final response = await client.post(
+    final response = await plainClient.post(
         url,
         headers: {"Content-Type": "application/json"},
         body: jsonEncode(<String, dynamic>{

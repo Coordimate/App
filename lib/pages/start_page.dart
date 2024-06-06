@@ -4,14 +4,15 @@ import 'package:coordimate/components/external_service_tile.dart';
 import 'package:coordimate/screens/home_screen.dart';
 import 'package:coordimate/pages/login_page.dart';
 import 'package:coordimate/pages/register_page.dart';
-import 'package:coordimate/data/storage.dart';
-import 'package:coordimate/api_client.dart';
+import 'package:coordimate/controllers/auth_controller.dart';
 import 'package:coordimate/keys.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class StartPage extends StatefulWidget {
-  const StartPage({super.key});
+  const StartPage({super.key, required this.authCon});
+
+  final AuthorizationController authCon;
 
   @override
   State<StartPage> createState() => _StartPageState();
@@ -23,19 +24,11 @@ class _StartPageState extends State<StartPage> {
   @override
   void initState() {
     super.initState();
-    _checkStoredToken();
+    _tryGettingStoredToken();
   }
 
-  void _checkStoredToken() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    String? accessToken = prefs.getString("access_token");
-    String? refreshToken = prefs.getString("refresh_token");
-    if (accessToken != null && refreshToken != null) {
-      await storage.write(key: 'access_token', value: accessToken);
-      await storage.write(key: 'refresh_token', value: refreshToken);
-    }
-    final response = await client.get(Uri.parse('$apiUrl/me'));
-    if (response.statusCode == 200) {
+  void _tryGettingStoredToken() async {
+    if (await widget.authCon.checkStoredToken()) {
       setState(() {});
       WidgetsBinding.instance.addPostFrameCallback((_) {
         Navigator.pushReplacement(
@@ -49,7 +42,7 @@ class _StartPageState extends State<StartPage> {
   void _goToLogInPage() {
     Navigator.of(context).push(
       MaterialPageRoute(
-        builder: (context) => const LoginPage(),
+        builder: (context) => LoginPage(authCon: widget.authCon),
       ),
     );
   }
@@ -57,7 +50,7 @@ class _StartPageState extends State<StartPage> {
   void _goToRegisterPage() {
     Navigator.of(context).push(
       MaterialPageRoute(
-        builder: (context) => const RegisterPage(),
+        builder: (context) => RegisterPage(authCon: widget.authCon),
       ),
     );
   }

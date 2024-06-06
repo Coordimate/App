@@ -5,10 +5,12 @@ import 'package:coordimate/models/groups.dart';
 import 'package:coordimate/keys.dart';
 import 'group_details_page.dart';
 import 'dart:convert';
-import 'package:coordimate/api_client.dart';
+import 'package:coordimate/controllers/auth_controller.dart';
 
 class GroupsPage extends StatefulWidget {
-  const GroupsPage({super.key});
+  const GroupsPage({super.key, required this.authCon});
+
+  final AuthorizationController authCon;
 
   @override
   State<GroupsPage> createState() => _GroupsPageState();
@@ -27,7 +29,7 @@ class _GroupsPageState extends State<GroupsPage> {
   Future<List<Group>> _getGroups() async {
     try {
       // Added error handling to catch exceptions
-      final response = await client.get(Uri.parse("$apiUrl/groups"));
+      final response = await widget.authCon.client.get(Uri.parse("$apiUrl/groups"));
       if (response.statusCode == 200) {
         // Checks for successful response
         final List body = json.decode(response.body)["groups"];
@@ -47,7 +49,7 @@ class _GroupsPageState extends State<GroupsPage> {
   Future<void> _createGroup(String name, String description) async {
     try {
       // Added error handling to catch exceptions
-      final response = await client.post(
+      final response = await widget.authCon.client.post(
         Uri.parse("$apiUrl/groups"),
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
@@ -81,7 +83,7 @@ class _GroupsPageState extends State<GroupsPage> {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => GroupDetailsPage(group: group),
+        builder: (context) => GroupDetailsPage(authCon: widget.authCon, group: group),
       ),
     );
   }

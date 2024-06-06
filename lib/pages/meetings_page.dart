@@ -152,7 +152,7 @@ class _MeetingsPageState extends State<MeetingsPage> {
   }
 
   Future<void> _fetchMeetings() async {
-    final response = await client.get(Uri.parse("$apiUrl/meetings"));
+    final response = await plainClient.get(Uri.parse("$apiUrl/meetings"));
     if (response.statusCode == 200) {
       if (!mounted) {
         return;
@@ -183,7 +183,7 @@ class _MeetingsPageState extends State<MeetingsPage> {
     if (!accept) {
       status = 'declined';
     }
-    final response = await client.patch(Uri.parse("$apiUrl/invites/$id"),
+    final response = await plainClient.patch(Uri.parse("$apiUrl/invites/$id"),
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
         },

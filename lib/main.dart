@@ -1,3 +1,5 @@
+import 'package:http/http.dart' as http;
+import 'package:coordimate/controllers/auth_controller.dart';
 import 'package:coordimate/pages/start_page.dart';
 import 'package:flutter/material.dart';
 import 'package:coordimate/keys.dart';
@@ -13,6 +15,8 @@ void main() async {
 }
 
 class MyApp extends StatelessWidget {
+  static AuthorizationController authCon = AuthorizationController(plainClient: http.Client());
+
   const MyApp({super.key});
 
   // This widget is the root of your application.

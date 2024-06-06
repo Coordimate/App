@@ -46,7 +46,7 @@ class _ScheduleGridState extends State<ScheduleGrid> {
   Future<List<TimeSlot>> getTimeSlots() async {
     var url = Uri.parse(SchedulePage.scheduleUrl);
     final response =
-        await client.get(url, headers: {"Content-Type": "application/json"});
+        await plainClient.get(url, headers: {"Content-Type": "application/json"});
     final List body = json.decode(response.body)['time_slots'];
     return body.map((e) => TimeSlot.fromJson(e)).toList();
   }
@@ -55,7 +55,7 @@ class _ScheduleGridState extends State<ScheduleGrid> {
     if (!SchedulePage.isModifiable) {
       return;
     }
-    await client.post(Uri.parse(SchedulePage.scheduleUrl),
+    await plainClient.post(Uri.parse(SchedulePage.scheduleUrl),
         headers: {"Content-Type": "application/json"},
         body: json.encode(<String, dynamic>{
           'is_meeting': false,
@@ -72,7 +72,7 @@ class _ScheduleGridState extends State<ScheduleGrid> {
     if (!SchedulePage.isModifiable) {
       return;
     }
-    await client.delete(Uri.parse("$apiUrl/time_slots/$id"),
+    await plainClient.delete(Uri.parse("$apiUrl/time_slots/$id"),
         headers: {"Content-Type": "application/json"});
     setState(() {
       _timeSlots = getTimeSlots();
@@ -83,7 +83,7 @@ class _ScheduleGridState extends State<ScheduleGrid> {
     if (!SchedulePage.isModifiable) {
       return;
     }
-    await client.patch(Uri.parse("$apiUrl/time_slots/$id"),
+    await plainClient.patch(Uri.parse("$apiUrl/time_slots/$id"),
         headers: {"Content-Type": "application/json"},
         body: json.encode(<String, dynamic>{
           'id': id,
@@ -581,7 +581,7 @@ class SchedulePage extends StatelessWidget {
   Future<void> shareSchedule() async {
     var url = Uri.parse("$apiUrl/share_schedule");
     final response =
-        await client.get(url, headers: {"Content-Type": "application/json"});
+        await plainClient.get(url, headers: {"Content-Type": "application/json"});
     if (response.statusCode != 200) {
       throw Exception('Failed to share schedule');
     }

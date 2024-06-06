@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:coordimate/api/google_api.dart';
-import 'package:coordimate/api/facebook_api.dart';
 import 'package:coordimate/screens/home_screen.dart';
 import 'package:coordimate/keys.dart';
-import 'package:coordimate/data/storage.dart';
+import 'package:coordimate/controllers/auth_controller.dart';
 
 class SquareTile extends StatelessWidget {
   final String imagePath;

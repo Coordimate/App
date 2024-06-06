@@ -5,11 +5,12 @@ import 'package:coordimate/models/meeting.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:coordimate/components/colors.dart';
-import 'package:coordimate/api_client.dart';
+import 'package:coordimate/controllers/auth_controller.dart';
 import 'package:coordimate/keys.dart';
 import 'package:flutter/widgets.dart';
 
 class MeetingTile extends StatelessWidget {
+  final AuthorizationController authCon;
   final bool isArchived;
   final MeetingTileModel meeting;
   final VoidCallback onAccepted;
@@ -18,6 +19,7 @@ class MeetingTile extends StatelessWidget {
 
   const MeetingTile({
     super.key,
+    required this.authCon,
     required this.isArchived,
     required this.meeting,
     required this.onAccepted,
@@ -27,7 +29,7 @@ class MeetingTile extends StatelessWidget {
 
   Future<MeetingDetails> _fetchMeetingDetails() async {
     final response =
-        await client.get(Uri.parse("$apiUrl/meetings/${meeting.id}/details"));
+        await authCon.client.get(Uri.parse("$apiUrl/meetings/${meeting.id}/details"));
     if (response.statusCode == 200) {
       final meetingDetails =
           MeetingDetails.fromJson(json.decode(response.body));
@@ -107,6 +109,7 @@ class MeetingTile extends StatelessWidget {
 class NewMeetingTile extends MeetingTile {
   const NewMeetingTile({
     super.key,
+    required super.authCon,
     required super.meeting,
     required super.onAccepted,
     required super.onDeclined,
@@ -201,7 +204,7 @@ class NewMeetingTile extends MeetingTile {
 }
 
 class AcceptedMeetingTile extends MeetingTile {
-  const AcceptedMeetingTile({super.key, required super.meeting, required super.fetchMeetings})
+  const AcceptedMeetingTile({super.key, required super.authCon, required super.meeting, required super.fetchMeetings})
       : super(
           isArchived: false, // Set isArchived to false
           onAccepted: defaultOnPressed, // Set onAccepted to an empty function
@@ -211,7 +214,7 @@ class AcceptedMeetingTile extends MeetingTile {
 }
 
 class ArchivedMeetingTile extends MeetingTile {
-  const ArchivedMeetingTile({super.key, required super.meeting, required super.fetchMeetings})
+  const ArchivedMeetingTile({super.key, required super.authCon, required super.meeting, required super.fetchMeetings})
       : super(
           isArchived: true, // Set isArchived to true
           onAccepted: defaultOnPressed, // Set onAccepted to an empty function

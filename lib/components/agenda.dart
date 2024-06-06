@@ -5,7 +5,7 @@ import 'package:coordimate/components/appbar.dart';
 import 'package:coordimate/components/colors.dart';
 import 'package:coordimate/models/agenda_point.dart';
 import 'package:coordimate/keys.dart';
-import 'package:coordimate/api_client.dart';
+import 'package:coordimate/controllers/auth_controller.dart';
 
 const maxIndentLevel = 3;
 
@@ -157,15 +157,17 @@ class _AgendaPointWidgetState extends State<_AgendaPointWidget> {
 }
 
 class MeetingAgenda extends StatefulWidget {
-  const MeetingAgenda({super.key, required this.meetingId});
+  const MeetingAgenda({super.key, required this.authCon, required this.meetingId});
 
   final String meetingId;
+  final AuthorizationController authCon;
 
   @override
   State<MeetingAgenda> createState() => MeetingAgendaState();
 }
 
 class MeetingAgendaState extends State<MeetingAgenda> {
+
   Future<List<AgendaPoint>>? _agendaPoints;
 
   @override
@@ -177,7 +179,7 @@ class MeetingAgendaState extends State<MeetingAgenda> {
   List<AgendaPoint> agenda = [];
 
   Future<List<AgendaPoint>> getAgendaPoints() async {
-    final response = await client.get(
+    final response = await widget.authCon.client.get(
         Uri.parse("$apiUrl/meetings/${widget.meetingId}/agenda"),
         headers: {"Content-Type": "application/json"});
     final List body = json.decode(response.body)["agenda"];
@@ -186,7 +188,7 @@ class MeetingAgendaState extends State<MeetingAgenda> {
   }
 
   Future<void> createAgendaPoint(String text, int level) async {
-    await client.post(Uri.parse("$apiUrl/meetings/${widget.meetingId}/agenda"),
+    await widget.authCon.client.post(Uri.parse("$apiUrl/meetings/${widget.meetingId}/agenda"),
         headers: {"Content-Type": "application/json"},
         body: json.encode(<String, dynamic>{
           'text': text,
@@ -198,7 +200,7 @@ class MeetingAgendaState extends State<MeetingAgenda> {
   }
 
   Future<void> deleteAgendaPoint(int index) async {
-    await client.delete(
+    await widget.authCon.client.delete(
         Uri.parse("$apiUrl/meetings/${widget.meetingId}/agenda/$index"),
         headers: {"Content-Type": "application/json"});
     setState(() {
@@ -207,7 +209,7 @@ class MeetingAgendaState extends State<MeetingAgenda> {
   }
 
   Future<void> updateAgenda() async {
-    await client.patch(Uri.parse("$apiUrl/meetings/${widget.meetingId}/agenda"),
+    await widget.authCon.client.patch(Uri.parse("$apiUrl/meetings/${widget.meetingId}/agenda"),
         headers: {"Content-Type": "application/json"},
         body: json.encode(<String, dynamic>{
           'agenda':

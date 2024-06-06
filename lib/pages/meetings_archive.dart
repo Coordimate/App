@@ -31,7 +31,7 @@ class _MeetingsArchivePageState extends State<MeetingsArchivePage> {
   }
 
   Future<void> _fetchDeclinedMeetings() async {
-    final response = await client.get(Uri.parse("$apiUrl/meetings/"));
+    final response = await plainClient.get(Uri.parse("$apiUrl/meetings/"));
     if (response.statusCode == 200) {
       if (!mounted) {return;}
       setState(() {

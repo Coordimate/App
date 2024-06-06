@@ -27,7 +27,7 @@ class _MeetingDetailsPageState extends State<MeetingDetailsPage> {
 
   Future<void> _fetchMeetingSummary() async {
     final response =
-    await client.get(Uri.parse("$apiUrl/meetings/${widget.meeting.id}/details"));
+    await plainClient.get(Uri.parse("$apiUrl/meetings/${widget.meeting.id}/details"));
     if (!mounted) { return; }
     if (response.statusCode == 200) {
       final data = MeetingDetails.fromJson(json.decode(response.body)).summary;
@@ -44,7 +44,7 @@ class _MeetingDetailsPageState extends State<MeetingDetailsPage> {
       CustomSnackBar.show(context, "Meeting is already finished");
       return;
     }
-    final response = await client.patch(
+    final response = await plainClient.patch(
         Uri.parse("$apiUrl/meetings/${widget.meeting.id}"),
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
@@ -77,7 +77,7 @@ class _MeetingDetailsPageState extends State<MeetingDetailsPage> {
     if (!accept) {
       status = 'declined';
     }
-    final response = await client.patch(
+    final response = await plainClient.patch(
         Uri.parse("$apiUrl/invites/${widget.meeting.id}"),
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',

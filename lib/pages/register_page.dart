@@ -6,11 +6,12 @@ import 'package:coordimate/components/colors.dart';
 import 'package:coordimate/components/divider.dart';
 import 'package:coordimate/pages/login_page.dart';
 import 'package:flutter/material.dart';
-import 'package:coordimate/data/storage.dart';
+import 'package:coordimate/controllers/auth_controller.dart';
 import 'package:coordimate/components/alert_dialog.dart';
 
 class RegisterPage extends StatefulWidget {
-  const RegisterPage({super.key});
+  const RegisterPage({super.key, required this.authCon});
+  final AuthorizationController authCon;
 
   @override
   State<RegisterPage> createState() => _RegisterPageState();
@@ -37,11 +38,11 @@ class _RegisterPageState extends State<RegisterPage> {
     // isEmpty is checked in the form validation
     if (passwordController.text.isNotEmpty && emailController.text.isNotEmpty && usernameController.text.isNotEmpty && confirmPasswordController.text.isNotEmpty) {
       if (passwordController.text == confirmPasswordController.text) {
-        final registrationOK = await registerUserStorage(
+        final registrationOK = await widget.authCon.register(
             emailController.text,
             usernameController.text,
             AuthType.email,
-            pswd : passwordController.text
+            password : passwordController.text
         );
 
         if (mounted) {
@@ -83,7 +84,7 @@ class _RegisterPageState extends State<RegisterPage> {
   void _goToLogInPage() {
     Navigator.of(context).pushReplacement(
       MaterialPageRoute(
-        builder: (context) => const LoginPage(),
+        builder: (context) => LoginPage(authCon: widget.authCon),
       ),
     );
   }

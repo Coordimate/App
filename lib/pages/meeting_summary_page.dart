@@ -36,7 +36,7 @@ class _SummaryPageState extends State<SummaryPage> {
     if (summaryController.text.isEmpty) {
       return;
     }
-    final response = await client.patch(
+    final response = await plainClient.patch(
         Uri.parse("$apiUrl/meetings/${widget.id}"),
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',

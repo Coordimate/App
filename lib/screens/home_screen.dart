@@ -80,7 +80,7 @@ class HomeScreenState extends State<HomeScreen> {
     final match = regex.firstMatch(uri.path);
     if (match != null) {
       final userId = match.group(1)!;
-      final response = await client.get(Uri.parse("$apiUrl/users/$userId"));
+      final response = await plainClient.get(Uri.parse("$apiUrl/users/$userId"));
       if (response.statusCode == 200) {
         Navigator.of(context).push(MaterialPageRoute(builder: (context) => SchedulePage(ownerId: userId, ownerName: json.decode(response.body)["username"])));
       }
@@ -92,7 +92,7 @@ class HomeScreenState extends State<HomeScreen> {
     final match = regex.firstMatch(uri.path);
     if (match != null) {
       final groupId = match.group(1)!;
-      final response = await client.get(Uri.parse("$apiUrl/groups/$groupId"));
+      final response = await plainClient.get(Uri.parse("$apiUrl/groups/$groupId"));
       if (response.statusCode == 200) {
         final group = Group.fromJson(json.decode(response.body));
         showDialog(
@@ -133,7 +133,7 @@ class HomeScreenState extends State<HomeScreen> {
   }
 
   Future<void> _setFcmToken(String fcmToken) async {
-    await client.post(Uri.parse('$apiUrl/enable_notifications'),
+    await plainClient.post(Uri.parse('$apiUrl/enable_notifications'),
         headers: <String, String>{'Content-Type': 'application/json'},
         body: json.encode(<String, dynamic>{'fcm_token': fcmToken}));
   }
