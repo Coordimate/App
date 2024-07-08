@@ -25,48 +25,6 @@ class MeetingDetailsPage extends StatefulWidget {
 class _MeetingDetailsPageState extends State<MeetingDetailsPage> {
   final textController = TextEditingController();
 
-  // Future<void> _fetchMeetingSummary() async {
-  //   final response = await client
-  //       .get(Uri.parse("$apiUrl/meetings/${widget.meeting.id}/details"));
-  //   if (!mounted) {
-  //     return;
-  //   }
-  //   if (response.statusCode == 200) {
-  //     final data = MeetingDetails.fromJson(json.decode(response.body)).summary;
-  //     setState(() {
-  //       widget.meeting.summary = data;
-  //     });
-  //   } else {
-  //     throw Exception('Failed to load meeting summary');
-  //   }
-  // }
-
-  Future<void> _finishMeeting() async {
-    if (widget.meeting.isFinished) {
-      CustomSnackBar.show(context, "Meeting is already finished");
-      return;
-    }
-    final response =
-        await client.patch(Uri.parse("$apiUrl/meetings/${widget.meeting.id}"),
-            headers: <String, String>{
-              'Content-Type': 'application/json; charset=UTF-8',
-            },
-            body: json.encode(<String, dynamic>{
-              'is_finished': true,
-            }));
-    if (!mounted) {
-      return;
-    }
-    if (response.statusCode == 200) {
-      CustomSnackBar.show(context, "Meeting is finished");
-      setState(() {
-        widget.meeting.isFinished = true;
-      });
-    } else {
-      throw Exception('Failed to finish meeting');
-    }
-  }
-
   Future<void> _answerInvitation(bool accept) async {
     if (widget.meeting.isInPast()) {
       CustomSnackBar.show(context, "Meeting is in the past");
@@ -270,7 +228,12 @@ class _MeetingDetailsPageState extends State<MeetingDetailsPage> {
                               widget.meeting.summary = summary;
                             })));
                       } else {
-                        await _finishMeeting();
+                        await AppState.meetingController.finishMeeting(widget.meeting.id).then((isFinished) => setState(() {
+                          isFinished
+                              ? CustomSnackBar.show(context, "Meeting is finished")
+                              : CustomSnackBar.show(context, "Failed to finish meeting");
+                          isFinished && (widget.meeting.isFinished = isFinished);
+                        }));
                       }
                     },
                     style: ButtonStyle(
