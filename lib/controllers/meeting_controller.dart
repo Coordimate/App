@@ -74,4 +74,22 @@ class MeetingController {
       throw Exception('Failed to load declined meetings');
     }
   }
+
+  Future<void> saveSummary(id, summaryText) async {
+    // if (summaryController.text.isEmpty) {
+    //   return;
+    // }
+    final response = await client.patch(
+        Uri.parse("$apiUrl/meetings/$id"),
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+        },
+        body: json.encode(<String, dynamic>{
+          'summary': summaryText,
+        })
+    );
+    if (response.statusCode != 200) {
+      throw Exception('Failed to save summary');
+    }
+  }
 }

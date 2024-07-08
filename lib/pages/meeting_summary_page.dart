@@ -1,11 +1,7 @@
-import 'dart:convert';
-
 import 'package:coordimate/components/appbar.dart';
 import 'package:coordimate/components/colors.dart';
 import 'package:flutter/material.dart';
-import 'package:coordimate/api_client.dart';
-import 'package:coordimate/keys.dart';
-
+import 'package:coordimate/app_state.dart';
 
 class SummaryPage extends StatefulWidget {
   final String summary;
@@ -25,29 +21,21 @@ class _SummaryPageState extends State<SummaryPage> {
   var summaryController = TextEditingController();
   FocusNode focusNode = FocusNode();
   double fontSize = 16.0; // Initial font size
+  String initialSummary = '';
 
   @override
   void initState() {
     super.initState();
+    initialSummary = widget.summary;
     summaryController.text = widget.summary;
   }
 
   Future<void> _saveSummary() async {
-    if (summaryController.text.isEmpty) {
+    if (summaryController.text.isEmpty
+        || summaryController.text == initialSummary) {
       return;
     }
-    final response = await client.patch(
-        Uri.parse("$apiUrl/meetings/${widget.id}"),
-        headers: <String, String>{
-          'Content-Type': 'application/json; charset=UTF-8',
-        },
-        body: json.encode(<String, dynamic>{
-          'summary': summaryController.text,
-        })
-    );
-    if (response.statusCode != 200) {
-      throw Exception('Failed to save summary');
-    }
+    await AppState.meetingController.saveSummary(widget.id, summaryController.text);
   }
 
   @override
