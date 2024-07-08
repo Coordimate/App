@@ -34,30 +34,14 @@ class _MeetingDetailsPageState extends State<MeetingDetailsPage> {
       CustomSnackBar.show(context, "Meeting is already finished");
       return;
     }
-    String status = 'accepted';
-    if (!accept) {
-      status = 'declined';
-    }
-    final response =
-        await client.patch(Uri.parse("$apiUrl/invites/${widget.meeting.id}"),
-            headers: <String, String>{
-              'Content-Type': 'application/json; charset=UTF-8',
-            },
-            body: json.encode(<String, dynamic>{
-              'status': status,
-            }));
-    if (!mounted) {
-      return;
-    }
-    if (response.statusCode == 200) {
-      CustomSnackBar.show(context, "Meeting $status");
+    await AppState.meetingController.answerInvitation(accept, widget.meeting.id).then((status) {
+      status == MeetingStatus.accepted
+          ? CustomSnackBar.show(context, "Meeting accepted")
+          : CustomSnackBar.show(context, "Meeting declined");
       setState(() {
-        widget.meeting.status =
-            accept ? MeetingStatus.accepted : MeetingStatus.declined;
+        widget.meeting.status = status;
       });
-    } else {
-      throw Exception('Failed to answer invitation');
-    }
+    });
   }
 
   Future<void> showPopUpDialog(BuildContext context, bool accept) async {
@@ -76,12 +60,16 @@ class _MeetingDetailsPageState extends State<MeetingDetailsPage> {
                   style: const TextStyle(
                       color: darkBlue, fontWeight: FontWeight.bold))),
           actions: <Widget>[
-            ConfirmationButtons(onYes: () {
-              _answerInvitation(accept);
-              Navigator.of(context).pop();
-            }, onNo: () {
-              Navigator.of(context).pop();
-            }),
+            ConfirmationButtons(
+                onYes: () async {
+                  await _answerInvitation(accept);
+                  if (context.mounted) {
+                    Navigator.of(context).pop();
+                  }
+                },
+                onNo: () {
+                  Navigator.of(context).pop();
+                }),
           ],
         );
       },

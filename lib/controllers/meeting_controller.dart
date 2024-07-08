@@ -28,10 +28,6 @@ class MeetingController {
   }
 
   Future<bool> finishMeeting(id) async {
-    // if (widget.meeting.isFinished) {
-    //   CustomSnackBar.show(context, "Meeting is already finished");
-    //   return;
-    // }
     final response = await client.patch(Uri.parse("$apiUrl/meetings/$id"),
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
@@ -40,13 +36,29 @@ class MeetingController {
           'is_finished': true,
         }));
     if (response.statusCode == 200) {
-      // CustomSnackBar.show(context, "Meeting is finished");
-      // setState(() {
-      //   widget.meeting.isFinished = true;
-      // });
       return true;
     } else {
       throw Exception('Failed to finish meeting');
+    }
+  }
+
+  Future<MeetingStatus> answerInvitation(bool accept, id) async {
+    final status = accept ? 'accepted' : 'declined';
+    final response = await client.patch(Uri.parse("$apiUrl/invites/$id"),
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+        },
+        body: json.encode(<String, dynamic>{
+          'status': status,
+        }));
+    if (response.statusCode == 200) {
+      // CustomSnackBar.show(context, "Meeting $status");
+      // setState(() {
+      //   widget.meeting.status = accept ? MeetingStatus.accepted : MeetingStatus.declined;
+      // });
+      return accept ? MeetingStatus.accepted : MeetingStatus.declined;
+    } else {
+      throw Exception('Failed to answer invitation');
     }
   }
 }
