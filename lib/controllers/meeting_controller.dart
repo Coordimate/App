@@ -52,13 +52,26 @@ class MeetingController {
           'status': status,
         }));
     if (response.statusCode == 200) {
-      // CustomSnackBar.show(context, "Meeting $status");
-      // setState(() {
-      //   widget.meeting.status = accept ? MeetingStatus.accepted : MeetingStatus.declined;
-      // });
       return accept ? MeetingStatus.accepted : MeetingStatus.declined;
     } else {
       throw Exception('Failed to answer invitation');
+    }
+  }
+
+  Future<List<MeetingTileModel>> fetchDeclinedMeetings() async {
+    final response = await client.get(Uri.parse("$apiUrl/meetings/"));
+    if (response.statusCode == 200) {
+      final meetings = (json.decode(response.body)['meetings'] as List)
+            .map((data) => MeetingTileModel.fromJson(data))
+            .where((meeting) =>
+        meeting.status == MeetingStatus.declined ||
+            (meeting.status == MeetingStatus.accepted &&
+                meeting.dateTime.isBefore(DateTime.now())))
+            .toList();
+        meetings.sort((a, b) => b.dateTime.compareTo(a.dateTime));
+      return meetings;
+    } else {
+      throw Exception('Failed to load declined meetings');
     }
   }
 }
