@@ -15,4 +15,17 @@ class MeetingController {
       throw Exception('Failed to load meetings');
     }
   }
+
+  Future<String> fetchMeetingSummary(id) async {
+    final response = await client
+        .get(Uri.parse("$apiUrl/meetings/$id/details"));
+    print("here");
+    if (response.statusCode == 200) {
+      final summary = MeetingDetails.fromJson(json.decode(response.body)).summary;
+      print("return");
+      return summary;
+    } else {
+      throw Exception('Failed to load meeting summary');
+    }
+  }
 }

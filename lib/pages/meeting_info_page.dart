@@ -11,6 +11,7 @@ import 'dart:convert';
 import 'package:share_plus/share_plus.dart';
 import 'package:flutter/services.dart';
 import 'package:coordimate/pages/meeting_summary_page.dart';
+import 'package:coordimate/app_state.dart';
 
 class MeetingDetailsPage extends StatefulWidget {
   final MeetingDetails meeting;
@@ -24,21 +25,21 @@ class MeetingDetailsPage extends StatefulWidget {
 class _MeetingDetailsPageState extends State<MeetingDetailsPage> {
   final textController = TextEditingController();
 
-  Future<void> _fetchMeetingSummary() async {
-    final response = await client
-        .get(Uri.parse("$apiUrl/meetings/${widget.meeting.id}/details"));
-    if (!mounted) {
-      return;
-    }
-    if (response.statusCode == 200) {
-      final data = MeetingDetails.fromJson(json.decode(response.body)).summary;
-      setState(() {
-        widget.meeting.summary = data;
-      });
-    } else {
-      throw Exception('Failed to load meeting summary');
-    }
-  }
+  // Future<void> _fetchMeetingSummary() async {
+  //   final response = await client
+  //       .get(Uri.parse("$apiUrl/meetings/${widget.meeting.id}/details"));
+  //   if (!mounted) {
+  //     return;
+  //   }
+  //   if (response.statusCode == 200) {
+  //     final data = MeetingDetails.fromJson(json.decode(response.body)).summary;
+  //     setState(() {
+  //       widget.meeting.summary = data;
+  //     });
+  //   } else {
+  //     throw Exception('Failed to load meeting summary');
+  //   }
+  // }
 
   Future<void> _finishMeeting() async {
     if (widget.meeting.isFinished) {
@@ -263,7 +264,11 @@ class _MeetingDetailsPageState extends State<MeetingDetailsPage> {
                                 ),
                               ),
                             )
-                            .then((_) async => await _fetchMeetingSummary());
+                        .then((_) async => await AppState.meetingController
+                            .fetchMeetingSummary(widget.meeting.id)
+                            .then((summary) => setState(() {
+                              widget.meeting.summary = summary;
+                            })));
                       } else {
                         await _finishMeeting();
                       }
