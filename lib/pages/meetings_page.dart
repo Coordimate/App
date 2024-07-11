@@ -7,7 +7,6 @@ import 'package:coordimate/components/calendar_day_box.dart';
 import 'package:coordimate/models/meeting.dart';
 import 'package:coordimate/keys.dart';
 import 'dart:convert';
-// import 'package:intl/intl.dart';
 import 'package:coordimate/api_client.dart';
 import 'package:coordimate/components/archive_scroll.dart';
 import 'package:coordimate/pages/meetings_archive.dart';
@@ -24,126 +23,12 @@ class MeetingsPage extends StatefulWidget {
 class _MeetingsPageState extends State<MeetingsPage> {
   final TextEditingController _titleController = TextEditingController();
   final TextEditingController _descriptionController = TextEditingController();
-  // DateTime _selectedDate = DateTime.now();
   List<MeetingTileModel> meetings = [];
-
-  // Future<void> _selectDate() async {
-  //   final DateTime? pickedDate = await showDatePicker(
-  //     context: context,
-  //     initialDate: _selectedDate,
-  //     firstDate: DateTime(2022, 1),
-  //     lastDate: DateTime(2025),
-  //   );
-  //   if (!mounted) {
-  //     return;
-  //   }
-  //   if (pickedDate != null && pickedDate != _selectedDate) {
-  //     final TimeOfDay? pickedTime = await showTimePicker(
-  //       context: context,
-  //       initialTime: TimeOfDay.fromDateTime(_selectedDate),
-  //     );
-  //     if (pickedTime != null) {
-  //       setState(() {
-  //         _selectedDate = DateTime(
-  //           pickedDate.year,
-  //           pickedDate.month,
-  //           pickedDate.day,
-  //           pickedTime.hour,
-  //           pickedTime.minute,
-  //         );
-  //       });
-  //     }
-  //   }
-  // }
-
-  // Future<void> _createMeeting() async {
-  //   final response = await client.post(
-  //     Uri.parse("$apiUrl/meetings/"),
-  //     headers: <String, String>{
-  //       'Content-Type': 'application/json; charset=UTF-8',
-  //     },
-  //     body: jsonEncode(<String, dynamic>{
-  //       'title': _titleController.text,
-  //       'start': _selectedDate.toIso8601String(),
-  //       'description': _descriptionController.text,
-  //       'group_id': '1',
-  //     }),
-  //   );
-  //   if (response.statusCode == 201) {
-  //     _fetchMeetings();
-  //   } else {
-  //     throw Exception('Failed to create meeting');
-  //   }
-  // }
 
   void clearControllers() {
     _titleController.clear();
     _descriptionController.clear();
-    // _selectedDate = DateTime.now();
   }
-
-  // void _onCreateMeeting() {
-  //   showDialog(
-  //     context: context,
-  //     builder: (BuildContext context) {
-  //       return StatefulBuilder(
-  //         builder: (BuildContext context, StateSetter setState) {
-  //           return AlertDialog(
-  //             title: const Text('Create Meeting'),
-  //             content: SingleChildScrollView(
-  //               child: ListBody(
-  //                 children: <Widget>[
-  //                   TextField(
-  //                     controller: _titleController,
-  //                     decoration: const InputDecoration(
-  //                       labelText: 'Title',
-  //                       hintText: 'Enter the title of the meeting',
-  //                     ),
-  //                   ),
-  //                   ListTile(
-  //                     title: Text(DateFormat('EEE, MMMM d, HH:mm')
-  //                         .format(_selectedDate.toLocal())),
-  //                     trailing: const Icon(Icons.keyboard_arrow_down),
-  //                     onTap: () async {
-  //                       await _selectDate();
-  //                       setState(
-  //                           () {}); // Rebuild the dialog to update the date
-  //                     },
-  //                   ),
-  //                   TextField(
-  //                     controller: _descriptionController,
-  //                     decoration: const InputDecoration(
-  //                       labelText: 'Description',
-  //                       hintText: 'Enter the description of the meeting',
-  //                     ),
-  //                     maxLines: 3,
-  //                   ),
-  //                 ],
-  //               ),
-  //             ),
-  //             actions: <Widget>[
-  //               TextButton(
-  //                 child: const Text('Cancel'),
-  //                 onPressed: () {
-  //                   clearControllers();
-  //                   Navigator.of(context).pop();
-  //                 },
-  //               ),
-  //               TextButton(
-  //                 child: const Text('Create'),
-  //                 onPressed: () {
-  //                   _createMeeting();
-  //                   clearControllers();
-  //                   Navigator.of(context).pop();
-  //                 },
-  //               ),
-  //             ],
-  //           );
-  //         },
-  //       );
-  //     },
-  //   );
-  // }
 
   @override
   void initState() {

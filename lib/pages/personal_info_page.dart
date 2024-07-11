@@ -3,6 +3,7 @@ import 'package:coordimate/components/appbar.dart';
 import 'package:coordimate/components/colors.dart';
 import 'package:coordimate/components/login_button.dart';
 import 'package:coordimate/components/pop_up_dialog.dart';
+import 'package:coordimate/components/text_field_with_edit.dart';
 import 'package:flutter/material.dart';
 import 'package:coordimate/pages/start_page.dart';
 import 'package:coordimate/controllers/auth_controller.dart';
@@ -21,7 +22,6 @@ class PersonalPage extends StatefulWidget {
 }
 
 class _PersonalPageState extends State<PersonalPage> {
-
   late User user;
   bool isEditing = false;
   final usernameController = TextEditingController();
@@ -45,10 +45,8 @@ class _PersonalPageState extends State<PersonalPage> {
   Future<void> getInfo() async {
     final id = await _storage.read(key: 'id_account');
     var url = Uri.parse("$apiUrl/users/$id");
-    final response = await plainClient.get(
-        url,
-        headers: {"Content-Type": "application/json"}
-    );
+    final response =
+        await client.get(url, headers: {"Content-Type": "application/json"});
     if (response.statusCode != 200) {
       throw Exception('Failed to load data');
     }
@@ -63,13 +61,11 @@ class _PersonalPageState extends State<PersonalPage> {
       return;
     }
     var url = Uri.parse("$apiUrl/users/${user.id}");
-    final response = await plainClient.patch(
-        url,
+    final response = await client.patch(url,
         headers: {"Content-Type": "application/json"},
         body: jsonEncode(<String, dynamic>{
           'username': username,
-        })
-    );
+        }));
     if (response.statusCode != 200) {
       throw Exception('Failed to save data');
     }
@@ -78,10 +74,8 @@ class _PersonalPageState extends State<PersonalPage> {
 
   Future<void> deleteUser() async {
     var url = Uri.parse("$apiUrl/users/${user.id}");
-    final response = await plainClient.delete(
-        url,
-        headers: {"Content-Type": "application/json"}
-    );
+    final response =
+        await client.delete(url, headers: {"Content-Type": "application/json"});
     if (response.statusCode != 204) {
       throw Exception('Failed to delete user');
     } else {
@@ -102,7 +96,9 @@ class _PersonalPageState extends State<PersonalPage> {
       builder: (BuildContext context) {
         return CustomPopUpDialog(
           question: "Do you want to delete your account?",
-          onYes: () async { await deleteUser(); },
+          onYes: () async {
+            await deleteUser();
+          },
         );
       },
     );
@@ -127,92 +123,66 @@ class _PersonalPageState extends State<PersonalPage> {
           } else {
             return Scaffold(
               backgroundColor: Colors.white,
-              appBar: const CustomAppBar(
-                  title: 'Personal Page',
-                  needButton: false
-              ),
+              appBar:
+                  const CustomAppBar(title: 'Personal Page', needButton: false),
               body: Center(
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: <Widget>[
                     CircleAvatar(
                       radius: 70,
-                      backgroundImage: const NetworkImage('https://www.w3schools.com/w3images/avatar2.png'),
+                      backgroundImage: const NetworkImage(
+                          'https://www.w3schools.com/w3images/avatar2.png'),
                     ),
                     const SizedBox(height: 16),
                     Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: horPadding),
-                      child: TextField(
+                      padding:
+                          const EdgeInsets.symmetric(horizontal: horPadding),
+                      child: EditableTextField(
                         controller: usernameController,
-                        textAlign: TextAlign.center,
-                        readOnly: isEditing == false,
                         focusNode: focusNode,
-                        maxLines: null,
-                        keyboardType: TextInputType.text, // makes Enter a submission button
-                        style: const TextStyle(fontSize: usernameFontSize, fontWeight: FontWeight.bold, color: darkBlue),
-                        onSubmitted: (value) {
-                          setState(() { isEditing = false; });
-                          changeUsername(value);
-                        },
-                        decoration: InputDecoration(
-                          enabledBorder: InputBorder.none,
-                          focusedBorder: isEditing ?
-                          const UnderlineInputBorder(borderSide: BorderSide(color: darkBlue))
-                              : InputBorder.none,
-                          suffixIcon: IconButton(
-                            onPressed: () {
-                              setState(() { isEditing = !isEditing; });
-                              if (isEditing) {
-                                focusNode.requestFocus();
-                              } else if (!isEditing) {
-                                changeUsername(usernameController.text);
-                              }
-                            },
-                            icon: Icon(
-                              isEditing ? Icons.check : Icons.edit, // Change the icon based on the editing state
-                              color: darkBlue,
-                              size: usernameFontSize - 4,
-                            ),
-                          ),
-                          contentPadding: const EdgeInsets.only(left: usernameFontSize + horPadding),
-                        ),
+                        onSubmit: changeUsername,
+                        fontSize: usernameFontSize, // not required
+                        padding: horPadding, // not required
                       ),
                     ),
-
                     const SizedBox(height: 8),
-                    Text(userEmail, style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w600, color: darkBlue)),
+                    Text(userEmail,
+                        style: const TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.w600,
+                            color: darkBlue)),
                     const SizedBox(height: 16),
-
                     if (showChangePasswordButton)
                       LoginEmptyButton(
                         text: "Change Password",
                         onTap: showChangePasswordDialog,
                       ),
-                    if (showChangePasswordButton)
-                      const SizedBox(height: 8),
+                    if (showChangePasswordButton) const SizedBox(height: 8),
                     LoginButton(
-                      text: "Logout",
-                      onTap: () { logOut(context); }
-                    ),
+                        text: "Logout",
+                        onTap: () {
+                          logOut(context);
+                        }),
                   ],
                 ),
               ),
-
               bottomSheet: Container(
                 color: Colors.white,
                 padding: const EdgeInsets.only(bottom: 16.0),
                 child: TextButton(
-                  onPressed: showDeleteAccountDialog,
-                  child: const Text(
-                    'Delete Account',
-                    style: TextStyle(color: mediumBlue, fontSize: 20, fontWeight: FontWeight.w500 ),
-                  )
-                ),
+                    onPressed: showDeleteAccountDialog,
+                    child: const Text(
+                      'Delete Account',
+                      style: TextStyle(
+                          color: mediumBlue,
+                          fontSize: 20,
+                          fontWeight: FontWeight.w500),
+                    )),
               ),
             );
           }
-        }
-    );
+        });
   }
 }
 
@@ -232,14 +202,12 @@ class _ChangePasswordDialogState extends State<ChangePasswordDialog> {
 
   Future<bool> sendChangePswdRequest() async {
     var url = Uri.parse("$apiUrl/change_password");
-    final response = await plainClient.post(
-        url,
+    final response = await client.post(url,
         headers: {"Content-Type": "application/json"},
         body: jsonEncode(<String, dynamic>{
           'new_password': newPasswordController.text,
           'old_password': oldPasswordController.text,
-        })
-    );
+        }));
     if (response.statusCode == 201) {
       return true;
     } else if (response.statusCode == 403) {
@@ -249,17 +217,17 @@ class _ChangePasswordDialogState extends State<ChangePasswordDialog> {
     }
   }
 
-   Future<bool> changePassword() async {
+  Future<bool> changePassword() async {
     if (_formKey.currentState!.validate() == false) {
       return false;
     }
     if (newPasswordController.text != repeatPasswordController.text) {
-        Flushbar(
-          message: 'Passwords do not match',
-          duration: const Duration(seconds: 2),
-          backgroundColor: orange,
-          flushbarPosition: FlushbarPosition.TOP,
-        ).show(context);
+      Flushbar(
+        message: 'Passwords do not match',
+        duration: const Duration(seconds: 2),
+        backgroundColor: orange,
+        flushbarPosition: FlushbarPosition.TOP,
+      ).show(context);
       return false;
     }
     if (newPasswordController.text == oldPasswordController.text) {
@@ -292,7 +260,8 @@ class _ChangePasswordDialogState extends State<ChangePasswordDialog> {
       backgroundColor: Colors.white,
       alignment: Alignment.center,
       title: const Center(child: Text('Change Password')),
-      titleTextStyle: const TextStyle(color: darkBlue, fontSize: 24, fontWeight: FontWeight.bold),
+      titleTextStyle: const TextStyle(
+          color: darkBlue, fontSize: 24, fontWeight: FontWeight.bold),
       content: Form(
         key: _formKey,
         child: Column(
@@ -327,24 +296,24 @@ class _ChangePasswordDialogState extends State<ChangePasswordDialog> {
       ),
       actions: <Widget>[
         ConfirmationButtons(
-            onYes: () async {
-              var isValid = await changePassword();
-              if (isValid) {
-                Navigator.of(context).pop();
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text('Password changed successfully'),
-                    duration: Duration(seconds: 1),
-                    backgroundColor: darkBlue,
-                  ),
-                );
-              }
-            },
-            onNo: () {
+          onYes: () async {
+            var isValid = await changePassword();
+            if (isValid) {
               Navigator.of(context).pop();
-            },
-            yes: "Continue",
-            no: "Cancel",
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text('Password changed successfully'),
+                  duration: Duration(seconds: 1),
+                  backgroundColor: darkBlue,
+                ),
+              );
+            }
+          },
+          onNo: () {
+            Navigator.of(context).pop();
+          },
+          yes: "Continue",
+          no: "Cancel",
         ),
       ],
     );

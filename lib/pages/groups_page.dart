@@ -41,7 +41,7 @@ class _GroupsPageState extends State<GroupsPage> {
         throw Exception('Failed to load groups'); // Handles failed response
       }
     } catch (e) {
-      print(e);
+      print(e); //ToDo: also this one
       return [];
     }
   }
@@ -65,7 +65,7 @@ class _GroupsPageState extends State<GroupsPage> {
         throw Exception('Failed to create group');
       }
     } catch (e) {
-      print(e);
+      print(e); //ToDo: is this necessary here?
     }
   }
 
@@ -78,14 +78,20 @@ class _GroupsPageState extends State<GroupsPage> {
     );
   }
 
-  void _navigateToGroupDetails(Group group) {
+  Future<void> _navigateToGroupDetails(Group group) async {
     // Function to navigate to GroupDetailsPage
-    Navigator.push(
+    final result = await Navigator.push(
       context,
       MaterialPageRoute(
         builder: (context) => GroupDetailsPage(authCon: widget.authCon, group: group),
       ),
     );
+
+    if (result == true) {
+      // Reload groups when coming back
+      _groupsFuture = _getGroups();
+      setState(() {}); // Trigger a rebuild to show the updated groups
+    }
   }
 
   @override
@@ -96,11 +102,11 @@ class _GroupsPageState extends State<GroupsPage> {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Center(child: CircularProgressIndicator());
         } else if (snapshot.hasError) {
-          return Scaffold(
+          return const Scaffold(
             appBar: CustomAppBar(
                 title: "Groups",
                 needButton: false), // Added needButton parameter
-            body: const Center(child: Text('Failed to load groups')),
+            body: Center(child: Text('Failed to load groups')),
           );
         } else if (snapshot.hasData) {
           return Scaffold(
@@ -169,11 +175,11 @@ class _GroupsPageState extends State<GroupsPage> {
             ),
           );
         } else {
-          return Scaffold(
+          return const Scaffold(
             appBar: CustomAppBar(
                 title: "Groups",
                 needButton: false), // Added needButton parameter
-            body: const Center(child: Text('No groups available')),
+            body: Center(child: Text('No groups available')),
           );
         }
       },

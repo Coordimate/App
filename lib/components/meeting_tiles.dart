@@ -1,13 +1,9 @@
-import 'dart:convert';
 import 'package:coordimate/components/meeting_action_button.dart';
 import 'package:coordimate/pages/meeting_info_page.dart';
 import 'package:coordimate/models/meeting.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:coordimate/components/colors.dart';
-import 'package:coordimate/controllers/auth_controller.dart';
-import 'package:coordimate/keys.dart';
-import 'package:flutter/widgets.dart';
+import 'package:coordimate/app_state.dart';
 
 class MeetingTile extends StatelessWidget {
   final AuthorizationController authCon;
@@ -26,18 +22,6 @@ class MeetingTile extends StatelessWidget {
     required this.onDeclined,
     required this.fetchMeetings,
   });
-
-  Future<MeetingDetails> _fetchMeetingDetails() async {
-    final response =
-        await authCon.client.get(Uri.parse("$apiUrl/meetings/${meeting.id}/details"));
-    if (response.statusCode == 200) {
-      final meetingDetails =
-          MeetingDetails.fromJson(json.decode(response.body));
-      return meetingDetails;
-    } else {
-      throw Exception('Failed to load meetings');
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -89,7 +73,7 @@ class MeetingTile extends StatelessWidget {
           ],
         ),
         onTap: () {
-          _fetchMeetingDetails().then((meetingDetails) {
+          AppState.meetingController.fetchMeetingDetails(meeting.id).then((meetingDetails) {
             Navigator.push(
               context,
               MaterialPageRoute(
@@ -166,7 +150,7 @@ class NewMeetingTile extends MeetingTile {
                 ],
               ),
               onTap: () {
-                _fetchMeetingDetails().then((meetingDetails) {
+                AppState.meetingController.fetchMeetingDetails(meeting.id).then((meetingDetails) {
                   Navigator.push(
                     context,
                     MaterialPageRoute(

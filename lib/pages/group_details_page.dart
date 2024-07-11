@@ -19,12 +19,12 @@ import 'package:coordimate/controllers/auth_controller.dart';
 import 'package:coordimate/components/snack_bar.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:flutter/services.dart';
+import 'package:coordimate/components/text_field_with_edit.dart';
 
 class GroupDetailsPage extends StatefulWidget {
   final Group group;
-  final AuthorizationController authCon;
-
-  GroupDetailsPage({required this.authCon, required this.group});
+  //ToDo: understand whatever this blue line means here
+  const GroupDetailsPage({required this.group});
 
   @override
   _GroupDetailsPageState createState() => _GroupDetailsPageState();
@@ -40,6 +40,16 @@ class _GroupDetailsPageState extends State<GroupDetailsPage> {
   final String pathPerson = 'lib/images/person.png';
   final _formKey = GlobalKey<FormState>();
 
+  final groupDescriptionController = TextEditingController();
+  final groupNameController = TextEditingController();
+  final groupEmptyDescriptionController = TextEditingController();
+
+  final FocusNode focusNode = FocusNode();
+  static const universalFontSize = 16.0;
+  static const horPadding = 0.0;
+  var userEmail = '';
+  var showChangePasswordButton = true;
+
   final textController = TextEditingController();
 
   @override
@@ -47,6 +57,9 @@ class _GroupDetailsPageState extends State<GroupDetailsPage> {
     super.initState();
     _fetchGroupMeetings();
     _fetchGroupUsers();
+    groupDescriptionController.text = widget.group.description;
+    groupNameController.text = widget.group.name;
+    groupEmptyDescriptionController.text = "No group description";
   }
 
   Future<void> _fetchGroupMeetings() async {
@@ -54,7 +67,6 @@ class _GroupDetailsPageState extends State<GroupDetailsPage> {
         .get(Uri.parse("$apiUrl/groups/${widget.group.id}/meetings"));
 
     if (response.statusCode == 200) {
-      print(response.body);
       setState(() {
         meetings = (json.decode(response.body)['meetings'] as List)
             .map((data) => MeetingTileModel.fromJson(data))
@@ -65,12 +77,41 @@ class _GroupDetailsPageState extends State<GroupDetailsPage> {
     }
   }
 
+  Future<void> updateGroupDescription(description) async {
+    var url = Uri.parse("$apiUrl/groups/${widget.group.id}");
+    final response = await client.patch(url,
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: jsonEncode(<String, dynamic>{
+          'description': description,
+        }));
+    if (response.statusCode != 200) {
+      throw Exception('Failed to update group description');
+    }
+    widget.group.description = description;
+  }
+
+  Future<void> updateGroupName(name) async {
+    var url = Uri.parse("$apiUrl/groups/${widget.group.id}");
+    final response = await client.patch(url,
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: jsonEncode(<String, dynamic>{
+          'name': name,
+        }));
+    if (response.statusCode != 200) {
+      throw Exception('Failed to update group name');
+    }
+    widget.group.name = name;
+  }
+
   Future<void> _fetchGroupUsers() async {
     final response =
         await widget.authCon.client.get(Uri.parse("$apiUrl/groups/${widget.group.id}"));
 
     if (response.statusCode == 200) {
-      print(response.body);
       setState(() {
         users = (json.decode(response.body)['users'] as List)
             .map((data) => UserCard.fromJson(data))
@@ -367,9 +408,6 @@ class _GroupDetailsPageState extends State<GroupDetailsPage> {
     List<MeetingTileModel> declinedMeetings = meetings
         .where((meeting) => meeting.status == MeetingStatus.declined)
         .toList();
-    List<MeetingTileModel> newInvitations = meetings
-        .where((meeting) => meeting.status == MeetingStatus.needsAcceptance)
-        .toList();
     List<MeetingTileModel> acceptedMeetings = meetings
         .where((meeting) => meeting.status == MeetingStatus.accepted)
         .toList();
@@ -387,6 +425,13 @@ class _GroupDetailsPageState extends State<GroupDetailsPage> {
       backgroundColor: Colors.white,
       appBar: CustomAppBar(
         title: "",
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () {
+            Navigator.pop(
+                context, true); // Pass a result of `true` when popping
+          },
+        ),
         needButton: true,
         buttonIcon: Icons.archive,
         onPressed: () {
@@ -410,7 +455,7 @@ class _GroupDetailsPageState extends State<GroupDetailsPage> {
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
                   IconButton(
-                    icon: const Icon(Icons.add_circle_outline_rounded),
+                    icon: const Icon(Icons.group_add),
                     iconSize: 43.0,
                     onPressed: () {
                       shareInviteLink();
@@ -436,62 +481,70 @@ class _GroupDetailsPageState extends State<GroupDetailsPage> {
               ),
               const SizedBox(height: 16.0),
               Center(
-                child: Text(
-                  widget.group.name,
-                  style: const TextStyle(
-                    fontSize: 24.0,
-                    fontWeight: FontWeight.bold,
-                  ),
+                child: EditableTextField(
+                  controller: groupNameController,
+                  focusNode: focusNode,
+                  onSubmit: updateGroupName,
+                  fontSize: universalFontSize,
+                  padding: horPadding,
+                  maxLength: 20,
+                  iconSize: 20.0,
+                  horizontalPadding: 40.0,
+                  textAlign: TextAlign.center,
+                  minChars: 3,
                 ),
               ),
-              const Center(
+              Center(
                 child: Text(
-                  'Members',
-                  style: TextStyle(
+                  '${users.length} Members',
+                  style: const TextStyle(
                     fontSize: 16.0,
                     color: Colors.grey,
                   ),
                 ),
               ),
               const SizedBox(height: 16.0),
-              TextField(
-                controller: textController,
-                decoration: InputDecoration(
-                    enabledBorder: UnderlineInputBorder(
-                      borderSide: BorderSide(
-                        color: alphaDarkBlue,
-                      ),
-                    ),
-                    focusedBorder: const UnderlineInputBorder(
-                      borderSide: BorderSide(
-                        color: darkBlue,
-                      ),
-                    ),
-                    hintText: 'Insert link or address here',
-                    hintStyle: TextStyle(color: alphaDarkBlue),
-                    suffixIcon: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: <Widget>[
-                        IconButton(
-                          onPressed: () {
-                            Clipboard.setData(
-                                ClipboardData(text: textController.text));
-                            CustomSnackBar.show(context, "Copied to clipboard",
-                                duration: const Duration(seconds: 1));
-                          },
-                          icon: const Icon(Icons.copy, color: darkBlue),
-                          color: darkBlue,
+              Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 20),
+                  child: TextField(
+                    controller: textController,
+                    decoration: InputDecoration(
+                        enabledBorder: UnderlineInputBorder(
+                          borderSide: BorderSide(
+                            color: alphaDarkBlue,
+                          ),
                         ),
-                        IconButton(
-                          onPressed: () {
-                            Share.share(textController.text);
-                          },
-                          icon: const Icon(Icons.share, color: darkBlue),
-                          color: darkBlue,
+                        focusedBorder: const UnderlineInputBorder(
+                          borderSide: BorderSide(
+                            color: darkBlue,
+                          ),
                         ),
-                      ],
-                    )),
-              ),
+                        hintText: 'Insert link or address here',
+                        hintStyle: TextStyle(color: alphaDarkBlue),
+                        suffixIcon: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: <Widget>[
+                            IconButton(
+                              onPressed: () {
+                                Clipboard.setData(
+                                    ClipboardData(text: textController.text));
+                                CustomSnackBar.show(
+                                    context, "Copied to clipboard",
+                                    duration: const Duration(seconds: 1));
+                              },
+                              icon: const Icon(Icons.copy, color: darkBlue),
+                              color: darkBlue,
+                            ),
+                            IconButton(
+                              onPressed: () {
+                                Share.share(textController.text);
+                              },
+                              icon: const Icon(Icons.share, color: darkBlue),
+                              color: darkBlue,
+                            ),
+                          ],
+                        )),
+                  )),
               const SizedBox(height: 16.0),
               Container(
                 width: double.infinity,
@@ -502,26 +555,39 @@ class _GroupDetailsPageState extends State<GroupDetailsPage> {
                       Container(
                         constraints:
                             const BoxConstraints(minWidth: double.infinity),
-                        padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                        decoration: BoxDecoration(
-                          border: Border.all(color: darkBlue),
-                        ),
-                        child: Text(
-                          widget.group.description,
-                          style: const TextStyle(
-                            fontSize: 16.0,
-                          ),
+                        child: EditableTextField(
+                          controller: groupDescriptionController,
+                          focusNode: focusNode,
+                          onSubmit: updateGroupDescription,
+                          fontSize: universalFontSize,
+                          padding: horPadding,
+                          maxLength: 100,
+                          iconSize: 20.0,
+                          horizontalPadding: 40.0,
+                          textAlign: TextAlign.justify,
+                          // minChars: 5,
+                          //errorMessage: 'Please enter at least 5 characters',
+                          //maxLines: null,
                         ),
                       )
                     else
-                      const Padding(
-                        padding: EdgeInsets.symmetric(horizontal: 8.0),
-                        child: Text(
-                          'No group description',
-                          style: TextStyle(
-                            fontSize: 16.0,
-                            color: Colors.grey,
-                          ),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                        child: EditableTextField(
+                          placeHolderText: "No Group Description",
+                          controller: groupDescriptionController,
+                          focusNode: focusNode,
+                          onSubmit: updateGroupDescription,
+                          fontSize: universalFontSize,
+                          padding: horPadding,
+                          maxLength: 100,
+                          iconSize: 20.0,
+                          horizontalPadding: 40.0,
+                          textAlign: TextAlign.center,
+                          // minChars: 5,
+                          textColor: darkBlue,
+                          //errorMessage: 'Please enter at least 5 characters',
+                          //maxLines: null,
                         ),
                       ),
                   ],
@@ -529,10 +595,11 @@ class _GroupDetailsPageState extends State<GroupDetailsPage> {
               ),
               const SizedBox(height: 16.0),
               if (acceptedFutureMeetings.isNotEmpty)
-                _buildMeetingList(acceptedFutureMeetings, "Upcoming Meetings")
+                _buildMeetingList(
+                    acceptedFutureMeetings, "Upcoming Meetings", true, 55)
               else
                 _buildMeetingList(
-                    acceptedFutureMeetings, "No Upcoming Meetings"),
+                    acceptedFutureMeetings, "No Upcoming Meetings", true, 40),
               const SizedBox(height: 16.0),
               if (users.isNotEmpty)
                 _buildUserList(users, "Group Members")
@@ -545,19 +612,54 @@ class _GroupDetailsPageState extends State<GroupDetailsPage> {
     );
   }
 
-  Widget _buildMeetingList(List<MeetingTileModel> meetings, String title) {
+  Widget _buildMeetingList(
+      List<MeetingTileModel> meetings, String title, bool button,
+      [double stripeWidth = 0]) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        GestureDetector(
-            onTap: () {
-              Navigator.of(context).push(MaterialPageRoute(
-                  builder: (context) => SchedulePage(
-                      isGroupSchedule: true,
-                      ownerId: widget.group.id,
-                      ownerName: widget.group.name)));
-            },
-            child: CustomDivider(text: title)),
+        button
+            ? Center(
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Container(
+                      height: 1,
+                      color: darkBlue,
+                      width: stripeWidth,
+                    ),
+                    const SizedBox(width: 5),
+                    ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: darkBlue,
+                        foregroundColor: white,
+                      ),
+                      onPressed: () {
+                        Navigator.of(context).push(MaterialPageRoute(
+                            builder: (context) => SchedulePage(
+                                isGroupSchedule: true,
+                                ownerId: widget.group.id,
+                                ownerName: widget.group.name)));
+                      },
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(
+                            vertical: 10.0, horizontal: 10.0),
+                        child: Text(
+                          title,
+                          style: const TextStyle(fontSize: 20),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 5),
+                    Container(
+                      height: 1,
+                      color: darkBlue,
+                      width: stripeWidth,
+                    ),
+                  ],
+                ),
+              )
+            : CustomDivider(text: title),
         const SizedBox(height: 16),
         ListView.builder(
           padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -589,53 +691,47 @@ class _GroupDetailsPageState extends State<GroupDetailsPage> {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         CustomDivider(text: title),
-        const SizedBox(height: 16),
+        const SizedBox(height: 8),
         ListView.builder(
-          padding: const EdgeInsets.symmetric(horizontal: 16),
+          padding: const EdgeInsets.symmetric(horizontal: 8),
           shrinkWrap: true,
           physics: const NeverScrollableScrollPhysics(),
           itemCount: users.length,
           itemBuilder: (context, index) {
-            return Container(
-              decoration: BoxDecoration(
-                color: darkBlue,
-                borderRadius: BorderRadius.circular(10),
-              ),
-              margin: const EdgeInsets.symmetric(vertical: 5, horizontal: 10),
-              padding: const EdgeInsets.all(10),
-              child: Row(
-                children: [
-                  Container(
-                    width: 70,
-                    height: 70,
-                    decoration: const BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: Colors.white,
-                    ),
-                    child: Image.asset(pathPerson), // Placeholder image
+            return GestureDetector(
+              onTap: () {
+                Navigator.of(context).push(MaterialPageRoute(
+                    builder: (context) => SchedulePage(
+                        isGroupSchedule: false,
+                        ownerId: users[index].id,
+                        ownerName: "${users[index].username}'s schedule")));
+              },
+              child: Container(
+                margin: const EdgeInsets.symmetric(vertical: 5, horizontal: 10),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(10),
+                  border: Border.all(color: darkBlue, width: 1),
+                ),
+                child: ListTile(
+                  leading: const CircleAvatar(
+                    backgroundColor: darkBlue,
+                    child: Icon(Icons.person, color: Colors.white),
                   ),
-                  const SizedBox(width: 10),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          users[index].username,
-                          style: const TextStyle(
-                            fontSize: 20,
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold,
-                          ),
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ],
+                  title: Text(
+                    users[index].username,
+                    style: const TextStyle(
+                      fontSize: 16,
+                      color: darkBlue,
+                      fontWeight: FontWeight.bold,
                     ),
                   ),
-                ],
+                ),
               ),
             );
           },
         ),
+        const SizedBox(height: 16),
       ],
     );
   }
