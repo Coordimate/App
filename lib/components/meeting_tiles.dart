@@ -6,7 +6,6 @@ import 'package:coordimate/components/colors.dart';
 import 'package:coordimate/app_state.dart';
 
 class MeetingTile extends StatelessWidget {
-  final AuthorizationController authCon;
   final bool isArchived;
   final MeetingTileModel meeting;
   final VoidCallback onAccepted;
@@ -15,7 +14,6 @@ class MeetingTile extends StatelessWidget {
 
   const MeetingTile({
     super.key,
-    required this.authCon,
     required this.isArchived,
     required this.meeting,
     required this.onAccepted,
@@ -93,7 +91,6 @@ class MeetingTile extends StatelessWidget {
 class NewMeetingTile extends MeetingTile {
   const NewMeetingTile({
     super.key,
-    required super.authCon,
     required super.meeting,
     required super.onAccepted,
     required super.onDeclined,
@@ -188,7 +185,7 @@ class NewMeetingTile extends MeetingTile {
 }
 
 class AcceptedMeetingTile extends MeetingTile {
-  const AcceptedMeetingTile({super.key, required super.authCon, required super.meeting, required super.fetchMeetings})
+  const AcceptedMeetingTile({super.key, required super.meeting, required super.fetchMeetings})
       : super(
           isArchived: false, // Set isArchived to false
           onAccepted: defaultOnPressed, // Set onAccepted to an empty function
@@ -198,7 +195,7 @@ class AcceptedMeetingTile extends MeetingTile {
 }
 
 class ArchivedMeetingTile extends MeetingTile {
-  const ArchivedMeetingTile({super.key, required super.authCon, required super.meeting, required super.fetchMeetings})
+  const ArchivedMeetingTile({super.key, required super.meeting, required super.fetchMeetings})
       : super(
           isArchived: true, // Set isArchived to true
           onAccepted: defaultOnPressed, // Set onAccepted to an empty function

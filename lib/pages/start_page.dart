@@ -5,14 +5,11 @@ import 'package:coordimate/screens/home_screen.dart';
 import 'package:coordimate/pages/login_page.dart';
 import 'package:coordimate/pages/register_page.dart';
 import 'package:coordimate/controllers/auth_controller.dart';
-import 'package:coordimate/keys.dart';
+import 'package:coordimate/app_state.dart';
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 class StartPage extends StatefulWidget {
-  const StartPage({super.key, required this.authCon});
-
-  final AuthorizationController authCon;
+  const StartPage({super.key});
 
   @override
   State<StartPage> createState() => _StartPageState();
@@ -28,7 +25,7 @@ class _StartPageState extends State<StartPage> {
   }
 
   void _tryGettingStoredToken() async {
-    if (await widget.authCon.checkStoredToken()) {
+    if (await AppState.authController.checkStoredToken()) {
       setState(() {});
       WidgetsBinding.instance.addPostFrameCallback((_) {
         Navigator.pushReplacement(
@@ -42,7 +39,7 @@ class _StartPageState extends State<StartPage> {
   void _goToLogInPage() {
     Navigator.of(context).push(
       MaterialPageRoute(
-        builder: (context) => LoginPage(authCon: widget.authCon),
+        builder: (context) => const LoginPage(),
       ),
     );
   }
@@ -50,7 +47,7 @@ class _StartPageState extends State<StartPage> {
   void _goToRegisterPage() {
     Navigator.of(context).push(
       MaterialPageRoute(
-        builder: (context) => RegisterPage(authCon: widget.authCon),
+        builder: (context) => const RegisterPage(),
       ),
     );
   }

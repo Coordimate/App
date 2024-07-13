@@ -7,7 +7,7 @@ import 'package:coordimate/components/colors.dart';
 import 'package:coordimate/components/appbar.dart';
 import 'package:coordimate/models/time_slot.dart';
 import 'package:coordimate/keys.dart';
-import 'package:coordimate/api_client.dart';
+import 'package:coordimate/app_state.dart';
 import 'package:flutter/services.dart';
 import 'package:share_plus/share_plus.dart';
 
@@ -46,7 +46,7 @@ class _ScheduleGridState extends State<ScheduleGrid> {
   Future<List<TimeSlot>> getTimeSlots() async {
     var url = Uri.parse(SchedulePage.scheduleUrl);
     final response =
-        await plainClient.get(url, headers: {"Content-Type": "application/json"});
+        await AppState.authController.client.get(url, headers: {"Content-Type": "application/json"});
     final List body = json.decode(response.body)['time_slots'];
     return body.map((e) => TimeSlot.fromJson(e)).toList();
   }
@@ -55,7 +55,7 @@ class _ScheduleGridState extends State<ScheduleGrid> {
     if (!SchedulePage.isModifiable) {
       return;
     }
-    await plainClient.post(Uri.parse(SchedulePage.scheduleUrl),
+    await AppState.authController.client.post(Uri.parse(SchedulePage.scheduleUrl),
         headers: {"Content-Type": "application/json"},
         body: json.encode(<String, dynamic>{
           'is_meeting': false,
@@ -72,7 +72,7 @@ class _ScheduleGridState extends State<ScheduleGrid> {
     if (!SchedulePage.isModifiable) {
       return;
     }
-    await plainClient.delete(Uri.parse("$apiUrl/time_slots/$id"),
+    await AppState.authController.client.delete(Uri.parse("$apiUrl/time_slots/$id"),
         headers: {"Content-Type": "application/json"});
     setState(() {
       _timeSlots = getTimeSlots();
@@ -83,7 +83,7 @@ class _ScheduleGridState extends State<ScheduleGrid> {
     if (!SchedulePage.isModifiable) {
       return;
     }
-    await plainClient.patch(Uri.parse("$apiUrl/time_slots/$id"),
+    await AppState.authController.client.patch(Uri.parse("$apiUrl/time_slots/$id"),
         headers: {"Content-Type": "application/json"},
         body: json.encode(<String, dynamic>{
           'id': id,
@@ -497,7 +497,7 @@ class _TimePickerState extends State<_TimePicker> {
           Center(
               child: ElevatedButton(
                   style: const ButtonStyle(
-                      side: MaterialStatePropertyAll(
+                      side: WidgetStatePropertyAll(
                           BorderSide(color: Colors.red))),
                   onPressed: () {
                     if (!SchedulePage.isModifiable) {
@@ -581,7 +581,7 @@ class SchedulePage extends StatelessWidget {
   Future<void> shareSchedule() async {
     var url = Uri.parse("$apiUrl/share_schedule");
     final response =
-        await plainClient.get(url, headers: {"Content-Type": "application/json"});
+        await AppState.authController.client.get(url, headers: {"Content-Type": "application/json"});
     if (response.statusCode != 200) {
       throw Exception('Failed to share schedule');
     }

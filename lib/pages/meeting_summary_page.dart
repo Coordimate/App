@@ -35,7 +35,8 @@ class _SummaryPageState extends State<SummaryPage> {
         || summaryController.text == initialSummary) {
       return;
     }
-    await AppState.meetingController.saveSummary(widget.id, summaryController.text);
+    await AppState.meetingController.saveSummary(
+        widget.id, summaryController.text);
   }
 
   @override
@@ -47,7 +48,9 @@ class _SummaryPageState extends State<SummaryPage> {
       child: PopScope(
         canPop: false,
         onPopInvoked: (bool didPop) async {
-          if (didPop) { return; }
+          if (didPop) {
+            return;
+          }
           await _saveSummary();
           if (context.mounted) {
             Navigator.pop(context);
@@ -67,17 +70,17 @@ class _SummaryPageState extends State<SummaryPage> {
                         children: [
                           const Icon(Icons.text_fields, color: darkBlue),
                           Expanded(
-                              child: Slider(
-                                value: fontSize,
-                                min: 10.0,
-                                max: 30.0,
-                                activeColor: darkBlue,
-                                onChanged: (newSize) {
-                                  setState(() {
-                                    fontSize = newSize;
-                                  });
-                                },
-                              ),
+                            child: Slider(
+                              value: fontSize,
+                              min: 10.0,
+                              max: 30.0,
+                              activeColor: darkBlue,
+                              onChanged: (newSize) {
+                                setState(() {
+                                  fontSize = newSize;
+                                });
+                              },
+                            ),
                           ),
                         ],
                       ),
@@ -120,3 +123,4 @@ class _SummaryPageState extends State<SummaryPage> {
       ),
     );
   }
+}

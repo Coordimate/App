@@ -1,20 +1,18 @@
 import 'dart:convert';
+import 'package:coordimate/app_state.dart';
 import 'package:coordimate/models/groups.dart';
 import 'package:flutter/material.dart';
 import 'package:coordimate/components/colors.dart';
 import 'package:coordimate/keys.dart';
 import 'package:coordimate/pages/group_details_page.dart';
-import 'package:coordimate/controllers/auth_controller.dart';
 
 class JoinGroupDialog extends StatelessWidget {
   const JoinGroupDialog({
     required super.key,
-    required this.authCon,
     required this.groupId,
     required this.groupName,
   });
 
-  final AuthorizationController authCon;
   final String groupId;
   final String groupName;
 
@@ -38,17 +36,17 @@ class JoinGroupDialog extends StatelessWidget {
               style: TextStyle(
                   color: darkBlue, fontWeight: FontWeight.bold, fontSize: 20)),
           onPressed: () async {
-            await authCon.client.post(Uri.parse("$apiUrl/groups/$groupId/join"),
+            await AppState.authController.client.post(Uri.parse("$apiUrl/groups/$groupId/join"),
                 headers: {"Content-Type": "application/json"});
             if (context.mounted) {
               Navigator.of(context).pop();
             }
-            final response = await authCon.client.get(Uri.parse("$apiUrl/groups/$groupId"));
+            final response = await AppState.authController.client.get(Uri.parse("$apiUrl/groups/$groupId"));
             if (response.statusCode == 200) {
               final group = Group.fromJson(json.decode(response.body));
               Navigator.of(context).push(
                 MaterialPageRoute(
-                  builder: (context) => GroupDetailsPage(authCon: authCon, group: group),
+                  builder: (context) => GroupDetailsPage(group: group),
                 ),
               );
             }

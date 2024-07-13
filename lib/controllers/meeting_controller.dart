@@ -1,13 +1,13 @@
 import 'dart:convert';
 import 'package:coordimate/models/meeting.dart';
-import 'package:coordimate/api_client.dart';
 import 'package:coordimate/keys.dart';
+import 'package:coordimate/app_state.dart';
 
 
 class MeetingController {
 
   Future<MeetingDetails> fetchMeetingDetails(id) async {
-    final response = await client.get(Uri.parse("$apiUrl/meetings/$id/details"));
+    final response = await AppState.authController.client.get(Uri.parse("$apiUrl/meetings/$id/details"));
     if (response.statusCode == 200) {
       final meetingDetails = MeetingDetails.fromJson(json.decode(response.body));
       return meetingDetails;
@@ -17,7 +17,7 @@ class MeetingController {
   }
 
   Future<String> fetchMeetingSummary(id) async {
-    final response = await client
+    final response = await AppState.authController.client
         .get(Uri.parse("$apiUrl/meetings/$id/details"));
     if (response.statusCode == 200) {
       final summary = MeetingDetails.fromJson(json.decode(response.body)).summary;
@@ -28,7 +28,7 @@ class MeetingController {
   }
 
   Future<bool> finishMeeting(id) async {
-    final response = await client.patch(Uri.parse("$apiUrl/meetings/$id"),
+    final response = await AppState.authController.client.patch(Uri.parse("$apiUrl/meetings/$id"),
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
         },
@@ -44,7 +44,7 @@ class MeetingController {
 
   Future<MeetingStatus> answerInvitation(bool accept, id) async {
     final status = accept ? 'accepted' : 'declined';
-    final response = await client.patch(Uri.parse("$apiUrl/invites/$id"),
+    final response = await AppState.authController.client.patch(Uri.parse("$apiUrl/invites/$id"),
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
         },
@@ -59,7 +59,7 @@ class MeetingController {
   }
 
   Future<List<MeetingTileModel>> fetchDeclinedMeetings() async {
-    final response = await client.get(Uri.parse("$apiUrl/meetings/"));
+    final response = await AppState.authController.client.get(Uri.parse("$apiUrl/meetings/"));
     if (response.statusCode == 200) {
       final meetings = (json.decode(response.body)['meetings'] as List)
             .map((data) => MeetingTileModel.fromJson(data))
@@ -79,7 +79,7 @@ class MeetingController {
     // if (summaryController.text.isEmpty) {
     //   return;
     // }
-    final response = await client.patch(
+    final response = await AppState.authController.client.patch(
         Uri.parse("$apiUrl/meetings/$id"),
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',

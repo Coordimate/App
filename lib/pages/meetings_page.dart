@@ -6,8 +6,8 @@ import 'package:coordimate/components/meeting_tiles.dart';
 import 'package:coordimate/components/calendar_day_box.dart';
 import 'package:coordimate/models/meeting.dart';
 import 'package:coordimate/keys.dart';
+import 'package:coordimate/app_state.dart';
 import 'dart:convert';
-import 'package:coordimate/api_client.dart';
 import 'package:coordimate/components/archive_scroll.dart';
 import 'package:coordimate/pages/meetings_archive.dart';
 
@@ -37,7 +37,7 @@ class _MeetingsPageState extends State<MeetingsPage> {
   }
 
   Future<void> _fetchMeetings() async {
-    final response = await plainClient.get(Uri.parse("$apiUrl/meetings"));
+    final response = await AppState.authController.client.get(Uri.parse("$apiUrl/meetings"));
     if (response.statusCode == 200) {
       if (!mounted) {
         return;
@@ -68,7 +68,7 @@ class _MeetingsPageState extends State<MeetingsPage> {
     if (!accept) {
       status = 'declined';
     }
-    final response = await plainClient.patch(Uri.parse("$apiUrl/invites/$id"),
+    final response = await AppState.authController.client.patch(Uri.parse("$apiUrl/invites/$id"),
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
         },

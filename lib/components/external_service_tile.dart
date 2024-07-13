@@ -1,6 +1,8 @@
+import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:coordimate/screens/home_screen.dart';
 import 'package:coordimate/keys.dart';
+import 'package:coordimate/app_state.dart';
 import 'package:coordimate/controllers/auth_controller.dart';
 
 class SquareTile extends StatelessWidget {
@@ -14,54 +16,38 @@ class SquareTile extends StatelessWidget {
   });
 
   Future<bool> _authGoogle() async {
-    print('Google Auth');
-    final user = await GoogleSignInApi.login();
-    if (user != null) {
-      print('Google User: ${user.displayName}, ${user.email}, ${user.id}');
-      return true;
-    } else {
-      print('Google Sign In Failed');
-      return false;
-    }
+    return AppState.authController.signIn("", AuthType.google);
   }
 
   Future<bool> _authFacebook() async {
-    print('Facebook Auth');
-    final user = await FacebookSignInApi.login();
-    if (user != null) {
-      print("${user['name']} ${user['email']}");
-      return true;
-    } else {
-      print('Facebook Sign In Failed');
-      return false;
-    }
+    return AppState.authController.signIn("", AuthType.google);
   }
 
   Future<void> _authUser() async {
-    bool auth = false;
+    // return AppState.authController.signIn()
+    bool isAuth = false;
     switch (authType) {
       case AuthType.google:
-        auth = await _authGoogle();
+        isAuth = await _authGoogle();
         break;
 
       case AuthType.facebook:
-        auth = await _authFacebook();
+        isAuth = await _authFacebook();
         break;
 
       default:
         break;
     }
 
-    if (auth) {
-      print('User Authenticated');
+    if (isAuth) {
+      log('User Authenticated');
       navigatorKey.currentState!.pushAndRemoveUntil(
         MaterialPageRoute(builder: (BuildContext context) => HomeScreen(key: UniqueKey())),
             (route) => false,
       );
     } else {
-      print('User Not Authenticated');
+      log('User Not Authenticated');
     }
-    // GoogleSignInApi.logout();
   }
 
   @override
@@ -69,8 +55,8 @@ class SquareTile extends StatelessWidget {
     return ElevatedButton(
       onPressed: _authUser,
       style: ButtonStyle(
-        shape: MaterialStateProperty.all(const CircleBorder()),
-        backgroundColor: MaterialStateProperty.all(Colors.white),
+        shape: WidgetStateProperty.all(const CircleBorder()),
+        backgroundColor: WidgetStateProperty.all(Colors.white),
       ),
       child: Image.asset(
         imagePath,

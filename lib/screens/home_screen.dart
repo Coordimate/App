@@ -10,8 +10,8 @@ import 'package:coordimate/pages/schedule_page.dart';
 import 'package:coordimate/pages/meetings_page.dart';
 import 'package:coordimate/pages/groups_page.dart';
 import 'package:coordimate/models/groups.dart';
-import 'package:coordimate/api_client.dart';
 import 'package:coordimate/keys.dart';
+import 'package:coordimate/app_state.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({
@@ -80,7 +80,7 @@ class HomeScreenState extends State<HomeScreen> {
     final match = regex.firstMatch(uri.path);
     if (match != null) {
       final userId = match.group(1)!;
-      final response = await plainClient.get(Uri.parse("$apiUrl/users/$userId"));
+      final response = await AppState.authController.client.get(Uri.parse("$apiUrl/users/$userId"));
       if (response.statusCode == 200) {
         Navigator.of(context).push(MaterialPageRoute(builder: (context) => SchedulePage(ownerId: userId, ownerName: json.decode(response.body)["username"])));
       }
@@ -92,7 +92,7 @@ class HomeScreenState extends State<HomeScreen> {
     final match = regex.firstMatch(uri.path);
     if (match != null) {
       final groupId = match.group(1)!;
-      final response = await plainClient.get(Uri.parse("$apiUrl/groups/$groupId"));
+      final response = await AppState.authController.client.get(Uri.parse("$apiUrl/groups/$groupId"));
       if (response.statusCode == 200) {
         final group = Group.fromJson(json.decode(response.body));
         showDialog(
@@ -133,7 +133,7 @@ class HomeScreenState extends State<HomeScreen> {
   }
 
   Future<void> _setFcmToken(String fcmToken) async {
-    await plainClient.post(Uri.parse('$apiUrl/enable_notifications'),
+    await AppState.authController.client.post(Uri.parse('$apiUrl/enable_notifications'),
         headers: <String, String>{'Content-Type': 'application/json'},
         body: json.encode(<String, dynamic>{'fcm_token': fcmToken}));
   }

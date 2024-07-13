@@ -8,8 +8,8 @@ import 'package:flutter/material.dart';
 import 'package:coordimate/pages/start_page.dart';
 import 'package:coordimate/controllers/auth_controller.dart';
 import 'dart:convert';
-import 'package:coordimate/api_client.dart';
 import 'package:coordimate/keys.dart';
+import 'package:coordimate/app_state.dart';
 import 'package:coordimate/models/user.dart';
 import 'package:coordimate/components/login_text_field.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -37,16 +37,16 @@ class _PersonalPageState extends State<PersonalPage> {
   }
 
   void logOut(BuildContext context) {
-    logOut();
+    AppState.authController.signOut();
     Navigator.pushReplacement(context,
         MaterialPageRoute(builder: (context) => StartPage(key: UniqueKey())));
   }
 
   Future<void> getInfo() async {
-    final id = await _storage.read(key: 'id_account');
+    final id = await AppState.authController.getAccountId();
     var url = Uri.parse("$apiUrl/users/$id");
     final response =
-        await client.get(url, headers: {"Content-Type": "application/json"});
+        await AppState.authController.client.get(url, headers: {"Content-Type": "application/json"});
     if (response.statusCode != 200) {
       throw Exception('Failed to load data');
     }
@@ -61,7 +61,7 @@ class _PersonalPageState extends State<PersonalPage> {
       return;
     }
     var url = Uri.parse("$apiUrl/users/${user.id}");
-    final response = await client.patch(url,
+    final response = await AppState.authController.client.patch(url,
         headers: {"Content-Type": "application/json"},
         body: jsonEncode(<String, dynamic>{
           'username': username,
@@ -75,7 +75,7 @@ class _PersonalPageState extends State<PersonalPage> {
   Future<void> deleteUser() async {
     var url = Uri.parse("$apiUrl/users/${user.id}");
     final response =
-        await client.delete(url, headers: {"Content-Type": "application/json"});
+        await AppState.authController.client.delete(url, headers: {"Content-Type": "application/json"});
     if (response.statusCode != 204) {
       throw Exception('Failed to delete user');
     } else {
@@ -202,7 +202,7 @@ class _ChangePasswordDialogState extends State<ChangePasswordDialog> {
 
   Future<bool> sendChangePswdRequest() async {
     var url = Uri.parse("$apiUrl/change_password");
-    final response = await client.post(url,
+    final response = await AppState.authController.client.post(url,
         headers: {"Content-Type": "application/json"},
         body: jsonEncode(<String, dynamic>{
           'new_password': newPasswordController.text,

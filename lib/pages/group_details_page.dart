@@ -15,10 +15,10 @@ import 'package:coordimate/keys.dart';
 import 'dart:convert';
 import 'package:intl/intl.dart';
 import 'package:coordimate/pages/meetings_archive.dart';
-import 'package:coordimate/controllers/auth_controller.dart';
 import 'package:coordimate/components/snack_bar.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:flutter/services.dart';
+import 'package:coordimate/app_state.dart';
 import 'package:coordimate/components/text_field_with_edit.dart';
 
 class GroupDetailsPage extends StatefulWidget {
@@ -63,7 +63,7 @@ class _GroupDetailsPageState extends State<GroupDetailsPage> {
   }
 
   Future<void> _fetchGroupMeetings() async {
-    final response = await widget.authCon.client
+    final response = await AppState.authController.client
         .get(Uri.parse("$apiUrl/groups/${widget.group.id}/meetings"));
 
     if (response.statusCode == 200) {
@@ -79,7 +79,7 @@ class _GroupDetailsPageState extends State<GroupDetailsPage> {
 
   Future<void> updateGroupDescription(description) async {
     var url = Uri.parse("$apiUrl/groups/${widget.group.id}");
-    final response = await client.patch(url,
+    final response = await AppState.authController.client.patch(url,
         headers: {
           "Content-Type": "application/json",
         },
@@ -94,7 +94,7 @@ class _GroupDetailsPageState extends State<GroupDetailsPage> {
 
   Future<void> updateGroupName(name) async {
     var url = Uri.parse("$apiUrl/groups/${widget.group.id}");
-    final response = await client.patch(url,
+    final response = await AppState.authController.client.patch(url,
         headers: {
           "Content-Type": "application/json",
         },
@@ -109,7 +109,7 @@ class _GroupDetailsPageState extends State<GroupDetailsPage> {
 
   Future<void> _fetchGroupUsers() async {
     final response =
-        await widget.authCon.client.get(Uri.parse("$apiUrl/groups/${widget.group.id}"));
+        await AppState.authController.client.get(Uri.parse("$apiUrl/groups/${widget.group.id}"));
 
     if (response.statusCode == 200) {
       setState(() {
@@ -125,7 +125,7 @@ class _GroupDetailsPageState extends State<GroupDetailsPage> {
   Future<void> shareInviteLink() async {
     var url = Uri.parse("$apiUrl/groups/${widget.group.id}/invite");
     final response =
-        await widget.authCon.client.get(url, headers: {"Content-Type": "application/json"});
+        await AppState.authController.client.get(url, headers: {"Content-Type": "application/json"});
     if (response.statusCode != 200) {
       throw Exception('Failed to share schedule');
     }
@@ -227,7 +227,7 @@ class _GroupDetailsPageState extends State<GroupDetailsPage> {
   }
 
   Future<void> _createMeeting() async {
-    final response = await widget.authCon.client.post(
+    final response = await AppState.authController.client.post(
       Uri.parse("$apiUrl/meetings"),
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
@@ -669,16 +669,16 @@ class _GroupDetailsPageState extends State<GroupDetailsPage> {
           itemBuilder: (context, index) {
             if (meetings[index].status == MeetingStatus.declined) {
               return ArchivedMeetingTile(
-                authCon: widget.authCon,
                 meeting: meetings[index],
                 fetchMeetings: _fetchGroupMeetings,
               );
             } else if (meetings[index].status == MeetingStatus.accepted) {
               return AcceptedMeetingTile(
-                authCon: widget.authCon,
                 meeting: meetings[index],
                 fetchMeetings: _fetchGroupMeetings,
               );
+            } else {
+              return const Text("No one will see this");
             }
           },
         ),
