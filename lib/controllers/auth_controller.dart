@@ -66,6 +66,7 @@ class AuthorizationController {
           "auth_type": signInType[AuthType.email]!
         };
       case AuthType.google:
+        if (await _googleSignIn.isSignedIn()) await _googleSignIn.signOut();
         final googleUser = await _googleSignIn.signIn();
         if (googleUser == null) {
           log('Google User failed to sign in');
