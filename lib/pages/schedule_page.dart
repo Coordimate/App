@@ -1,3 +1,4 @@
+import 'dart:developer';
 import 'dart:convert';
 
 import 'package:coordimate/pages/personal_info_page.dart';
@@ -8,7 +9,6 @@ import 'package:coordimate/components/appbar.dart';
 import 'package:coordimate/models/time_slot.dart';
 import 'package:coordimate/keys.dart';
 import 'package:coordimate/app_state.dart';
-import 'package:flutter/services.dart';
 import 'package:share_plus/share_plus.dart';
 
 const gridBorderWidth = 1.0;
@@ -40,58 +40,12 @@ class _ScheduleGridState extends State<ScheduleGrid> {
   @override
   void initState() {
     super.initState();
-    _timeSlots = getTimeSlots();
+    _timeSlots = AppState.scheduleController.getTimeSlots();
   }
 
-  Future<List<TimeSlot>> getTimeSlots() async {
-    var url = Uri.parse(SchedulePage.scheduleUrl);
-    final response =
-        await AppState.authController.client.get(url, headers: {"Content-Type": "application/json"});
-    final List body = json.decode(response.body)['time_slots'];
-    return body.map((e) => TimeSlot.fromJson(e)).toList();
-  }
-
-  Future<void> createTimeSlot(int day, double start, double length) async {
-    if (!SchedulePage.isModifiable) {
-      return;
-    }
-    await AppState.authController.client.post(Uri.parse(SchedulePage.scheduleUrl),
-        headers: {"Content-Type": "application/json"},
-        body: json.encode(<String, dynamic>{
-          'is_meeting': false,
-          'day': day,
-          'start': start.toStringAsFixed(2),
-          'length': length.toStringAsFixed(2)
-        }));
+  void refresh() {
     setState(() {
-      _timeSlots = getTimeSlots();
-    });
-  }
-
-  Future<void> deleteTimeSlot(String id) async {
-    if (!SchedulePage.isModifiable) {
-      return;
-    }
-    await AppState.authController.client.delete(Uri.parse("$apiUrl/time_slots/$id"),
-        headers: {"Content-Type": "application/json"});
-    setState(() {
-      _timeSlots = getTimeSlots();
-    });
-  }
-
-  Future<void> updateTimeSlot(String id, double start, double length) async {
-    if (!SchedulePage.isModifiable) {
-      return;
-    }
-    await AppState.authController.client.patch(Uri.parse("$apiUrl/time_slots/$id"),
-        headers: {"Content-Type": "application/json"},
-        body: json.encode(<String, dynamic>{
-          'id': id,
-          'start': start.toStringAsFixed(2),
-          'length': length.toStringAsFixed(2)
-        }));
-    setState(() {
-      _timeSlots = getTimeSlots();
+      _timeSlots = AppState.scheduleController.getTimeSlots();
     });
   }
 
@@ -137,9 +91,7 @@ class _ScheduleGridState extends State<ScheduleGrid> {
                                 child: _DayColumn(
                                     day: i,
                                     hourHeight: _hourHeight,
-                                    createTimeSlot: createTimeSlot,
-                                    deleteTimeSlot: deleteTimeSlot,
-                                    updateTimeSlot: updateTimeSlot,
+                                    refresh: refresh,
                                     timeSlots: snapshot.hasData
                                         ? snapshot.data!
                                             .where((x) => x.day == i)
@@ -196,22 +148,17 @@ class _TimeColumn extends StatelessWidget {
 }
 
 class _DayColumn extends StatelessWidget {
-  final void Function(int day, double start, double length) createTimeSlot;
-  final void Function(String id, double start, double length) updateTimeSlot;
-  final void Function(String id) deleteTimeSlot;
-
   final List<TimeSlot> timeSlots;
   final int day;
   final double hourHeight;
+  final Function refresh;
   final GlobalKey<_NewTimeSlotState> _newTimeSlotKey =
       GlobalKey<_NewTimeSlotState>();
 
   _DayColumn({
-    required this.createTimeSlot,
-    required this.deleteTimeSlot,
-    required this.updateTimeSlot,
     required this.timeSlots,
     required this.day,
+    required this.refresh,
     this.hourHeight = 20.0,
   });
 
@@ -235,14 +182,14 @@ class _DayColumn extends StatelessWidget {
       NewTimeSlot(key: _newTimeSlotKey),
       GestureDetector(
           onLongPressStart: (details) {
-            if (!SchedulePage.isModifiable) {
+            if (!AppState.scheduleController.isModifiable) {
               return;
             }
             _newTimeSlotKey.currentState
                 ?.updateStart(roundToFraction(details.localPosition.dy));
           },
           onLongPressMoveUpdate: (details) {
-            if (!SchedulePage.isModifiable) {
+            if (!AppState.scheduleController.isModifiable) {
               return;
             }
             var start = _newTimeSlotKey.currentState?._start ?? 0.0;
@@ -257,24 +204,26 @@ class _DayColumn extends StatelessWidget {
                   roundToFraction(details.localPosition.dy - start));
             }
           },
-          onLongPressEnd: (details) {
-            if (!SchedulePage.isModifiable) {
+          onLongPressEnd: (details) async {
+            if (!AppState.scheduleController.isModifiable) {
               return;
             }
             final start = _newTimeSlotKey.currentState!._top / hourHeight;
             final length = _newTimeSlotKey.currentState!._height / hourHeight;
-            createTimeSlot(day, start, length);
+            await AppState.scheduleController.createTimeSlot(day, start, length);
+            refresh();
             _newTimeSlotKey.currentState?.updateTop(0);
             _newTimeSlotKey.currentState?.updateHeight(0);
           },
           child: Column(children: [
             for (var i = 0; i < 24; i++)
               GestureDetector(
-                  onTap: () {
-                    if (SchedulePage.canCreateMeeting) {
-                      print("would show meeting pop-up");
-                    } else if (SchedulePage.isModifiable) {
-                      createTimeSlot(day, i.toDouble(), 1.0);
+                  onTap: () async {
+                    if (AppState.scheduleController.canCreateMeeting) {
+                      log("would show meeting pop-up");
+                    } else if (AppState.scheduleController.isModifiable) {
+                      await AppState.scheduleController.createTimeSlot(day, i.toDouble(), 1.0);
+                      refresh();
                       _newTimeSlotKey.currentState?.updateTop(0);
                       _newTimeSlotKey.currentState?.updateHeight(0);
                     }
@@ -304,8 +253,7 @@ class _DayColumn extends StatelessWidget {
             hourHeight: hourHeight,
             start: timeSlot.start,
             length: timeSlot.length,
-            deleteTimeSlot: deleteTimeSlot,
-            updateTimeSlot: updateTimeSlot)
+            refresh: refresh)
     ]);
   }
 }
@@ -319,8 +267,7 @@ class TimeSlotWidget extends StatelessWidget {
     required this.start,
     required this.length,
     required this.hourHeight,
-    required this.deleteTimeSlot,
-    required this.updateTimeSlot,
+    required this.refresh,
   });
 
   final String id;
@@ -329,8 +276,7 @@ class TimeSlotWidget extends StatelessWidget {
   final double start;
   final double length;
   final double hourHeight;
-  final void Function(String id) deleteTimeSlot;
-  final void Function(String id, double start, double length) updateTimeSlot;
+  final Function refresh;
 
   Widget _buildTimePickerPopup(BuildContext context, int day) {
     return _TimePicker(
@@ -338,8 +284,7 @@ class TimeSlotWidget extends StatelessWidget {
         day: day,
         start: start,
         length: length,
-        updateTimeSlot: updateTimeSlot,
-        deleteTimeSlot: deleteTimeSlot);
+        refresh: refresh);
   }
 
   @override
@@ -350,8 +295,8 @@ class TimeSlotWidget extends StatelessWidget {
         height: hourHeight * length,
         child: GestureDetector(
             onTap: () {
-              if (!SchedulePage.isModifiable) {
-                if (SchedulePage.canCreateMeeting) {}
+              if (!AppState.scheduleController.isModifiable) {
+                if (AppState.scheduleController.canCreateMeeting) {}
                 return;
               }
               showDialog(
@@ -375,16 +320,14 @@ class _TimePicker extends StatefulWidget {
     required this.day,
     required this.start,
     required this.length,
-    required this.deleteTimeSlot,
-    required this.updateTimeSlot,
+    required this.refresh,
   });
 
   final String id;
   final int day;
   final double start;
   final double length;
-  final void Function(String id) deleteTimeSlot;
-  final void Function(String id, double start, double length) updateTimeSlot;
+  final Function refresh;
 
   @override
   State<_TimePicker> createState() => _TimePickerState();
@@ -433,7 +376,7 @@ class _TimePickerState extends State<_TimePicker> {
                     child: Text("from", style: TextStyle(fontSize: 20)))),
             GestureDetector(
                 onTap: () async {
-                  if (!SchedulePage.isModifiable) {
+                  if (!AppState.scheduleController.isModifiable) {
                     return;
                   }
                   final TimeOfDay? time = await showTimePicker(
@@ -444,8 +387,9 @@ class _TimePickerState extends State<_TimePicker> {
                       newStart = timeToHours(time);
                       startTimeString = timeToString(hoursToTime(newStart));
                     });
-                    widget.updateTimeSlot(widget.id, newStart,
+                    await AppState.scheduleController.updateTimeSlot(widget.id, newStart,
                         widget.length + widget.start - newStart);
+                    widget.refresh();
                   }
                 },
                 child: Container(
@@ -467,7 +411,7 @@ class _TimePickerState extends State<_TimePicker> {
                     Center(child: Text("to", style: TextStyle(fontSize: 20)))),
             GestureDetector(
                 onTap: () async {
-                  if (!SchedulePage.isModifiable) {
+                  if (!AppState.scheduleController.isModifiable) {
                     return;
                   }
                   final TimeOfDay? time = await showTimePicker(
@@ -479,7 +423,8 @@ class _TimePickerState extends State<_TimePicker> {
                       endTimeString =
                           timeToString(hoursToTime(widget.start + newLength));
                     });
-                    widget.updateTimeSlot(widget.id, widget.start, newLength);
+                    await AppState.scheduleController.updateTimeSlot(widget.id, widget.start, newLength);
+                    widget.refresh();
                   }
                 },
                 child: Container(
@@ -499,11 +444,12 @@ class _TimePickerState extends State<_TimePicker> {
                   style: const ButtonStyle(
                       side: WidgetStatePropertyAll(
                           BorderSide(color: Colors.red))),
-                  onPressed: () {
-                    if (!SchedulePage.isModifiable) {
+                  onPressed: () async {
+                    if (!AppState.scheduleController.isModifiable) {
                       return;
                     }
-                    widget.deleteTimeSlot(widget.id);
+                    await AppState.scheduleController.deleteTimeSlot(widget.id);
+                    widget.refresh();
                     Navigator.of(context).pop();
                   },
                   child: const Text('Delete',
@@ -573,11 +519,6 @@ class SchedulePage extends StatelessWidget {
   final String ownerId;
   final String ownerName;
 
-  static String scheduleUrl = "";
-  static String pageTitle = "Schedule";
-  static bool isModifiable = false;
-  static bool canCreateMeeting = false;
-
   Future<void> shareSchedule() async {
     var url = Uri.parse("$apiUrl/share_schedule");
     final response =
@@ -592,26 +533,26 @@ class SchedulePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (isGroupSchedule) {
-      SchedulePage.scheduleUrl = "$apiUrl/groups/$ownerId/time_slots";
-      SchedulePage.isModifiable = false;
-      SchedulePage.canCreateMeeting = true;
-      SchedulePage.pageTitle = (ownerName == "") ? "Group Schedule" : ownerName;
+      AppState.scheduleController.scheduleUrl = "$apiUrl/groups/$ownerId/time_slots";
+      AppState.scheduleController.isModifiable = false;
+      AppState.scheduleController.canCreateMeeting = true;
+      AppState.scheduleController.pageTitle = (ownerName == "") ? "Group Schedule" : ownerName;
     } else if (ownerId != "") {
-      SchedulePage.scheduleUrl = "$apiUrl/users/$ownerId/time_slots";
-      SchedulePage.canCreateMeeting = false;
-      SchedulePage.isModifiable = false;
-      SchedulePage.pageTitle = (ownerName == "") ? "User Schedule" : ownerName;
+      AppState.scheduleController.scheduleUrl = "$apiUrl/users/$ownerId/time_slots";
+      AppState.scheduleController.canCreateMeeting = false;
+      AppState.scheduleController.isModifiable = false;
+      AppState.scheduleController.pageTitle = (ownerName == "") ? "User Schedule" : ownerName;
     } else {
-      SchedulePage.scheduleUrl = "$apiUrl/time_slots";
-      SchedulePage.canCreateMeeting = false;
-      SchedulePage.isModifiable = true;
-      SchedulePage.pageTitle = "Schedule";
+      AppState.scheduleController.scheduleUrl = "$apiUrl/time_slots";
+      AppState.scheduleController.canCreateMeeting = false;
+      AppState.scheduleController.isModifiable = true;
+      AppState.scheduleController.pageTitle = "Schedule";
     }
 
     return Scaffold(
         backgroundColor: Colors.white,
         appBar: CustomAppBar(
-            title: SchedulePage.pageTitle,
+            title: AppState.scheduleController.pageTitle,
             needButton: (ownerId == ""),
             onPressed: () {
               Navigator.push(
