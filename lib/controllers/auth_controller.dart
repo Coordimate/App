@@ -75,7 +75,7 @@ class AuthorizationController {
         final googleIdToken = (await googleUser.authentication).idToken;
         if (googleIdToken == null) return false;
         body = {
-          "email": email,
+          "email": googleUser.email,
           "google_id_token": googleIdToken,
           "auth_type": signInType[AuthType.google]!
         };

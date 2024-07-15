@@ -20,7 +20,7 @@ class SquareTile extends StatelessWidget {
   }
 
   Future<bool> _authFacebook() async {
-    return AppState.authController.signIn("", AuthType.google);
+    return AppState.authController.signIn("", AuthType.facebook);
   }
 
   Future<void> _authUser() async {
