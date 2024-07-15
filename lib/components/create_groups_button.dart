@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:coordimate/components/colors.dart';
 
 class CreateGroupsButton extends StatelessWidget {
+  const CreateGroupsButton({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(

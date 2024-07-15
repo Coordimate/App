@@ -178,8 +178,8 @@ class _MeetingDetailsPageState extends State<MeetingDetailsPage> {
                               key: UniqueKey(), meetingId: widget.meeting.id)));
                     },
                     style: ButtonStyle(
-                      backgroundColor: MaterialStateProperty.all(darkBlue),
-                      shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+                      backgroundColor: WidgetStateProperty.all(darkBlue),
+                      shape: WidgetStateProperty.all<RoundedRectangleBorder>(
                         RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(10),
                         ),
@@ -222,8 +222,8 @@ class _MeetingDetailsPageState extends State<MeetingDetailsPage> {
                       }
                     },
                     style: ButtonStyle(
-                      backgroundColor: MaterialStateProperty.all(mediumBlue),
-                      shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+                      backgroundColor: WidgetStateProperty.all(mediumBlue),
+                      shape: WidgetStateProperty.all<RoundedRectangleBorder>(
                         RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(10),
                         ),
@@ -260,11 +260,11 @@ class _MeetingDetailsPageState extends State<MeetingDetailsPage> {
                             await showPopUpDialog(context, true);
                           },
                     style: ButtonStyle(
-                      backgroundColor: MaterialStateProperty.all(
+                      backgroundColor: WidgetStateProperty.all(
                           widget.meeting.isInPast()
                               ? Colors.grey[300]
                               : Colors.grey),
-                      shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+                      shape: WidgetStateProperty.all<RoundedRectangleBorder>(
                         RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(10),
                         ),
@@ -288,7 +288,7 @@ class _MeetingDetailsPageState extends State<MeetingDetailsPage> {
               Column(
                 children: widget.meeting.participants.map((participant) {
                   return ListTile(
-                    leading: CircleAvatar(
+                    leading: const CircleAvatar(
                       child: Icon(Icons.person),
                     ),
                     title: Text(participant.username,
@@ -329,8 +329,8 @@ class _MeetingDetailsPageState extends State<MeetingDetailsPage> {
       child: ElevatedButton(
         onPressed: onPressed,
         style: ButtonStyle(
-          backgroundColor: MaterialStateProperty.all(color),
-          shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+          backgroundColor: WidgetStateProperty.all(color),
+          shape: WidgetStateProperty.all<RoundedRectangleBorder>(
             RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(10),
             ),

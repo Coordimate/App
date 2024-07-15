@@ -25,7 +25,7 @@ class CustomDivider extends StatelessWidget {
                   thickness: 1,
                   color: dashColor,
                 )
-              : Divider(
+              : const Divider(
                   thickness: 1,
                   color: Colors
                       .transparent, // Invisible line when stripes is false
@@ -47,7 +47,7 @@ class CustomDivider extends StatelessWidget {
                   thickness: 1,
                   color: dashColor,
                 )
-              : Divider(
+              : const Divider(
                   thickness: 1,
                   color: Colors
                       .transparent, // Invisible line when stripes is false

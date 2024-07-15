@@ -129,9 +129,9 @@ class _PersonalPageState extends State<PersonalPage> {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: <Widget>[
-                    CircleAvatar(
+                    const CircleAvatar(
                       radius: 70,
-                      backgroundImage: const NetworkImage(
+                      backgroundImage: NetworkImage(
                           'https://www.w3schools.com/w3images/avatar2.png'),
                     ),
                     const SizedBox(height: 16),

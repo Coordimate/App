@@ -24,7 +24,7 @@ import 'package:coordimate/components/text_field_with_edit.dart';
 class GroupDetailsPage extends StatefulWidget {
   final Group group;
   //ToDo: understand whatever this blue line means here
-  const GroupDetailsPage({required this.group});
+  const GroupDetailsPage({super.key, required this.group});
 
   @override
   _GroupDetailsPageState createState() => _GroupDetailsPageState();
@@ -546,7 +546,7 @@ class _GroupDetailsPageState extends State<GroupDetailsPage> {
                         )),
                   )),
               const SizedBox(height: 16.0),
-              Container(
+              SizedBox(
                 width: double.infinity,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,

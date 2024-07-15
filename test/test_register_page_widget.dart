@@ -1,7 +1,5 @@
-import 'package:coordimate/keys.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
-import 'package:mockito/mockito.dart';
 import 'package:mockito/annotations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';

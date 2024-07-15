@@ -188,7 +188,7 @@ class _GroupsPageState extends State<GroupsPage> {
 class CreateGroupDialog extends StatefulWidget {
   final Future<void> Function(String name, String description) onCreateGroup;
 
-  const CreateGroupDialog({required this.onCreateGroup});
+  const CreateGroupDialog({super.key, required this.onCreateGroup});
 
   @override
   _CreateGroupDialogState createState() => _CreateGroupDialogState();

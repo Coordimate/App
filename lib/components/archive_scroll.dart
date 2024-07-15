@@ -37,7 +37,7 @@ class RenderSliverHidedHeader extends RenderSliverSingleBoxAdapter {
   bool _showChild = true;
 
   /// The context is used to get the [Scrollable]
-  BuildContext _context;
+  final BuildContext _context;
   ScrollableState? _scrollableState;
 
   @override

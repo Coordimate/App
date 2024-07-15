@@ -19,7 +19,7 @@ class EditableTextField extends StatefulWidget {
   final String? placeHolderText; // New optional field
 
   const EditableTextField({
-    Key? key,
+    super.key,
     required this.controller,
     required this.focusNode,
     required this.onSubmit,
@@ -35,7 +35,7 @@ class EditableTextField extends StatefulWidget {
     this.textColor = darkBlue,
     this.borderColor = darkBlue,
     this.placeHolderText, // Define placeHolderText as an optional argument
-  }) : super(key: key);
+  });
 
   @override
   State<EditableTextField> createState() => _EditableTextFieldState();
@@ -79,12 +79,12 @@ class _EditableTextFieldState extends State<EditableTextField> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text('Error'),
+        title: const Text('Error'),
         content: Text(message),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: Text('OK'),
+            child: const Text('OK'),
           ),
         ],
       ),

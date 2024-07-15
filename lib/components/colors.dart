@@ -47,12 +47,10 @@ class AppColorScheme extends ColorScheme {
           secondary: secondary,
           // secondaryVariant: secondaryVariant,
           surface: surface,
-          background: background,
           error: error,
           onPrimary: onPrimary,
           onSecondary: onSecondary,
           onSurface: onSurface,
-          onBackground: onBackground,
           onError: onError,
           brightness: brightness,
         );
