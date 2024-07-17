@@ -7,8 +7,6 @@ import 'package:coordimate/components/text_field_with_edit.dart';
 import 'package:flutter/material.dart';
 import 'package:coordimate/pages/start_page.dart';
 import 'package:coordimate/controllers/auth_controller.dart';
-import 'dart:convert';
-import 'package:coordimate/keys.dart';
 import 'package:coordimate/app_state.dart';
 import 'package:coordimate/models/user.dart';
 import 'package:coordimate/components/login_text_field.dart';
@@ -43,14 +41,7 @@ class _PersonalPageState extends State<PersonalPage> {
   }
 
   Future<void> getInfo() async {
-    final id = await AppState.authController.getAccountId();
-    var url = Uri.parse("$apiUrl/users/$id");
-    final response =
-        await AppState.authController.client.get(url, headers: {"Content-Type": "application/json"});
-    if (response.statusCode != 200) {
-      throw Exception('Failed to load data');
-    }
-    user = User.fromJson(json.decode(response.body));
+    user = await AppState.userController.getInfo();
     usernameController.text = user.username;
     userEmail = user.email;
     showChangePasswordButton = await checkAuthType();
@@ -60,34 +51,20 @@ class _PersonalPageState extends State<PersonalPage> {
     if (username == user.username || username.isEmpty) {
       return;
     }
-    var url = Uri.parse("$apiUrl/users/${user.id}");
-    final response = await AppState.authController.client.patch(url,
-        headers: {"Content-Type": "application/json"},
-        body: jsonEncode(<String, dynamic>{
-          'username': username,
-        }));
-    if (response.statusCode != 200) {
-      throw Exception('Failed to save data');
-    }
+    await AppState.userController.changeUsername(username, user.id);
     user.username = username;
   }
 
   Future<void> deleteUser() async {
-    var url = Uri.parse("$apiUrl/users/${user.id}");
-    final response =
-        await AppState.authController.client.delete(url, headers: {"Content-Type": "application/json"});
-    if (response.statusCode != 204) {
-      throw Exception('Failed to delete user');
-    } else {
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Account deleted successfully'),
-          duration: Duration(seconds: 2),
-        ),
-      );
-      logOut(context);
-    }
+    await AppState.userController.deleteUser(user.id);
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Account deleted successfully'),
+        duration: Duration(seconds: 2),
+      ),
+    );
+    logOut(context);
   }
 
   void showDeleteAccountDialog() {
@@ -200,23 +177,6 @@ class _ChangePasswordDialogState extends State<ChangePasswordDialog> {
   static const pathLock = 'lib/images/lock.png';
   final _formKey = GlobalKey<FormState>();
 
-  Future<bool> sendChangePswdRequest() async {
-    var url = Uri.parse("$apiUrl/change_password");
-    final response = await AppState.authController.client.post(url,
-        headers: {"Content-Type": "application/json"},
-        body: jsonEncode(<String, dynamic>{
-          'new_password': newPasswordController.text,
-          'old_password': oldPasswordController.text,
-        }));
-    if (response.statusCode == 201) {
-      return true;
-    } else if (response.statusCode == 403) {
-      return false;
-    } else {
-      throw Exception('Failed to save data');
-    }
-  }
-
   Future<bool> changePassword() async {
     if (_formKey.currentState!.validate() == false) {
       return false;
@@ -239,7 +199,8 @@ class _ChangePasswordDialogState extends State<ChangePasswordDialog> {
       ).show(context);
       return false;
     }
-    var res = await sendChangePswdRequest();
+    var res = await AppState.userController.sendChangePswdRequest(
+        newPasswordController.text, oldPasswordController.text);
     if (res == false) {
       if (!mounted) return false;
       Flushbar(
