@@ -5,11 +5,10 @@ import 'package:flutter/material.dart';
 import 'package:coordimate/components/meeting_tiles.dart';
 import 'package:coordimate/components/calendar_day_box.dart';
 import 'package:coordimate/models/meeting.dart';
-import 'package:coordimate/keys.dart';
 import 'package:coordimate/app_state.dart';
-import 'dart:convert';
 import 'package:coordimate/components/archive_scroll.dart';
 import 'package:coordimate/pages/meetings_archive.dart';
+import 'package:coordimate/components/snack_bar.dart';
 
 class MeetingsPage extends StatefulWidget {
   const MeetingsPage({
@@ -37,57 +36,19 @@ class _MeetingsPageState extends State<MeetingsPage> {
   }
 
   Future<void> _fetchMeetings() async {
-    final response = await AppState.authController.client.get(Uri.parse("$apiUrl/meetings"));
-    if (response.statusCode == 200) {
-      if (!mounted) {
-        return;
-      }
-      setState(() {
-        meetings = (json.decode(response.body)['meetings'] as List)
-            .map((data) => MeetingTileModel.fromJson(data))
-            .toList();
-        for (var meeting in meetings
-            .where((meeting) => meeting.status == MeetingStatus.needsAcceptance)
-            .toList()) {
-          if (meeting.dateTime.isBefore(DateTime.now())) {
-            _answerInvitation(meeting.id, false, showSnackBar: false);
-          }
-        }
-        meetings.sort((a, b) =>
-            a.dateTime.difference(DateTime.now()).inSeconds.abs() -
-            b.dateTime.difference(DateTime.now()).inSeconds.abs());
-      });
-    } else {
-      throw Exception('Failed to load meetings');
-    }
+    meetings = await AppState.meetingController.fetchMeetings();
+      setState(() {});
   }
 
   Future<void> _answerInvitation(String id, bool accept,
       {bool showSnackBar = true}) async {
-    String status = 'accepted';
-    if (!accept) {
-      status = 'declined';
+    final status = await AppState.meetingController.answerInvitation(accept, id);
+    if (showSnackBar && mounted) {
+      status == MeetingStatus.accepted
+        ? CustomSnackBar.show(context, "Meeting accepted")
+        : CustomSnackBar.show(context, "Meeting declined");
     }
-    final response = await AppState.authController.client.patch(Uri.parse("$apiUrl/invites/$id"),
-        headers: <String, String>{
-          'Content-Type': 'application/json; charset=UTF-8',
-        },
-        body: json.encode(<String, dynamic>{
-          'status': status,
-        }));
-    if (!mounted) {
-      return;
-    }
-    if (response.statusCode == 200) {
-      if (showSnackBar) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("Meeting $status")),
-        );
-      }
-      _fetchMeetings();
-    } else {
-      throw Exception('Failed to answer invitation');
-    }
+    _fetchMeetings();
   }
 
   DateTime selectedDate = DateTime.now();

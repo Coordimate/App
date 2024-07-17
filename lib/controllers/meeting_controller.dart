@@ -123,4 +123,25 @@ class MeetingController {
           agenda.map((ap) => {'text': ap.text, 'level': ap.level}).toList(),
         }));
   }
+
+  Future<List<MeetingTileModel>> fetchMeetings() async {
+    final response = await AppState.authController.client.get(Uri.parse("$apiUrl/meetings"));
+    if (response.statusCode != 200) {
+      throw Exception('Failed to load meetings');
+    }
+    final meetings = (json.decode(response.body)['meetings'] as List)
+        .map((data) => MeetingTileModel.fromJson(data))
+        .toList();
+    for (var meeting in meetings
+        .where((meeting) => meeting.status == MeetingStatus.needsAcceptance)
+        .toList()) {
+      if (meeting.dateTime.isBefore(DateTime.now())) {
+        answerInvitation(false, meeting.id);
+      }
+    }
+    meetings.sort((a, b) =>
+      a.dateTime.difference(DateTime.now()).inSeconds.abs() -
+        b.dateTime.difference(DateTime.now()).inSeconds.abs());
+    return meetings;
+  }
 }
