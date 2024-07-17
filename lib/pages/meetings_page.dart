@@ -36,8 +36,10 @@ class _MeetingsPageState extends State<MeetingsPage> {
   }
 
   Future<void> _fetchMeetings() async {
-    meetings = await AppState.meetingController.fetchMeetings();
-      setState(() {});
+    final meetingsFetched = await AppState.meetingController.fetchMeetings();
+      setState(() {
+        meetings = meetingsFetched;
+      });
   }
 
   Future<void> _answerInvitation(String id, bool accept,

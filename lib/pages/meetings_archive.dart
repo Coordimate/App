@@ -29,7 +29,7 @@ class _MeetingsArchivePageState extends State<MeetingsArchivePage> {
   }
 
   Future<void> fetchMeetings() async {
-    await AppState.meetingController.fetchDeclinedMeetings()
+    await AppState.meetingController.fetchArchivedMeetings()
         .then((newMeetings) => setState(() {
           meetings = newMeetings;
         }));
@@ -38,40 +38,69 @@ class _MeetingsArchivePageState extends State<MeetingsArchivePage> {
 
   @override
   Widget build(BuildContext context) {
+    List<MeetingTileModel> declinedUpcomingMeetings = meetings
+        .where((meeting) => meeting.status == MeetingStatus.declined
+          && !meeting.isInPast() && !meeting.isFinished)
+        .toList();
+    List<MeetingTileModel> otherMeetings = meetings
+        .where((meeting) => !(meeting.status == MeetingStatus.declined
+        && !meeting.isInPast() && !meeting.isFinished))
+        .toList();
+
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: const CustomAppBar(title: 'Archive', needButton: false),
-      body: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-        child: ListView.builder(
-          itemCount: meetings.length,
-          itemBuilder: (context, index) {
-            if (index == meetings.indexWhere((meeting) => meeting.isInPast())) {
-              return Column(
-                children: [
-                  const CustomDivider(
-                    text: 'Passed Meetings',
-                  ),
-                  const SizedBox(height: 16.0),
-                  ArchivedMeetingTile(
-                    meeting: meetings[index],
-                    fetchMeetings: () async { fetchMeetings(); }
-                  ),
-                ],
-              );
-            } else if (meetings[index].status == MeetingStatus.declined) {
-              return ArchivedMeetingTile(
-                meeting: meetings[index],
-                fetchMeetings: () async { fetchMeetings(); },
-              );
-            } else {
-              return AcceptedMeetingTile(
-                meeting: meetings[index],
-                fetchMeetings: () async { fetchMeetings(); }
-              );
-            }
-          },
-        ),
+      body: ListView(
+        children: [
+          if (declinedUpcomingMeetings.isNotEmpty)
+            const CustomDivider(text: 'Declined Upcoming Meetings'),
+          if (declinedUpcomingMeetings.isNotEmpty)
+            for (var meeting in declinedUpcomingMeetings)
+              Padding(padding: const EdgeInsets.only(top: 8.0, left: 16.0, right: 16.0),
+                child: ArchivedMeetingTile(
+                  meeting: meeting,
+                  fetchMeetings: fetchMeetings,
+                ),
+              ),
+          if (otherMeetings.isNotEmpty)
+            const CustomDivider(text: 'Past Meetings'),
+          if (otherMeetings.isNotEmpty)
+            for (var meeting in otherMeetings)
+              MeetingTileWithPadding(
+                  meeting: meeting,
+                  fetchMeetings: fetchMeetings,
+                  isAccepted: meeting.status == MeetingStatus.accepted
+              ),
+        ],
+      ),
+    );
+  }
+}
+
+class MeetingTileWithPadding extends StatelessWidget {
+  final MeetingTileModel meeting;
+  final Future<void> Function() fetchMeetings;
+  final bool isAccepted;
+
+  const MeetingTileWithPadding({
+    super.key,
+    required this.meeting,
+    required this.fetchMeetings,
+    required this.isAccepted,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+      child: isAccepted
+          ? AcceptedMeetingTile(
+        meeting: meeting,
+        fetchMeetings: fetchMeetings,
+      )
+          : ArchivedMeetingTile(
+        meeting: meeting,
+        fetchMeetings: fetchMeetings,
       ),
     );
   }

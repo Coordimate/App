@@ -59,17 +59,19 @@ class MeetingController {
     }
   }
 
-  Future<List<MeetingTileModel>> fetchDeclinedMeetings() async {
+  Future<List<MeetingTileModel>> fetchArchivedMeetings() async {
     final response = await AppState.authController.client.get(Uri.parse("$apiUrl/meetings/"));
     if (response.statusCode == 200) {
       final meetings = (json.decode(response.body)['meetings'] as List)
-            .map((data) => MeetingTileModel.fromJson(data))
-            .where((meeting) =>
-        meeting.status == MeetingStatus.declined ||
-            (meeting.status == MeetingStatus.accepted &&
-                meeting.dateTime.isBefore(DateTime.now())))
-            .toList();
-        meetings.sort((a, b) => b.dateTime.compareTo(a.dateTime));
+        .map((data) => MeetingTileModel.fromJson(data))
+        .where((meeting) =>
+          meeting.status == MeetingStatus.declined
+              || meeting.isFinished
+              || meeting.isInPast())
+        .toList();
+      meetings.sort((a, b) =>
+        a.dateTime.difference(DateTime.now()).inSeconds.abs() -
+          b.dateTime.difference(DateTime.now()).inSeconds.abs());
       return meetings;
     } else {
       throw Exception('Failed to load declined meetings');
@@ -133,11 +135,15 @@ class MeetingController {
         .map((data) => MeetingTileModel.fromJson(data))
         .toList();
     for (var meeting in meetings
-        .where((meeting) => meeting.status == MeetingStatus.needsAcceptance)
+        .where((meeting) => !meeting.isFinished && meeting.isInPast())
         .toList()) {
-      if (meeting.dateTime.isBefore(DateTime.now())) {
-        answerInvitation(false, meeting.id);
-      }
+      finishMeeting(meeting.id);
+    }
+    for (var meeting in meetings
+        .where((meeting) => meeting.status == MeetingStatus.needsAcceptance
+        && (meeting.isInPast() || meeting.isFinished))
+        .toList()) {
+      answerInvitation(false, meeting.id);
     }
     meetings.sort((a, b) =>
       a.dateTime.difference(DateTime.now()).inSeconds.abs() -

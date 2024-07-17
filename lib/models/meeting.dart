@@ -13,6 +13,8 @@ class MeetingTileModel {
   final GroupCard group;
   final DateTime dateTime;
   final MeetingStatus status;
+  final bool isFinished;
+  final int duration = 60;
 
   MeetingTileModel({
     this.id = '',
@@ -20,6 +22,7 @@ class MeetingTileModel {
     required this.dateTime,
     required this.group,
     this.status = MeetingStatus.needsAcceptance,
+    required this.isFinished,
   });
 
   String getFormattedDate() {
@@ -27,7 +30,11 @@ class MeetingTileModel {
   }
 
   bool isInPast() {
-    return dateTime.isBefore(DateTime.now());
+    return getFinishTime().isBefore(DateTime.now());
+  }
+
+  DateTime getFinishTime() {
+    return dateTime.add(Duration(minutes: duration));
   }
 
   factory MeetingTileModel.fromJson(Map<String, dynamic> json) {
@@ -37,6 +44,7 @@ class MeetingTileModel {
       group: GroupCard.fromJson(json['group']),
       dateTime: DateTime.parse(json['start']),
       status: json['status'] == 'accepted' ? MeetingStatus.accepted : json['status'] == 'declined' ? MeetingStatus.declined : MeetingStatus.needsAcceptance,
+      isFinished: json['is_finished'] as bool
     );
   }
 }
