@@ -9,6 +9,7 @@ import 'package:flutter/material.dart';
 import 'package:coordimate/controllers/auth_controller.dart';
 import 'package:coordimate/components/alert_dialog.dart';
 import 'package:coordimate/app_state.dart';
+import 'package:coordimate/widget_keys.dart';
 
 class RegisterPage extends StatefulWidget {
   const RegisterPage({super.key});
@@ -57,6 +58,7 @@ class _RegisterPageState extends State<RegisterPage> {
               context: context,
               builder: (BuildContext context) {
                 return const CustomAlertDialog(
+                  key: alertDialogKey,
                   title: "Registration Failed",
                   content: "Please check your credentials",
                 );
@@ -69,6 +71,7 @@ class _RegisterPageState extends State<RegisterPage> {
           context: context,
           builder: (BuildContext context) {
             return const CustomAlertDialog(
+              key: alertDialogKey,
               title: "Registration Failed",
               content: "Please check passwords match",
             );
@@ -100,21 +103,6 @@ class _RegisterPageState extends State<RegisterPage> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
 
-            // circles background
-            // ClipRect(
-            //   child: Align(
-            //     alignment: Alignment.bottomCenter,
-            //     heightFactor: 0.8, // Adjust this value to crop from the top
-            //     child: Image.asset(
-            //       backgroundImage,
-            //       fit: BoxFit.cover,
-            //       width: double.infinity,
-            //     ),
-            //   ),
-            // ),
-
-            const SizedBox(height: 30),
-            //
             const Text(
                 "Create Account",
                 style: TextStyle(
@@ -124,15 +112,16 @@ class _RegisterPageState extends State<RegisterPage> {
                 )
             ),
 
-            const SizedBox(height: 20),
+            const SizedBox(height: 16),
 
             Form(
               key: _formKey,
               child: Column(
                 children: [
                   Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 25.0),
+                    padding: const EdgeInsets.symmetric(horizontal: 24.0),
                     child: LoginTextField(
+                      key: usernameFieldKey,
                       controller: usernameController,
                       hintText: "Name",
                       label: "name",
@@ -142,11 +131,12 @@ class _RegisterPageState extends State<RegisterPage> {
                     ),
                   ),
 
-                  const SizedBox(height: 15),
+                  const SizedBox(height: 8),
 
                   Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 25.0),
+                    padding: const EdgeInsets.symmetric(horizontal: 24.0),
                     child: LoginTextField(
+                      key: emailFieldKey,
                       controller: emailController,
                       hintText: "E-mail",
                       label: "e-mail",
@@ -156,11 +146,12 @@ class _RegisterPageState extends State<RegisterPage> {
                     ),
                   ),
 
-                  const SizedBox(height: 15),
+                  const SizedBox(height: 8),
 
                   Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 25.0),
+                    padding: const EdgeInsets.symmetric(horizontal: 24.0),
                     child: LoginTextField(
+                      key: passwordFieldKey,
                       controller: passwordController,
                       hintText: "Password",
                       label: "password",
@@ -170,11 +161,12 @@ class _RegisterPageState extends State<RegisterPage> {
                     ),
                   ),
 
-                  const SizedBox(height: 15),
+                  const SizedBox(height: 8),
 
                   Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 25.0),
+                    padding: const EdgeInsets.symmetric(horizontal: 24.0),
                     child: LoginTextField(
+                      key: confirmPasswordFieldKey,
                       controller: confirmPasswordController,
                       hintText: "Confirm Password",
                       label: "password",
@@ -184,9 +176,10 @@ class _RegisterPageState extends State<RegisterPage> {
                     ),
                   ),
 
-                  const SizedBox(height: 20),
+                  const SizedBox(height: 24),
 
                   LoginButton(
+                      key: registerButtonKey,
                       onTap: registerUser,
                       text: "Register"
                   ),
@@ -194,28 +187,37 @@ class _RegisterPageState extends State<RegisterPage> {
               ),
             ),
 
-            const SizedBox(height: 30),
+            const SizedBox(height: 24),
 
             const Row (
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                SquareTile(imagePath: 'lib/images/google.png', authType: AuthType.google),
+                SquareTile(
+                  key: googleTileKey,
+                  imagePath: 'lib/images/google.png',
+                  authType: AuthType.google
+                ),
 
-                SizedBox(width: 50),
+                SizedBox(width: 48),
 
-                SquareTile(imagePath: 'lib/images/facebook.png', authType: AuthType.facebook),
+                SquareTile(
+                  key: facebookTileKey,
+                  imagePath: 'lib/images/facebook.png',
+                  authType: AuthType.facebook
+                ),
               ],
             ),
 
-            const SizedBox(height: 20),
+            const SizedBox(height: 16),
 
             const CustomDivider(text: "Already have an account?"),
 
-            const SizedBox(height: 20),
+            const SizedBox(height: 16),
 
             LoginEmptyButton(
-                text: "Log In",
-                onTap: _goToLogInPage
+              key: loginButtonKey,
+              text: "Log In",
+              onTap: _goToLogInPage
             ),
 
           ],

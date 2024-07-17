@@ -9,6 +9,7 @@ import 'package:coordimate/app_state.dart';
 import 'package:flutter/material.dart';
 import 'package:coordimate/controllers/auth_controller.dart';
 import 'package:coordimate/components/alert_dialog.dart';
+import 'package:coordimate/widget_keys.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -48,6 +49,7 @@ class _LoginPageState extends State<LoginPage> {
             context: context,
             builder: (BuildContext context) {
               return const CustomAlertDialog(
+                key: alertDialogKey,
                 title: 'Sign In Failed',
                 content: 'The email or password is incorrect.',
               );
@@ -69,43 +71,31 @@ class _LoginPageState extends State<LoginPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      resizeToAvoidBottomInset: false,
+      resizeToAvoidBottomInset: true,
       backgroundColor: Colors.white,
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            // circles background
-            // ClipRect(
-            //   child: Align(
-            //     alignment: Alignment.bottomCenter,
-            //     heightFactor: 0.7, // Adjust this value to crop from the top
-            //     child: Image.asset(
-            //       backgroundImage,
-            //       fit: BoxFit.cover,
-            //       width: double.infinity,
-            //     ),
-            //   ),
-            // ),
-
-            const SizedBox(height: 30),
 
             const Text("Welcome Back",
-                style: TextStyle(
-                  color: darkBlue,
-                  fontSize: 40,
-                  fontWeight: FontWeight.bold,
-                )),
+              style: TextStyle(
+                color: darkBlue,
+                fontSize: 40,
+                fontWeight: FontWeight.bold,
+              )
+            ),
 
-            const SizedBox(height: 30),
+            const SizedBox(height: 24),
 
             Form(
               key: _formKey,
               child: Column(
                 children: [
                   Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 25.0),
+                    padding: const EdgeInsets.symmetric(horizontal: 24.0),
                     child: LoginTextField(
+                      key: emailFieldKey,
                       controller: emailController,
                       hintText: "E-mail",
                       label: "e-mail",
@@ -114,10 +104,11 @@ class _LoginPageState extends State<LoginPage> {
                       keyboardType: TextInputType.emailAddress,
                     ),
                   ),
-                  const SizedBox(height: 25),
+                  const SizedBox(height: 24),
                   Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 25.0),
+                    padding: const EdgeInsets.symmetric(horizontal: 24.0),
                     child: LoginTextField(
+                      key: passwordFieldKey,
                       controller: passwordController,
                       hintText: "Password",
                       label: "password",
@@ -126,9 +117,9 @@ class _LoginPageState extends State<LoginPage> {
                       keyboardType: TextInputType.visiblePassword,
                     ),
                   ),
-                  const SizedBox(height: 20),
+                  const SizedBox(height: 16),
                   const Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 25.0),
+                    padding: EdgeInsets.symmetric(horizontal: 24.0),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.end,
                       children: [
@@ -142,30 +133,46 @@ class _LoginPageState extends State<LoginPage> {
                       ],
                     ),
                   ),
-                  const SizedBox(height: 25),
-                  LoginButton(onTap: signUserIn, text: "Log In"),
+                  const SizedBox(height: 24),
+                  LoginButton(
+                    key: loginButtonKey,
+                    onTap: signUserIn,
+                    text: "Log In"
+                  ),
                 ],
               ),
             ),
 
-            const SizedBox(height: 30),
+            const SizedBox(height: 24),
 
             const Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                SquareTile(imagePath: 'lib/images/google.png', authType: AuthType.google),
-                SizedBox(width: 50),
-                SquareTile(imagePath: 'lib/images/facebook.png', authType: AuthType.facebook),
+                SquareTile(
+                  key: googleTileKey,
+                  imagePath: 'lib/images/google.png',
+                  authType: AuthType.google
+                ),
+                SizedBox(width: 48),
+                SquareTile(
+                  key: facebookTileKey,
+                  imagePath: 'lib/images/facebook.png',
+                  authType: AuthType.facebook
+                ),
               ],
             ),
 
-            const SizedBox(height: 20),
+            const SizedBox(height: 16),
 
             const CustomDivider(text: "Do not have an account?"),
 
-            const SizedBox(height: 20),
+            const SizedBox(height: 16),
 
-            LoginEmptyButton(text: "Register", onTap: _goToRegisterPage),
+            LoginEmptyButton(
+              key: registerButtonKey,
+              text: "Register",
+              onTap: _goToRegisterPage
+            ),
           ],
         ),
       ),

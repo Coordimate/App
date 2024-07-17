@@ -23,23 +23,33 @@ const signInType = {
 };
 
 class AuthorizationController {
-  AuthorizationController({required this.plainClient});
 
+  AuthorizationController({
+    required this.plainClient,
+    this.storage = const FlutterSecureStorage(),
+    SharedPreferences? prefs,
+    http.Client? client
+  }) {
+    this.prefs = prefs != null ? Future.value(prefs) : SharedPreferences.getInstance();
+    this.client = client ?? InterceptedClient.build(
+        interceptors: [_AuthInterceptor(storage: storage)],
+        retryPolicy: _ExpiredTokenRetryPolicy(storage: storage));
+  }
+
+  late final Future<SharedPreferences> prefs;
+  late final http.Client client;
+  FlutterSecureStorage storage;
   final http.Client plainClient;
-  late http.Client client = InterceptedClient.build(
-      interceptors: [_AuthInterceptor(storage: storage)],
-      retryPolicy: _ExpiredTokenRetryPolicy(storage: storage));
 
   static final GoogleSignIn _googleSignIn = GoogleSignIn();
   static final FacebookAuth _facebookAuth = FacebookAuth.instance;
-  static const storage = FlutterSecureStorage();
 
   Future<String?> getAccountId() async {
     return await storage.read(key: 'id_account');
   }
 
   void signOut() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
+    final prefs = await this.prefs;
     String? signInMethod = prefs.getString('sign_in_method');
     log("sign method: $signInMethod");
 
@@ -120,7 +130,7 @@ class AuthorizationController {
     await storage.write(key: 'access_token', value: accessToken);
     await storage.write(key: 'refresh_token', value: refreshToken);
 
-    SharedPreferences prefs = await SharedPreferences.getInstance();
+    final prefs = await this.prefs;
     prefs.setString('access_token', accessToken);
     prefs.setString('refresh_token', refreshToken);
     prefs.setString('sign_in_method', signInType[signInMethod]!);
