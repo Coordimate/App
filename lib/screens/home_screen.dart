@@ -1,4 +1,3 @@
-import 'dart:convert';
 import 'package:coordimate/components/colors.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'dart:async';
@@ -9,8 +8,6 @@ import 'package:coordimate/components/join_group_dialog.dart';
 import 'package:coordimate/pages/schedule_page.dart';
 import 'package:coordimate/pages/meetings_page.dart';
 import 'package:coordimate/pages/groups_page.dart';
-import 'package:coordimate/models/groups.dart';
-import 'package:coordimate/keys.dart';
 import 'package:coordimate/app_state.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -76,32 +73,21 @@ class HomeScreenState extends State<HomeScreen> {
   }
 
   Future<void> _tryParseUserScheduleLink(Uri uri) async {
-    final regex = RegExp(r'^/users/([0-9a-z]+)/time_slots$');
-    final match = regex.firstMatch(uri.path);
-    if (match != null) {
-      final userId = match.group(1)!;
-      final response = await AppState.authController.client.get(Uri.parse("$apiUrl/users/$userId"));
-      if (response.statusCode == 200) {
-        Navigator.of(context).push(MaterialPageRoute(builder: (context) => SchedulePage(ownerId: userId, ownerName: json.decode(response.body)["username"])));
-      }
+    final schedulePage = await AppState.scheduleController.tryParseUserScheduleLink(uri);
+    if (schedulePage != null && mounted) {
+      Navigator.of(context).push(MaterialPageRoute(builder: (context) => schedulePage));
     }
   }
 
   Future<void> _tryParseGroupJoinLink(Uri uri) async {
-    final regex = RegExp(r'^/groups/([0-9a-z]+)/join$');
-    final match = regex.firstMatch(uri.path);
-    if (match != null) {
-      final groupId = match.group(1)!;
-      final response = await AppState.authController.client.get(Uri.parse("$apiUrl/groups/$groupId"));
-      if (response.statusCode == 200) {
-        final group = Group.fromJson(json.decode(response.body));
-        showDialog(
-            context: context,
-            builder: (BuildContext context) {
-              return JoinGroupDialog(
-                  key: UniqueKey(), groupName: group.name, groupId: group.id);
-            });
-      }
+    final group = await AppState.scheduleController.tryParseGroupJoinLink(uri);
+    if (group != null && mounted) {
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return JoinGroupDialog(
+              key: UniqueKey(), groupName: group.name, groupId: group.id);
+        });
     }
   }
 
@@ -125,17 +111,11 @@ class HomeScreenState extends State<HomeScreen> {
     // await FirebaseMessaging.instance.getAPNSToken();
     final fcmToken = await FirebaseMessaging.instance.getToken();
     if (fcmToken != null) {
-      await _setFcmToken(fcmToken);
+      await AppState.userController.setFcmToken(fcmToken);
     }
     FirebaseMessaging.instance.onTokenRefresh.listen((fcmToken) async {
-      await _setFcmToken(fcmToken);
+      await AppState.userController.setFcmToken(fcmToken);
     });
-  }
-
-  Future<void> _setFcmToken(String fcmToken) async {
-    await AppState.authController.client.post(Uri.parse('$apiUrl/enable_notifications'),
-        headers: <String, String>{'Content-Type': 'application/json'},
-        body: json.encode(<String, dynamic>{'fcm_token': fcmToken}));
   }
 
   @override

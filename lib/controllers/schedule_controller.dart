@@ -2,6 +2,8 @@ import 'dart:convert';
 import 'package:coordimate/models/time_slot.dart';
 import 'package:coordimate/keys.dart';
 import 'package:coordimate/app_state.dart';
+import 'package:coordimate/models/groups.dart';
+import 'package:coordimate/pages/schedule_page.dart';
 
 
 class ScheduleController {
@@ -51,5 +53,33 @@ class ScheduleController {
           'start': start.toStringAsFixed(2),
           'length': length.toStringAsFixed(2)
         }));
+  }
+
+  Future<SchedulePage?> tryParseUserScheduleLink(Uri uri) async {
+    final regex = RegExp(r'^/users/([0-9a-z]+)/time_slots$');
+    final match = regex.firstMatch(uri.path);
+    if (match != null) {
+      final userId = match.group(1)!;
+      final response = await AppState.authController.client.get(Uri.parse("$apiUrl/users/$userId"));
+      if (response.statusCode != 200) {
+        throw Exception('Failed to parse user schedule link');
+      }
+      return SchedulePage(ownerId: userId, ownerName: json.decode(response.body)["username"]);
+    }
+    return null;
+  }
+
+  Future<Group?> tryParseGroupJoinLink(Uri uri) async {
+    final regex = RegExp(r'^/groups/([0-9a-z]+)/join$');
+    final match = regex.firstMatch(uri.path);
+    if (match != null) {
+      final groupId = match.group(1)!;
+      final response = await AppState.authController.client.get(Uri.parse("$apiUrl/groups/$groupId"));
+      if (response.statusCode != 200) {
+        throw Exception('Failed to parse group join link');
+      }
+      return Group.fromJson(json.decode(response.body));
+    }
+    return null;
   }
 }

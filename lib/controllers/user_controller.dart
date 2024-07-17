@@ -4,6 +4,13 @@ import 'dart:convert';
 import 'package:coordimate/models/user.dart';
 
 class UserController {
+
+  Future<void> setFcmToken(String fcmToken) async {
+    await AppState.authController.client.post(Uri.parse('$apiUrl/enable_notifications'),
+        headers: <String, String>{'Content-Type': 'application/json'},
+        body: json.encode(<String, dynamic>{'fcm_token': fcmToken}));
+  }
+
   Future<User> getInfo() async {
     final id = await AppState.authController.getAccountId();
     var url = Uri.parse("$apiUrl/users/$id");
