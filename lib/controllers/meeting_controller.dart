@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:coordimate/models/meeting.dart';
 import 'package:coordimate/keys.dart';
 import 'package:coordimate/app_state.dart';
+import 'package:coordimate/models/agenda_point.dart';
 
 
 class MeetingController {
@@ -76,9 +77,6 @@ class MeetingController {
   }
 
   Future<void> saveSummary(id, summaryText) async {
-    // if (summaryController.text.isEmpty) {
-    //   return;
-    // }
     final response = await AppState.authController.client.patch(
         Uri.parse("$apiUrl/meetings/$id"),
         headers: <String, String>{
@@ -91,5 +89,38 @@ class MeetingController {
     if (response.statusCode != 200) {
       throw Exception('Failed to save summary');
     }
+  }
+
+  Future<List<AgendaPoint>> getAgendaPoints(id) async {
+    final response = await AppState.authController.client.get(
+        Uri.parse("$apiUrl/meetings/$id/agenda"),
+        headers: {"Content-Type": "application/json"});
+    final List body = json.decode(response.body)["agenda"];
+    final agenda = body.map((e) => AgendaPoint.fromJson(e)).toList();
+    return agenda;
+  }
+
+  Future<void> createAgendaPoint(id, String text, int level) async {
+    await AppState.authController.client.post(Uri.parse("$apiUrl/meetings/$id/agenda"),
+        headers: {"Content-Type": "application/json"},
+        body: json.encode(<String, dynamic>{
+          'text': text,
+          'level': level,
+        }));
+  }
+
+  Future<void> deleteAgendaPoint(id, int index) async {
+    await AppState.authController.client.delete(
+        Uri.parse("$apiUrl/meetings/$id/agenda/$index"),
+        headers: {"Content-Type": "application/json"});
+  }
+
+  Future<void> updateAgenda(id, agenda) async {
+    await AppState.authController.client.patch(Uri.parse("$apiUrl/meetings/$id/agenda"),
+        headers: {"Content-Type": "application/json"},
+        body: json.encode(<String, dynamic>{
+          'agenda':
+          agenda.map((ap) => {'text': ap.text, 'level': ap.level}).toList(),
+        }));
   }
 }

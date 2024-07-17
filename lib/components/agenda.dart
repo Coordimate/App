@@ -1,10 +1,7 @@
-import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:coordimate/components/appbar.dart';
 import 'package:coordimate/components/colors.dart';
 import 'package:coordimate/models/agenda_point.dart';
-import 'package:coordimate/keys.dart';
 import 'package:coordimate/app_state.dart';
 
 const maxIndentLevel = 3;
@@ -178,42 +175,26 @@ class MeetingAgendaState extends State<MeetingAgenda> {
   List<AgendaPoint> agenda = [];
 
   Future<List<AgendaPoint>> getAgendaPoints() async {
-    final response = await AppState.authController.client.get(
-        Uri.parse("$apiUrl/meetings/${widget.meetingId}/agenda"),
-        headers: {"Content-Type": "application/json"});
-    final List body = json.decode(response.body)["agenda"];
-    agenda = body.map((e) => AgendaPoint.fromJson(e)).toList();
+    agenda = await AppState.meetingController.getAgendaPoints(widget.meetingId);
     return agenda;
   }
 
   Future<void> createAgendaPoint(String text, int level) async {
-    await AppState.authController.client.post(Uri.parse("$apiUrl/meetings/${widget.meetingId}/agenda"),
-        headers: {"Content-Type": "application/json"},
-        body: json.encode(<String, dynamic>{
-          'text': text,
-          'level': level,
-        }));
+    await AppState.meetingController.createAgendaPoint(widget.meetingId, text, level);
     setState(() {
       _agendaPoints = getAgendaPoints();
     });
   }
 
   Future<void> deleteAgendaPoint(int index) async {
-    await AppState.authController.client.delete(
-        Uri.parse("$apiUrl/meetings/${widget.meetingId}/agenda/$index"),
-        headers: {"Content-Type": "application/json"});
+    await AppState.meetingController.deleteAgendaPoint(widget.meetingId, index);
     setState(() {
       _agendaPoints = getAgendaPoints();
     });
   }
 
   Future<void> updateAgenda() async {
-    await AppState.authController.client.patch(Uri.parse("$apiUrl/meetings/${widget.meetingId}/agenda"),
-        headers: {"Content-Type": "application/json"},
-        body: json.encode(<String, dynamic>{
-          'agenda':
-              agenda.map((ap) => {'text': ap.text, 'level': ap.level}).toList(),
-        }));
+    await AppState.meetingController.updateAgenda(widget.meetingId, agenda);
     setState(() {
       _agendaPoints = getAgendaPoints();
     });
