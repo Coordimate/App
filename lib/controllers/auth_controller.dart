@@ -1,10 +1,8 @@
 import 'dart:developer';
 import 'dart:convert';
-
+import 'package:coordimate/app_state.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import 'package:http_interceptor/http_interceptor.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
 
@@ -26,35 +24,23 @@ class AuthorizationController {
 
   AuthorizationController({
     required this.plainClient,
-    this.storage = const FlutterSecureStorage(),
-    SharedPreferences? prefs,
-    http.Client? client
-  }) {
-    this.prefs = prefs != null ? Future.value(prefs) : SharedPreferences.getInstance();
-    this.client = client ?? InterceptedClient.build(
-        interceptors: [_AuthInterceptor(storage: storage)],
-        retryPolicy: _ExpiredTokenRetryPolicy(storage: storage));
-  }
+  });
 
-  late final Future<SharedPreferences> prefs;
-  late final http.Client client;
-  FlutterSecureStorage storage;
   final http.Client plainClient;
-
   static final GoogleSignIn _googleSignIn = GoogleSignIn();
   static final FacebookAuth _facebookAuth = FacebookAuth.instance;
 
   Future<String?> getAccountId() async {
-    return await storage.read(key: 'id_account');
+    return await AppState.storage.read(key: 'id_account');
   }
 
   void signOut() async {
-    final prefs = await this.prefs;
+    final prefs = await AppState.prefs;
     String? signInMethod = prefs.getString('sign_in_method');
     log("sign method: $signInMethod");
 
-    storage.delete(key: 'refresh_token');
-    storage.delete(key: 'access_token');
+    await AppState.storage.delete(key: 'refresh_token');
+    await AppState.storage.delete(key: 'access_token');
 
     prefs.remove('access_token');
     prefs.remove('refresh_token');
@@ -127,21 +113,21 @@ class AuthorizationController {
     final String accessToken = data['access_token'];
     final String refreshToken = data['refresh_token'];
 
-    await storage.write(key: 'access_token', value: accessToken);
-    await storage.write(key: 'refresh_token', value: refreshToken);
+    await AppState.storage.write(key: 'access_token', value: accessToken);
+    await AppState.storage.write(key: 'refresh_token', value: refreshToken);
 
-    final prefs = await this.prefs;
+    final prefs = await AppState.prefs;
     prefs.setString('access_token', accessToken);
     prefs.setString('refresh_token', refreshToken);
     prefs.setString('sign_in_method', signInType[signInMethod]!);
 
-    final meResponse = await client.get(Uri.parse('$apiUrl/me'));
+    final meResponse = await AppState.client.get(Uri.parse('$apiUrl/me'));
     if (meResponse.statusCode != 200) {
       log("error requesting user account from /me");
       return false;
     }
     final respBody = json.decode(meResponse.body);
-    await storage.write(key: 'id_account', value: respBody['id']);
+    await AppState.storage.write(key: 'id_account', value: respBody['id']);
     return true;
   }
 
@@ -215,81 +201,12 @@ class AuthorizationController {
     String? accessToken = prefs.getString("access_token");
     String? refreshToken = prefs.getString("refresh_token");
     if (accessToken != null && refreshToken != null) {
-      await storage.write(key: 'access_token', value: accessToken);
-      await storage.write(key: 'refresh_token', value: refreshToken);
+      await AppState.storage.write(key: 'access_token', value: accessToken);
+      await AppState.storage.write(key: 'refresh_token', value: refreshToken);
     }
-    final response = await client.get(Uri.parse('$apiUrl/me'));
+    final response = await AppState.client.get(Uri.parse('$apiUrl/me'));
     if (response.statusCode == 200) {
       return true;
-    }
-    return false;
-  }
-}
-
-class _AuthInterceptor implements InterceptorContract {
-  _AuthInterceptor({required this.storage});
-
-  final FlutterSecureStorage storage;
-
-  @override
-  Future<bool> shouldInterceptRequest() async => true;
-
-  @override
-  Future<bool> shouldInterceptResponse() async => false;
-
-  @override
-  Future<BaseRequest> interceptRequest({required BaseRequest request}) async {
-    String? accessToken = await storage.read(key: 'access_token');
-    if (accessToken == null) {
-      SharedPreferences prefs = await SharedPreferences.getInstance();
-      accessToken = prefs.getString('access_token');
-    }
-    if (accessToken != null) {
-      request.headers.addAll({
-        'Authorization': 'Bearer $accessToken',
-      });
-    }
-    return request;
-  }
-
-  @override
-  Future<BaseResponse> interceptResponse(
-      {required BaseResponse response}) async {
-    return response;
-  }
-}
-
-class _ExpiredTokenRetryPolicy extends RetryPolicy {
-  _ExpiredTokenRetryPolicy({required this.storage});
-
-  final FlutterSecureStorage storage;
-
-  @override
-  int get maxRetryAttempts => 1;
-
-  @override
-  Future<bool> shouldAttemptRetryOnResponse(BaseResponse response) async {
-    if (response.statusCode == 403) {
-      // Might be because of an expired token
-      final String? refreshToken = await storage.read(key: 'refresh_token');
-      if (refreshToken == null) {
-        return false;
-      }
-      final response = await http.post(Uri.parse("$apiUrl/refresh"),
-          headers: {'Content-Type': 'application/json'},
-          body: json.encode(<String, dynamic>{'refresh_token': refreshToken}));
-
-      if (response.statusCode == 200) {
-        final data = json.decode(response.body);
-        final String accessToken = data['access_token'];
-        final String refreshToken = data['refresh_token'];
-        await storage.write(key: 'access_token', value: accessToken);
-        await storage.write(key: 'refresh_token', value: refreshToken);
-        return true;
-      } else {
-        log("Failed to refresh token response code ${response.statusCode}");
-        return false;
-      }
     }
     return false;
   }

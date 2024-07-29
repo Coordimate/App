@@ -1,5 +1,4 @@
 import 'package:coordimate/components/colors.dart';
-import 'package:firebase_messaging/firebase_messaging.dart';
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -21,7 +20,7 @@ class HomeScreen extends StatefulWidget {
 
 class HomeScreenState extends State<HomeScreen> {
   int _selectedScreen = 1;
-  late StreamSubscription _sub;
+  late StreamSubscription _sub = const Stream.empty().listen((_) {});
 
   static final List<Widget> _screens = [
     const SchedulePage(),
@@ -107,13 +106,13 @@ class HomeScreenState extends State<HomeScreen> {
   }
 
   void _initNotifications() async {
-    await FirebaseMessaging.instance.requestPermission();
+    await AppState.firebaseMessagingInstance.requestPermission();
     // await FirebaseMessaging.instance.getAPNSToken();
-    final fcmToken = await FirebaseMessaging.instance.getToken();
+    final fcmToken = await AppState.firebaseMessagingInstance.getToken();
     if (fcmToken != null) {
       await AppState.userController.setFcmToken(fcmToken);
     }
-    FirebaseMessaging.instance.onTokenRefresh.listen((fcmToken) async {
+    AppState.firebaseMessagingInstance.onTokenRefresh.listen((fcmToken) async {
       await AppState.userController.setFcmToken(fcmToken);
     });
   }

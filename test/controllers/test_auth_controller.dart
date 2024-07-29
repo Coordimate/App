@@ -1,4 +1,6 @@
+import 'package:coordimate/app_state.dart';
 import 'package:coordimate/controllers/auth_controller.dart';
+import 'package:coordimate/keys.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/annotations.dart';
@@ -23,16 +25,16 @@ void main() {
       sharedPrefs = MockSharedPreferences();
       authController = AuthorizationController(
         plainClient: client,
-        storage: storage,
-        prefs: sharedPrefs,
-        client: client
       );
+      AppState.storage = storage;
+      AppState.prefs = Future.value(sharedPrefs);
+      AppState.client = client;
     });
 
     test('Failed email login due to incorrect credentials', () async {
 
       when(client.post(
-        Uri.parse('http://10.0.2.2:8000/login'),
+        Uri.parse('$apiUrl/login'),
         headers: anyNamed('headers'),
         body: anyNamed('body'),
       )).thenAnswer((_) async => http.Response('{"error": "Incorrect credentials"}', 400));
@@ -50,13 +52,13 @@ void main() {
           .thenAnswer((_) async => "value");
 
       when(client.post(
-        Uri.parse('http://10.0.2.2:8000/login'),
+        Uri.parse('$apiUrl/login'),
         headers: anyNamed('headers'),
         body: anyNamed('body'),
       )).thenAnswer((_) async => http.Response('{"access_token": "1", "refresh_token": "1"}', 200));
 
       when(client.get(
-        Uri.parse('http://10.0.2.2:8000/me'),
+        Uri.parse('$apiUrl/me'),
         headers: anyNamed('headers'),
       )).thenAnswer((_) async => http.Response('{"id": "1", "email": "user@example.com"}', 200));
 

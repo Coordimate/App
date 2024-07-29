@@ -5,7 +5,6 @@ import 'package:coordimate/app_state.dart';
 import 'package:coordimate/models/groups.dart';
 import 'package:coordimate/pages/schedule_page.dart';
 
-
 class ScheduleController {
   String scheduleUrl = '';
   String pageTitle = 'Schedule';
@@ -15,7 +14,7 @@ class ScheduleController {
   Future<List<TimeSlot>> getTimeSlots() async {
     var url = Uri.parse(scheduleUrl);
     final response =
-    await AppState.authController.client.get(url, headers: {"Content-Type": "application/json"});
+    await AppState.client.get(url, headers: {"Content-Type": "application/json"});
     final List body = json.decode(response.body)['time_slots'];
     return body.map((e) => TimeSlot.fromJson(e)).toList();
   }
@@ -24,7 +23,7 @@ class ScheduleController {
     if (!isModifiable) {
       return;
     }
-    await AppState.authController.client.post(Uri.parse(scheduleUrl),
+    await AppState.client.post(Uri.parse(scheduleUrl),
         headers: {"Content-Type": "application/json"},
         body: json.encode(<String, dynamic>{
           'is_meeting': false,
@@ -38,7 +37,7 @@ class ScheduleController {
     if (!isModifiable) {
       return;
     }
-    await AppState.authController.client.delete(Uri.parse("$apiUrl/time_slots/$id"),
+    await AppState.client.delete(Uri.parse("$apiUrl/time_slots/$id"),
         headers: {"Content-Type": "application/json"});
   }
 
@@ -46,7 +45,7 @@ class ScheduleController {
     if (!isModifiable) {
       return;
     }
-    await AppState.authController.client.patch(Uri.parse("$apiUrl/time_slots/$id"),
+    await AppState.client.patch(Uri.parse("$apiUrl/time_slots/$id"),
         headers: {"Content-Type": "application/json"},
         body: json.encode(<String, dynamic>{
           'id': id,
@@ -60,7 +59,7 @@ class ScheduleController {
     final match = regex.firstMatch(uri.path);
     if (match != null) {
       final userId = match.group(1)!;
-      final response = await AppState.authController.client.get(Uri.parse("$apiUrl/users/$userId"));
+      final response = await AppState.client.get(Uri.parse("$apiUrl/users/$userId"));
       if (response.statusCode != 200) {
         throw Exception('Failed to parse user schedule link');
       }
@@ -74,7 +73,7 @@ class ScheduleController {
     final match = regex.firstMatch(uri.path);
     if (match != null) {
       final groupId = match.group(1)!;
-      final response = await AppState.authController.client.get(Uri.parse("$apiUrl/groups/$groupId"));
+      final response = await AppState.client.get(Uri.parse("$apiUrl/groups/$groupId"));
       if (response.statusCode != 200) {
         throw Exception('Failed to parse group join link');
       }

@@ -6,7 +6,7 @@ import 'package:coordimate/models/user.dart';
 class UserController {
 
   Future<void> setFcmToken(String fcmToken) async {
-    await AppState.authController.client.post(Uri.parse('$apiUrl/enable_notifications'),
+    await AppState.client.post(Uri.parse('$apiUrl/enable_notifications'),
         headers: <String, String>{'Content-Type': 'application/json'},
         body: json.encode(<String, dynamic>{'fcm_token': fcmToken}));
   }
@@ -14,7 +14,7 @@ class UserController {
   Future<User> getInfo() async {
     final id = await AppState.authController.getAccountId();
     var url = Uri.parse("$apiUrl/users/$id");
-    final response = await AppState.authController.client.get(
+    final response = await AppState.client.get(
         url,
         headers: {"Content-Type": "application/json"}
     );
@@ -26,7 +26,7 @@ class UserController {
 
   Future<void> changeUsername(username, id) async {
     var url = Uri.parse("$apiUrl/users/$id");
-    final response = await AppState.authController.client.patch(url,
+    final response = await AppState.client.patch(url,
         headers: {"Content-Type": "application/json"},
         body: jsonEncode(<String, dynamic>{
           'username': username,
@@ -39,7 +39,7 @@ class UserController {
   Future<void> deleteUser(id) async {
     var url = Uri.parse("$apiUrl/users/$id");
     final response =
-    await AppState.authController.client.delete(
+    await AppState.client.delete(
         url,
         headers: {"Content-Type": "application/json"}
     );
@@ -50,7 +50,7 @@ class UserController {
 
   Future<bool> sendChangePswdRequest(newPswd, oldPswd) async {
     var url = Uri.parse("$apiUrl/change_password");
-    final response = await AppState.authController.client.post(url,
+    final response = await AppState.client.post(url,
         headers: {"Content-Type": "application/json"},
         body: jsonEncode(<String, dynamic>{
           'new_password': newPswd,

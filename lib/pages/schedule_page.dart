@@ -522,7 +522,7 @@ class SchedulePage extends StatelessWidget {
   Future<void> shareSchedule() async {
     var url = Uri.parse("$apiUrl/share_schedule");
     final response =
-        await AppState.authController.client.get(url, headers: {"Content-Type": "application/json"});
+        await AppState.client.get(url, headers: {"Content-Type": "application/json"});
     if (response.statusCode != 200) {
       throw Exception('Failed to share schedule');
     }

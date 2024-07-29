@@ -36,12 +36,12 @@ class JoinGroupDialog extends StatelessWidget {
               style: TextStyle(
                   color: darkBlue, fontWeight: FontWeight.bold, fontSize: 20)),
           onPressed: () async {
-            await AppState.authController.client.post(Uri.parse("$apiUrl/groups/$groupId/join"),
+            await AppState.client.post(Uri.parse("$apiUrl/groups/$groupId/join"),
                 headers: {"Content-Type": "application/json"});
             if (context.mounted) {
               Navigator.of(context).pop();
             }
-            final response = await AppState.authController.client.get(Uri.parse("$apiUrl/groups/$groupId"));
+            final response = await AppState.client.get(Uri.parse("$apiUrl/groups/$groupId"));
             if (response.statusCode == 200) {
               final group = Group.fromJson(json.decode(response.body));
               Navigator.of(context).push(
