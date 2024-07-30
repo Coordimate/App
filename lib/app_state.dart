@@ -7,6 +7,7 @@ import 'package:http/http.dart' as http;
 import 'package:coordimate/controllers/auth_controller.dart';
 import 'package:coordimate/controllers/meeting_controller.dart';
 import 'package:coordimate/controllers/user_controller.dart';
+import 'package:coordimate/controllers/group_controller.dart';
 import 'package:http/http.dart';
 import 'package:http_interceptor/http/intercepted_client.dart';
 import 'package:http_interceptor/models/interceptor_contract.dart';
@@ -26,6 +27,7 @@ class  AppState {
   static final meetingController = MeetingController();
   static final scheduleController = ScheduleController();
   static final userController = UserController();
+  static final groupController = GroupController();
 }
 
 // TODO: make the class not private by removing the underscore and move it to another file

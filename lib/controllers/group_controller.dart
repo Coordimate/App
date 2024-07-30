@@ -1,36 +1,79 @@
-import 'dart:developer';
 import 'dart:convert';
 
-import 'package:coordimate/app_state.dart';
-import 'package:coordimate/models/user.dart';
-import 'package:http/http.dart' as http;
-import 'package:shared_preferences/shared_preferences.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import 'package:http_interceptor/http_interceptor.dart';
-import 'package:google_sign_in/google_sign_in.dart';
-import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
+import 'package:share_plus/share_plus.dart';
 
+import 'package:coordimate/app_state.dart';
+import 'package:coordimate/models/groups.dart';
+import 'package:coordimate/models/user.dart';
+import 'package:coordimate/models/meeting.dart';
 import 'package:coordimate/keys.dart';
 
 class GroupController {
-  Future<void> fetchGroupMeetings() async {
-    final response = await AppState.authController.client
-        .get(Uri.parse("$apiUrl/groups/${widget.group.id}/meetings"));
+  Future<List<Group>> getGroups() async {
+    final response = await AppState.client.get(Uri.parse("$apiUrl/groups"));
+    if (response.statusCode == 200) {
+      // Checks for successful response
+      final List body = json.decode(response.body)["groups"];
+      return body.map((e) => Group.fromJson(e)).toList();
+    } else {
+      throw Exception('Failed to load groups'); // Handles failed response
+    }
+  }
+
+  Future<void> createGroup(String name, String description) async {
+    final response = await AppState.client.post(
+      Uri.parse("$apiUrl/groups"),
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+      },
+      body: jsonEncode(<String, dynamic>{
+        'name': name,
+        'description': description,
+      }),
+    );
+    if (response.statusCode == 201) {
+      await getGroups();
+    } else {
+      throw Exception('Failed to create group');
+    }
+  }
+
+  Future<List<MeetingTileModel>> fetchGroupMeetings(id) async {
+    final response =
+        await AppState.client.get(Uri.parse("$apiUrl/groups/$id/meetings"));
 
     if (response.statusCode == 200) {
-      setState(() {
-        meetings = (json.decode(response.body)['meetings'] as List)
-            .map((data) => MeetingTileModel.fromJson(data))
-            .toList();
-      });
+      return (json.decode(response.body)['meetings'] as List)
+          .map((data) => MeetingTileModel.fromJson(data))
+          .toList();
     } else {
       throw Exception('Failed to load group meetings');
     }
   }
 
-  Future<void> updateGroupDescription(description) async {
-    var url = Uri.parse("$apiUrl/groups/${widget.group.id}");
-    final response = await AppState.authController.client.patch(url,
+  Future<void> createMeeting(String title, String start, String description, String groupId) async {
+    final response = await AppState.client.post(
+      Uri.parse("$apiUrl/meetings"),
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+      },
+      body: jsonEncode(<String, dynamic>{
+        'title': title,
+        'start': start,
+        'description': description,
+        'group_id': groupId,
+      }),
+    );
+    if (response.statusCode == 201) {
+      AppState.groupController.fetchGroupMeetings(groupId);
+    } else {
+      throw Exception('Failed to create meeting');
+    }
+  }
+
+  Future<void> updateGroupDescription(String id, String description) async {
+    var url = Uri.parse("$apiUrl/groups/$id");
+    final response = await AppState.client.patch(url,
         headers: {
           "Content-Type": "application/json",
         },
@@ -40,12 +83,11 @@ class GroupController {
     if (response.statusCode != 200) {
       throw Exception('Failed to update group description');
     }
-    widget.group.description = description;
   }
 
-  Future<void> updateGroupName(name) async {
-    var url = Uri.parse("$apiUrl/groups/${widget.group.id}");
-    final response = await AppState.authController.client.patch(url,
+  Future<void> updateGroupName(String id, String name) async {
+    var url = Uri.parse("$apiUrl/groups/$id");
+    final response = await AppState.client.patch(url,
         headers: {
           "Content-Type": "application/json",
         },
@@ -55,12 +97,10 @@ class GroupController {
     if (response.statusCode != 200) {
       throw Exception('Failed to update group name');
     }
-    widget.group.name = name;
   }
 
-  Future<List<UserCard>> fetchGroupUsers() async {
-    final response =
-    await AppState.authController.client.get(Uri.parse("$apiUrl/groups/${widget.group.id}"));
+  Future<List<UserCard>> fetchGroupUsers(id) async {
+    final response = await AppState.client.get(Uri.parse("$apiUrl/groups/$id"));
 
     if (response.statusCode == 200) {
       return (json.decode(response.body)['users'] as List)
@@ -71,14 +111,14 @@ class GroupController {
     }
   }
 
-  Future<void> shareInviteLink() async {
-    var url = Uri.parse("$apiUrl/groups/${widget.group.id}/invite");
-    final response =
-    await AppState.authController.client.get(url, headers: {"Content-Type": "application/json"});
+  Future<void> shareInviteLink(id) async {
+    var url = Uri.parse("$apiUrl/groups/$id/invite");
+    final response = await AppState.client
+        .get(url, headers: {"Content-Type": "application/json"});
     if (response.statusCode != 200) {
       throw Exception('Failed to share schedule');
     }
-    final body = json.decode(response.body)['join_link'].toString();
+    final body = json.decode(response.body).toString();
     Share.share(body);
   }
 }

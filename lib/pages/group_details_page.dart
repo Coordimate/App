@@ -11,8 +11,6 @@ import 'package:coordimate/models/groups.dart';
 import 'package:coordimate/components/divider.dart';
 import 'package:coordimate/components/meeting_tiles.dart';
 import 'package:coordimate/models/meeting.dart';
-import 'package:coordimate/keys.dart';
-import 'dart:convert';
 import 'package:intl/intl.dart';
 import 'package:coordimate/pages/meetings_archive.dart';
 import 'package:coordimate/components/snack_bar.dart';
@@ -23,16 +21,17 @@ import 'package:coordimate/components/text_field_with_edit.dart';
 
 class GroupDetailsPage extends StatefulWidget {
   final Group group;
+
   //ToDo: understand whatever this blue line means here
   const GroupDetailsPage({super.key, required this.group});
 
   @override
-  _GroupDetailsPageState createState() => _GroupDetailsPageState();
+  GroupDetailsPageState createState() => GroupDetailsPageState();
 }
 
-class _GroupDetailsPageState extends State<GroupDetailsPage> {
-  List<MeetingTileModel> meetings = [];
+class GroupDetailsPageState extends State<GroupDetailsPage> {
   List<UserCard> users = [];
+  List<MeetingTileModel> meetings = [];
   final TextEditingController _titleController = TextEditingController();
   final TextEditingController _descriptionController = TextEditingController();
   DateTime _selectedDate = DateTime.now().add(const Duration(minutes: 10));
@@ -55,11 +54,27 @@ class _GroupDetailsPageState extends State<GroupDetailsPage> {
   @override
   void initState() {
     super.initState();
-    _fetchGroupMeetings();
-    _fetchGroupUsers();
+    _fetchMeetings();
+    _fetchUsers();
     groupDescriptionController.text = widget.group.description;
     groupNameController.text = widget.group.name;
     groupEmptyDescriptionController.text = "No group description";
+  }
+
+  Future<void> _fetchUsers() async {
+    final usersFetched =
+        await AppState.groupController.fetchGroupUsers(widget.group.id);
+    setState(() {
+      users = usersFetched;
+    });
+  }
+
+  Future<void> _fetchMeetings() async {
+    final meetingsFetched =
+        await AppState.groupController.fetchGroupMeetings(widget.group.id);
+    setState(() {
+      meetings = meetingsFetched;
+    });
   }
 
   Future<void> _selectDate() async {
@@ -152,26 +167,6 @@ class _GroupDetailsPageState extends State<GroupDetailsPage> {
             hours: pickedDuration.inHours,
             minutes: pickedDuration.inMinutes.remainder(60));
       });
-    }
-  }
-
-  Future<void> _createMeeting() async {
-    final response = await AppState.authController.client.post(
-      Uri.parse("$apiUrl/meetings"),
-      headers: <String, String>{
-        'Content-Type': 'application/json; charset=UTF-8',
-      },
-      body: jsonEncode(<String, dynamic>{
-        'title': _titleController.text,
-        'start': _selectedDate.toIso8601String(),
-        'description': _descriptionController.text,
-        'group_id': widget.group.id,
-      }),
-    );
-    if (response.statusCode == 201) {
-      _fetchGroupMeetings();
-    } else {
-      throw Exception('Failed to create meeting');
     }
   }
 
@@ -312,9 +307,14 @@ class _GroupDetailsPageState extends State<GroupDetailsPage> {
                         flushbarPosition: FlushbarPosition.TOP,
                       ).show(context);
                     } else {
-                      _createMeeting();
+                      AppState.groupController.createMeeting(
+                          _titleController.text,
+                          _selectedDate.toIso8601String(),
+                          _descriptionController.text,
+                          widget.group.id);
                       clearControllers();
                       Navigator.of(context).pop();
+                      _fetchMeetings();
                     }
                   },
                   onNo: () {
@@ -349,7 +349,6 @@ class _GroupDetailsPageState extends State<GroupDetailsPage> {
     List<MeetingTileModel> archivedMeetings =
         acceptedPassedMeetings + declinedMeetings;
     archivedMeetings.sort((a, b) => b.dateTime.compareTo(a.dateTime));
-
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: CustomAppBar(
@@ -369,7 +368,7 @@ class _GroupDetailsPageState extends State<GroupDetailsPage> {
             MaterialPageRoute(
               builder: (context) => MeetingsArchivePage(
                   meetings: archivedMeetings,
-                  fetchMeetings: _fetchGroupMeetings),
+                  fetchMeetings: AppState.groupController.fetchGroupMeetings),
             ),
           );
         },
@@ -387,7 +386,7 @@ class _GroupDetailsPageState extends State<GroupDetailsPage> {
                     icon: const Icon(Icons.group_add),
                     iconSize: 43.0,
                     onPressed: () {
-                      shareInviteLink();
+                      AppState.groupController.shareInviteLink(widget.group.id);
                     },
                   ),
                   CircleAvatar(
@@ -413,7 +412,10 @@ class _GroupDetailsPageState extends State<GroupDetailsPage> {
                 child: EditableTextField(
                   controller: groupNameController,
                   focusNode: focusNode,
-                  onSubmit: updateGroupName,
+                  onSubmit: (String s) {
+                    AppState.groupController
+                        .updateGroupName(widget.group.id, s);
+                  },
                   fontSize: universalFontSize,
                   padding: horPadding,
                   maxLength: 20,
@@ -487,7 +489,10 @@ class _GroupDetailsPageState extends State<GroupDetailsPage> {
                         child: EditableTextField(
                           controller: groupDescriptionController,
                           focusNode: focusNode,
-                          onSubmit: updateGroupDescription,
+                          onSubmit: (String s) {
+                            AppState.groupController
+                                .updateGroupDescription(widget.group.id, s);
+                          },
                           fontSize: universalFontSize,
                           padding: horPadding,
                           maxLength: 100,
@@ -506,7 +511,10 @@ class _GroupDetailsPageState extends State<GroupDetailsPage> {
                           placeHolderText: "No Group Description",
                           controller: groupDescriptionController,
                           focusNode: focusNode,
-                          onSubmit: updateGroupDescription,
+                          onSubmit: (String s) {
+                            AppState.groupController
+                                .updateGroupDescription(widget.group.id, s);
+                          },
                           fontSize: universalFontSize,
                           padding: horPadding,
                           maxLength: 100,
@@ -599,12 +607,12 @@ class _GroupDetailsPageState extends State<GroupDetailsPage> {
             if (meetings[index].status == MeetingStatus.declined) {
               return ArchivedMeetingTile(
                 meeting: meetings[index],
-                fetchMeetings: _fetchGroupMeetings,
+                fetchMeetings: AppState.groupController.fetchGroupMeetings,
               );
             } else if (meetings[index].status == MeetingStatus.accepted) {
               return AcceptedMeetingTile(
                 meeting: meetings[index],
-                fetchMeetings: _fetchGroupMeetings,
+                fetchMeetings: AppState.groupController.fetchGroupMeetings,
               );
             } else {
               return const Text("No one will see this");

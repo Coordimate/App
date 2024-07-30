@@ -2,10 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:coordimate/components/colors.dart';
 import 'package:coordimate/components/appbar.dart';
 import 'package:coordimate/models/groups.dart';
-import 'package:coordimate/keys.dart';
 import 'package:coordimate/app_state.dart';
 import 'group_details_page.dart';
-import 'dart:convert';
 
 class GroupsPage extends StatefulWidget {
   const GroupsPage({super.key});
@@ -15,65 +13,31 @@ class GroupsPage extends StatefulWidget {
 }
 
 class _GroupsPageState extends State<GroupsPage> {
-  Future<List<Group>>? _groupsFuture;
-  List<Group> _groups = [];
+  List<Group> groups = [];
 
   @override
   void initState() {
     super.initState();
-    _groupsFuture = _getGroups();
+    _fetchGroups();
   }
 
-  Future<List<Group>> _getGroups() async {
-    try {
-      // Added error handling to catch exceptions
-      final response = await AppState.client.get(Uri.parse("$apiUrl/groups"));
-      if (response.statusCode == 200) {
-        // Checks for successful response
-        final List body = json.decode(response.body)["groups"];
-        setState(() {
-          _groups = body.map((e) => Group.fromJson(e)).toList();
-        });
-        return _groups;
-      } else {
-        throw Exception('Failed to load groups'); // Handles failed response
-      }
-    } catch (e) {
-      print(e); //ToDo: also this one
-      return [];
-    }
-  }
-
-  Future<void> _createGroup(String name, String description) async {
-    try {
-      // Added error handling to catch exceptions
-      final response = await AppState.client.post(
-        Uri.parse("$apiUrl/groups"),
-        headers: <String, String>{
-          'Content-Type': 'application/json; charset=UTF-8',
-        },
-        body: jsonEncode(<String, dynamic>{
-          'name': name,
-          'description': description,
-        }),
-      );
-      if (response.statusCode == 201) {
-        await _getGroups();
-      } else {
-        throw Exception('Failed to create group');
-      }
-    } catch (e) {
-      print(e); //ToDo: is this necessary here?
-    }
+  Future<void> _fetchGroups() async {
+    final fetchedGroups = await AppState.groupController.getGroups();
+    setState(() {
+      groups = fetchedGroups;
+    });
   }
 
   void _showCreateGroupDialog() {
     showDialog(
       context: context,
       builder: (context) {
-        return CreateGroupDialog(onCreateGroup: _createGroup);
+        return CreateGroupDialog(
+            onCreateGroup: AppState.groupController.createGroup,
+            fetchGroups: _fetchGroups);
       },
     );
+    _fetchGroups();
   }
 
   Future<void> _navigateToGroupDetails(Group group) async {
@@ -87,114 +51,91 @@ class _GroupsPageState extends State<GroupsPage> {
 
     if (result == true) {
       // Reload groups when coming back
-      _groupsFuture = _getGroups();
-      setState(() {}); // Trigger a rebuild to show the updated groups
+      _fetchGroups();
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder<List<Group>>(
-      future: _groupsFuture,
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Center(child: CircularProgressIndicator());
-        } else if (snapshot.hasError) {
-          return const Scaffold(
-            appBar: CustomAppBar(
-                title: "Groups",
-                needButton: false), // Added needButton parameter
-            body: Center(child: Text('Failed to load groups')),
-          );
-        } else if (snapshot.hasData) {
-          return Scaffold(
-            backgroundColor: Colors.white,
-            appBar: CustomAppBar(
-              title: "Groups",
-              needButton: true,
-              onPressed: _showCreateGroupDialog,
-            ),
-            body: ListView.builder(
-              itemCount: _groups.length,
-              itemBuilder: (context, index) {
-                return GestureDetector(
-                  onTap: () => _navigateToGroupDetails(_groups[index]),
-                  child: Container(
-                    decoration: BoxDecoration(
-                      color: darkBlue,
-                      borderRadius: BorderRadius.circular(10),
+    return Scaffold(
+      backgroundColor: Colors.white,
+      appBar: CustomAppBar(
+        title: "Groups",
+        needButton: true,
+        onPressed: _showCreateGroupDialog,
+      ),
+      body: ListView.builder(
+        itemCount: groups.length,
+        itemBuilder: (context, index) {
+          return GestureDetector(
+            onTap: () => _navigateToGroupDetails(groups[index]),
+            child: Container(
+              decoration: BoxDecoration(
+                color: darkBlue,
+                borderRadius: BorderRadius.circular(10),
+              ),
+              margin: const EdgeInsets.symmetric(vertical: 5, horizontal: 10),
+              padding: const EdgeInsets.all(10),
+              child: Row(
+                children: [
+                  Container(
+                    width: 70,
+                    height: 70,
+                    decoration: const BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: Colors.white,
                     ),
-                    margin:
-                        const EdgeInsets.symmetric(vertical: 5, horizontal: 10),
-                    padding: const EdgeInsets.all(10),
-                    child: Row(
+                  ),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Container(
-                          width: 70,
-                          height: 70,
-                          decoration: const BoxDecoration(
-                            shape: BoxShape.circle,
+                        Text(
+                          groups[index].name,
+                          style: const TextStyle(
+                            fontSize: 30,
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                          ),
+                          overflow: TextOverflow
+                              .ellipsis, // Truncate text with ellipsis
+                        ),
+                        const SizedBox(height: 5),
+                        Text(
+                          groups[index].description,
+                          style: const TextStyle(
+                            fontSize: 16,
                             color: Colors.white,
                           ),
-                        ),
-                        const SizedBox(width: 10),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                _groups[index].name,
-                                style: const TextStyle(
-                                  fontSize: 30,
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                                overflow: TextOverflow
-                                    .ellipsis, // Truncate text with ellipsis
-                              ),
-                              const SizedBox(height: 5),
-                              Text(
-                                _groups[index].description,
-                                style: const TextStyle(
-                                  fontSize: 16,
-                                  color: Colors.white,
-                                ),
-                                overflow: TextOverflow
-                                    .ellipsis, // Truncate text with ellipsis
-                              ),
-                            ],
-                          ),
+                          overflow: TextOverflow
+                              .ellipsis, // Truncate text with ellipsis
                         ),
                       ],
                     ),
                   ),
-                );
-              },
+                ],
+              ),
             ),
           );
-        } else {
-          return const Scaffold(
-            appBar: CustomAppBar(
-                title: "Groups",
-                needButton: false), // Added needButton parameter
-            body: Center(child: Text('No groups available')),
-          );
-        }
-      },
+        },
+      ),
     );
   }
 }
 
 class CreateGroupDialog extends StatefulWidget {
   final Future<void> Function(String name, String description) onCreateGroup;
+  final Future<void> Function() fetchGroups;
 
-  const CreateGroupDialog({super.key, required this.onCreateGroup});
+  const CreateGroupDialog(
+      {super.key, required this.onCreateGroup, required this.fetchGroups});
 
   @override
-  _CreateGroupDialogState createState() => _CreateGroupDialogState();
+  CreateGroupDialogState createState() => CreateGroupDialogState();
 }
 
-class _CreateGroupDialogState extends State<CreateGroupDialog> {
+class CreateGroupDialogState extends State<CreateGroupDialog> {
   String groupName = '';
   String groupDescription = '';
 
@@ -241,8 +182,8 @@ class _CreateGroupDialogState extends State<CreateGroupDialog> {
                   groupDescription = val;
                 });
               },
-              maxLines:
-                  null, // Allow the TextField to expand vertically based on content
+              maxLines: null,
+              // Allow the TextField to expand vertically based on content
               maxLength: 100,
               decoration: InputDecoration(
                 contentPadding: const EdgeInsets.all(10),
@@ -276,7 +217,8 @@ class _CreateGroupDialogState extends State<CreateGroupDialog> {
                 onPressed: () async {
                   if (groupName.isNotEmpty && groupName.length <= 20) {
                     await widget.onCreateGroup(groupName, groupDescription);
-                    Navigator.of(context).pop();
+                    await widget.fetchGroups();
+                    Navigator.pop(context);
                   }
                 },
                 child: const Text(
