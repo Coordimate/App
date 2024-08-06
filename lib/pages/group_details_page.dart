@@ -385,8 +385,9 @@ class GroupDetailsPageState extends State<GroupDetailsPage> {
                   IconButton(
                     icon: const Icon(Icons.group_add),
                     iconSize: 43.0,
-                    onPressed: () {
-                      AppState.groupController.shareInviteLink(widget.group.id);
+                    onPressed: () async {
+                      final link = await AppState.groupController.shareInviteLink(widget.group.id);
+                      Share.share(link);
                     },
                   ),
                   CircleAvatar(

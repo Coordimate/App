@@ -31,9 +31,7 @@ class GroupController {
         'description': description,
       }),
     );
-    if (response.statusCode == 201) {
-      await getGroups();
-    } else {
+    if (response.statusCode != 201) {
       throw Exception('Failed to create group');
     }
   }
@@ -64,9 +62,7 @@ class GroupController {
         'group_id': groupId,
       }),
     );
-    if (response.statusCode == 201) {
-      AppState.groupController.fetchGroupMeetings(groupId);
-    } else {
+    if (response.statusCode != 201) {
       throw Exception('Failed to create meeting');
     }
   }
@@ -111,14 +107,13 @@ class GroupController {
     }
   }
 
-  Future<void> shareInviteLink(id) async {
+  Future<String> shareInviteLink(id) async {
     var url = Uri.parse("$apiUrl/groups/$id/invite");
     final response = await AppState.client
         .get(url, headers: {"Content-Type": "application/json"});
     if (response.statusCode != 200) {
       throw Exception('Failed to share schedule');
     }
-    final body = json.decode(response.body).toString();
-    Share.share(body);
+    return json.decode(response.body)['join_link'].toString();
   }
 }
