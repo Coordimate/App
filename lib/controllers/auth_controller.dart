@@ -68,11 +68,8 @@ class AuthorizationController {
           log('Google User failed to sign in');
           return false;
         }
-        final googleIdToken = (await googleUser.authentication).idToken;
-        if (googleIdToken == null) return false;
         body = {
           "email": googleUser.email,
-          "google_id_token": googleIdToken,
           "auth_type": signInType[AuthType.google]!
         };
       case AuthType.facebook:
@@ -89,7 +86,6 @@ class AuthorizationController {
         final String email = userData['email'] as String;
         body = {
           "email": email,
-          // TODO: add facebook token for verification on the backend
           "auth_type": signInType[AuthType.facebook]!
         };
       default:
@@ -146,8 +142,6 @@ class AuthorizationController {
         final googleUser = await _googleSignIn.signIn();
         if (googleUser == null) return false;
         email = googleUser.email;
-        final googleIdToken = (await googleUser.authentication).idToken;
-        if (googleIdToken == null) return false;
         body = {
           "username": username,
           "email": email,

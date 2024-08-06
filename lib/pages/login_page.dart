@@ -73,107 +73,112 @@ class _LoginPageState extends State<LoginPage> {
     return Scaffold(
       resizeToAvoidBottomInset: true,
       backgroundColor: Colors.white,
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-
-            const Text("Welcome Back",
-              style: TextStyle(
-                color: darkBlue,
-                fontSize: 40,
-                fontWeight: FontWeight.bold,
-              )
-            ),
-
-            const SizedBox(height: 24),
-
-            Form(
-              key: _formKey,
-              child: Column(
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 24.0),
-                    child: LoginTextField(
-                      key: emailFieldKey,
-                      controller: emailController,
-                      hintText: "E-mail",
-                      label: "e-mail",
-                      obscureText: false,
-                      icon: pathEmail,
-                      keyboardType: TextInputType.emailAddress,
+      body: SingleChildScrollView(
+        child: ConstrainedBox(
+          constraints: BoxConstraints(
+          maxHeight: MediaQuery.of(context).size.height,
+          ),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+        
+              const Text("Welcome Back",
+                style: TextStyle(
+                  color: darkBlue,
+                  fontSize: 40,
+                  fontWeight: FontWeight.bold,
+                )
+              ),
+        
+              const SizedBox(height: 24),
+        
+              Form(
+                key: _formKey,
+                child: Column(
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 24.0),
+                      child: LoginTextField(
+                        key: emailFieldKey,
+                        controller: emailController,
+                        hintText: "E-mail",
+                        label: "e-mail",
+                        obscureText: false,
+                        icon: pathEmail,
+                        keyboardType: TextInputType.emailAddress,
+                      ),
                     ),
-                  ),
-                  const SizedBox(height: 24),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 24.0),
-                    child: LoginTextField(
-                      key: passwordFieldKey,
-                      controller: passwordController,
-                      hintText: "Password",
-                      label: "password",
-                      obscureText: true,
-                      icon: pathLock,
-                      keyboardType: TextInputType.visiblePassword,
+                    const SizedBox(height: 24),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 24.0),
+                      child: LoginTextField(
+                        key: passwordFieldKey,
+                        controller: passwordController,
+                        hintText: "Password",
+                        label: "password",
+                        obscureText: true,
+                        icon: pathLock,
+                        keyboardType: TextInputType.visiblePassword,
+                      ),
                     ),
-                  ),
-                  const SizedBox(height: 16),
-                  const Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 24.0),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      children: [
-                        Text(
-                          "Forgot password?",
-                          style: TextStyle(
-                            color: mediumBlue,
-                            fontSize: 16,
+                    const SizedBox(height: 16),
+                    const Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 24.0),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+                          Text(
+                            "Forgot password?",
+                            style: TextStyle(
+                              color: mediumBlue,
+                              fontSize: 16,
+                            ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
+                    const SizedBox(height: 24),
+                    LoginButton(
+                      key: loginButtonKey,
+                      onTap: signUserIn,
+                      text: "Log In"
+                    ),
+                  ],
+                ),
+              ),
+        
+              const SizedBox(height: 24),
+        
+              const Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  SquareTile(
+                    key: googleTileKey,
+                    imagePath: 'lib/images/google.png',
+                    authType: AuthType.google
                   ),
-                  const SizedBox(height: 24),
-                  LoginButton(
-                    key: loginButtonKey,
-                    onTap: signUserIn,
-                    text: "Log In"
+                  SizedBox(width: 48),
+                  SquareTile(
+                    key: facebookTileKey,
+                    imagePath: 'lib/images/facebook.png',
+                    authType: AuthType.facebook
                   ),
                 ],
               ),
-            ),
-
-            const SizedBox(height: 24),
-
-            const Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                SquareTile(
-                  key: googleTileKey,
-                  imagePath: 'lib/images/google.png',
-                  authType: AuthType.google
-                ),
-                SizedBox(width: 48),
-                SquareTile(
-                  key: facebookTileKey,
-                  imagePath: 'lib/images/facebook.png',
-                  authType: AuthType.facebook
-                ),
-              ],
-            ),
-
-            const SizedBox(height: 16),
-
-            const CustomDivider(text: "Do not have an account?"),
-
-            const SizedBox(height: 16),
-
-            LoginEmptyButton(
-              key: registerButtonKey,
-              text: "Register",
-              onTap: _goToRegisterPage
-            ),
-          ],
+        
+              const SizedBox(height: 16),
+        
+              const CustomDivider(text: "Do not have an account?"),
+        
+              const SizedBox(height: 16),
+        
+              LoginEmptyButton(
+                key: registerButtonKey,
+                text: "Register",
+                onTap: _goToRegisterPage
+              ),
+            ],
+          ),
         ),
       ),
     );
