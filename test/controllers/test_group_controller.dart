@@ -1,4 +1,3 @@
-import 'dart:convert';
 import 'package:coordimate/app_state.dart';
 import 'package:coordimate/keys.dart';
 import 'package:coordimate/models/meeting.dart';
@@ -8,7 +7,7 @@ import 'package:mockito/annotations.dart';
 import 'package:http/http.dart' as http;
 import 'package:mockito/mockito.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'test_auth_controller.mocks.dart';
+import 'test_group_controller.mocks.dart';
 
 @GenerateMocks([http.Client, FlutterSecureStorage, SharedPreferences])
 void main() {

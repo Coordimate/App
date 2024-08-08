@@ -49,24 +49,6 @@ class GroupController {
     }
   }
 
-  Future<void> createMeeting(String title, String start, String description, String groupId) async {
-    final response = await AppState.client.post(
-      Uri.parse("$apiUrl/meetings"),
-      headers: <String, String>{
-        'Content-Type': 'application/json; charset=UTF-8',
-      },
-      body: jsonEncode(<String, dynamic>{
-        'title': title,
-        'start': start,
-        'description': description,
-        'group_id': groupId,
-      }),
-    );
-    if (response.statusCode != 201) {
-      throw Exception('Failed to create meeting');
-    }
-  }
-
   Future<void> updateGroupDescription(String id, String description) async {
     var url = Uri.parse("$apiUrl/groups/$id");
     final response = await AppState.client.patch(url,
