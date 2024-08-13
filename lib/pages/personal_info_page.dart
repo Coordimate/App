@@ -1,5 +1,6 @@
 import 'package:another_flushbar/flushbar.dart';
 import 'package:coordimate/components/appbar.dart';
+import 'package:coordimate/components/avatar.dart';
 import 'package:coordimate/components/colors.dart';
 import 'package:coordimate/components/login_button.dart';
 import 'package:coordimate/components/pop_up_dialog.dart';
@@ -106,11 +107,7 @@ class _PersonalPageState extends State<PersonalPage> {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: <Widget>[
-                    const CircleAvatar(
-                      radius: 70,
-                      backgroundImage: NetworkImage(
-                          'https://www.w3schools.com/w3images/avatar2.png'),
-                    ),
+                    Avatar(size: 120, key: UniqueKey(), userId: user.id, clickable: true),
                     const SizedBox(height: 16),
                     Padding(
                       padding:

@@ -9,6 +9,7 @@ import 'package:share_plus/share_plus.dart';
 import 'package:flutter/services.dart';
 import 'package:coordimate/pages/meeting_summary_page.dart';
 import 'package:coordimate/app_state.dart';
+import 'package:coordimate/components/avatar.dart';
 
 class MeetingDetailsPage extends StatefulWidget {
   final MeetingDetails meeting;
@@ -288,9 +289,7 @@ class _MeetingDetailsPageState extends State<MeetingDetailsPage> {
               Column(
                 children: widget.meeting.participants.map((participant) {
                   return ListTile(
-                    leading: const CircleAvatar(
-                      child: Icon(Icons.person),
-                    ),
+                    leading: Avatar(size: 30, userId: participant.id),
                     title: Text(participant.username,
                         style: const TextStyle(color: darkBlue)),
                     subtitle: Text(participant.status,

@@ -1,3 +1,4 @@
+import 'package:coordimate/components/avatar.dart';
 import 'package:flutter/material.dart';
 import 'package:coordimate/components/colors.dart';
 import 'package:coordimate/components/appbar.dart';
@@ -78,14 +79,7 @@ class _GroupsPageState extends State<GroupsPage> {
               padding: const EdgeInsets.all(10),
               child: Row(
                 children: [
-                  Container(
-                    width: 70,
-                    height: 70,
-                    decoration: const BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: Colors.white,
-                    ),
-                  ),
+                  Avatar(key: UniqueKey(), size: 70, groupId: groups[index].id),
                   const SizedBox(width: 10),
                   Expanded(
                     child: Column(

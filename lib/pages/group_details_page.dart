@@ -19,6 +19,9 @@ import 'package:flutter/services.dart';
 import 'package:coordimate/app_state.dart';
 import 'package:coordimate/components/text_field_with_edit.dart';
 
+import '../components/avatar.dart';
+import '../keys.dart';
+
 class GroupDetailsPage extends StatefulWidget {
   final Group group;
 
@@ -390,15 +393,7 @@ class GroupDetailsPageState extends State<GroupDetailsPage> {
                       Share.share(link);
                     },
                   ),
-                  CircleAvatar(
-                    radius: 52.0,
-                    backgroundColor: Colors.grey[300],
-                    child: const Icon(
-                      Icons.group,
-                      size: 40.0,
-                      color: Colors.white,
-                    ),
-                  ),
+                  Avatar(key: UniqueKey(), size: 100, groupId: widget.group.id, clickable: true),
                   IconButton(
                     icon: const Icon(Icons.add_circle_outline_rounded),
                     iconSize: 43.0,
@@ -652,10 +647,7 @@ class GroupDetailsPageState extends State<GroupDetailsPage> {
                   border: Border.all(color: darkBlue, width: 1),
                 ),
                 child: ListTile(
-                  leading: const CircleAvatar(
-                    backgroundColor: darkBlue,
-                    child: Icon(Icons.person, color: Colors.white),
-                  ),
+                  leading: Avatar(key: UniqueKey(), userId: users[index].id, size: 40),
                   title: Text(
                     users[index].username,
                     style: const TextStyle(
