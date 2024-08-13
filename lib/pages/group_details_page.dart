@@ -310,7 +310,7 @@ class GroupDetailsPageState extends State<GroupDetailsPage> {
                         flushbarPosition: FlushbarPosition.TOP,
                       ).show(context);
                     } else {
-                      AppState.groupController.createMeeting(
+                      AppState.meetingController.createMeeting(
                           _titleController.text,
                           _selectedDate.toIso8601String(),
                           _descriptionController.text,

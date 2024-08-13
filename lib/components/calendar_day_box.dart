@@ -28,11 +28,6 @@ class _CalendarDayBoxState extends State<CalendarDayBox> {
       onTap: () {
         setState(() {
           widget.onSelected(widget.date);
-          // print(widget.date);
-          // print(isSelected);
-          // isSelected = !isSelected;
-          // // isSelected = DateTime.now().day == widget.date.day;
-          // print(isSelected);
         });
       },
       child: Builder(

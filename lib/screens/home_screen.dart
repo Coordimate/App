@@ -1,3 +1,4 @@
+import 'dart:developer';
 import 'package:coordimate/components/colors.dart';
 import 'dart:async';
 import 'package:flutter/material.dart';
@@ -8,6 +9,7 @@ import 'package:coordimate/pages/schedule_page.dart';
 import 'package:coordimate/pages/meetings_page.dart';
 import 'package:coordimate/pages/groups_page.dart';
 import 'package:coordimate/app_state.dart';
+import 'package:coordimate/widget_keys.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({
@@ -45,10 +47,10 @@ class HomeScreenState extends State<HomeScreen> {
           await _handleDeepLink(link);
         }
       }, onError: (err) {
-        print("Error parsing change in uniLink");
+        log("Error parsing change in uniLink");
       });
     } on PlatformException {
-      print("Failed to get UniLink");
+      log("Failed to get UniLink");
       return;
     }
   }
@@ -133,15 +135,21 @@ class HomeScreenState extends State<HomeScreen> {
             ],
           ),
           child: BottomNavigationBar(
+            key: bottomNavigationBarKey,
               backgroundColor: Colors.white,
               items: const <BottomNavigationBarItem>[
                 BottomNavigationBarItem(
-                    icon: Icon(Icons.perm_contact_cal_outlined),
-                    label: 'Schedule'),
+                  key: scheduleNavigationButtonKey,
+                  icon: Icon(Icons.perm_contact_cal_outlined),
+                  label: 'Schedule'),
                 BottomNavigationBarItem(
-                    icon: Icon(Icons.home_outlined), label: 'Meetings'),
+                  key: meetingsNavigationButtonKey,
+                  icon: Icon(Icons.home_outlined),
+                  label: 'Meetings'),
                 BottomNavigationBarItem(
-                    icon: Icon(Icons.people_outline), label: 'Groups')
+                  key: groupsNavigationButtonKey,
+                  icon: Icon(Icons.people_outline),
+                  label: 'Groups')
               ],
               currentIndex: _selectedScreen,
               selectedItemColor: darkBlue,

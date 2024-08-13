@@ -1,6 +1,6 @@
 import 'package:coordimate/components/appbar.dart';
-import 'package:coordimate/components/colors.dart';
 import 'package:coordimate/components/divider.dart';
+import 'package:coordimate/widget_keys.dart';
 import 'package:flutter/material.dart';
 import 'package:coordimate/components/meeting_tiles.dart';
 import 'package:coordimate/components/calendar_day_box.dart';
@@ -9,6 +9,7 @@ import 'package:coordimate/app_state.dart';
 import 'package:coordimate/components/archive_scroll.dart';
 import 'package:coordimate/pages/meetings_archive.dart';
 import 'package:coordimate/components/snack_bar.dart';
+import 'package:coordimate/components/draggable_bottom_sheet.dart';
 
 class MeetingsPage extends StatefulWidget {
   const MeetingsPage({
@@ -91,6 +92,7 @@ class _MeetingsPageState extends State<MeetingsPage> {
       body: Stack(
         children: [
           Padding(
+            key: meetingsScrollViewKey,
             padding: EdgeInsets.only(
                 bottom: MediaQuery.of(context).size.height * 0.1),
             child: CustomScrollView(
@@ -101,6 +103,7 @@ class _MeetingsPageState extends State<MeetingsPage> {
                   height: 50,
                   color: Colors.white,
                   child: Container(
+                    key: archiveButtonKey,
                     padding: const EdgeInsets.only(left: 16),
                     child: GestureDetector(
                       onTap: () {
@@ -152,6 +155,7 @@ class _MeetingsPageState extends State<MeetingsPage> {
             ),
           ),
           DraggableBottomSheet(
+            key: draggableBottomSheetKey,
             initialChildSize: initialChildSize,
             child: Column(
               children: [
@@ -161,13 +165,12 @@ class _MeetingsPageState extends State<MeetingsPage> {
                           5, (i) => DateTime.now().add(Duration(days: i)))
                       .map(
                         (date) => CalendarDayBox(
+                          key: Key('calendarDayBox${date.day.toString()}'),
                           date: date,
-                          isSelected: selectedDate.day ==
-                              date.day, // Pass isSelected based on selectedDate
+                          isSelected: selectedDate.day == date.day,
                           onSelected: (selectedDate) {
                             setState(() {
-                              this.selectedDate =
-                                  selectedDate; // Update the selected date
+                              this.selectedDate = selectedDate;
                             });
                           },
                         ),
@@ -202,6 +205,7 @@ class _MeetingsPageState extends State<MeetingsPage> {
             meetings[index].dateTime.year == selectedDate.year &&
             meetings[index].status == MeetingStatus.needsAcceptance) {
           return NewMeetingTile(
+            key: Key('newMeetingTile${meetings[index].id}'),
             meeting: meetings[index],
             onAccepted: () => _answerInvitation(meetings[index].id, true),
             onDeclined: () => _answerInvitation(meetings[index].id, false),
@@ -211,6 +215,7 @@ class _MeetingsPageState extends State<MeetingsPage> {
             meetings[index].dateTime.month == selectedDate.month &&
             meetings[index].dateTime.year == selectedDate.year) {
           return AcceptedMeetingTile(
+            key: Key('acceptedMeetingTile${meetings[index].id}'),
             meeting: meetings[index],
             fetchMeetings: _fetchMeetings,
           );
@@ -236,6 +241,7 @@ class _MeetingsPageState extends State<MeetingsPage> {
             // Build meeting tile based on meeting status
             if (meetings[index].status == MeetingStatus.needsAcceptance) {
               return NewMeetingTile(
+                key: Key('newMeetingTile${meetings[index].id}'),
                 meeting: meetings[index],
                 onAccepted: () => _answerInvitation(meetings[index].id, true),
                 onDeclined: () => _answerInvitation(meetings[index].id, false),
@@ -243,11 +249,13 @@ class _MeetingsPageState extends State<MeetingsPage> {
               );
             } else if (meetings[index].status == MeetingStatus.declined) {
               return ArchivedMeetingTile(
+                key: Key('archivedMeetingTile${meetings[index].id}'),
                 meeting: meetings[index],
                 fetchMeetings: _fetchMeetings,
               );
             } else {
               return AcceptedMeetingTile(
+                key: Key('acceptedMeetingTile${meetings[index].id}'),
                 meeting: meetings[index],
                 fetchMeetings: _fetchMeetings,
               );
@@ -259,120 +267,3 @@ class _MeetingsPageState extends State<MeetingsPage> {
   }
 }
 
-class DraggableBottomSheet extends StatefulWidget {
-  final Widget child;
-  final double initialChildSize;
-
-  const DraggableBottomSheet({
-    super.key,
-    required this.child,
-    required this.initialChildSize,
-  });
-
-  @override
-  State<DraggableBottomSheet> createState() => _DraggableBottomSheetState();
-}
-
-class _DraggableBottomSheetState extends State<DraggableBottomSheet> {
-  final sheet = GlobalKey();
-  final controller = DraggableScrollableController();
-
-  @override
-  void initState() {
-    super.initState();
-    controller.addListener(onChanged);
-  }
-
-  void collapse() => animateSheet(getSheet.snapSizes!.first);
-  void expand() => animateSheet(getSheet.maxChildSize);
-  void anchor() => animateSheet(getSheet.snapSizes!.last);
-  void hide() => animateSheet(getSheet.minChildSize);
-
-  void animateSheet(double value) {
-    controller.animateTo(
-      value,
-      duration: const Duration(microseconds: 50),
-      curve: Curves.easeInOut,
-    );
-  }
-
-  DraggableScrollableSheet get getSheet =>
-      sheet.currentWidget as DraggableScrollableSheet;
-
-  void onChanged() {
-    final currentSize = controller.size;
-    if (currentSize <= 0.25) collapse();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return LayoutBuilder(builder: (builder, constraints) {
-      return DraggableScrollableSheet(
-          key: sheet,
-          initialChildSize: widget.initialChildSize,
-          maxChildSize: 0.985,
-          minChildSize: widget.initialChildSize,
-          expand: true,
-          snap: true,
-          snapSizes: [
-            widget.initialChildSize,
-            0.985,
-          ],
-          builder: (BuildContext context, ScrollController scrollController) {
-            return DecoratedBox(
-              decoration: const BoxDecoration(
-                color: Colors.white,
-                boxShadow: [
-                  BoxShadow(
-                    color: darkBlue,
-                    blurRadius: 10,
-                    spreadRadius: 1,
-                    offset: Offset(0, 1),
-                  ),
-                ],
-                borderRadius: BorderRadius.only(
-                  topLeft: Radius.circular(22),
-                  topRight: Radius.circular(22),
-                ),
-              ),
-              child: CustomScrollView(
-                controller: scrollController,
-                slivers: [
-                  topButtonIndicator(),
-                  SliverToBoxAdapter(
-                    child: widget.child,
-                  ),
-                ],
-              ),
-            );
-          });
-    });
-  }
-
-  SliverToBoxAdapter topButtonIndicator() {
-    return SliverToBoxAdapter(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Center(
-            child: Wrap(
-              children: [
-                Container(
-                  width: 100,
-                  margin: const EdgeInsets.symmetric(vertical: 10),
-                  height: 5,
-                  decoration: BoxDecoration(
-                    color: darkBlue,
-                    shape: BoxShape.rectangle,
-                    borderRadius: BorderRadius.circular(5),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
