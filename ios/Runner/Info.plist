@@ -75,5 +75,9 @@
 	          </array>
 	    </dict>
     </array>
+    <key>NSPhotoLibraryUsageDescription</key>
+    <string>The app uses the photo gallery to upload user and group avatars</string>
+    <key>NSCameraUsageDescription</key>
+    <string>The app uses the camera to take user and group avatars</string>
 </dict>
 </plist>
