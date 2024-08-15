@@ -4,7 +4,10 @@ import 'package:coordimate/app_state.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:extension_google_sign_in_as_googleapis_auth/extension_google_sign_in_as_googleapis_auth.dart';
 import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
+import 'package:googleapis_auth/googleapis_auth.dart';
+import 'package:googleapis/calendar/v3.dart';
 
 import 'package:coordimate/keys.dart';
 
@@ -27,14 +30,18 @@ class AuthorizationController {
   });
 
   final http.Client plainClient;
-  static final GoogleSignIn _googleSignIn = GoogleSignIn();
-  static final FacebookAuth _facebookAuth = FacebookAuth.instance;
+  final GoogleSignIn _googleSignIn = GoogleSignIn(
+    scopes: [CalendarApi.calendarEventsScope],
+  );
+  AuthClient? googleAuthClient;
+  CalendarApi? calApi;
+  final FacebookAuth _facebookAuth = FacebookAuth.instance;
 
   Future<String?> getAccountId() async {
     return await AppState.storage.read(key: 'id_account');
   }
 
-  void signOut() async {
+  Future<void> signOut() async {
     final prefs = await AppState.prefs;
     String? signInMethod = prefs.getString('sign_in_method');
     log("sign method: $signInMethod");
@@ -53,6 +60,15 @@ class AuthorizationController {
   }
 
   Future<bool> signIn(email, signInMethod, {password}) async {
+    _googleSignIn.onCurrentUserChanged.listen((GoogleSignInAccount? account) async {
+      var googleAuthClient = await _googleSignIn.authenticatedClient();
+      if (googleAuthClient != null) {
+        calApi = CalendarApi(googleAuthClient);
+      } else {
+        log('googleAuthClient is null');
+      }
+    });
+
     Map<String, String> body;
     switch (signInMethod) {
       case AuthType.email:
@@ -62,11 +78,14 @@ class AuthorizationController {
           "auth_type": signInType[AuthType.email]!
         };
       case AuthType.google:
-        if (await _googleSignIn.isSignedIn()) await _googleSignIn.signOut();
-        final googleUser = await _googleSignIn.signIn();
+        var googleUser = await _googleSignIn.signInSilently();
         if (googleUser == null) {
-          log('Google User failed to sign in');
-          return false;
+          if (await _googleSignIn.isSignedIn()) await _googleSignIn.signOut();
+          googleUser = await _googleSignIn.signIn();
+          if (googleUser == null) {
+            log('Google User failed to sign in');
+            return false;
+          }
         }
         body = {
           "email": googleUser.email,

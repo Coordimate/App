@@ -28,7 +28,7 @@ class _LoginPageState extends State<LoginPage> {
 
   final _formKey = GlobalKey<FormState>();
 
-  void signUserIn() async {
+  Future<void> signUserIn() async {
     if (_formKey.currentState!.validate() == false) {
       return;
     }

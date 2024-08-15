@@ -35,8 +35,8 @@ class _PersonalPageState extends State<PersonalPage> {
     return prefs.getString('sign_in_method') == signInType[AuthType.email];
   }
 
-  void logOut(BuildContext context) {
-    AppState.authController.signOut();
+  void logOut(BuildContext context) async {
+    await AppState.authController.signOut();
     Navigator.pushReplacement(context,
         MaterialPageRoute(builder: (context) => StartPage(key: UniqueKey())));
   }

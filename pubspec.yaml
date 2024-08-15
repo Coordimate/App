@@ -49,6 +49,8 @@ dependencies:
   another_flushbar: ^1.12.30
   duration_picker: ^1.2.0
   image_picker: ^1.1.2
+  extension_google_sign_in_as_googleapis_auth: ^2.0.12
+  googleapis: ^13.2.0
 
 dev_dependencies:
   flutter_test:
