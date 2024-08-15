@@ -41,11 +41,12 @@ class _PersonalPageState extends State<PersonalPage> {
         MaterialPageRoute(builder: (context) => StartPage(key: UniqueKey())));
   }
 
-  Future<void> getInfo() async {
+  Future<User> getInfo() async {
     user = await AppState.userController.getInfo();
     usernameController.text = user.username;
     userEmail = user.email;
     showChangePasswordButton = await checkAuthType();
+    return user;
   }
 
   Future<void> changeUsername(username) async {
@@ -97,8 +98,12 @@ class _PersonalPageState extends State<PersonalPage> {
         future: getInfo(),
         builder: (context, snapshot) {
           if (snapshot.hasError) {
-            return const Center(child: Text('Failed to load data'));
-          } else {
+            return const Scaffold(
+                backgroundColor: Colors.white,
+                appBar:
+                CustomAppBar(title: 'Personal Page', needButton: false),
+                body: Center(child: Text('Failed to load data')));
+          } else if (snapshot.hasData) {
             return Scaffold(
               backgroundColor: Colors.white,
               appBar:
@@ -155,6 +160,12 @@ class _PersonalPageState extends State<PersonalPage> {
                     )),
               ),
             );
+          } else {
+            return const Scaffold(
+                backgroundColor: Colors.white,
+                appBar:
+                CustomAppBar(title: 'Personal Page', needButton: false),
+                body: Center(child: CircularProgressIndicator()));
           }
         });
   }
