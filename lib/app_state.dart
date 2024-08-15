@@ -28,6 +28,7 @@ class  AppState {
   static final scheduleController = ScheduleController();
   static final userController = UserController();
   static final groupController = GroupController();
+  static bool testMode = false;
 }
 
 // TODO: make the class not private by removing the underscore and move it to another file

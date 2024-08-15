@@ -35,6 +35,20 @@ void main() {
   setAppState(client, storage, sharedPrefs, firebase);
   whenStatements(client, storage, sharedPrefs, firebase);
 
+  testWidgets('test2', (tester) async {
+    whenGroupsOne(client);
+
+    await tester.pumpWidget(const MaterialApp(
+      home: GroupsPage(),
+    ));
+
+    await tester.pumpAndSettle();
+    expect(find.text('Groups'), findsOneWidget);
+    expect(find.byIcon(Icons.add_circle_outline_rounded), findsOneWidget);
+    expect(find.byKey(groupCardKey), findsOneWidget);
+    expect(find.byKey(groupCardDescriptionKey), findsOneWidget);
+    expect(find.byKey(groupCardNameKey), findsOneWidget);
+  });
   // testWidgets('GroupsPage has create button when no groups loaded',
   //     (tester) async {
   //   whenGroupsNone(client);
@@ -90,19 +104,4 @@ void main() {
   //   final button = find.byIcon(Icons.add_circle_outline_rounded);
   //   expect(button, findsOneWidget);
   // });
-
-  testWidgets('test2', (tester) async {
-    await tester.pumpWidget(const MaterialApp(
-      home: GroupsPage(),
-    ));
-    await tester.runAsync(() async {
-      whenGroupsOne(client);
-    });
-    await tester.pumpAndSettle();
-    expect(find.text('Groups'), findsOneWidget);
-    expect(find.byIcon(Icons.add_circle_outline_rounded), findsOneWidget);
-    expect(find.byKey(groupCardKey), findsOneWidget);
-    expect(find.byKey(groupCardDescriptionKey), findsOneWidget);
-    expect(find.byKey(groupCardNameKey), findsOneWidget);
-  });
 }
