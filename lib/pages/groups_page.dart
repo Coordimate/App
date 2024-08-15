@@ -5,6 +5,7 @@ import 'package:coordimate/components/appbar.dart';
 import 'package:coordimate/models/groups.dart';
 import 'package:coordimate/app_state.dart';
 import 'group_details_page.dart';
+import 'package:coordimate/widget_keys.dart';
 
 class GroupsPage extends StatefulWidget {
   const GroupsPage({super.key});
@@ -71,6 +72,7 @@ class _GroupsPageState extends State<GroupsPage> {
           return GestureDetector(
             onTap: () => _navigateToGroupDetails(groups[index]),
             child: Container(
+              key: groupCardKey,
               decoration: BoxDecoration(
                 color: darkBlue,
                 borderRadius: BorderRadius.circular(10),
@@ -86,6 +88,7 @@ class _GroupsPageState extends State<GroupsPage> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
+                          key: groupCardNameKey,
                           groups[index].name,
                           style: const TextStyle(
                             fontSize: 30,
@@ -97,6 +100,7 @@ class _GroupsPageState extends State<GroupsPage> {
                         ),
                         const SizedBox(height: 5),
                         Text(
+                          key: groupCardDescriptionKey,
                           groups[index].description,
                           style: const TextStyle(
                             fontSize: 16,
@@ -152,7 +156,7 @@ class CreateGroupDialogState extends State<CreateGroupDialog> {
               },
               decoration: InputDecoration(
                 contentPadding: const EdgeInsets.all(10),
-                labelText: 'Title',
+                labelText: 'Name',
                 border: const OutlineInputBorder(
                   borderSide: BorderSide(color: Colors.white),
                 ),
@@ -208,6 +212,7 @@ class CreateGroupDialogState extends State<CreateGroupDialog> {
             mainAxisAlignment: MainAxisAlignment.end,
             children: [
               OutlinedButton(
+                key: createGroupKey,
                 onPressed: () async {
                   if (groupName.isNotEmpty && groupName.length <= 20) {
                     await widget.onCreateGroup(groupName, groupDescription);
