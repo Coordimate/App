@@ -36,6 +36,7 @@ void main() {
   whenStatements(client, storage, sharedPrefs, firebase);
 
   testWidgets('test2', (tester) async {
+    AppState.testMode = true;
     whenGroupsOne(client);
 
     await tester.pumpWidget(const MaterialApp(
