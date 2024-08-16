@@ -297,7 +297,7 @@ class GroupDetailsPageState extends State<GroupDetailsPage> {
               ),
               actions: <Widget>[
                 ConfirmationButtons(
-                  onYes: () {
+                  onYes: () async {
                     if (_formKey.currentState!.validate() == false) {
                       return;
                     }
@@ -310,7 +310,7 @@ class GroupDetailsPageState extends State<GroupDetailsPage> {
                         flushbarPosition: FlushbarPosition.TOP,
                       ).show(context);
                     } else {
-                      AppState.meetingController.createMeeting(
+                      await AppState.meetingController.createMeeting(
                           _titleController.text,
                           _selectedDate.toIso8601String(),
                           _descriptionController.text,

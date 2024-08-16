@@ -1,15 +1,18 @@
+import 'dart:developer';
 import 'dart:convert';
+import 'package:googleapis/calendar/v3.dart';
 import 'package:coordimate/models/meeting.dart';
 import 'package:coordimate/keys.dart';
 import 'package:coordimate/app_state.dart';
 import 'package:coordimate/models/agenda_point.dart';
 
 class MeetingController {
-
   Future<MeetingDetails> fetchMeetingDetails(id) async {
-    final response = await AppState.client.get(Uri.parse("$apiUrl/meetings/$id/details"));
+    final response =
+        await AppState.client.get(Uri.parse("$apiUrl/meetings/$id/details"));
     if (response.statusCode == 200) {
-      final meetingDetails = MeetingDetails.fromJson(json.decode(response.body));
+      final meetingDetails =
+          MeetingDetails.fromJson(json.decode(response.body));
       return meetingDetails;
     } else {
       throw Exception('Failed to load meetings');
@@ -17,10 +20,11 @@ class MeetingController {
   }
 
   Future<String> fetchMeetingSummary(id) async {
-    final response = await AppState.client
-        .get(Uri.parse("$apiUrl/meetings/$id/details"));
+    final response =
+        await AppState.client.get(Uri.parse("$apiUrl/meetings/$id/details"));
     if (response.statusCode == 200) {
-      final summary = MeetingDetails.fromJson(json.decode(response.body)).summary;
+      final summary =
+          MeetingDetails.fromJson(json.decode(response.body)).summary;
       return summary;
     } else {
       throw Exception('Failed to load meeting summary');
@@ -28,13 +32,14 @@ class MeetingController {
   }
 
   Future<bool> finishMeeting(id) async {
-    final response = await AppState.client.patch(Uri.parse("$apiUrl/meetings/$id"),
-        headers: <String, String>{
-          'Content-Type': 'application/json; charset=UTF-8',
-        },
-        body: json.encode(<String, dynamic>{
-          'is_finished': true,
-        }));
+    final response =
+        await AppState.client.patch(Uri.parse("$apiUrl/meetings/$id"),
+            headers: <String, String>{
+              'Content-Type': 'application/json; charset=UTF-8',
+            },
+            body: json.encode(<String, dynamic>{
+              'is_finished': true,
+            }));
     if (response.statusCode == 200) {
       return true;
     } else {
@@ -44,13 +49,14 @@ class MeetingController {
 
   Future<MeetingStatus> answerInvitation(bool accept, id) async {
     final status = accept ? 'accepted' : 'declined';
-    final response = await AppState.client.patch(Uri.parse("$apiUrl/invites/$id"),
-        headers: <String, String>{
-          'Content-Type': 'application/json; charset=UTF-8',
-        },
-        body: json.encode(<String, dynamic>{
-          'status': status,
-        }));
+    final response =
+        await AppState.client.patch(Uri.parse("$apiUrl/invites/$id"),
+            headers: <String, String>{
+              'Content-Type': 'application/json; charset=UTF-8',
+            },
+            body: json.encode(<String, dynamic>{
+              'status': status,
+            }));
     if (response.statusCode == 200) {
       return accept ? MeetingStatus.accepted : MeetingStatus.declined;
     } else {
@@ -62,14 +68,14 @@ class MeetingController {
     final response = await AppState.client.get(Uri.parse("$apiUrl/meetings"));
     if (response.statusCode == 200) {
       final meetings = (json.decode(response.body)['meetings'] as List)
-        .map((data) => MeetingTileModel.fromJson(data))
-        .where((meeting) =>
-          meeting.status == MeetingStatus.declined
-              || meeting.isFinished
-              || meeting.isInPast())
-        .toList();
+          .map((data) => MeetingTileModel.fromJson(data))
+          .where((meeting) =>
+              meeting.status == MeetingStatus.declined ||
+              meeting.isFinished ||
+              meeting.isInPast())
+          .toList();
       meetings.sort((a, b) =>
-        a.dateTime.difference(DateTime.now()).inSeconds.abs() -
+          a.dateTime.difference(DateTime.now()).inSeconds.abs() -
           b.dateTime.difference(DateTime.now()).inSeconds.abs());
       return meetings;
     } else {
@@ -78,15 +84,14 @@ class MeetingController {
   }
 
   Future<void> saveSummary(id, summaryText) async {
-    final response = await AppState.client.patch(
-        Uri.parse("$apiUrl/meetings/$id"),
-        headers: <String, String>{
-          'Content-Type': 'application/json; charset=UTF-8',
-        },
-        body: json.encode(<String, dynamic>{
-          'summary': summaryText,
-        })
-    );
+    final response =
+        await AppState.client.patch(Uri.parse("$apiUrl/meetings/$id"),
+            headers: <String, String>{
+              'Content-Type': 'application/json; charset=UTF-8',
+            },
+            body: json.encode(<String, dynamic>{
+              'summary': summaryText,
+            }));
     if (response.statusCode != 200) {
       throw Exception('Failed to save summary');
     }
@@ -121,7 +126,7 @@ class MeetingController {
         headers: {"Content-Type": "application/json"},
         body: json.encode(<String, dynamic>{
           'agenda':
-          agenda.map((ap) => {'text': ap.text, 'level': ap.level}).toList(),
+              agenda.map((ap) => {'text': ap.text, 'level': ap.level}).toList(),
         }));
   }
 
@@ -139,29 +144,83 @@ class MeetingController {
       finishMeeting(meeting.id);
     }
     for (var meeting in meetings
-        .where((meeting) => meeting.status == MeetingStatus.needsAcceptance
-        && (meeting.isInPast() || meeting.isFinished))
+        .where((meeting) =>
+            meeting.status == MeetingStatus.needsAcceptance &&
+            (meeting.isInPast() || meeting.isFinished))
         .toList()) {
       answerInvitation(false, meeting.id);
     }
     meetings.sort((a, b) =>
-      a.dateTime.difference(DateTime.now()).inSeconds.abs() -
+        a.dateTime.difference(DateTime.now()).inSeconds.abs() -
         b.dateTime.difference(DateTime.now()).inSeconds.abs());
     return meetings;
   }
 
-  Future<void> createMeeting(String title, String start, String description, String groupId) async {
+  Future<void> createMeeting(
+      String title, String start, String description, String groupId) async {
+    String? meetingLink;
+    if (AppState.authController.calApi != null) {
+      Event event = Event();
+      event.summary = title;
+      event.description = description;
+
+      EventDateTime startTime = EventDateTime();
+      startTime.dateTime = DateTime.parse(start);
+      startTime.timeZone = DateTime.now().timeZoneName;
+
+      EventDateTime end = EventDateTime();
+      end.dateTime = startTime.dateTime!.add(const Duration(hours: 1));
+      end.timeZone = DateTime.now().timeZoneName;
+
+      ConferenceData conferenceData = ConferenceData();
+      CreateConferenceRequest conferenceRequest = CreateConferenceRequest();
+      conferenceRequest.requestId =
+          "${startTime.dateTime!.millisecondsSinceEpoch}-${end.dateTime!.millisecondsSinceEpoch}";
+      conferenceData.createRequest = conferenceRequest;
+
+      event.start = startTime;
+      event.end = end;
+      event.conferenceData = conferenceData;
+
+      String calendarId = "primary";
+
+      var calendar = AppState.authController.calApi!;
+      try {
+        await calendar.events
+            .insert(event, calendarId,
+                conferenceDataVersion: 1, sendUpdates: "all")
+            .then((value) {
+          log("Event Status: ${value.status}");
+          if (value.status == "confirmed") {
+            log('Event added to Google Calendar');
+            meetingLink =
+                "https://meet.google.com/${value.conferenceData!.conferenceId}";
+          } else {
+            log("Unable to add event to Google Calendar");
+          }
+        });
+      } catch (e) {
+        log('Error creating event $e');
+      }
+    } else {
+      log('User not signed in to google, not creating a google meet');
+    }
+
+    var body = <String, dynamic>{
+      'title': title,
+      'start': start,
+      'description': description,
+      'group_id': groupId,
+    };
+    if (meetingLink != null) {
+      body['meeting_link'] = meetingLink;
+    }
     final response = await AppState.client.post(
       Uri.parse("$apiUrl/meetings"),
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
       },
-      body: jsonEncode(<String, dynamic>{
-        'title': title,
-        'start': start,
-        'description': description,
-        'group_id': groupId,
-      }),
+      body: jsonEncode(body),
     );
     if (response.statusCode != 201) {
       throw Exception('Failed to create meeting');

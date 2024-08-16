@@ -57,13 +57,14 @@ class AuthorizationController {
     } else if (signInMethod == signInType[AuthType.facebook]) {
       await _facebookAuth.logOut();
     }
+    if (googleAuthClient != null) googleAuthClient!.close();
   }
 
   Future<bool> signIn(email, signInMethod, {password}) async {
     _googleSignIn.onCurrentUserChanged.listen((GoogleSignInAccount? account) async {
-      var googleAuthClient = await _googleSignIn.authenticatedClient();
+      googleAuthClient = await _googleSignIn.authenticatedClient();
       if (googleAuthClient != null) {
-        calApi = CalendarApi(googleAuthClient);
+        calApi = CalendarApi(googleAuthClient!);
       } else {
         log('googleAuthClient is null');
       }

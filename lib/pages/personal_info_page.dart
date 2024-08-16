@@ -99,13 +99,13 @@ class _PersonalPageState extends State<PersonalPage> {
         builder: (context, snapshot) {
           if (snapshot.hasError) {
             return const Scaffold(
-                backgroundColor: Colors.white,
+                backgroundColor: white,
                 appBar:
                 CustomAppBar(title: 'Personal Page', needButton: false),
                 body: Center(child: Text('Failed to load data')));
           } else if (snapshot.hasData) {
             return Scaffold(
-              backgroundColor: Colors.white,
+              backgroundColor: white,
               appBar:
                   const CustomAppBar(title: 'Personal Page', needButton: false),
               body: Center(
@@ -147,7 +147,7 @@ class _PersonalPageState extends State<PersonalPage> {
                 ),
               ),
               bottomSheet: Container(
-                color: Colors.white,
+                color: white,
                 padding: const EdgeInsets.only(bottom: 16.0),
                 child: TextButton(
                     onPressed: showDeleteAccountDialog,
@@ -162,7 +162,7 @@ class _PersonalPageState extends State<PersonalPage> {
             );
           } else {
             return const Scaffold(
-                backgroundColor: Colors.white,
+                backgroundColor: white,
                 appBar:
                 CustomAppBar(title: 'Personal Page', needButton: false),
                 body: Center(child: CircularProgressIndicator()));
@@ -226,7 +226,7 @@ class _ChangePasswordDialogState extends State<ChangePasswordDialog> {
   Widget build(BuildContext context) {
     return AlertDialog(
       elevation: 0.0,
-      backgroundColor: Colors.white,
+      backgroundColor: white,
       alignment: Alignment.center,
       title: const Center(child: Text('Change Password')),
       titleTextStyle: const TextStyle(
