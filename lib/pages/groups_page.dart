@@ -6,6 +6,7 @@ import 'package:coordimate/models/groups.dart';
 import 'package:coordimate/app_state.dart';
 import 'group_details_page.dart';
 import 'package:coordimate/widget_keys.dart';
+import 'package:coordimate/text_overflow_detect.dart';
 
 class GroupsPage extends StatefulWidget {
   const GroupsPage({super.key});
@@ -43,7 +44,6 @@ class _GroupsPageState extends State<GroupsPage> {
   }
 
   Future<void> _navigateToGroupDetails(Group group) async {
-    // Function to navigate to GroupDetailsPage
     final result = await Navigator.push(
       context,
       MaterialPageRoute(
@@ -52,7 +52,6 @@ class _GroupsPageState extends State<GroupsPage> {
     );
 
     if (result == true) {
-      // Reload groups when coming back
       _fetchGroups();
     }
   }
@@ -87,28 +86,47 @@ class _GroupsPageState extends State<GroupsPage> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(
-                          key: groupCardNameKey,
-                          groups[index].name,
+                        EllipsisText(
+                          text: groups[index].name,
+                          textKey: groupCardNameKey,
+                          overflowKey: groupCardNameOverflowKey,
                           style: const TextStyle(
                             fontSize: 30,
                             color: Colors.white,
                             fontWeight: FontWeight.bold,
                           ),
-                          overflow: TextOverflow
-                              .ellipsis, // Truncate text with ellipsis
+                          maxLines: 1,
                         ),
+                        // Text(
+                        //   key: groupCardNameKey,
+                        //   groups[index].name,
+                        //   style: const TextStyle(
+                        //     fontSize: 30,
+                        //     color: Colors.white,
+                        //     fontWeight: FontWeight.bold,
+                        //   ),
+                        //   overflow: TextOverflow.ellipsis,
+                        // ),
                         const SizedBox(height: 5),
-                        Text(
-                          key: groupCardDescriptionKey,
-                          groups[index].description,
+                        EllipsisText(
+                          text: groups[index].description,
+                          textKey: groupCardDescriptionKey,
+                          overflowKey: groupCardDescriptionOverflowKey,
                           style: const TextStyle(
                             fontSize: 16,
                             color: Colors.white,
                           ),
-                          overflow: TextOverflow
-                              .ellipsis, // Truncate text with ellipsis
+                          maxLines: 1,
                         ),
+                        // Text(
+                        //   key: groupCardDescriptionKey,
+                        //   groups[index].description,
+                        //   style: const TextStyle(
+                        //     fontSize: 16,
+                        //     color: Colors.white,
+                        //   ),
+                        //   overflow: TextOverflow.ellipsis,
+                        // ),
                       ],
                     ),
                   ),
@@ -149,6 +167,7 @@ class CreateGroupDialogState extends State<CreateGroupDialog> {
           mainAxisSize: MainAxisSize.min,
           children: [
             TextFormField(
+              key: groupCreationNameFieldKey,
               onChanged: (val) {
                 setState(() {
                   groupName = val;
@@ -175,13 +194,13 @@ class CreateGroupDialogState extends State<CreateGroupDialog> {
             ),
             const SizedBox(height: 10),
             TextFormField(
+              key: groupCreationDescriptionFieldKey,
               onChanged: (val) {
                 setState(() {
                   groupDescription = val;
                 });
               },
               maxLines: null,
-              // Allow the TextField to expand vertically based on content
               maxLength: 100,
               decoration: InputDecoration(
                 contentPadding: const EdgeInsets.all(10),

@@ -25,3 +25,7 @@ const createGroupKey = Key('createGroup');
 const groupCardKey = Key('groupCard');
 const groupCardDescriptionKey = Key('groupCardDescription');
 const groupCardNameKey = Key('groupCardName');
+const groupCreationNameFieldKey = Key('groupCreationNameField');
+const groupCreationDescriptionFieldKey = Key(' groupCreationDescriptionField');
+const groupCardDescriptionOverflowKey = Key('groupCardDescriptionOverflow');
+const groupCardNameOverflowKey = Key('groupCardNameOverflow');
