@@ -1,6 +1,7 @@
 import 'dart:developer';
 import 'dart:io';
 
+import 'package:coordimate/app_state.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
@@ -72,6 +73,26 @@ class Avatar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    Widget image;
+    if (AppState.testMode) {
+      image = Container(
+          width: size,
+          height: size,
+          child: Image.asset('lib/images/person.png'));
+    } else {
+      image = Container(
+        width: size,
+        height: size,
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          color: white,
+          image: DecorationImage(
+            fit: BoxFit.fill,
+            image: NetworkImage(url),
+          ),
+        ),
+      );
+    }
     return GestureDetector(
         onTap: () async {
           if (!clickable) return;
@@ -111,17 +132,6 @@ class Avatar extends StatelessWidget {
                     ));
               });
         },
-        child: Container(
-          width: size,
-          height: size,
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            color: white,
-            image: DecorationImage(
-              fit: BoxFit.fill,
-              image: NetworkImage(url),
-            ),
-          ),
-        ));
+        child: image);
   }
 }

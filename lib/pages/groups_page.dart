@@ -5,6 +5,8 @@ import 'package:coordimate/components/appbar.dart';
 import 'package:coordimate/models/groups.dart';
 import 'package:coordimate/app_state.dart';
 import 'group_details_page.dart';
+import 'package:coordimate/widget_keys.dart';
+import 'package:coordimate/text_overflow_detect.dart';
 
 class GroupsPage extends StatefulWidget {
   const GroupsPage({super.key});
@@ -42,7 +44,6 @@ class _GroupsPageState extends State<GroupsPage> {
   }
 
   Future<void> _navigateToGroupDetails(Group group) async {
-    // Function to navigate to GroupDetailsPage
     final result = await Navigator.push(
       context,
       MaterialPageRoute(
@@ -51,7 +52,6 @@ class _GroupsPageState extends State<GroupsPage> {
     );
 
     if (result == true) {
-      // Reload groups when coming back
       _fetchGroups();
     }
   }
@@ -71,6 +71,7 @@ class _GroupsPageState extends State<GroupsPage> {
           return GestureDetector(
             onTap: () => _navigateToGroupDetails(groups[index]),
             child: Container(
+              key: groupCardKey,
               decoration: BoxDecoration(
                 color: darkBlue,
                 borderRadius: BorderRadius.circular(10),
@@ -85,26 +86,47 @@ class _GroupsPageState extends State<GroupsPage> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(
-                          groups[index].name,
+                        EllipsisText(
+                          text: groups[index].name,
+                          textKey: groupCardNameKey,
+                          overflowKey: groupCardNameOverflowKey,
                           style: const TextStyle(
                             fontSize: 30,
                             color: Colors.white,
                             fontWeight: FontWeight.bold,
                           ),
-                          overflow: TextOverflow
-                              .ellipsis, // Truncate text with ellipsis
+                          maxLines: 1,
                         ),
+                        // Text(
+                        //   key: groupCardNameKey,
+                        //   groups[index].name,
+                        //   style: const TextStyle(
+                        //     fontSize: 30,
+                        //     color: Colors.white,
+                        //     fontWeight: FontWeight.bold,
+                        //   ),
+                        //   overflow: TextOverflow.ellipsis,
+                        // ),
                         const SizedBox(height: 5),
-                        Text(
-                          groups[index].description,
+                        EllipsisText(
+                          text: groups[index].description,
+                          textKey: groupCardDescriptionKey,
+                          overflowKey: groupCardDescriptionOverflowKey,
                           style: const TextStyle(
                             fontSize: 16,
                             color: Colors.white,
                           ),
-                          overflow: TextOverflow
-                              .ellipsis, // Truncate text with ellipsis
+                          maxLines: 1,
                         ),
+                        // Text(
+                        //   key: groupCardDescriptionKey,
+                        //   groups[index].description,
+                        //   style: const TextStyle(
+                        //     fontSize: 16,
+                        //     color: Colors.white,
+                        //   ),
+                        //   overflow: TextOverflow.ellipsis,
+                        // ),
                       ],
                     ),
                   ),
@@ -145,6 +167,7 @@ class CreateGroupDialogState extends State<CreateGroupDialog> {
           mainAxisSize: MainAxisSize.min,
           children: [
             TextFormField(
+              key: groupCreationNameFieldKey,
               onChanged: (val) {
                 setState(() {
                   groupName = val;
@@ -152,7 +175,7 @@ class CreateGroupDialogState extends State<CreateGroupDialog> {
               },
               decoration: InputDecoration(
                 contentPadding: const EdgeInsets.all(10),
-                labelText: 'Title',
+                labelText: 'Name',
                 border: const OutlineInputBorder(
                   borderSide: BorderSide(color: Colors.white),
                 ),
@@ -171,13 +194,13 @@ class CreateGroupDialogState extends State<CreateGroupDialog> {
             ),
             const SizedBox(height: 10),
             TextFormField(
+              key: groupCreationDescriptionFieldKey,
               onChanged: (val) {
                 setState(() {
                   groupDescription = val;
                 });
               },
               maxLines: null,
-              // Allow the TextField to expand vertically based on content
               maxLength: 100,
               decoration: InputDecoration(
                 contentPadding: const EdgeInsets.all(10),
@@ -208,6 +231,7 @@ class CreateGroupDialogState extends State<CreateGroupDialog> {
             mainAxisAlignment: MainAxisAlignment.end,
             children: [
               OutlinedButton(
+                key: createGroupKey,
                 onPressed: () async {
                   if (groupName.isNotEmpty && groupName.length <= 20) {
                     await widget.onCreateGroup(groupName, groupDescription);
