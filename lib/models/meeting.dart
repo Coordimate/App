@@ -77,6 +77,7 @@ class MeetingDetails {
   final DateTime dateTime;
   final Participant admin;
   final String description;
+  final String? meetingLink;
   final List<Participant> participants;
   bool isFinished;
   MeetingStatus status;
@@ -94,6 +95,7 @@ class MeetingDetails {
     required this.status,
     required this.isFinished,
     required this.summary,
+    this.meetingLink,
   });
 
   String getFormattedDate() {
@@ -120,6 +122,7 @@ class MeetingDetails {
       status: json['status'] == 'accepted' ? MeetingStatus.accepted : json['status'] == 'declined' ? MeetingStatus.declined : MeetingStatus.needsAcceptance,
       participants: (json['participants'] as List).map((e) => Participant.fromJson(e)).toList(),
       isFinished: json['is_finished'] as bool,
+      meetingLink: json.containsKey('meeting_link') ? json['meeting_link'] : null,
       summary: json['summary'] ?? '',
     );
   }

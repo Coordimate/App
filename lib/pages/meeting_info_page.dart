@@ -21,7 +21,7 @@ class MeetingDetailsPage extends StatefulWidget {
 }
 
 class _MeetingDetailsPageState extends State<MeetingDetailsPage> {
-  final textController = TextEditingController();
+  late final textController = TextEditingController(text: widget.meeting.meetingLink ?? '');
 
   Future<void> _answerInvitation(bool accept) async {
     if (widget.meeting.isInPast()) {

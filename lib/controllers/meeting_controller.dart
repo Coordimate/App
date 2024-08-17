@@ -160,13 +160,14 @@ class MeetingController {
       String title, String start, String description, String groupId) async {
     String? meetingLink;
     if (AppState.authController.calApi != null) {
-      AppState.googleCalendarClient.insert(
+      var eventData = await AppState.googleCalendarClient.insert(
         title: title,
         description: description,
         startTime: DateTime.parse(start),
         hasConferenceSupport: true,
         shouldNotifyAttendees: true,
       );
+      if (eventData.containsKey('link')) meetingLink = eventData['link'];
     } else {
       log('User not signed in to google, not creating a google meet');
     }
