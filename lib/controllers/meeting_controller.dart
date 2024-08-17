@@ -160,48 +160,13 @@ class MeetingController {
       String title, String start, String description, String groupId) async {
     String? meetingLink;
     if (AppState.authController.calApi != null) {
-      Event event = Event();
-      event.summary = title;
-      event.description = description;
-
-      EventDateTime startTime = EventDateTime();
-      startTime.dateTime = DateTime.parse(start);
-      startTime.timeZone = DateTime.now().timeZoneName;
-
-      EventDateTime end = EventDateTime();
-      end.dateTime = startTime.dateTime!.add(const Duration(hours: 1));
-      end.timeZone = DateTime.now().timeZoneName;
-
-      ConferenceData conferenceData = ConferenceData();
-      CreateConferenceRequest conferenceRequest = CreateConferenceRequest();
-      conferenceRequest.requestId =
-          "${startTime.dateTime!.millisecondsSinceEpoch}-${end.dateTime!.millisecondsSinceEpoch}";
-      conferenceData.createRequest = conferenceRequest;
-
-      event.start = startTime;
-      event.end = end;
-      event.conferenceData = conferenceData;
-
-      String calendarId = "primary";
-
-      var calendar = AppState.authController.calApi!;
-      try {
-        await calendar.events
-            .insert(event, calendarId,
-                conferenceDataVersion: 1, sendUpdates: "all")
-            .then((value) {
-          log("Event Status: ${value.status}");
-          if (value.status == "confirmed") {
-            log('Event added to Google Calendar');
-            meetingLink =
-                "https://meet.google.com/${value.conferenceData!.conferenceId}";
-          } else {
-            log("Unable to add event to Google Calendar");
-          }
-        });
-      } catch (e) {
-        log('Error creating event $e');
-      }
+      AppState.googleCalendarClient.insert(
+        title: title,
+        description: description,
+        startTime: DateTime.parse(start),
+        hasConferenceSupport: true,
+        shouldNotifyAttendees: true,
+      );
     } else {
       log('User not signed in to google, not creating a google meet');
     }

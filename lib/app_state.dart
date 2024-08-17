@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:developer';
 import 'package:coordimate/controllers/schedule_controller.dart';
+import 'package:coordimate/integrations/google_calendar_client.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:http/http.dart' as http;
@@ -28,7 +29,10 @@ class  AppState {
   static final scheduleController = ScheduleController();
   static final userController = UserController();
   static final groupController = GroupController();
+
   static bool testMode = false;
+
+  static final googleCalendarClient = CalendarClient();
 }
 
 // TODO: make the class not private by removing the underscore and move it to another file
