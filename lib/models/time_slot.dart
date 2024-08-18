@@ -16,8 +16,9 @@ class TimeSlot {
   TimeSlot.fromJson(Map<String, dynamic> json) {
     id = json['id'];
     day = json['day'];
-    start = json['start'];
-    length = json['length'];
+    start = DateTime.parse(json['start']).toLocal().hour +
+        DateTime.parse(json['start']).toLocal().minute / 60;
+    length = json['length'] / 60;
     isMeeting = json['is_meeting'];
   }
 }

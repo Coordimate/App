@@ -1,6 +1,5 @@
 import 'dart:developer';
 import 'dart:convert';
-import 'package:googleapis/calendar/v3.dart';
 import 'package:coordimate/models/meeting.dart';
 import 'package:coordimate/keys.dart';
 import 'package:coordimate/app_state.dart';
@@ -174,7 +173,7 @@ class MeetingController {
 
     var body = <String, dynamic>{
       'title': title,
-      'start': start,
+      'start': DateTime.parse(start).toUtc().toString(),
       'description': description,
       'group_id': groupId,
     };

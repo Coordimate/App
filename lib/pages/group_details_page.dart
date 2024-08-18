@@ -317,7 +317,7 @@ class GroupDetailsPageState extends State<GroupDetailsPage> {
                           widget.group.id);
                       clearControllers();
                       Navigator.of(context).pop();
-                      _fetchMeetings();
+                      await _fetchMeetings();
                     }
                   },
                   onNo: () {
@@ -389,11 +389,16 @@ class GroupDetailsPageState extends State<GroupDetailsPage> {
                     icon: const Icon(Icons.group_add),
                     iconSize: 43.0,
                     onPressed: () async {
-                      final link = await AppState.groupController.shareInviteLink(widget.group.id);
+                      final link = await AppState.groupController
+                          .shareInviteLink(widget.group.id);
                       Share.share(link);
                     },
                   ),
-                  Avatar(key: UniqueKey(), size: 100, groupId: widget.group.id, clickable: true),
+                  Avatar(
+                      key: UniqueKey(),
+                      size: 100,
+                      groupId: widget.group.id,
+                      clickable: true),
                   IconButton(
                     icon: const Icon(Icons.add_circle_outline_rounded),
                     iconSize: 43.0,
@@ -647,7 +652,8 @@ class GroupDetailsPageState extends State<GroupDetailsPage> {
                   border: Border.all(color: darkBlue, width: 1),
                 ),
                 child: ListTile(
-                  leading: Avatar(key: UniqueKey(), userId: users[index].id, size: 40),
+                  leading: Avatar(
+                      key: UniqueKey(), userId: users[index].id, size: 40),
                   title: Text(
                     users[index].username,
                     style: const TextStyle(

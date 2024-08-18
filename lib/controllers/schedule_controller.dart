@@ -13,8 +13,8 @@ class ScheduleController {
 
   Future<List<TimeSlot>> getTimeSlots() async {
     var url = Uri.parse(scheduleUrl);
-    final response =
-    await AppState.client.get(url, headers: {"Content-Type": "application/json"});
+    final response = await AppState.client
+        .get(url, headers: {"Content-Type": "application/json"});
     final List body = json.decode(response.body)['time_slots'];
     return body.map((e) => TimeSlot.fromJson(e)).toList();
   }
@@ -23,13 +23,18 @@ class ScheduleController {
     if (!isModifiable) {
       return;
     }
+
+    var now = DateTime.now();
+    var slotTime = DateTime(now.year, now.month, now.day, start.floor(),
+        (60 * (start % 1)).floor());
+
     await AppState.client.post(Uri.parse(scheduleUrl),
         headers: {"Content-Type": "application/json"},
         body: json.encode(<String, dynamic>{
           'is_meeting': false,
           'day': day,
-          'start': start.toStringAsFixed(2),
-          'length': length.toStringAsFixed(2)
+          'start': slotTime.toUtc().toString(),
+          'length': (60 * length).floor()
         }));
   }
 
@@ -45,12 +50,17 @@ class ScheduleController {
     if (!isModifiable) {
       return;
     }
+
+    var now = DateTime.now();
+    var slotTime = DateTime(now.year, now.month, now.day, start.floor(),
+        (60 * (start % 1)).floor());
+
     await AppState.client.patch(Uri.parse("$apiUrl/time_slots/$id"),
         headers: {"Content-Type": "application/json"},
         body: json.encode(<String, dynamic>{
           'id': id,
-          'start': start.toStringAsFixed(2),
-          'length': length.toStringAsFixed(2)
+          'start': slotTime.toUtc().toString(),
+          'length': (60 * length).floor()
         }));
   }
 
@@ -59,11 +69,13 @@ class ScheduleController {
     final match = regex.firstMatch(uri.path);
     if (match != null) {
       final userId = match.group(1)!;
-      final response = await AppState.client.get(Uri.parse("$apiUrl/users/$userId"));
+      final response =
+          await AppState.client.get(Uri.parse("$apiUrl/users/$userId"));
       if (response.statusCode != 200) {
         throw Exception('Failed to parse user schedule link');
       }
-      return SchedulePage(ownerId: userId, ownerName: json.decode(response.body)["username"]);
+      return SchedulePage(
+          ownerId: userId, ownerName: json.decode(response.body)["username"]);
     }
     return null;
   }
@@ -73,7 +85,8 @@ class ScheduleController {
     final match = regex.firstMatch(uri.path);
     if (match != null) {
       final groupId = match.group(1)!;
-      final response = await AppState.client.get(Uri.parse("$apiUrl/groups/$groupId"));
+      final response =
+          await AppState.client.get(Uri.parse("$apiUrl/groups/$groupId"));
       if (response.statusCode != 200) {
         throw Exception('Failed to parse group join link');
       }
@@ -82,3 +95,4 @@ class ScheduleController {
     return null;
   }
 }
+
