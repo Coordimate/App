@@ -75,7 +75,7 @@ class Avatar extends StatelessWidget {
   Widget build(BuildContext context) {
     Widget image;
     if (AppState.testMode) {
-      image = Container(
+      image = SizedBox(
           width: size,
           height: size,
           child: Image.asset('lib/images/person.png'));
@@ -99,37 +99,36 @@ class Avatar extends StatelessWidget {
           showModalBottomSheet<String>(
               context: context,
               builder: (BuildContext context) {
-                return Container(
-                    height: 200,
-                    color: white,
-                    child: Center(
-                      child: Expanded(
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          mainAxisSize: MainAxisSize.min,
-                          children: <Widget>[
-                            _PickPictureButton(
-                                text: 'Take Picture',
-                                onTap: () async {
-                                  Navigator.pop(context);
-                                  final ImagePicker picker = ImagePicker();
-                                  final XFile? image = await picker.pickImage(
-                                      source: ImageSource.camera);
-                                  uploadAvatar(image);
-                                }),
-                            _PickPictureButton(
-                                text: 'Choose Picture',
-                                onTap: () async {
-                                  Navigator.pop(context);
-                                  final ImagePicker picker = ImagePicker();
-                                  final XFile? image = await picker.pickImage(
-                                      source: ImageSource.gallery);
-                                  uploadAvatar(image);
-                                }),
-                          ],
-                        ),
-                      ),
-                    ));
+               return Container(
+                  color: white,
+                  height: 200,
+                  child: Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      mainAxisSize: MainAxisSize.min,
+                      children: <Widget>[
+                        _PickPictureButton(
+                            text: 'Take Picture',
+                            onTap: () async {
+                              Navigator.pop(context);
+                              final ImagePicker picker = ImagePicker();
+                              final XFile? image = await picker.pickImage(
+                                  source: ImageSource.camera);
+                              uploadAvatar(image);
+                            }),
+                        _PickPictureButton(
+                            text: 'Choose Picture',
+                            onTap: () async {
+                              Navigator.pop(context);
+                              final ImagePicker picker = ImagePicker();
+                              final XFile? image = await picker.pickImage(
+                                  source: ImageSource.gallery);
+                              uploadAvatar(image);
+                            }),
+                      ],
+                    ),
+                  ),
+                );
               });
         },
         child: image);
