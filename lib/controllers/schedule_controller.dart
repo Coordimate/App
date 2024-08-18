@@ -10,6 +10,7 @@ class ScheduleController {
   String pageTitle = 'Schedule';
   bool isModifiable = false;
   bool canCreateMeeting = false;
+  String ownerId = '';
 
   Future<List<TimeSlot>> getTimeSlots() async {
     var url = Uri.parse(scheduleUrl);
@@ -95,4 +96,3 @@ class ScheduleController {
     return null;
   }
 }
-

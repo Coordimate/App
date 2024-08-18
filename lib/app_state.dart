@@ -16,15 +16,16 @@ import 'package:http_interceptor/models/retry_policy.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'keys.dart';
 
-class  AppState {
+class AppState {
   static Future<SharedPreferences> prefs = SharedPreferences.getInstance();
   static FlutterSecureStorage storage = const FlutterSecureStorage();
   static http.Client client = InterceptedClient.build(
       interceptors: [_AuthInterceptor(storage: storage)],
       retryPolicy: _ExpiredTokenRetryPolicy(storage: storage));
-  static AuthorizationController authController = AuthorizationController(
-      plainClient: http.Client());
-  static FirebaseMessaging firebaseMessagingInstance = FirebaseMessaging.instance;
+  static AuthorizationController authController =
+      AuthorizationController(plainClient: http.Client());
+  static FirebaseMessaging firebaseMessagingInstance =
+      FirebaseMessaging.instance;
   static final meetingController = MeetingController();
   static final scheduleController = ScheduleController();
   static final userController = UserController();

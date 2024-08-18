@@ -8,6 +8,7 @@ import 'package:coordimate/components/colors.dart';
 import 'package:coordimate/components/appbar.dart';
 import 'package:coordimate/models/time_slot.dart';
 import 'package:coordimate/keys.dart';
+import 'package:coordimate/components/create_meeting_dialog.dart';
 import 'package:coordimate/app_state.dart';
 import 'package:share_plus/share_plus.dart';
 
@@ -43,7 +44,7 @@ class _ScheduleGridState extends State<ScheduleGrid> {
     _timeSlots = AppState.scheduleController.getTimeSlots();
   }
 
-  void refresh() {
+  void refresh() async {
     setState(() {
       _timeSlots = AppState.scheduleController.getTimeSlots();
     });
@@ -210,7 +211,8 @@ class _DayColumn extends StatelessWidget {
             }
             final start = _newTimeSlotKey.currentState!._top / hourHeight;
             final length = _newTimeSlotKey.currentState!._height / hourHeight;
-            await AppState.scheduleController.createTimeSlot(day, start, length);
+            await AppState.scheduleController
+                .createTimeSlot(day, start, length);
             refresh();
             _newTimeSlotKey.currentState?.updateTop(0);
             _newTimeSlotKey.currentState?.updateHeight(0);
@@ -220,9 +222,25 @@ class _DayColumn extends StatelessWidget {
               GestureDetector(
                   onTap: () async {
                     if (AppState.scheduleController.canCreateMeeting) {
-                      log("would show meeting pop-up");
+                      var now = DateTime.now();
+                      var weekStart = now.subtract(Duration(
+                          days: now.weekday - 1,
+                          hours: now.hour,
+                          minutes: now.minute));
+                      var picked = weekStart.add(Duration(days: day, hours: i));
+                      showDialog(
+                          context: context,
+                          builder: (context) {
+                            return CreateMeetingDialog(
+                                groupId: AppState.scheduleController.ownerId,
+                                pickedDate: (now.isAfter(picked))
+                                    ? picked.add(const Duration(days: 7))
+                                    : picked);
+                          });
+                      refresh();
                     } else if (AppState.scheduleController.isModifiable) {
-                      await AppState.scheduleController.createTimeSlot(day, i.toDouble(), 1.0);
+                      await AppState.scheduleController
+                          .createTimeSlot(day, i.toDouble(), 1.0);
                       refresh();
                       _newTimeSlotKey.currentState?.updateTop(0);
                       _newTimeSlotKey.currentState?.updateHeight(0);
@@ -280,11 +298,7 @@ class TimeSlotWidget extends StatelessWidget {
 
   Widget _buildTimePickerPopup(BuildContext context, int day) {
     return _TimePicker(
-        id: id,
-        day: day,
-        start: start,
-        length: length,
-        refresh: refresh);
+        id: id, day: day, start: start, length: length, refresh: refresh);
   }
 
   @override
@@ -387,8 +401,8 @@ class _TimePickerState extends State<_TimePicker> {
                       newStart = timeToHours(time);
                       startTimeString = timeToString(hoursToTime(newStart));
                     });
-                    await AppState.scheduleController.updateTimeSlot(widget.id, newStart,
-                        widget.length + widget.start - newStart);
+                    await AppState.scheduleController.updateTimeSlot(widget.id,
+                        newStart, widget.length + widget.start - newStart);
                     widget.refresh();
                   }
                 },
@@ -423,7 +437,8 @@ class _TimePickerState extends State<_TimePicker> {
                       endTimeString =
                           timeToString(hoursToTime(widget.start + newLength));
                     });
-                    await AppState.scheduleController.updateTimeSlot(widget.id, widget.start, newLength);
+                    await AppState.scheduleController
+                        .updateTimeSlot(widget.id, widget.start, newLength);
                     widget.refresh();
                   }
                 },
@@ -521,8 +536,8 @@ class SchedulePage extends StatelessWidget {
 
   Future<void> shareSchedule() async {
     var url = Uri.parse("$apiUrl/share_schedule");
-    final response =
-        await AppState.client.get(url, headers: {"Content-Type": "application/json"});
+    final response = await AppState.client
+        .get(url, headers: {"Content-Type": "application/json"});
     if (response.statusCode != 200) {
       throw Exception('Failed to share schedule');
     }
@@ -532,16 +547,21 @@ class SchedulePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    AppState.scheduleController.ownerId = ownerId;
     if (isGroupSchedule) {
-      AppState.scheduleController.scheduleUrl = "$apiUrl/groups/$ownerId/time_slots";
+      AppState.scheduleController.scheduleUrl =
+          "$apiUrl/groups/$ownerId/time_slots";
       AppState.scheduleController.isModifiable = false;
       AppState.scheduleController.canCreateMeeting = true;
-      AppState.scheduleController.pageTitle = (ownerName == "") ? "Group Schedule" : ownerName;
+      AppState.scheduleController.pageTitle =
+          (ownerName == "") ? "Group Schedule" : ownerName;
     } else if (ownerId != "") {
-      AppState.scheduleController.scheduleUrl = "$apiUrl/users/$ownerId/time_slots";
+      AppState.scheduleController.scheduleUrl =
+          "$apiUrl/users/$ownerId/time_slots";
       AppState.scheduleController.canCreateMeeting = false;
       AppState.scheduleController.isModifiable = false;
-      AppState.scheduleController.pageTitle = (ownerName == "") ? "User Schedule" : ownerName;
+      AppState.scheduleController.pageTitle =
+          (ownerName == "") ? "User Schedule" : ownerName;
     } else {
       AppState.scheduleController.scheduleUrl = "$apiUrl/time_slots";
       AppState.scheduleController.canCreateMeeting = false;
