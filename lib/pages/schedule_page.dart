@@ -44,7 +44,7 @@ class _ScheduleGridState extends State<ScheduleGrid> {
     _timeSlots = AppState.scheduleController.getTimeSlots();
   }
 
-  void refresh() async {
+  void refresh() {
     setState(() {
       _timeSlots = AppState.scheduleController.getTimeSlots();
     });
@@ -236,8 +236,9 @@ class _DayColumn extends StatelessWidget {
                                 pickedDate: (now.isAfter(picked))
                                     ? picked.add(const Duration(days: 7))
                                     : picked);
-                          });
-                      refresh();
+                          }).then((_) {
+                        refresh();
+                      });
                     } else if (AppState.scheduleController.isModifiable) {
                       await AppState.scheduleController
                           .createTimeSlot(day, i.toDouble(), 1.0);

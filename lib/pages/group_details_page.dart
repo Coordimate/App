@@ -320,12 +320,15 @@ class GroupDetailsPageState extends State<GroupDetailsPage> {
                         foregroundColor: white,
                       ),
                       onPressed: () async {
-                        Navigator.of(context).push(MaterialPageRoute(
-                            builder: (context) => SchedulePage(
-                                isGroupSchedule: true,
-                                ownerId: widget.group.id,
-                                ownerName: widget.group.name)));
-                        await _fetchMeetings();
+                        Navigator.of(context)
+                            .push(MaterialPageRoute(
+                                builder: (context) => SchedulePage(
+                                    isGroupSchedule: true,
+                                    ownerId: widget.group.id,
+                                    ownerName: widget.group.name)))
+                            .then((_) async {
+                          await _fetchMeetings();
+                        });
                       },
                       child: Padding(
                         padding: const EdgeInsets.symmetric(
