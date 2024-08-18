@@ -33,11 +33,10 @@ class _MeetingDetailsPageState extends State<MeetingDetailsPage> {
       return;
     }
     await AppState.meetingController.answerInvitation(accept, widget.meeting.id).then((status) {
-      status == MeetingStatus.accepted
-          ? CustomSnackBar.show(context, "Meeting accepted")
-          : CustomSnackBar.show(context, "Meeting declined");
+      var meetingStatus = (status == MeetingStatus.accepted) ? "Meeting accepted" : "Meeting declined";
       setState(() {
         widget.meeting.status = status;
+        CustomSnackBar.show(context, meetingStatus);
       });
     });
   }

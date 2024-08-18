@@ -12,14 +12,15 @@ class MeetingTileModel {
   final String title;
   final GroupCard group;
   final DateTime dateTime;
+  final int duration;
   final MeetingStatus status;
   final bool isFinished;
-  final int duration = 60;
 
   MeetingTileModel({
     this.id = '',
     required this.title,
     required this.dateTime,
+    required this.duration,
     required this.group,
     this.status = MeetingStatus.needsAcceptance,
     required this.isFinished,
@@ -39,13 +40,17 @@ class MeetingTileModel {
 
   factory MeetingTileModel.fromJson(Map<String, dynamic> json) {
     return MeetingTileModel(
-      id: json['id'].toString(),
-      title: json['title'],
-      group: GroupCard.fromJson(json['group']),
-      dateTime: DateTime.parse(json['start']),
-      status: json['status'] == 'accepted' ? MeetingStatus.accepted : json['status'] == 'declined' ? MeetingStatus.declined : MeetingStatus.needsAcceptance,
-      isFinished: json['is_finished'] as bool
-    );
+        id: json['id'].toString(),
+        title: json['title'],
+        group: GroupCard.fromJson(json['group']),
+        dateTime: DateTime.parse(json['start']),
+        duration: json['length'],
+        status: json['status'] == 'accepted'
+            ? MeetingStatus.accepted
+            : json['status'] == 'declined'
+                ? MeetingStatus.declined
+                : MeetingStatus.needsAcceptance,
+        isFinished: json['is_finished'] as bool);
   }
 }
 
@@ -75,6 +80,7 @@ class MeetingDetails {
   final String groupId;
   final String groupName;
   final DateTime dateTime;
+  final int duration;
   final Participant admin;
   final String description;
   final String? meetingLink;
@@ -87,6 +93,7 @@ class MeetingDetails {
     this.id = '',
     required this.title,
     required this.dateTime,
+    required this.duration,
     required this.participants,
     required this.description,
     required this.admin,
@@ -117,14 +124,22 @@ class MeetingDetails {
       groupId: json['group_id'].toString(),
       groupName: json['group_name'],
       dateTime: DateTime.parse(json['start']),
+      duration: json['length'],
       admin: Participant.fromJson(json['admin']),
       description: json['description'] ?? '',
-      status: json['status'] == 'accepted' ? MeetingStatus.accepted : json['status'] == 'declined' ? MeetingStatus.declined : MeetingStatus.needsAcceptance,
-      participants: (json['participants'] as List).map((e) => Participant.fromJson(e)).toList(),
+      status: json['status'] == 'accepted'
+          ? MeetingStatus.accepted
+          : json['status'] == 'declined'
+              ? MeetingStatus.declined
+              : MeetingStatus.needsAcceptance,
+      participants: (json['participants'] as List)
+          .map((e) => Participant.fromJson(e))
+          .toList(),
       isFinished: json['is_finished'] as bool,
-      meetingLink: json.containsKey('meeting_link') ? json['meeting_link'] : null,
+      meetingLink:
+          json.containsKey('meeting_link') ? json['meeting_link'] : null,
       summary: json['summary'] ?? '',
     );
   }
-
 }
+

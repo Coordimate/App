@@ -28,31 +28,16 @@ class AppColorScheme extends ColorScheme {
   static Color alphaDarkBlue = const Color(0xFF293241).withAlpha(150);
 
   const AppColorScheme({
-    primary = darkBlue,
-    primaryVariant = mediumBlue,
-    secondary = lightBlue,
-    secondaryVariant = orange,
-    surface = white,
-    background = white,
-    error = orange,
-    onPrimary = white,
-    onSecondary = darkBlue,
-    onSurface = darkBlue,
-    onBackground = darkBlue,
-    onError = white,
-    brightness = Brightness.light,
-  }) : super(
-          primary: primary,
-          // primaryVariant: primaryVariant,
-          secondary: secondary,
-          // secondaryVariant: secondaryVariant,
-          surface: surface,
-          error: error,
-          onPrimary: onPrimary,
-          onSecondary: onSecondary,
-          onSurface: onSurface,
-          onError: onError,
-          brightness: brightness,
-        );
+    super.primary = darkBlue,
+    super.secondary = lightBlue,
+    super.surface = white,
+    super.background = white,
+    super.error = orange,
+    super.onPrimary = white,
+    super.onSecondary = darkBlue,
+    super.onSurface = darkBlue,
+    super.onBackground = darkBlue,
+    super.onError = white,
+    super.brightness = Brightness.light,
+  });
 }
-

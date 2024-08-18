@@ -1,7 +1,6 @@
 import 'package:coordimate/app_state.dart';
 import 'package:coordimate/controllers/auth_controller.dart';
 import 'package:coordimate/keys.dart';
-import 'package:coordimate/pages/login_page.dart';
 import 'package:coordimate/pages/register_page.dart';
 import 'package:coordimate/widget_keys.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
@@ -14,7 +13,8 @@ import 'package:mockito/mockito.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'register_page_widget_test.mocks.dart';
 
-@GenerateMocks([http.Client, FlutterSecureStorage, SharedPreferences, FirebaseMessaging])
+@GenerateMocks(
+    [http.Client, FlutterSecureStorage, SharedPreferences, FirebaseMessaging])
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
@@ -104,7 +104,8 @@ void main() {
   });
 
   group('Login flows', () {
-    testWidgets('Failed registration due to incorrect email form', (tester) async {
+    testWidgets('Failed registration due to incorrect email form',
+        (tester) async {
       await tester.pumpWidget(const MaterialApp(
         home: RegisterPage(),
       ));
@@ -138,7 +139,8 @@ void main() {
       expect(find.byKey(alertDialogKey), findsNothing);
     });
 
-    testWidgets('Failed registration due to different passwords', (tester) async {
+    testWidgets('Failed registration due to different passwords',
+        (tester) async {
       await tester.pumpWidget(const MaterialApp(
         home: RegisterPage(),
       ));
@@ -167,7 +169,8 @@ void main() {
       expect(find.text('Registration Failed'), findsOneWidget);
     });
 
-    testWidgets('Successful registration and rendering meetings page', (tester) async {
+    testWidgets('Successful registration and rendering meetings page',
+        (tester) async {
       final client = MockClient();
       final storage = MockFlutterSecureStorage();
       final sharedPrefs = MockSharedPreferences();
@@ -187,54 +190,62 @@ void main() {
       when(storage.write(key: anyNamed('key'), value: anyNamed('value')))
           .thenAnswer((_) async => {});
 
-      when(storage.read(key: anyNamed('key')))
-          .thenAnswer((_) async => "value");
+      when(storage.read(key: anyNamed('key'))).thenAnswer((_) async => "value");
 
       when(client.post(
         Uri.parse('$apiUrl/enable_notifications'),
         headers: anyNamed('headers'),
         body: anyNamed('body'),
-      )).thenAnswer((_) async => http.Response('{"access_token": "1", "refresh_token": "1"}', 200));
+      )).thenAnswer((_) async =>
+          http.Response('{"access_token": "1", "refresh_token": "1"}', 200));
 
       when(client.post(
         Uri.parse('$apiUrl/register'),
         headers: anyNamed('headers'),
         body: anyNamed('body'),
-      )).thenAnswer((_) async => http.Response('{"id": "1","username": "John Doe","password": "password123","fcm_token": "notoken","email": "john@doe.com","meetings": [],"schedule": []"groups": []}', 201));
+      )).thenAnswer((_) async => http.Response(
+          '{"id": "1","username": "John Doe","password": "password123","fcm_token": "notoken","email": "john@doe.com","meetings": [],"schedule": []"groups": []}',
+          201));
 
       when(client.post(
         Uri.parse('$apiUrl/login'),
         headers: anyNamed('headers'),
         body: anyNamed('body'),
-      )).thenAnswer((_) async => http.Response('{"access_token": "1", "refresh_token": "1"}', 200));
+      )).thenAnswer((_) async =>
+          http.Response('{"access_token": "1", "refresh_token": "1"}', 200));
 
       when(client.get(
         Uri.parse('$apiUrl/me'),
         headers: anyNamed('headers'),
-      )).thenAnswer((_) async => http.Response('{"id": "1", "email": "user@example.com"}', 200));
+      )).thenAnswer((_) async =>
+          http.Response('{"id": "1", "email": "user@example.com"}', 200));
 
       when(client.get(
         Uri.parse('$apiUrl/meetings'),
         headers: anyNamed('headers'),
-      )).thenAnswer((_) async => http.Response('{"meetings": [{"id": "1", "title": "meeting ","start": "2024-07-09T13:10:00.000","group": {"id": "2","name": "group"},"status": "accepted","is_finished": true}]}', 200));
+      )).thenAnswer((_) async => http.Response(
+          '{"meetings": [{"id": "1", "title": "meeting ","start": "2024-07-09T13:10:00.000","group": {"id": "2","name": "group"},"status": "accepted","is_finished": true}]}',
+          200));
 
       when(sharedPrefs.setString(any, any)).thenAnswer((_) async => true);
 
-      when(firebase.requestPermission()).thenAnswer((_) async => const NotificationSettings(
-        authorizationStatus: AuthorizationStatus.authorized,
-        alert: AppleNotificationSetting.enabled,
-        announcement: AppleNotificationSetting.enabled,
-        badge: AppleNotificationSetting.enabled,
-        carPlay: AppleNotificationSetting.enabled,
-        criticalAlert: AppleNotificationSetting.enabled,
-        lockScreen: AppleNotificationSetting.enabled,
-        notificationCenter: AppleNotificationSetting.enabled,
-        showPreviews: AppleShowPreviewSetting.always,
-        sound: AppleNotificationSetting.enabled,
-        timeSensitive: AppleNotificationSetting.enabled,
-      ));
+      when(firebase.requestPermission())
+          .thenAnswer((_) async => const NotificationSettings(
+                authorizationStatus: AuthorizationStatus.authorized,
+                alert: AppleNotificationSetting.enabled,
+                announcement: AppleNotificationSetting.enabled,
+                badge: AppleNotificationSetting.enabled,
+                carPlay: AppleNotificationSetting.enabled,
+                criticalAlert: AppleNotificationSetting.enabled,
+                lockScreen: AppleNotificationSetting.enabled,
+                notificationCenter: AppleNotificationSetting.enabled,
+                showPreviews: AppleShowPreviewSetting.always,
+                sound: AppleNotificationSetting.enabled,
+                timeSensitive: AppleNotificationSetting.enabled,
+              ));
       when(firebase.getToken()).thenAnswer((_) async => 'fake_fcm_token');
-      when(firebase.onTokenRefresh).thenAnswer((_) => Stream.fromIterable(['fake_fcm_token']));
+      when(firebase.onTokenRefresh)
+          .thenAnswer((_) => Stream.fromIterable(['fake_fcm_token']));
 
       expect(find.byKey(alertDialogKey), findsNothing);
 

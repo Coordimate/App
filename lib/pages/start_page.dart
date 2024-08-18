@@ -1,3 +1,4 @@
+import 'dart:developer';
 import 'package:coordimate/components/login_button.dart';
 import 'package:coordimate/components/colors.dart';
 import 'package:coordimate/components/external_service_tile.dart';
@@ -26,6 +27,7 @@ class _StartPageState extends State<StartPage> {
 
   void _tryGettingStoredToken() async {
     if (await AppState.authController.checkStoredToken()) {
+      log('Silent google signIn obtained: ${await AppState.authController.trySilentGoogleSignIn()}');
       setState(() {});
       WidgetsBinding.instance.addPostFrameCallback((_) {
         Navigator.pushReplacement(

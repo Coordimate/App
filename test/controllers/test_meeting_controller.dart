@@ -38,32 +38,33 @@ void main() {
 
     test('Creates meeting', () async {
       when(client.post(Uri.parse("$apiUrl/meetings"),
-          headers: <String, String>{
-            'Content-Type': 'application/json; charset=UTF-8',
-          },
-          body: anyNamed('body')))
+              headers: <String, String>{
+                'Content-Type': 'application/json; charset=UTF-8',
+              },
+              body: anyNamed('body')))
           .thenAnswer((request) async {
-        expect(request.namedArguments[const Symbol("body")],
+        expect(
+            request.namedArguments[const Symbol("body")],
             '{"title":"Title",'
-                '"start":"2024-07-09T13:10:00.00",'
+            '"start":"2024-07-09T13:10:00.00",'
             '"description":"Description",'
             '"group_id":"1"'
-                '}'
-        );
+            '}');
         return http.Response('', 201);
       });
       await AppState.meetingController.createMeeting(
-          "Title", "2024-07-09T13:10:00.00", "Description", "1");
+          "Title", "2024-07-09T13:10:00.00", 60, "Description", "1");
     });
 
     test('Gets information about meeting from fetchMeetings', () async {
-          when(client.get(Uri.parse("$apiUrl/meetings")))
-              .thenAnswer((_) async => http.Response('''{
+      when(client.get(Uri.parse("$apiUrl/meetings")))
+          .thenAnswer((_) async => http.Response('''{
                                 "meetings": [
                                   {
                                     "id": "1",
                                     "title": "meeting",
                                     "start": "2024-07-09T13:10:00.000",
+                                    "length": 60,
                                     "group": {
                                       "id": "1",
                                       "name": "group"
@@ -73,17 +74,16 @@ void main() {
                                   }
                                 ]
                               }''', 200));
-          final meetings = await AppState.meetingController.fetchMeetings();
-          expect(meetings.length, 1);
-          expect(meetings[0].id, '1');
-          expect(meetings[0].title, 'meeting');
-          expect(meetings[0].isFinished, true);
-          expect(meetings[0].status, MeetingStatus.accepted);
-          expect(meetings[0].dateTime,DateTime.parse("2024-07-09T13:10:00.000"));
-          expect(meetings[0].group.id, '1');
-          expect(meetings[0].group.name, 'group');
-          // TODO: duration should be stored on the backend
-          expect(meetings[0].duration, 60);
-        });
+      final meetings = await AppState.meetingController.fetchMeetings();
+      expect(meetings.length, 1);
+      expect(meetings[0].id, '1');
+      expect(meetings[0].title, 'meeting');
+      expect(meetings[0].isFinished, true);
+      expect(meetings[0].status, MeetingStatus.accepted);
+      expect(meetings[0].dateTime, DateTime.parse("2024-07-09T13:10:00.000"));
+      expect(meetings[0].group.id, '1');
+      expect(meetings[0].group.name, 'group');
+      expect(meetings[0].duration, 60);
+    });
   });
 }

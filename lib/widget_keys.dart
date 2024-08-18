@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:coordimate/components/draggable_bottom_sheet.dart';
 
 const loginButtonKey = Key('loginButton');
 const registerButtonKey = Key('registerButton');

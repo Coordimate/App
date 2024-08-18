@@ -1,6 +1,6 @@
 import 'dart:developer';
 import 'dart:convert';
-import 'package:coordimate/app_state.dart';
+
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:google_sign_in/google_sign_in.dart';
@@ -10,6 +10,7 @@ import 'package:googleapis_auth/googleapis_auth.dart';
 import 'package:googleapis/calendar/v3.dart';
 
 import 'package:coordimate/keys.dart';
+import 'package:coordimate/app_state.dart';
 
 enum AuthType {
   google,
@@ -24,13 +25,12 @@ const signInType = {
 };
 
 class AuthorizationController {
-
   AuthorizationController({
     required this.plainClient,
   });
 
   final http.Client plainClient;
-  final GoogleSignIn _googleSignIn = GoogleSignIn(
+  final GoogleSignIn googleSignIn = GoogleSignIn(
     scopes: [CalendarApi.calendarEventsScope],
   );
   AuthClient? googleAuthClient;
@@ -39,6 +39,21 @@ class AuthorizationController {
 
   Future<String?> getAccountId() async {
     return await AppState.storage.read(key: 'id_account');
+  }
+
+  Future<bool> trySilentGoogleSignIn() async {
+    googleSignIn.onCurrentUserChanged
+        .listen((GoogleSignInAccount? account) async {
+      googleAuthClient = await googleSignIn.authenticatedClient();
+      if (googleAuthClient != null) {
+        calApi = CalendarApi(googleAuthClient!);
+      } else {
+        log('googleAuthClient is null');
+      }
+    });
+
+    var googleUser = await googleSignIn.signInSilently();
+    return (googleUser != null);
   }
 
   Future<void> signOut() async {
@@ -53,7 +68,7 @@ class AuthorizationController {
     prefs.remove('refresh_token');
 
     if (signInMethod == signInType[AuthType.google]) {
-      await _googleSignIn.signOut();
+      await googleSignIn.signOut();
     } else if (signInMethod == signInType[AuthType.facebook]) {
       await _facebookAuth.logOut();
     }
@@ -61,8 +76,9 @@ class AuthorizationController {
   }
 
   Future<bool> signIn(email, signInMethod, {password}) async {
-    _googleSignIn.onCurrentUserChanged.listen((GoogleSignInAccount? account) async {
-      googleAuthClient = await _googleSignIn.authenticatedClient();
+    googleSignIn.onCurrentUserChanged
+        .listen((GoogleSignInAccount? account) async {
+      googleAuthClient = await googleSignIn.authenticatedClient();
       if (googleAuthClient != null) {
         calApi = CalendarApi(googleAuthClient!);
       } else {
@@ -79,10 +95,10 @@ class AuthorizationController {
           "auth_type": signInType[AuthType.email]!
         };
       case AuthType.google:
-        var googleUser = await _googleSignIn.signInSilently();
+        var googleUser = await googleSignIn.signInSilently();
         if (googleUser == null) {
-          if (await _googleSignIn.isSignedIn()) await _googleSignIn.signOut();
-          googleUser = await _googleSignIn.signIn();
+          if (await googleSignIn.isSignedIn()) await googleSignIn.signOut();
+          googleUser = await googleSignIn.signIn();
           if (googleUser == null) {
             log('Google User failed to sign in');
             return false;
@@ -93,7 +109,8 @@ class AuthorizationController {
           "auth_type": signInType[AuthType.google]!
         };
       case AuthType.facebook:
-        final LoginResult result = await _facebookAuth.login(permissions: ['email']);
+        final LoginResult result =
+            await _facebookAuth.login(permissions: ['email']);
         if (result.status != LoginStatus.success) {
           log('Facebook User failed to sign in');
           return false;
@@ -104,10 +121,7 @@ class AuthorizationController {
           return false;
         }
         final String email = userData['email'] as String;
-        body = {
-          "email": email,
-          "auth_type": signInType[AuthType.facebook]!
-        };
+        body = {"email": email, "auth_type": signInType[AuthType.facebook]!};
       default:
         return false;
     }
@@ -159,7 +173,7 @@ class AuthorizationController {
           "auth_type": signInType[AuthType.email]!
         };
       case AuthType.google:
-        final googleUser = await _googleSignIn.signIn();
+        final googleUser = await googleSignIn.signIn();
         if (googleUser == null) return false;
         email = googleUser.email;
         body = {
@@ -169,7 +183,8 @@ class AuthorizationController {
           "auth_type": signInType[AuthType.google]!
         };
       case AuthType.facebook:
-        final LoginResult result = await _facebookAuth.login(permissions: ['email']);
+        final LoginResult result =
+            await _facebookAuth.login(permissions: ['email']);
         if (result.status != LoginStatus.success) {
           log('Facebook User failed to sign in');
           return false;

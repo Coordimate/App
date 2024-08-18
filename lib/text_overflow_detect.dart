@@ -7,7 +7,8 @@ class EllipsisText extends StatelessWidget {
   final Key? overflowKey; // Key to assign if overflow occurs
   final int maxLines;
 
-  EllipsisText({
+  const EllipsisText({
+    required super.key,
     required this.text,
     this.textKey,
     this.style,

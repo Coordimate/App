@@ -155,8 +155,8 @@ class MeetingController {
     return meetings;
   }
 
-  Future<void> createMeeting(
-      String title, String start, String description, String groupId) async {
+  Future<void> createMeeting(String title, String start, int length,
+      String description, String groupId) async {
     String? meetingLink;
     if (AppState.authController.calApi != null) {
       var eventData = await AppState.googleCalendarClient.insert(

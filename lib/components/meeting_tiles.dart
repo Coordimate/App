@@ -71,16 +71,20 @@ class MeetingTile extends StatelessWidget {
           ],
         ),
         onTap: () {
-          AppState.meetingController.fetchMeetingDetails(meeting.id).then((meetingDetails) {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) =>
-                    MeetingDetailsPage(meeting: meetingDetails),
-              ),
-            ).then((_) {
-              fetchMeetings();
-            });
+          AppState.meetingController
+              .fetchMeetingDetails(meeting.id)
+              .then((meetingDetails) {
+            if (context.mounted) {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) =>
+                      MeetingDetailsPage(meeting: meetingDetails),
+                ),
+              ).then((_) {
+                fetchMeetings();
+              });
+            }
           });
         },
       ),
@@ -147,16 +151,20 @@ class NewMeetingTile extends MeetingTile {
                 ],
               ),
               onTap: () {
-                AppState.meetingController.fetchMeetingDetails(meeting.id).then((meetingDetails) {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) =>
-                          MeetingDetailsPage(meeting: meetingDetails),
-                    ),
-                  ).then((_) {
-                    fetchMeetings();
-                  });
+                AppState.meetingController
+                    .fetchMeetingDetails(meeting.id)
+                    .then((meetingDetails) {
+                  if (context.mounted) {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) =>
+                            MeetingDetailsPage(meeting: meetingDetails),
+                      ),
+                    ).then((_) {
+                      fetchMeetings();
+                    });
+                  }
                 });
               },
             ),
@@ -185,21 +193,25 @@ class NewMeetingTile extends MeetingTile {
 }
 
 class AcceptedMeetingTile extends MeetingTile {
-  const AcceptedMeetingTile({super.key, required super.meeting, required super.fetchMeetings})
+  const AcceptedMeetingTile(
+      {super.key, required super.meeting, required super.fetchMeetings})
       : super(
           isArchived: false, // Set isArchived to false
           onAccepted: defaultOnPressed, // Set onAccepted to an empty function
           onDeclined: defaultOnPressed, // Set onDeclined to an empty function
         );
+
   static void defaultOnPressed() {}
 }
 
 class ArchivedMeetingTile extends MeetingTile {
-  const ArchivedMeetingTile({super.key, required super.meeting, required super.fetchMeetings})
+  const ArchivedMeetingTile(
+      {super.key, required super.meeting, required super.fetchMeetings})
       : super(
           isArchived: true, // Set isArchived to true
           onAccepted: defaultOnPressed, // Set onAccepted to an empty function
           onDeclined: defaultOnPressed, // Set onDeclined to an empty function
         );
+
   static void defaultOnPressed() {}
 }

@@ -1,7 +1,5 @@
 import 'dart:convert';
 
-import 'package:share_plus/share_plus.dart';
-
 import 'package:coordimate/app_state.dart';
 import 'package:coordimate/models/groups.dart';
 import 'package:coordimate/models/user.dart';

@@ -87,6 +87,7 @@ class _GroupsPageState extends State<GroupsPage> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         EllipsisText(
+                          key: UniqueKey(),
                           text: groups[index].name,
                           textKey: groupCardNameKey,
                           overflowKey: groupCardNameOverflowKey,
@@ -109,6 +110,7 @@ class _GroupsPageState extends State<GroupsPage> {
                         // ),
                         const SizedBox(height: 5),
                         EllipsisText(
+                          key: UniqueKey(),
                           text: groups[index].description,
                           textKey: groupCardDescriptionKey,
                           overflowKey: groupCardDescriptionOverflowKey,
@@ -236,7 +238,9 @@ class CreateGroupDialogState extends State<CreateGroupDialog> {
                   if (groupName.isNotEmpty && groupName.length <= 20) {
                     await widget.onCreateGroup(groupName, groupDescription);
                     await widget.fetchGroups();
-                    Navigator.pop(context);
+                    if (context.mounted) {
+                      Navigator.pop(context);
+                    }
                   }
                 },
                 child: const Text(

@@ -1,3 +1,4 @@
+import 'dart:developer';
 import 'package:coordimate/components/login_button.dart';
 import 'package:coordimate/components/login_text_field.dart';
 import 'package:coordimate/screens/home_screen.dart';
@@ -77,10 +78,10 @@ class _RegisterPageState extends State<RegisterPage> {
             );
           },
         );
-        print("Passwords do not match");
+        log("Passwords do not match");
       }
     } else {
-      print("Please fill all fields");
+      log("Please fill all fields");
     }
   }
 

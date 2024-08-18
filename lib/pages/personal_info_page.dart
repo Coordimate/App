@@ -37,8 +37,10 @@ class _PersonalPageState extends State<PersonalPage> {
 
   void logOut(BuildContext context) async {
     await AppState.authController.signOut();
-    Navigator.pushReplacement(context,
-        MaterialPageRoute(builder: (context) => StartPage(key: UniqueKey())));
+    if (context.mounted) {
+      Navigator.pushReplacement(context,
+          MaterialPageRoute(builder: (context) => StartPage(key: UniqueKey())));
+    }
   }
 
   Future<User> getInfo() async {
@@ -268,14 +270,16 @@ class _ChangePasswordDialogState extends State<ChangePasswordDialog> {
           onYes: () async {
             var isValid = await changePassword();
             if (isValid) {
-              Navigator.of(context).pop();
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text('Password changed successfully'),
-                  duration: Duration(seconds: 1),
-                  backgroundColor: darkBlue,
-                ),
-              );
+              if (context.mounted) {
+                Navigator.of(context).pop();
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('Password changed successfully'),
+                    duration: Duration(seconds: 1),
+                    backgroundColor: darkBlue,
+                  ),
+                );
+              }
             }
           },
           onNo: () {

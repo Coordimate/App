@@ -1,4 +1,3 @@
-import 'dart:developer';
 import 'dart:convert';
 
 import 'package:coordimate/pages/personal_info_page.dart';
@@ -466,7 +465,9 @@ class _TimePickerState extends State<_TimePicker> {
                     }
                     await AppState.scheduleController.deleteTimeSlot(widget.id);
                     widget.refresh();
-                    Navigator.of(context).pop();
+                    if (context.mounted) {
+                      Navigator.of(context).pop();
+                    }
                   },
                   child: const Text('Delete',
                       style: TextStyle(color: Colors.red))))

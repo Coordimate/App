@@ -261,10 +261,13 @@ class CreateMeetingDialogState extends State<CreateMeetingDialog> {
                   await AppState.meetingController.createMeeting(
                       titleController.text,
                       selectedDate.toIso8601String(),
+                      selectedDuration.inMinutes,
                       descriptionController.text,
                       widget.groupId);
                   clearControllers();
-                  Navigator.of(context).pop();
+                  if (context.mounted) {
+                    Navigator.of(context).pop();
+                  }
                 }
               },
               onNo: () {
