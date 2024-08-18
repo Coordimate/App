@@ -163,6 +163,7 @@ class MeetingController {
         title: title,
         description: description,
         startTime: DateTime.parse(start),
+        duration: length,
         hasConferenceSupport: true,
         shouldNotifyAttendees: true,
       );
@@ -174,6 +175,7 @@ class MeetingController {
     var body = <String, dynamic>{
       'title': title,
       'start': DateTime.parse(start).toUtc().toString(),
+      'length': length,
       'description': description,
       'group_id': groupId,
     };

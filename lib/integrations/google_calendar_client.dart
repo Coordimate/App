@@ -6,6 +6,7 @@ class CalendarClient {
   Future<Map<String, String>> insert({
     required String title,
     required DateTime startTime,
+    int duration = 60,
     String? description,
     String? location,
     List<EventAttendee>? attendeeEmailList,
@@ -29,7 +30,7 @@ class CalendarClient {
     event.start = start;
 
     EventDateTime end = EventDateTime();
-    end.dateTime = start.dateTime!.add(const Duration(hours: 1)).toUtc();
+    end.dateTime = start.dateTime!.add(Duration(minutes: duration)).toUtc();
     end.timeZone = "GMT";
     event.end = end;
 
@@ -79,6 +80,7 @@ class CalendarClient {
     required String id,
     required String title,
     required DateTime startTime,
+    int duration = 60,
     String? description,
     String? location,
     List<EventAttendee>? attendeeEmailList,
@@ -101,7 +103,7 @@ class CalendarClient {
     event.start = start;
 
     EventDateTime end = EventDateTime();
-    end.dateTime = start.dateTime!.add(const Duration(hours: 1)).toUtc();
+    end.dateTime = start.dateTime!.add(Duration(minutes: duration)).toUtc();
     end.timeZone = "GMT";
     event.end = end;
 
