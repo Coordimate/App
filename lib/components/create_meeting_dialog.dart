@@ -13,7 +13,6 @@ class CreateMeetingDialog extends StatefulWidget {
   final String groupId;
   final DateTime? pickedDate;
 
-  //ToDo: understand whatever this blue line means here
   const CreateMeetingDialog(
       {super.key, required this.groupId, this.pickedDate});
 
@@ -164,6 +163,7 @@ class CreateMeetingDialogState extends State<CreateMeetingDialog> {
                   key: formKey,
                   child: TextFormField(
                     controller: titleController,
+                    maxLength: 20,
                     style: const TextStyle(color: darkBlue),
                     decoration: const InputDecoration(
                       labelText: 'Title',
@@ -226,6 +226,7 @@ class CreateMeetingDialogState extends State<CreateMeetingDialog> {
                 const SizedBox(height: 16),
                 TextField(
                   controller: descriptionController,
+                  maxLength: 100,
                   style: const TextStyle(color: darkBlue),
                   decoration: const InputDecoration(
                     labelText: 'Description',

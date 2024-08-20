@@ -47,7 +47,7 @@ class _SummaryPageState extends State<SummaryPage> {
       },
       child: PopScope(
         canPop: false,
-        onPopInvokedWithResult: (didPop, _) async {
+          onPopInvoked: (bool didPop) async {
           if (didPop) {
             return;
           }

@@ -52,6 +52,7 @@ class LoginEmptyButton extends LoginButton {
         child: Center(
           child: Text(
             text,
+            textAlign: TextAlign.center,
             style: const TextStyle(
               color: darkBlue, // Dark blue text color
               // fontWeight: FontWeight.bold,

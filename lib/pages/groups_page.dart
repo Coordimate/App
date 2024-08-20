@@ -4,6 +4,7 @@ import 'package:coordimate/components/colors.dart';
 import 'package:coordimate/components/appbar.dart';
 import 'package:coordimate/models/groups.dart';
 import 'package:coordimate/app_state.dart';
+import 'package:coordimate/components/create_group_dialog.dart';
 import 'group_details_page.dart';
 import 'package:coordimate/widget_keys.dart';
 import 'package:coordimate/text_overflow_detect.dart';
@@ -138,120 +139,6 @@ class _GroupsPageState extends State<GroupsPage> {
           );
         },
       ),
-    );
-  }
-}
-
-class CreateGroupDialog extends StatefulWidget {
-  final Future<void> Function(String name, String description) onCreateGroup;
-  final Future<void> Function() fetchGroups;
-
-  const CreateGroupDialog(
-      {super.key, required this.onCreateGroup, required this.fetchGroups});
-
-  @override
-  CreateGroupDialogState createState() => CreateGroupDialogState();
-}
-
-class CreateGroupDialogState extends State<CreateGroupDialog> {
-  String groupName = '';
-  String groupDescription = '';
-
-  @override
-  Widget build(BuildContext context) {
-    return AlertDialog(
-      title: const Text(
-        'Create Group',
-        style: TextStyle(color: Colors.white),
-      ),
-      content: SingleChildScrollView(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            TextFormField(
-              key: groupCreationNameFieldKey,
-              onChanged: (val) {
-                setState(() {
-                  groupName = val;
-                });
-              },
-              decoration: InputDecoration(
-                contentPadding: const EdgeInsets.all(10),
-                labelText: 'Name',
-                border: const OutlineInputBorder(
-                  borderSide: BorderSide(color: Colors.white),
-                ),
-                enabledBorder: const OutlineInputBorder(
-                  borderSide: BorderSide(color: Colors.white),
-                ),
-                focusedBorder: const OutlineInputBorder(
-                  borderSide: BorderSide(color: darkBlue),
-                ),
-                labelStyle: const TextStyle(color: Colors.white),
-                counterText: '${groupName.length}/20',
-                counterStyle: const TextStyle(color: Colors.white),
-              ),
-              maxLength: 20,
-              style: const TextStyle(color: Colors.white),
-            ),
-            const SizedBox(height: 10),
-            TextFormField(
-              key: groupCreationDescriptionFieldKey,
-              onChanged: (val) {
-                setState(() {
-                  groupDescription = val;
-                });
-              },
-              maxLines: null,
-              maxLength: 100,
-              decoration: InputDecoration(
-                contentPadding: const EdgeInsets.all(10),
-                labelText: 'Description',
-                border: const OutlineInputBorder(
-                  borderSide: BorderSide(color: Colors.white),
-                ),
-                enabledBorder: const OutlineInputBorder(
-                  borderSide: BorderSide(color: Colors.white),
-                ),
-                focusedBorder: const OutlineInputBorder(
-                  borderSide: BorderSide(color: darkBlue),
-                ),
-                labelStyle: const TextStyle(color: Colors.white),
-                counterText: '${groupDescription.length}/100',
-                counterStyle: const TextStyle(color: Colors.white),
-              ),
-              style: const TextStyle(color: Colors.white),
-            ),
-          ],
-        ),
-      ),
-      backgroundColor: mediumBlue,
-      actions: [
-        SizedBox(
-          width: double.infinity,
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.end,
-            children: [
-              OutlinedButton(
-                key: createGroupKey,
-                onPressed: () async {
-                  if (groupName.isNotEmpty && groupName.length <= 20) {
-                    await widget.onCreateGroup(groupName, groupDescription);
-                    await widget.fetchGroups();
-                    if (context.mounted) {
-                      Navigator.pop(context);
-                    }
-                  }
-                },
-                child: const Text(
-                  'Create Group',
-                  style: TextStyle(color: Colors.white),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ],
     );
   }
 }
