@@ -12,6 +12,7 @@ import 'package:coordimate/app_state.dart';
 import 'package:coordimate/models/user.dart';
 import 'package:coordimate/components/login_text_field.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:coordimate/widget_keys.dart';
 
 class PersonalPage extends StatefulWidget {
   const PersonalPage({super.key});
@@ -114,7 +115,7 @@ class _PersonalPageState extends State<PersonalPage> {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: <Widget>[
-                    Avatar(size: 120, key: UniqueKey(), userId: user.id, clickable: true),
+                    Avatar(size: 120, key: avatarKey, userId: user.id, clickable: true),
                     const SizedBox(height: 16),
                     Padding(
                       padding:
@@ -246,6 +247,7 @@ class _ChangePasswordDialogState extends State<ChangePasswordDialog> {
               icon: pathLock,
               keyboardType: TextInputType.visiblePassword,
             ),
+            const SizedBox(height: 16),
             LoginTextField(
               controller: newPasswordController,
               obscureText: true,
@@ -254,6 +256,7 @@ class _ChangePasswordDialogState extends State<ChangePasswordDialog> {
               icon: pathLock,
               keyboardType: TextInputType.visiblePassword,
             ),
+            const SizedBox(height: 16),
             LoginTextField(
               controller: repeatPasswordController,
               obscureText: true,
@@ -285,7 +288,7 @@ class _ChangePasswordDialogState extends State<ChangePasswordDialog> {
           onNo: () {
             Navigator.of(context).pop();
           },
-          yes: "Continue",
+          yes: "Change",
           no: "Cancel",
         ),
       ],

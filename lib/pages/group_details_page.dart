@@ -1,8 +1,7 @@
+import 'package:coordimate/widget_keys.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-
 import 'package:share_plus/share_plus.dart';
-
 import 'package:coordimate/app_state.dart';
 import 'package:coordimate/models/user.dart';
 import 'package:coordimate/models/groups.dart';
@@ -21,7 +20,6 @@ import 'package:coordimate/components/avatar.dart';
 class GroupDetailsPage extends StatefulWidget {
   final Group group;
 
-  //ToDo: understand whatever this blue line means here
   const GroupDetailsPage({super.key, required this.group});
 
   @override
@@ -142,7 +140,7 @@ class GroupDetailsPageState extends State<GroupDetailsPage> {
                     },
                   ),
                   Avatar(
-                      key: UniqueKey(),
+                      key: avatarKey,
                       size: 100,
                       groupId: widget.group.id,
                       clickable: true),
@@ -404,7 +402,7 @@ class GroupDetailsPageState extends State<GroupDetailsPage> {
                 ),
                 child: ListTile(
                   leading: Avatar(
-                      key: UniqueKey(), userId: users[index].id, size: 40),
+                      key: Key('avatar${users[index].id}'), userId: users[index].id, size: 40),
                   title: Text(
                     users[index].username,
                     style: const TextStyle(

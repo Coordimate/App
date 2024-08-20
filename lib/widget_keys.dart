@@ -28,3 +28,4 @@ const groupCreationNameFieldKey = Key('groupCreationNameField');
 const groupCreationDescriptionFieldKey = Key(' groupCreationDescriptionField');
 const groupCardDescriptionOverflowKey = Key('groupCardDescriptionOverflow');
 const groupCardNameOverflowKey = Key('groupCardNameOverflow');
+const avatarKey = Key('avatar');
