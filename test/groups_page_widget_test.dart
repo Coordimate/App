@@ -222,6 +222,13 @@ void main() {
       'test7: alertdialogue from create button has fields that can be typed in within the character limit',
       (tester) async {
     whenGroupsNone(client);
+    when(client.post(
+      Uri.parse('$apiUrl/groups'),
+      headers: anyNamed('headers'),
+      body: anyNamed('body'),
+    )).thenAnswer((_) async => http.Response(
+        '{"id": "group_id", "admin": {"_id": "admin_id", "username": "admin"}, "name": "$groupName1","description": "$groupDescr1","users": [],"meetings": [],"schedule": []}',
+        201));
 
     // Stub the POST request to return a successful response
     when(client.post(
