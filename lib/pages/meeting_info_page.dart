@@ -315,6 +315,28 @@ class _MeetingDetailsPageState extends State<MeetingDetailsPage> {
                   );
                 }).toList(),
               ),
+              SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    onPressed: () async {
+                      await AppState.meetingController.deleteMeeting(
+                          widget.meeting.id, widget.meeting.googleEventId);
+                      if (context.mounted) Navigator.of(context).pop();
+                    },
+                    style: ButtonStyle(
+                      backgroundColor: WidgetStateProperty.all(orange),
+                      shape: WidgetStateProperty.all<RoundedRectangleBorder>(
+                        RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                      ),
+                    ),
+                    child: const Text("Delete Meeting",
+                        style: TextStyle(
+                            fontSize: 20,
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold)),
+                  )),
             ],
           ),
         ),
@@ -354,7 +376,7 @@ class _MeetingDetailsPageState extends State<MeetingDetailsPage> {
         widget.meeting.dateTime.hour,
         widget.meeting.dateTime.minute,
       );
-      AppState.meetingController.updateMeetingTime(
+      await AppState.meetingController.updateMeetingTime(
           widget.meeting.id,
           selectedDateTime.toUtc().toIso8601String(),
           widget.meeting.duration,
@@ -395,7 +417,7 @@ class _MeetingDetailsPageState extends State<MeetingDetailsPage> {
         pickedTime.hour,
         pickedTime.minute,
       );
-      AppState.meetingController.updateMeetingTime(
+      await AppState.meetingController.updateMeetingTime(
           widget.meeting.id,
           selectedDateTime.toUtc().toIso8601String(),
           widget.meeting.duration,

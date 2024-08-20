@@ -203,7 +203,7 @@ class MeetingController {
         duration: duration,
       );
     } else {
-      log('User not signed in to google, not creating a google meet');
+      log('User not signed in to google, not updating the google meet');
     }
 
     var body = <String, dynamic>{
@@ -219,6 +219,24 @@ class MeetingController {
     );
     if (response.statusCode != 200) {
       throw Exception('Failed to update meeting');
+    }
+  }
+
+  Future<void> deleteMeeting(String meetingId, String? googleEventId) async {
+    if (AppState.authController.calApi != null && googleEventId != null) {
+      await AppState.googleCalendarClient.delete(googleEventId, true);
+    } else {
+      log('User not signed in to google, not deleting the google meet');
+    }
+
+    final response = await AppState.client.delete(
+      Uri.parse("$apiUrl/meetings/$meetingId"),
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+      },
+    );
+    if (response.statusCode != 204) {
+      throw Exception('Failed to delete meeting');
     }
   }
 }
