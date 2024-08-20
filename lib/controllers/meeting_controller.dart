@@ -157,8 +157,6 @@ class MeetingController {
 
   Future<void> createMeeting(String title, String start, int length,
       String description, String groupId) async {
-    String? meetingLink;
-    String? googleEventId;
     var body = <String, dynamic>{
       'title': title,
       'start': DateTime.parse(start).toUtc().toString(),
@@ -176,8 +174,9 @@ class MeetingController {
         hasConferenceSupport: true,
         shouldNotifyAttendees: true,
       );
-      body['google_event_id'] = googleEventId;
-      if (eventData.containsKey('link')) body['meeting_link'] = meetingLink;
+      body['google_event_id'] = eventData['id'];
+      if (eventData.containsKey('link'))
+        body['meeting_link'] = eventData['link'];
     } else {
       log('User not signed in to google, not creating a google meet');
     }
