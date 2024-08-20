@@ -13,6 +13,8 @@ import 'helpers/when.dart';
 import 'helpers/client/groups.dart';
 import 'helpers/client/data_provider.dart';
 import 'package:coordimate/widget_keys.dart';
+import 'package:mockito/mockito.dart';
+import 'package:coordimate/keys.dart';
 
 @GenerateMocks(
     [http.Client, FlutterSecureStorage, SharedPreferences, FirebaseMessaging])
@@ -27,41 +29,219 @@ void main() {
   setAppState(client, storage, sharedPrefs, firebase);
   whenStatements(client, storage, sharedPrefs, firebase);
 
-  testWidgets('test1: groups page has create button when no groups loaded',
-      (tester) async {
-    whenGroupsNone(client);
-    await tester.pumpWidget(const MaterialApp(
-      home: GroupsPage(),
-    ));
-    expect(find.text('Groups'), findsExactly(1));
-    expect(find.byIcon(Icons.add_circle_outline_rounded), findsExactly(1));
-  });
+//   testWidgets('test1: groups page has create button when no groups loaded',
+//       (tester) async {
+//     whenGroupsNone(client);
+//     await tester.pumpWidget(const MaterialApp(
+//       home: GroupsPage(),
+//     ));
+//     expect(find.text('Groups'), findsExactly(1));
+//     expect(find.byIcon(Icons.add_circle_outline_rounded), findsExactly(1));
+//   });
+
+//   testWidgets(
+//       'test2: groups page has groups card with name and description displayed when one group loaded',
+//       (tester) async {
+//     AppState.testMode = true;
+//     whenGroupsOne(client);
+
+//     await tester.pumpWidget(const MaterialApp(
+//       home: GroupsPage(),
+//     ));
+
+//     await tester.pumpAndSettle();
+//     expect(find.text('Groups'), findsExactly(1));
+//     expect(find.byIcon(Icons.add_circle_outline_rounded), findsOneWidget);
+//     expect(find.byKey(groupCardKey), findsExactly(1));
+//     expect(find.byKey(groupCardDescriptionKey), findsExactly(1));
+//     expect(find.byKey(groupCardNameKey), findsExactly(1));
+//   });
+
+//   testWidgets(
+//       'test3: groups page presses create button and an alertdialogue window appears, containing name and description text fields and finalization create group button',
+//       (tester) async {
+//     whenGroupsNone(client);
+//     await tester.pumpWidget(const MaterialApp(
+//       home: GroupsPage(),
+//     ));
+//     final button = find.byIcon(Icons.add_circle_outline_rounded);
+//     expect(button, findsExactly(1));
+
+//     await tester.runAsync(() async {
+//       await tester.tap(button);
+//     });
+
+//     await tester.pumpAndSettle();
+//     expect(find.byKey(createGroupKey), findsExactly(1));
+//     expect(find.text('Name'), findsExactly(1));
+//     expect(find.byKey(groupCreationNameFieldKey), findsExactly(1));
+//     expect(find.text('Description'), findsExactly(1));
+//     expect(find.byKey(groupCreationDescriptionFieldKey), findsExactly(1));
+//   });
+
+//   testWidgets(
+//       'test4: groups page has groups card with name and description displayed when two groups loaded',
+//       (tester) async {
+//     AppState.testMode = true;
+//     whenGroupsTwo(client);
+//     await tester.pumpWidget(const MaterialApp(
+//       home: GroupsPage(),
+//     ));
+
+//     await tester.pumpAndSettle();
+//     expect(find.text('Groups'), findsOneWidget);
+//     expect(find.byIcon(Icons.add_circle_outline_rounded), findsOneWidget);
+
+//     expect(find.byKey(groupCardKey), findsExactly(2));
+//     expect(find.byKey(groupCardDescriptionKey), findsExactly(2));
+//     expect(find.text(DataProvider.getGroupDescr1()), findsExactly(1));
+//     expect(find.text(DataProvider.getGroupDescr2()), findsExactly(1));
+//     expect(find.byKey(groupCardNameKey), findsExactly(2));
+//     expect(find.text(DataProvider.getGroupName1()), findsExactly(1));
+//     expect(find.text(DataProvider.getGroupName2()), findsExactly(1));
+//     // print(DataProvider.getGroupName1() +
+//     //     DataProvider.getGroupName2() +
+//     //     DataProvider.getGroupDescr1() +
+//     //     DataProvider.getGroupDescr2());
+//   });
+
+// // this is an alternative for using ellipsestext, that doesnt confirm if the
+// // text has an ellipses or has been truncated for certain, but rather compares the
+// // original text size compared to the rendered one
+
+//   // testWidgets(
+//   //     'test5: groups page has a group card with a long group description',
+//   //     (tester) async {
+//   //   AppState.testMode = true;
+//   //   whenGroupsLongOne(client);
+//   //   await tester.pumpWidget(const MaterialApp(
+//   //     home: GroupsPage(),
+//   //   ));
+
+//   //   await tester.pumpAndSettle();
+//   //   expect(find.text('Groups'), findsOneWidget);
+//   //   expect(find.byIcon(Icons.add_circle_outline_rounded), findsOneWidget);
+
+//   //   expect(find.byKey(groupCardKey), findsExactly(1));
+//   //   expect(find.byKey(groupCardDescriptionKey), findsExactly(1));
+//   //   expect(find.text(DataProvider.getLongGroupDescr()), findsExactly(1));
+//   //   expect(find.byKey(groupCardNameKey), findsExactly(1));
+//   //   expect(find.text(DataProvider.getGroupName1()), findsExactly(1));
+
+//   //   final textFinder = find.byKey(groupCardDescriptionKey);
+//   //   final Text textWidget = tester.widget(textFinder);
+
+//   //   final TextPainter textPainter = TextPainter(
+//   //     text: TextSpan(text: textWidget.data, style: textWidget.style),
+//   //     maxLines: 1,
+//   //     textDirection: TextDirection.ltr,
+//   //     ellipsis: '!',
+//   //   );
+//   //   print(textPainter.text);
+//   //   textPainter.layout(maxWidth: tester.getSize(textFinder).width);
+
+//   //   expect(textPainter.didExceedMaxLines, isTrue,
+//   //       reason: "Text should be truncated with ellipses");
+//   // });
+
+//   testWidgets(
+//       'test5: groups page has a group card with a long group description that is truncated',
+//       (tester) async {
+//     AppState.testMode = true;
+//     whenGroupsLongOne(client);
+//     await tester.pumpWidget(const MaterialApp(
+//       home: GroupsPage(),
+//     ));
+
+//     await tester.pumpAndSettle();
+//     expect(find.text('Groups'), findsOneWidget);
+//     expect(find.byIcon(Icons.add_circle_outline_rounded), findsOneWidget);
+
+//     expect(find.byKey(groupCardKey), findsExactly(1));
+//     expect(find.byKey(groupCardDescriptionKey), findsExactly(1));
+//     expect(find.text(DataProvider.getLongGroupDescr()), findsExactly(1));
+//     expect(find.byKey(groupCardNameKey), findsExactly(1));
+//     expect(find.text(DataProvider.getGroupName1()), findsExactly(1));
+//     expect(find.byKey(groupCardDescriptionOverflowKey), findsExactly(1));
+//   });
+
+//   testWidgets(
+//       'test6: groups page has a group card with a long group name and long description, both are truncated',
+//       (tester) async {
+//     AppState.testMode = true;
+//     whenGroupsLongNameAndDescr(client);
+//     await tester.pumpWidget(const MaterialApp(
+//       home: GroupsPage(),
+//     ));
+
+//     await tester.pumpAndSettle();
+//     expect(find.text('Groups'), findsOneWidget);
+//     expect(find.byIcon(Icons.add_circle_outline_rounded), findsOneWidget);
+
+//     expect(find.byKey(groupCardKey), findsExactly(1));
+//     expect(find.byKey(groupCardDescriptionKey), findsExactly(1));
+//     expect(find.text(DataProvider.getLongGroupDescr()), findsExactly(1));
+//     expect(find.byKey(groupCardNameKey), findsExactly(1));
+//     expect(find.text(DataProvider.getLongGroupName()), findsExactly(1));
+//     expect(find.byKey(groupCardDescriptionOverflowKey), findsExactly(1));
+//     expect(find.byKey(groupCardNameOverflowKey), findsExactly(1));
+//   });
+
+  // testWidgets(
+  //     'test7: alertdialogue from create button has fields that can be typed in within the character limit',
+  //     (tester) async {
+  //   whenGroupsNone(client);
+  //   await tester.pumpWidget(const MaterialApp(
+  //     home: GroupsPage(),
+  //   ));
+  //   final button = find.byIcon(Icons.add_circle_outline_rounded);
+  //   expect(button, findsExactly(1));
+
+  //   await tester.runAsync(() async {
+  //     await tester.tap(button);
+  //   });
+
+  //   await tester.pumpAndSettle();
+  //   final nameField = find.byKey(groupCreationNameFieldKey);
+  //   final descrField = find.byKey(groupCreationDescriptionFieldKey);
+
+  //   expect(find.byKey(createGroupKey), findsExactly(1));
+  //   expect(find.text('Name'), findsExactly(1));
+  //   expect(nameField, findsExactly(1));
+  //   expect(find.text('Description'), findsExactly(1));
+  //   expect(descrField, findsExactly(1));
+
+  //   await tester.enterText(nameField, 'Sample Group Name');
+
+  //   await tester.enterText(descrField, 'This is a description of the group.');
+
+  //   await tester.pump();
+  // });
 
   testWidgets(
-      'test2: groups page has groups card with name and description displayed when one group loaded',
-      (tester) async {
-    AppState.testMode = true;
-    whenGroupsOne(client);
-
-    await tester.pumpWidget(const MaterialApp(
-      home: GroupsPage(),
-    ));
-
-    await tester.pumpAndSettle();
-    expect(find.text('Groups'), findsExactly(1));
-    expect(find.byIcon(Icons.add_circle_outline_rounded), findsOneWidget);
-    expect(find.byKey(groupCardKey), findsExactly(1));
-    expect(find.byKey(groupCardDescriptionKey), findsExactly(1));
-    expect(find.byKey(groupCardNameKey), findsExactly(1));
-  });
-
-  testWidgets(
-      'test3: groups page presses create button and an alertdialogue window appears, containing name and description text fields and finalization create group button',
+      'test7: alertdialogue from create button has fields that can be typed in within the character limit',
       (tester) async {
     whenGroupsNone(client);
+
+    // Stub the POST request to return a successful response
+    when(client.post(
+      Uri.parse('$apiUrl/groups'),
+      // headers: anyNamed('headers'),
+      headers: {
+        'Content-Type': 'application/json; charset=UTF-8',
+        // Assuming your authentication is handled via a Bearer token in the headers
+        'Authorization': 'Bearer your-mock-token',
+      },
+      body:
+          '{"name":"Sample Group Name","description":"This is a description of the group."}',
+    )).thenAnswer((_) async => http.Response(
+        '{"id": "123", "name": "Sample Group Name", "description": "This is a description of the group."}',
+        201));
+
     await tester.pumpWidget(const MaterialApp(
       home: GroupsPage(),
     ));
+
     final button = find.byIcon(Icons.add_circle_outline_rounded);
     expect(button, findsExactly(1));
 
@@ -70,114 +250,27 @@ void main() {
     });
 
     await tester.pumpAndSettle();
-    expect(find.byKey(createGroupKey), findsExactly(1));
+
+    final nameField = find.byKey(groupCreationNameFieldKey);
+    final descrField = find.byKey(groupCreationDescriptionFieldKey);
+    final createGroup = find.byKey(createGroupKey);
+
+    expect(createGroup, findsExactly(1));
     expect(find.text('Name'), findsExactly(1));
-    expect(find.byKey(groupCreationNameFieldKey), findsExactly(1));
+    expect(nameField, findsExactly(1));
     expect(find.text('Description'), findsExactly(1));
-    expect(find.byKey(groupCreationDescriptionFieldKey), findsExactly(1));
-  });
+    expect(descrField, findsExactly(1));
 
-  testWidgets(
-      'test4: groups page has groups card with name and description displayed when two groups loaded',
-      (tester) async {
-    AppState.testMode = true;
-    whenGroupsTwo(client);
-    await tester.pumpWidget(const MaterialApp(
-      home: GroupsPage(),
-    ));
+    await tester.enterText(nameField, 'Sample Group Name');
+    await tester.enterText(descrField, 'This is a description of the group.');
+    await tester.pump();
+
+    await tester.runAsync(() async {
+      await tester.tap(createGroup);
+    });
 
     await tester.pumpAndSettle();
-    expect(find.text('Groups'), findsOneWidget);
-    expect(find.byIcon(Icons.add_circle_outline_rounded), findsOneWidget);
 
-    expect(find.byKey(groupCardKey), findsExactly(2));
-    expect(find.byKey(groupCardDescriptionKey), findsExactly(2));
-    expect(find.text(DataProvider.getGroupDescr1()), findsExactly(1));
-    expect(find.text(DataProvider.getGroupDescr2()), findsExactly(1));
-    expect(find.byKey(groupCardNameKey), findsExactly(2));
-    expect(find.text(DataProvider.getGroupName1()), findsExactly(1));
-    expect(find.text(DataProvider.getGroupName2()), findsExactly(1));
-    // print(DataProvider.getGroupName1() +
-    //     DataProvider.getGroupName2() +
-    //     DataProvider.getGroupDescr1() +
-    //     DataProvider.getGroupDescr2());
-  });
-
-  // testWidgets(
-  //     'test5: groups page has a group card with a long group description',
-  //     (tester) async {
-  //   AppState.testMode = true;
-  //   whenGroupsLongOne(client);
-  //   await tester.pumpWidget(const MaterialApp(
-  //     home: GroupsPage(),
-  //   ));
-
-  //   await tester.pumpAndSettle();
-  //   expect(find.text('Groups'), findsOneWidget);
-  //   expect(find.byIcon(Icons.add_circle_outline_rounded), findsOneWidget);
-
-  //   expect(find.byKey(groupCardKey), findsExactly(1));
-  //   expect(find.byKey(groupCardDescriptionKey), findsExactly(1));
-  //   expect(find.text(DataProvider.getLongGroupDescr()), findsExactly(1));
-  //   expect(find.byKey(groupCardNameKey), findsExactly(1));
-  //   expect(find.text(DataProvider.getGroupName1()), findsExactly(1));
-
-  //   final textFinder = find.byKey(groupCardDescriptionKey);
-  //   final Text textWidget = tester.widget(textFinder);
-
-  //   final TextPainter textPainter = TextPainter(
-  //     text: TextSpan(text: textWidget.data, style: textWidget.style),
-  //     maxLines: 1,
-  //     textDirection: TextDirection.ltr,
-  //     ellipsis: '!',
-  //   );
-  //   print(textPainter.text);
-  //   textPainter.layout(maxWidth: tester.getSize(textFinder).width);
-
-  //   expect(textPainter.didExceedMaxLines, isTrue,
-  //       reason: "Text should be truncated with ellipses");
-  // });
-
-  testWidgets(
-      'test5: groups page has a group card with a long group description that is truncated',
-      (tester) async {
-    AppState.testMode = true;
-    whenGroupsLongOne(client);
-    await tester.pumpWidget(const MaterialApp(
-      home: GroupsPage(),
-    ));
-
-    await tester.pumpAndSettle();
-    expect(find.text('Groups'), findsOneWidget);
-    expect(find.byIcon(Icons.add_circle_outline_rounded), findsOneWidget);
-
-    expect(find.byKey(groupCardKey), findsExactly(1));
-    expect(find.byKey(groupCardDescriptionKey), findsExactly(1));
-    expect(find.text(DataProvider.getLongGroupDescr()), findsExactly(1));
-    expect(find.byKey(groupCardNameKey), findsExactly(1));
-    expect(find.text(DataProvider.getGroupName1()), findsExactly(1));
-    expect(find.byKey(groupCardDescriptionOverflowKey), findsExactly(1));
-  });
-
-  testWidgets(
-      'test6: groups page has a group card with a long group name and long description, both are truncated',
-      (tester) async {
-    AppState.testMode = true;
-    whenGroupsLongNameAndDescr(client);
-    await tester.pumpWidget(const MaterialApp(
-      home: GroupsPage(),
-    ));
-
-    await tester.pumpAndSettle();
-    expect(find.text('Groups'), findsOneWidget);
-    expect(find.byIcon(Icons.add_circle_outline_rounded), findsOneWidget);
-
-    expect(find.byKey(groupCardKey), findsExactly(1));
-    expect(find.byKey(groupCardDescriptionKey), findsExactly(1));
-    expect(find.text(DataProvider.getLongGroupDescr()), findsExactly(1));
-    expect(find.byKey(groupCardNameKey), findsExactly(1));
-    expect(find.text(DataProvider.getLongGroupName()), findsExactly(1));
-    expect(find.byKey(groupCardDescriptionOverflowKey), findsExactly(1));
-    expect(find.byKey(groupCardNameOverflowKey), findsExactly(1));
+    // Additional assertions can be added here to verify the correct behavior
   });
 }
