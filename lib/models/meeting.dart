@@ -43,7 +43,7 @@ class MeetingTileModel {
         id: json['id'].toString(),
         title: json['title'],
         group: GroupCard.fromJson(json['group']),
-        dateTime: DateTime.parse(json['start']),
+        dateTime: DateTime.parse(json['start']).toLocal(),
         duration: json['length'],
         status: json['status'] == 'accepted'
             ? MeetingStatus.accepted
@@ -84,6 +84,7 @@ class MeetingDetails {
   final Participant admin;
   final String description;
   final String? meetingLink;
+  final String? googleEventId;
   final List<Participant> participants;
   bool isFinished;
   MeetingStatus status;
@@ -103,13 +104,20 @@ class MeetingDetails {
     required this.isFinished,
     required this.summary,
     this.meetingLink,
+    this.googleEventId,
   });
 
-  String getFormattedDate() {
+  String getFormattedDate(DateTime? dt) {
+    if (dt != null) {
+      return DateFormat('EEEE, MMMM d').format(dt);
+    }
     return DateFormat('EEEE, MMMM d').format(dateTime);
   }
 
-  String getFormattedTime() {
+  String getFormattedTime(DateTime? dt) {
+    if (dt != null) {
+      return DateFormat('HH:mm').format(dt);
+    }
     return DateFormat('HH:mm').format(dateTime);
   }
 
@@ -123,7 +131,7 @@ class MeetingDetails {
       title: json['title'],
       groupId: json['group_id'].toString(),
       groupName: json['group_name'],
-      dateTime: DateTime.parse(json['start']),
+      dateTime: DateTime.parse(json['start']).toLocal(),
       duration: json['length'],
       admin: Participant.fromJson(json['admin']),
       description: json['description'] ?? '',
@@ -138,8 +146,9 @@ class MeetingDetails {
       isFinished: json['is_finished'] as bool,
       meetingLink:
           json.containsKey('meeting_link') ? json['meeting_link'] : null,
+      googleEventId:
+          json.containsKey('google_event_id') ? json['google_event_id'] : null,
       summary: json['summary'] ?? '',
     );
   }
 }
-

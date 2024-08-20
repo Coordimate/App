@@ -21,7 +21,9 @@ class MeetingDetailsPage extends StatefulWidget {
 }
 
 class _MeetingDetailsPageState extends State<MeetingDetailsPage> {
-  late final textController = TextEditingController(text: widget.meeting.meetingLink ?? '');
+  late DateTime dateTime = widget.meeting.dateTime;
+  late final textController =
+      TextEditingController(text: widget.meeting.meetingLink ?? '');
 
   Future<void> _answerInvitation(bool accept) async {
     if (widget.meeting.isInPast()) {
@@ -32,8 +34,12 @@ class _MeetingDetailsPageState extends State<MeetingDetailsPage> {
       CustomSnackBar.show(context, "Meeting is already finished");
       return;
     }
-    await AppState.meetingController.answerInvitation(accept, widget.meeting.id).then((status) {
-      var meetingStatus = (status == MeetingStatus.accepted) ? "Meeting accepted" : "Meeting declined";
+    await AppState.meetingController
+        .answerInvitation(accept, widget.meeting.id)
+        .then((status) {
+      var meetingStatus = (status == MeetingStatus.accepted)
+          ? "Meeting accepted"
+          : "Meeting declined";
       setState(() {
         widget.meeting.status = status;
         CustomSnackBar.show(context, meetingStatus);
@@ -57,16 +63,14 @@ class _MeetingDetailsPageState extends State<MeetingDetailsPage> {
                   style: const TextStyle(
                       color: darkBlue, fontWeight: FontWeight.bold))),
           actions: <Widget>[
-            ConfirmationButtons(
-                onYes: () async {
-                  await _answerInvitation(accept);
-                  if (context.mounted) {
-                    Navigator.of(context).pop();
-                  }
-                },
-                onNo: () {
-                  Navigator.of(context).pop();
-                }),
+            ConfirmationButtons(onYes: () async {
+              await _answerInvitation(accept);
+              if (context.mounted) {
+                Navigator.of(context).pop();
+              }
+            }, onNo: () {
+              Navigator.of(context).pop();
+            }),
           ],
         );
       },
@@ -115,10 +119,20 @@ class _MeetingDetailsPageState extends State<MeetingDetailsPage> {
                 ),
                 child: Column(
                   children: <Widget>[
-                    buildInfoRow(Icons.calendar_today, "Date",
-                        widget.meeting.getFormattedDate()),
-                    buildInfoRow(Icons.access_time, "Time",
-                        widget.meeting.getFormattedTime()),
+                    GestureDetector(
+                      onTap: () async {
+                        _selectDate();
+                      },
+                      child: buildInfoRow(Icons.calendar_today, "Date",
+                          widget.meeting.getFormattedDate(dateTime)),
+                    ),
+                    GestureDetector(
+                      onTap: () async {
+                        _selectTime();
+                      },
+                      child: buildInfoRow(Icons.access_time, "Time",
+                          widget.meeting.getFormattedTime(dateTime)),
+                    ),
                     buildInfoRow(
                         Icons.group, "Group", widget.meeting.groupName),
                     buildInfoRow(
@@ -207,18 +221,23 @@ class _MeetingDetailsPageState extends State<MeetingDetailsPage> {
                                 ),
                               ),
                             )
-                        .then((_) async => await AppState.meetingController
-                            .fetchMeetingSummary(widget.meeting.id)
-                            .then((summary) => setState(() {
-                              widget.meeting.summary = summary;
-                            })));
+                            .then((_) async => await AppState.meetingController
+                                .fetchMeetingSummary(widget.meeting.id)
+                                .then((summary) => setState(() {
+                                      widget.meeting.summary = summary;
+                                    })));
                       } else {
-                        await AppState.meetingController.finishMeeting(widget.meeting.id).then((isFinished) => setState(() {
-                          isFinished
-                              ? CustomSnackBar.show(context, "Meeting is finished")
-                              : CustomSnackBar.show(context, "Failed to finish meeting");
-                          isFinished && (widget.meeting.isFinished = isFinished);
-                        }));
+                        await AppState.meetingController
+                            .finishMeeting(widget.meeting.id)
+                            .then((isFinished) => setState(() {
+                                  isFinished
+                                      ? CustomSnackBar.show(
+                                          context, "Meeting is finished")
+                                      : CustomSnackBar.show(
+                                          context, "Failed to finish meeting");
+                                  isFinished &&
+                                      (widget.meeting.isFinished = isFinished);
+                                }));
                       }
                     },
                     style: ButtonStyle(
@@ -301,6 +320,90 @@ class _MeetingDetailsPageState extends State<MeetingDetailsPage> {
         ),
       ),
     );
+  }
+
+  Future<void> _selectDate() async {
+    final DateTime? pickedDate = await showDatePicker(
+      context: context,
+      initialDate: widget.meeting.dateTime,
+      firstDate: DateTime.now(),
+      lastDate: DateTime.now().add(const Duration(days: 365)),
+      builder: (BuildContext context, Widget? child) {
+        return Theme(
+          data: ThemeData.light().copyWith(
+            colorScheme: const ColorScheme.light(
+                primary: lightBlue,
+                onPrimary: darkBlue,
+                onSurface: darkBlue,
+                surfaceTint: Colors.white),
+            textButtonTheme: TextButtonThemeData(
+              style: TextButton.styleFrom(
+                foregroundColor: darkBlue,
+              ),
+            ),
+          ),
+          child: child!,
+        );
+      },
+    );
+    if (pickedDate != null) {
+      var selectedDateTime = DateTime(
+        pickedDate.year,
+        pickedDate.month,
+        pickedDate.day,
+        widget.meeting.dateTime.hour,
+        widget.meeting.dateTime.minute,
+      );
+      AppState.meetingController.updateMeetingTime(
+          widget.meeting.id,
+          selectedDateTime.toUtc().toIso8601String(),
+          widget.meeting.duration,
+          widget.meeting.googleEventId);
+      setState(() {
+        dateTime = selectedDateTime;
+      });
+    }
+  }
+
+  Future<void> _selectTime() async {
+    final TimeOfDay? pickedTime = await showTimePicker(
+      context: context,
+      initialTime: TimeOfDay.fromDateTime(widget.meeting.dateTime),
+      builder: (BuildContext context, Widget? child) {
+        return Theme(
+          data: ThemeData.light().copyWith(
+            colorScheme: const ColorScheme.light(
+                primary: lightBlue,
+                onPrimary: darkBlue,
+                onSurface: darkBlue,
+                surfaceTint: Colors.white),
+            textButtonTheme: TextButtonThemeData(
+              style: TextButton.styleFrom(
+                foregroundColor: darkBlue,
+              ),
+            ),
+          ),
+          child: child!,
+        );
+      },
+    );
+    if (pickedTime != null) {
+      var selectedDateTime = DateTime(
+        widget.meeting.dateTime.year,
+        widget.meeting.dateTime.month,
+        widget.meeting.dateTime.day,
+        pickedTime.hour,
+        pickedTime.minute,
+      );
+      AppState.meetingController.updateMeetingTime(
+          widget.meeting.id,
+          selectedDateTime.toUtc().toIso8601String(),
+          widget.meeting.duration,
+          widget.meeting.googleEventId);
+      setState(() {
+        dateTime = selectedDateTime;
+      });
+    }
   }
 
   Widget buildInfoRow(IconData icon, String title, String value) {

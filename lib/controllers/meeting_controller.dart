@@ -158,6 +158,15 @@ class MeetingController {
   Future<void> createMeeting(String title, String start, int length,
       String description, String groupId) async {
     String? meetingLink;
+    String? googleEventId;
+    var body = <String, dynamic>{
+      'title': title,
+      'start': DateTime.parse(start).toUtc().toString(),
+      'length': length,
+      'description': description,
+      'group_id': groupId,
+    };
+
     if (AppState.authController.calApi != null) {
       var eventData = await AppState.googleCalendarClient.insert(
         title: title,
@@ -167,21 +176,12 @@ class MeetingController {
         hasConferenceSupport: true,
         shouldNotifyAttendees: true,
       );
-      if (eventData.containsKey('link')) meetingLink = eventData['link'];
+      body['google_event_id'] = googleEventId;
+      if (eventData.containsKey('link')) body['meeting_link'] = meetingLink;
     } else {
       log('User not signed in to google, not creating a google meet');
     }
 
-    var body = <String, dynamic>{
-      'title': title,
-      'start': DateTime.parse(start).toUtc().toString(),
-      'length': length,
-      'description': description,
-      'group_id': groupId,
-    };
-    if (meetingLink != null) {
-      body['meeting_link'] = meetingLink;
-    }
     final response = await AppState.client.post(
       Uri.parse("$apiUrl/meetings"),
       headers: <String, String>{
@@ -191,6 +191,34 @@ class MeetingController {
     );
     if (response.statusCode != 201) {
       throw Exception('Failed to create meeting');
+    }
+  }
+
+  Future<void> updateMeetingTime(String meetingId, String start, int duration,
+      String? googleEventId) async {
+    if (AppState.authController.calApi != null && googleEventId != null) {
+      await AppState.googleCalendarClient.modify(
+        id: googleEventId,
+        startTime: DateTime.parse(start),
+        duration: duration,
+      );
+    } else {
+      log('User not signed in to google, not creating a google meet');
+    }
+
+    var body = <String, dynamic>{
+      'start': DateTime.parse(start).toUtc().toString(),
+      'length': duration,
+    };
+    final response = await AppState.client.patch(
+      Uri.parse("$apiUrl/meetings/$meetingId"),
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+      },
+      body: jsonEncode(body),
+    );
+    if (response.statusCode != 200) {
+      throw Exception('Failed to update meeting');
     }
   }
 }

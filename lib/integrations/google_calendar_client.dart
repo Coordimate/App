@@ -38,7 +38,7 @@ class CalendarClient {
       ConferenceData conferenceData = ConferenceData();
       CreateConferenceRequest conferenceRequest = CreateConferenceRequest();
       conferenceRequest.requestId =
-      "${start.dateTime!.millisecondsSinceEpoch}-${end.dateTime!.millisecondsSinceEpoch}";
+          "${start.dateTime!.millisecondsSinceEpoch}-${end.dateTime!.millisecondsSinceEpoch}";
       conferenceData.createRequest = conferenceRequest;
 
       event.conferenceData = conferenceData;
@@ -47,8 +47,8 @@ class CalendarClient {
     try {
       await AppState.authController.calApi!.events
           .insert(event, calendarId,
-          conferenceDataVersion: hasConferenceSupport ? 1 : 0,
-          sendUpdates: shouldNotifyAttendees ? "all" : "none")
+              conferenceDataVersion: hasConferenceSupport ? 1 : 0,
+              sendUpdates: shouldNotifyAttendees ? "all" : "none")
           .then((value) {
         log("Event Status: ${value.status}");
         if (value.status == "confirmed") {
@@ -59,7 +59,7 @@ class CalendarClient {
 
           if (hasConferenceSupport) {
             joiningLink =
-            "https://meet.google.com/${value.conferenceData!.conferenceId}";
+                "https://meet.google.com/${value.conferenceData!.conferenceId}";
             eventData = {'id': eventId, 'link': joiningLink};
           } else {
             eventData = {'id': eventId};
@@ -78,9 +78,9 @@ class CalendarClient {
 
   Future<Map<String, String>> modify({
     required String id,
-    required String title,
+    required int duration,
     required DateTime startTime,
-    int duration = 60,
+    String? title,
     String? description,
     String? location,
     List<EventAttendee>? attendeeEmailList,
@@ -92,7 +92,7 @@ class CalendarClient {
     String calendarId = "primary";
     Event event = Event();
 
-    event.summary = title;
+    if (title != null) event.summary = title;
     if (description != null) event.description = description;
     if (attendeeEmailList != null) event.attendees = attendeeEmailList;
     if (location != null) event.location = location;
@@ -110,8 +110,8 @@ class CalendarClient {
     try {
       await AppState.authController.calApi!.events
           .patch(event, calendarId, id,
-          conferenceDataVersion: hasConferenceSupport ? 1 : 0,
-          sendUpdates: shouldNotifyAttendees ? "all" : "none")
+              conferenceDataVersion: hasConferenceSupport ? 1 : 0,
+              sendUpdates: shouldNotifyAttendees ? "all" : "none")
           .then((value) {
         log("Event Status: ${value.status}");
         if (value.status == "confirmed") {
@@ -122,7 +122,7 @@ class CalendarClient {
 
           if (hasConferenceSupport) {
             joiningLink =
-            "https://meet.google.com/${value.conferenceData!.conferenceId}";
+                "https://meet.google.com/${value.conferenceData!.conferenceId}";
             eventData = {'id': eventId, 'link': joiningLink};
           } else {
             eventData = {'id': eventId};
@@ -144,8 +144,9 @@ class CalendarClient {
     String calendarId = "primary";
 
     try {
-      await AppState.authController.calApi!.events.delete(
-          calendarId, eventId, sendUpdates: shouldNotify ? "all" : "none")
+      await AppState.authController.calApi!.events
+          .delete(calendarId, eventId,
+              sendUpdates: shouldNotify ? "all" : "none")
           .then((value) {
         log('Event deleted from Google Calendar');
       });
@@ -154,3 +155,4 @@ class CalendarClient {
     }
   }
 }
+
