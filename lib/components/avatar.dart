@@ -1,10 +1,8 @@
 import 'dart:developer';
 import 'dart:io';
-
 import 'package:coordimate/app_state.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-
 import 'package:image_picker/image_picker.dart';
 import 'package:coordimate/components/colors.dart';
 import 'package:coordimate/keys.dart';
@@ -28,11 +26,20 @@ class _PickPictureButton extends StatelessWidget {
           borderRadius: BorderRadius.circular(10),
         ),
         child: Center(
-          child: Text(
-            text,
-            style: const TextStyle(
-                // fontWeight: FontWeight.bold,
-                fontSize: 24),
+          child: Column(
+            children: [
+              Icon(
+                text == 'Take Picture' ? Icons.camera_alt : Icons.image,
+                color: darkBlue,
+                // size: 40,
+              ),
+              Text(
+                text,
+                style: const TextStyle()
+                    // fontWeight: FontWeight.bold,
+                    // fontSize: 24),
+              ),
+            ],
           ),
         ),
       ),
@@ -99,36 +106,42 @@ class Avatar extends StatelessWidget {
           showModalBottomSheet<String>(
               context: context,
               builder: (BuildContext context) {
-               return Container(
-                  color: white,
-                  height: 200,
-                  child: Center(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      mainAxisSize: MainAxisSize.min,
-                      children: <Widget>[
-                        _PickPictureButton(
-                            text: 'Take Picture',
-                            onTap: () async {
-                              Navigator.pop(context);
-                              final ImagePicker picker = ImagePicker();
-                              final XFile? image = await picker.pickImage(
-                                  source: ImageSource.camera);
-                              uploadAvatar(image);
-                            }),
-                        _PickPictureButton(
-                            text: 'Choose Picture',
-                            onTap: () async {
-                              Navigator.pop(context);
-                              final ImagePicker picker = ImagePicker();
-                              final XFile? image = await picker.pickImage(
-                                  source: ImageSource.gallery);
-                              uploadAvatar(image);
-                            }),
-                      ],
+               return IntrinsicHeight(
+                 child: Container(
+                    color: white,
+                    // height: 200,
+                    child: Center(
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        mainAxisSize: MainAxisSize.min,
+                        children: <Widget>[
+                          Flexible(
+                            child: _PickPictureButton(
+                                text: 'Take Picture',
+                                onTap: () async {
+                                  Navigator.pop(context);
+                                  final ImagePicker picker = ImagePicker();
+                                  final XFile? image = await picker.pickImage(
+                                      source: ImageSource.camera);
+                                  uploadAvatar(image);
+                                }),
+                          ),
+                          Flexible(
+                            child: _PickPictureButton(
+                                text: 'Choose Picture',
+                                onTap: () async {
+                                  Navigator.pop(context);
+                                  final ImagePicker picker = ImagePicker();
+                                  final XFile? image = await picker.pickImage(
+                                      source: ImageSource.gallery);
+                                  uploadAvatar(image);
+                                }),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
-                );
+               );
               });
         },
         child: image);
