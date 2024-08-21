@@ -65,7 +65,7 @@ class _MeetingsArchivePageState extends State<MeetingsArchivePage> {
           if (otherMeetings.isNotEmpty)
             const Padding(
               padding: EdgeInsets.only(bottom: 8.0),
-              child: CustomDivider(text: 'Past Meetings'),
+              child: CustomDivider(text: 'Passed Meetings'),
             ),
           if (otherMeetings.isNotEmpty)
             for (var meeting in otherMeetings)

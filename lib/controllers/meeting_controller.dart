@@ -74,8 +74,8 @@ class MeetingController {
               meeting.isInPast())
           .toList();
       meetings.sort((a, b) =>
-          a.dateTime.difference(DateTime.now()).inSeconds.abs() -
-          b.dateTime.difference(DateTime.now()).inSeconds.abs());
+          b.dateTime.difference(DateTime.now()).inSeconds -
+          a.dateTime.difference(DateTime.now()).inSeconds);
       return meetings;
     } else {
       throw Exception('Failed to load declined meetings');

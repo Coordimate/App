@@ -81,9 +81,16 @@ class _MeetingsPageState extends State<MeetingsPage> {
         .where((meeting) => meeting.dateTime.isAfter(DateTime.now())
         && !meeting.isFinished)
         .toList();
-    List<MeetingTileModel> archivedMeetings =
-        acceptedPassedMeetings + declinedMeetings + finishedMeetings;
-    archivedMeetings.sort((a, b) => b.dateTime.compareTo(a.dateTime));
+    List<MeetingTileModel> archivedMeetings = meetings
+        .where((meeting) => meeting.status == MeetingStatus.declined
+        || meeting.isFinished
+        || meeting.isInPast())
+        .toList();
+    //     acceptedPassedMeetings + declinedMeetings + finishedMeetings;
+    // archivedMeetings.sort((a, b) => b.dateTime.compareTo(a.dateTime));
+    archivedMeetings.sort((a, b) =>
+    b.dateTime.difference(DateTime.now()).inSeconds -
+        a.dateTime.difference(DateTime.now()).inSeconds);
 
     double screenHeight = MediaQuery.of(context).size.height;
     double screenWidth = MediaQuery.of(context).size.width;
