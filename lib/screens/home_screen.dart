@@ -105,6 +105,7 @@ class HomeScreenState extends State<HomeScreen> {
       _initNotifications();
     });
     initUniLinks().whenComplete(() {});
+    AppState.userController.updateLocation();
   }
 
   void _initNotifications() async {

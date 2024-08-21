@@ -238,4 +238,17 @@ class MeetingController {
       throw Exception('Failed to delete meeting');
     }
   }
+
+  Future<String> suggestMeetingLocation(String meetingId) async {
+    final response = await AppState.client.post(
+      Uri.parse("$apiUrl/meetings/$meetingId/suggest_location"),
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+      },
+    );
+    if (response.statusCode != 200) {
+      throw Exception('Failed to suggest meeting location');
+    }
+    return json.decode(response.body)["link"];
+  }
 }

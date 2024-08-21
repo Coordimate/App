@@ -2,6 +2,7 @@ import 'package:coordimate/components/appbar.dart';
 import 'package:coordimate/components/pop_up_dialog.dart';
 import 'package:coordimate/components/snack_bar.dart';
 import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:coordimate/components/colors.dart';
 import 'package:coordimate/models/meeting.dart';
 import 'package:coordimate/components/agenda.dart';
@@ -182,6 +183,31 @@ class _MeetingDetailsPageState extends State<MeetingDetailsPage> {
                       )),
                 ),
               const SizedBox(height: 10),
+              SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    onPressed: () async {
+                      var link = await AppState.meetingController
+                          .suggestMeetingLocation(widget.meeting.id);
+                      if (!await launchUrl(Uri.parse(link))) {
+                        throw Exception(
+                            'Could not launch offline meeting location picker');
+                      }
+                    },
+                    style: ButtonStyle(
+                      backgroundColor: WidgetStateProperty.all(mediumBlue),
+                      shape: WidgetStateProperty.all<RoundedRectangleBorder>(
+                        RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                      ),
+                    ),
+                    child: const Text("Meet offline",
+                        style: TextStyle(
+                            fontSize: 20,
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold)),
+                  )),
               if (widget.meeting.status == MeetingStatus.accepted)
                 SizedBox(
                   width: double.infinity,

@@ -79,5 +79,7 @@
     <string>The app uses the photo gallery to upload user and group avatars</string>
     <key>NSCameraUsageDescription</key>
     <string>The app uses the camera to take user and group avatars</string>
+    <key>NSLocationWhenInUseUsageDescription</key>
+    <string>This app uses location services to suggest spots for offline meetings</string>
 </dict>
 </plist>
