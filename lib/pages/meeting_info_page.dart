@@ -1,4 +1,5 @@
 import 'package:coordimate/components/appbar.dart';
+import 'package:coordimate/components/delete_button.dart';
 import 'package:coordimate/components/pop_up_dialog.dart';
 import 'package:coordimate/components/snack_bar.dart';
 import 'package:flutter/material.dart';
@@ -73,6 +74,24 @@ class _MeetingDetailsPageState extends State<MeetingDetailsPage> {
               Navigator.of(context).pop();
             }),
           ],
+        );
+      },
+    );
+  }
+
+  void showDeleteMeetingDialog() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return CustomPopUpDialog(
+          question: "Do you want to delete meeting \n\"${widget.meeting.title}\"?",
+          onYes: () async {
+            await AppState.meetingController.deleteMeeting(
+                widget.meeting.id, widget.meeting.googleEventId);
+          },
+          onNo: () {
+            Navigator.of(context).pop();
+          },
         );
       },
     );
@@ -341,30 +360,17 @@ class _MeetingDetailsPageState extends State<MeetingDetailsPage> {
                   );
                 }).toList(),
               ),
-              SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton(
-                    onPressed: () async {
-                      await AppState.meetingController.deleteMeeting(
-                          widget.meeting.id, widget.meeting.googleEventId);
-                      if (context.mounted) Navigator.of(context).pop();
-                    },
-                    style: ButtonStyle(
-                      backgroundColor: WidgetStateProperty.all(orange),
-                      shape: WidgetStateProperty.all<RoundedRectangleBorder>(
-                        RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                      ),
-                    ),
-                    child: const Text("Delete Meeting",
-                        style: TextStyle(
-                            fontSize: 20,
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold)),
-                  )),
             ],
           ),
+        ),
+      ),
+      bottomSheet: Container(
+        color: white,
+        padding: const EdgeInsets.only(bottom: 16.0),
+        child: DeleteButton(
+          itemToDelete: 'Meeting',
+          showDeleteDialog: showDeleteMeetingDialog,
+          color: orange,
         ),
       ),
     );
