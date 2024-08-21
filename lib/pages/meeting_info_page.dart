@@ -37,6 +37,7 @@ class _MeetingDetailsPageState extends State<MeetingDetailsPage> {
       CustomSnackBar.show(context, "Meeting is already finished");
       return;
     }
+    var accId = await AppState.authController.getAccountId();
     await AppState.meetingController
         .answerInvitation(accept, widget.meeting.id)
         .then((status) {
@@ -45,6 +46,9 @@ class _MeetingDetailsPageState extends State<MeetingDetailsPage> {
           : "Meeting declined";
       setState(() {
         widget.meeting.status = status;
+        widget.meeting.participants
+            .firstWhere((element) => element.id == accId)
+            .status = status.name;
         CustomSnackBar.show(context, meetingStatus);
       });
     });

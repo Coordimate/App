@@ -57,7 +57,7 @@ class MeetingTileModel {
 class Participant {
   final String id;
   final String username;
-  final String status;
+  String status;
 
   Participant({
     required this.id,
