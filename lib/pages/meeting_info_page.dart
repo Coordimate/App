@@ -1,5 +1,6 @@
 import 'package:coordimate/components/appbar.dart';
 import 'package:coordimate/components/delete_button.dart';
+import 'package:coordimate/components/meeting_action_button.dart';
 import 'package:coordimate/components/pop_up_dialog.dart';
 import 'package:coordimate/components/snack_bar.dart';
 import 'package:flutter/material.dart';
@@ -49,6 +50,17 @@ class _MeetingDetailsPageState extends State<MeetingDetailsPage> {
     });
   }
 
+  Future<void> _finishMeeting() async {
+    await AppState.meetingController
+        .finishMeeting(widget.meeting.id)
+        .then((isFinished) => setState(() {
+      isFinished
+          ? CustomSnackBar.show(context, "Meeting is finished")
+          : CustomSnackBar.show(context, "Failed to finish meeting");
+      isFinished && (widget.meeting.isFinished = isFinished);
+    }));
+  }
+
   Future<void> showPopUpDialog(BuildContext context, bool accept) async {
     showDialog(
       context: context,
@@ -79,6 +91,13 @@ class _MeetingDetailsPageState extends State<MeetingDetailsPage> {
     );
   }
 
+  Future<void> _showMeetingOfflinePicker() async {
+    var link = await AppState.meetingController.suggestMeetingLocation(widget.meeting.id);
+    if (!await launchUrl(Uri.parse(link))) {
+      throw Exception('Could not launch offline meeting location picker');
+    }
+  }
+
   void showDeleteMeetingDialog() {
     showDialog(
       context: context,
@@ -95,6 +114,27 @@ class _MeetingDetailsPageState extends State<MeetingDetailsPage> {
         );
       },
     );
+  }
+
+  void _showSummaryPage() {
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (context) => SummaryPage(
+          id: widget.meeting.id,
+          summary: widget.meeting.summary,
+        ),
+      ),
+    ).then((_) async => await AppState.meetingController
+        .fetchMeetingSummary(widget.meeting.id)
+        .then((summary) => setState(() { widget.meeting.summary = summary; }))
+    );
+  }
+
+  void _showMeetingAgendaPage() {
+    Navigator.of(context).push(MaterialPageRoute(
+      builder: (context) => MeetingAgenda(
+        key: UniqueKey(), meetingId: widget.meeting.id)
+    ));
   }
 
   @override
@@ -202,110 +242,38 @@ class _MeetingDetailsPageState extends State<MeetingDetailsPage> {
                       )),
                 ),
               const SizedBox(height: 10),
-              SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton(
-                    onPressed: () async {
-                      var link = await AppState.meetingController
-                          .suggestMeetingLocation(widget.meeting.id);
-                      if (!await launchUrl(Uri.parse(link))) {
-                        throw Exception(
-                            'Could not launch offline meeting location picker');
-                      }
-                    },
-                    style: ButtonStyle(
-                      backgroundColor: WidgetStateProperty.all(mediumBlue),
-                      shape: WidgetStateProperty.all<RoundedRectangleBorder>(
-                        RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                      ),
-                    ),
-                    child: const Text("Meet offline",
-                        style: TextStyle(
-                            fontSize: 20,
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold)),
-                  )),
+
+              if (widget.meeting.status == MeetingStatus.accepted && !widget.meeting.isFinished && !widget.meeting.isInPast())
+              MeetingActionButton(
+                  text: "Meet Offline",
+                  onPressed: _showMeetingOfflinePicker,
+                  backgroundColor: mediumBlue
+              ),
+
               if (widget.meeting.status == MeetingStatus.accepted)
-                SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton(
-                    onPressed: () {
-                      Navigator.of(context).push(MaterialPageRoute(
-                          builder: (context) => MeetingAgenda(
-                              key: UniqueKey(), meetingId: widget.meeting.id)));
-                    },
-                    style: ButtonStyle(
-                      backgroundColor: WidgetStateProperty.all(darkBlue),
-                      shape: WidgetStateProperty.all<RoundedRectangleBorder>(
-                        RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                      ),
-                    ),
-                    child: const Text("Meeting Agenda",
-                        style: TextStyle(
-                            fontSize: 20,
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold)),
-                  ),
+                MeetingActionButton(
+                    text: "Meeting Agenda",
+                    onPressed: _showMeetingAgendaPage,
+                    backgroundColor: darkBlue
                 ),
+
               if (widget.meeting.status == MeetingStatus.accepted)
-                SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton(
+                MeetingActionButton(
+                    text: widget.meeting.isFinished
+                        ? "Summary"
+                        : "Finish Meeting",
                     onPressed: () async {
                       if (widget.meeting.isFinished) {
-                        Navigator.of(context)
-                            .push(
-                              MaterialPageRoute(
-                                builder: (context) => SummaryPage(
-                                  id: widget.meeting.id,
-                                  summary: widget.meeting.summary,
-                                ),
-                              ),
-                            )
-                            .then((_) async => await AppState.meetingController
-                                .fetchMeetingSummary(widget.meeting.id)
-                                .then((summary) => setState(() {
-                                      widget.meeting.summary = summary;
-                                    })));
+                        _showSummaryPage();
                       } else {
-                        await AppState.meetingController
-                            .finishMeeting(widget.meeting.id)
-                            .then((isFinished) => setState(() {
-                                  isFinished
-                                      ? CustomSnackBar.show(
-                                          context, "Meeting is finished")
-                                      : CustomSnackBar.show(
-                                          context, "Failed to finish meeting");
-                                  isFinished &&
-                                      (widget.meeting.isFinished = isFinished);
-                                }));
+                        await _finishMeeting();
                       }
                     },
-                    style: ButtonStyle(
-                      backgroundColor: WidgetStateProperty.all(mediumBlue),
-                      shape: WidgetStateProperty.all<RoundedRectangleBorder>(
-                        RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                      ),
-                    ),
-                    child: Text(
-                        widget.meeting.isFinished
-                            ? "Summary"
-                            : "Finish Meeting",
-                        style: const TextStyle(
-                            fontSize: 20,
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold)),
-                  ),
+                    backgroundColor: mediumBlue
                 ),
+
               if (widget.meeting.status == MeetingStatus.needsAcceptance)
                 Row(
-                  // mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: <Widget>[
                     answerButton(
                         "Accept", lightBlue, () => _answerInvitation(true)),
@@ -314,36 +282,25 @@ class _MeetingDetailsPageState extends State<MeetingDetailsPage> {
                         "Decline", orange, () => _answerInvitation(false)),
                   ],
                 ),
-              if (widget.meeting.status == MeetingStatus.declined)
-                SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton(
-                    onPressed: widget.meeting.isInPast()
-                        ? null
-                        : () async {
-                            await showPopUpDialog(context, true);
-                          },
-                    style: ButtonStyle(
-                      backgroundColor: WidgetStateProperty.all(
-                          widget.meeting.isInPast()
-                              ? Colors.grey[300]
-                              : Colors.grey),
-                      shape: WidgetStateProperty.all<RoundedRectangleBorder>(
-                        RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                      ),
-                    ),
-                    child: Text("Invitation Declined",
-                        style: TextStyle(
-                            fontSize: 20,
-                            color: widget.meeting.isInPast()
-                                ? alphaDarkBlue
-                                : darkBlue,
-                            fontWeight: FontWeight.bold)),
-                  ),
+
+              if (widget.meeting.status == MeetingStatus.declined && !widget.meeting.isInPast())
+                MeetingActionButton(
+                    text: "Attend Meeting",
+                    onPressed: () async {
+                      await showPopUpDialog(context, true);
+                    },
+                    backgroundColor: Colors.grey
                 ),
+
+              if (widget.meeting.status == MeetingStatus.declined && widget.meeting.isInPast())
+                MeetingActionButton(
+                    text: "Invitation Declined",
+                    onPressed: () {},
+                    backgroundColor: Colors.white
+                ),
+
               const SizedBox(height: 16),
+
               const Text(
                 "Participants",
                 style: TextStyle(
@@ -360,17 +317,19 @@ class _MeetingDetailsPageState extends State<MeetingDetailsPage> {
                   );
                 }).toList(),
               ),
+              Center(
+                child: Container(
+                  color: white,
+                  padding: const EdgeInsets.only(bottom: 16.0),
+                  child: DeleteButton(
+                    itemToDelete: 'Meeting',
+                    showDeleteDialog: showDeleteMeetingDialog,
+                    color: orange,
+                  ),
+                ),
+              ),
             ],
           ),
-        ),
-      ),
-      bottomSheet: Container(
-        color: white,
-        padding: const EdgeInsets.only(bottom: 16.0),
-        child: DeleteButton(
-          itemToDelete: 'Meeting',
-          showDeleteDialog: showDeleteMeetingDialog,
-          color: orange,
         ),
       ),
     );

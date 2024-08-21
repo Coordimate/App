@@ -1,33 +1,39 @@
 import 'package:flutter/material.dart';
 
-class ActionButton extends StatelessWidget {
+class MeetingActionButton extends StatelessWidget {
+  final String text;
   final VoidCallback onPressed;
-  final Color color;
-  // final IconData icon;
-  final String iconPath;
+  final Color backgroundColor;
 
-  const ActionButton({
+  const MeetingActionButton({
     super.key,
+    required this.text,
     required this.onPressed,
-    required this.color,
-    // required this.icon,
-    required this.iconPath,
+    required this.backgroundColor,
   });
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      width: 70,
-      height: 40,
-      decoration: BoxDecoration(
-        color: color,
-        shape: BoxShape.rectangle,
-        borderRadius: BorderRadius.circular(10),
-      ),
-      child: IconButton(
-        // icon: Icon(icon, color: darkBlue),
-        icon: Image.asset(iconPath),
+    return SizedBox(
+      width: double.infinity,
+      child: ElevatedButton(
         onPressed: onPressed,
+        style:ButtonStyle(
+          backgroundColor: WidgetStateProperty.all(backgroundColor),
+          shape: WidgetStateProperty.all<RoundedRectangleBorder>(
+            RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10),
+            ),
+          ),
+        ),
+        child: Text(
+          text,
+          style: const TextStyle(
+            fontSize: 20,
+            color: Colors.white,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
       ),
     );
   }

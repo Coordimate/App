@@ -16,6 +16,8 @@ import 'package:coordimate/components/meeting_tiles.dart';
 import 'package:coordimate/components/snack_bar.dart';
 import 'package:coordimate/components/text_field_with_edit.dart';
 import 'package:coordimate/components/avatar.dart';
+import 'package:coordimate/components/pop_up_dialog.dart';
+import 'package:coordimate/components/delete_button.dart';
 
 class GroupDetailsPage extends StatefulWidget {
   final Group group;
@@ -77,6 +79,26 @@ class GroupDetailsPageState extends State<GroupDetailsPage> {
             groupId: widget.group.id,
             pickedDate: DateTime.now().add(const Duration(minutes: 10)));
       },
+    ).then((_) async {
+      await _fetchMeetings();
+    });
+  }
+
+  void _showDeleteGroupDialog() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return CustomPopUpDialog(
+          question: "Do you want to delete group \n\"${widget.group.name}\"?",
+          onYes: () async {
+            // TODO: Implement delete group
+            // await AppState.groupController.deleteGroup(widget.group.id);
+          },
+          onNo: () {
+            Navigator.of(context).pop();
+          },
+        );
+      },
     );
   }
 
@@ -116,7 +138,8 @@ class GroupDetailsPageState extends State<GroupDetailsPage> {
             MaterialPageRoute(
               builder: (context) => MeetingsArchivePage(
                   meetings: archivedMeetings,
-                  fetchMeetings: AppState.groupController.fetchGroupMeetings),
+                  fetchMeetings: _fetchMeetings,
+              ),
             ),
           );
         },
@@ -173,7 +196,7 @@ class GroupDetailsPageState extends State<GroupDetailsPage> {
               ),
               Center(
                 child: Text(
-                  '${users.length} Members',
+                  '${users.length} Member ${users.length > 1 ? 's' : ''}',
                   style: const TextStyle(
                     fontSize: 16.0,
                     color: Colors.grey,
@@ -288,6 +311,15 @@ class GroupDetailsPageState extends State<GroupDetailsPage> {
                 _buildUserList(users, "Group Members")
               else
                 _buildUserList(users, "No Group Members"),
+              Container(
+                color: white,
+                padding: const EdgeInsets.only(bottom: 16.0),
+                child: DeleteButton(
+                  itemToDelete: 'Group',
+                  showDeleteDialog: _showDeleteGroupDialog,
+                  color: orange,
+                ),
+              ),
             ],
           ),
         ),
@@ -357,12 +389,12 @@ class GroupDetailsPageState extends State<GroupDetailsPage> {
             if (meetings[index].status == MeetingStatus.declined) {
               return ArchivedMeetingTile(
                 meeting: meetings[index],
-                fetchMeetings: AppState.groupController.fetchGroupMeetings,
+                fetchMeetings: _fetchMeetings,
               );
             } else if (meetings[index].status == MeetingStatus.accepted) {
               return AcceptedMeetingTile(
                 meeting: meetings[index],
-                fetchMeetings: AppState.groupController.fetchGroupMeetings,
+                fetchMeetings: _fetchMeetings,
               );
             } else {
               return const Text("No one will see this");
