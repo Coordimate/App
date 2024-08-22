@@ -35,6 +35,7 @@ class AuthorizationController {
   );
   AuthClient? googleAuthClient;
   CalendarApi? calApi;
+  String? userId;
   final FacebookAuth _facebookAuth = FacebookAuth.instance;
 
   Future<String?> getAccountId() async {
@@ -158,6 +159,7 @@ class AuthorizationController {
     }
     final respBody = json.decode(meResponse.body);
     await AppState.storage.write(key: 'id_account', value: respBody['id']);
+    userId = respBody['id'];
     return true;
   }
 
@@ -235,6 +237,7 @@ class AuthorizationController {
     }
     final response = await AppState.client.get(Uri.parse('$apiUrl/me'));
     if (response.statusCode == 200) {
+      userId = json.decode(response.body)['id'];
       return true;
     }
     return false;

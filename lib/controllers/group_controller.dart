@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:coordimate/app_state.dart';
+import 'package:coordimate/models/chat_message.dart';
 import 'package:coordimate/models/groups.dart';
 import 'package:coordimate/models/user.dart';
 import 'package:coordimate/models/meeting.dart';
@@ -81,6 +82,18 @@ class GroupController {
     if (response.statusCode == 200) {
       return (json.decode(response.body)['users'] as List)
           .map((data) => UserCard.fromJson(data))
+          .toList();
+    } else {
+      throw Exception('Failed to load group users');
+    }
+  }
+
+  Future<List<ChatMessageModel>> fetchGroupChatMessages(id) async {
+    final response = await AppState.client.get(Uri.parse("$apiUrl/groups/$id"));
+
+    if (response.statusCode == 200) {
+      return (json.decode(json.decode(response.body)['chat_messages']) as List)
+          .map((data) => ChatMessageModel.fromJson(data))
           .toList();
     } else {
       throw Exception('Failed to load group users');

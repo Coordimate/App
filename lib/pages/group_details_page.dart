@@ -1,3 +1,5 @@
+import 'package:coordimate/models/chat_message.dart';
+import 'package:coordimate/pages/group_chat_page.dart';
 import 'package:coordimate/widget_keys.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -277,12 +279,8 @@ class GroupDetailsPageState extends State<GroupDetailsPage> {
                 ),
               ),
               const SizedBox(height: 16.0),
-              if (acceptedFutureMeetings.isNotEmpty)
-                _buildMeetingList(
-                    acceptedFutureMeetings, "Upcoming Meetings", true, 55)
-              else
-                _buildMeetingList(
-                    acceptedFutureMeetings, "No Upcoming Meetings", true, 40),
+              _buildMeetingList(
+                  acceptedFutureMeetings, "Group Schedule", true, 80),
               const SizedBox(height: 16.0),
               if (users.isNotEmpty)
                 _buildUserList(users, "Group Members")
@@ -290,6 +288,54 @@ class GroupDetailsPageState extends State<GroupDetailsPage> {
                 _buildUserList(users, "No Group Members"),
             ],
           ),
+        ),
+      ),
+      floatingActionButton: FloatingActionButton(
+        backgroundColor: darkBlue,
+        foregroundColor: white,
+        onPressed: () async {
+          Map<String, Avatar> memberAvatars = {};
+          Map<String, String> memberUsernames = {};
+
+          var users = await AppState.groupController.fetchGroupUsers(widget.group.id);
+          for (int i = 0; i < users.length; i++) {
+            memberUsernames[users[i].id] = users[i].username;
+            memberAvatars[users[i].id] = Avatar(size: 30, userId: users[i].id);
+          }
+
+          String lastSenderId = '';
+          List<ChatMessageModel> messages = await AppState.groupController.fetchGroupChatMessages(widget.group.id);
+          late List<ChatMessage> chatMessages = messages.map((msg) {
+            var chatMsg = ChatMessage(
+                avatar: memberAvatars[msg.userId]!,
+                username: memberUsernames[msg.userId]!,
+                text: msg.text,
+                isFromUser: AppState.authController.userId == msg.userId,
+                isFirst: lastSenderId != msg.userId);
+            lastSenderId = msg.userId;
+            return chatMsg;
+          }).toList();
+
+          if (context.mounted) {
+            Navigator.of(context)
+                .push(MaterialPageRoute(
+                builder: (context) =>
+                    GroupChatPage(
+                      chatMessages: chatMessages,
+                      memberAvatars: memberAvatars,
+                      memberUsernames: memberUsernames,
+                      title: '${widget.group.name} Chat',
+                      userId: AppState.authController.userId!,
+                      groupId: widget.group.id,
+                    ))).then((_) async {
+              await _fetchMeetings();
+            });
+          }
+        },
+        child: const Padding(
+            padding: EdgeInsets.symmetric(
+                vertical: 10.0, horizontal: 10.0),
+            child: Icon(Icons.chat_outlined)
         ),
       ),
     );
