@@ -2,6 +2,7 @@ import 'package:another_flushbar/flushbar.dart';
 import 'package:coordimate/components/appbar.dart';
 import 'package:coordimate/components/avatar.dart';
 import 'package:coordimate/components/colors.dart';
+import 'package:coordimate/components/delete_button.dart';
 import 'package:coordimate/components/login_button.dart';
 import 'package:coordimate/components/pop_up_dialog.dart';
 import 'package:coordimate/components/text_field_with_edit.dart';
@@ -81,6 +82,9 @@ class _PersonalPageState extends State<PersonalPage> {
           onYes: () async {
             await deleteUser();
           },
+          onNo: () {
+            Navigator.of(context).pop();
+          },
         );
       },
     );
@@ -152,15 +156,11 @@ class _PersonalPageState extends State<PersonalPage> {
               bottomSheet: Container(
                 color: white,
                 padding: const EdgeInsets.only(bottom: 16.0),
-                child: TextButton(
-                    onPressed: showDeleteAccountDialog,
-                    child: const Text(
-                      'Delete Account',
-                      style: TextStyle(
-                          color: mediumBlue,
-                          fontSize: 20,
-                          fontWeight: FontWeight.w500),
-                    )),
+                child: DeleteButton(
+                  itemToDelete: 'Account',
+                  showDeleteDialog: showDeleteAccountDialog,
+                  color: mediumBlue,
+                ),
               ),
             );
           } else {

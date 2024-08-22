@@ -1,4 +1,4 @@
-import 'package:coordimate/components/meeting_action_button.dart';
+import 'package:coordimate/components/invitation_action_button.dart';
 import 'package:coordimate/pages/meeting_info_page.dart';
 import 'package:coordimate/models/meeting.dart';
 import 'package:flutter/material.dart';
@@ -174,12 +174,12 @@ class NewMeetingTile extends MeetingTile {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                ActionButton(
+                InvitationActionButton(
                     onPressed: onAccepted,
                     color: lightBlue,
                     iconPath: 'lib/images/tick.png'),
                 const SizedBox(height: 10),
-                ActionButton(
+                InvitationActionButton(
                     onPressed: onDeclined,
                     color: orange,
                     iconPath: 'lib/images/cross.png'),

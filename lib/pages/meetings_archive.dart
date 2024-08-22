@@ -63,7 +63,10 @@ class _MeetingsArchivePageState extends State<MeetingsArchivePage> {
                 ),
               ),
           if (otherMeetings.isNotEmpty)
-            const CustomDivider(text: 'Past Meetings'),
+            const Padding(
+              padding: EdgeInsets.only(bottom: 8.0),
+              child: CustomDivider(text: 'Passed Meetings'),
+            ),
           if (otherMeetings.isNotEmpty)
             for (var meeting in otherMeetings)
               MeetingTileWithPadding(
@@ -92,7 +95,7 @@ class MeetingTileWithPadding extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+      padding: const EdgeInsets.symmetric(horizontal: 16.0),
       child: isAccepted
           ? AcceptedMeetingTile(
         meeting: meeting,

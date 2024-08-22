@@ -15,8 +15,6 @@ class CreateGroupDialog extends StatefulWidget {
 }
 
 class CreateGroupDialogState extends State<CreateGroupDialog> {
-  String groupName = '';
-  String groupDescription = '';
 
   var formKey = GlobalKey<FormState>();
 
@@ -98,9 +96,10 @@ class CreateGroupDialogState extends State<CreateGroupDialog> {
             if (formKey.currentState!.validate() == false) {
               return;
             }
-            await widget.onCreateGroup(groupName, groupDescription);
+            await widget.onCreateGroup(titleController.text, descriptionController.text);
             clearControllers();
             if (context.mounted) {
+              widget.fetchGroups();
               Navigator.of(context).pop();
             }
           },

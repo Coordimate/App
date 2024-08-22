@@ -59,23 +59,38 @@ class _MeetingsPageState extends State<MeetingsPage> {
   @override
   Widget build(BuildContext context) {
     List<MeetingTileModel> declinedMeetings = meetings
-        .where((meeting) => meeting.status == MeetingStatus.declined)
+        .where((meeting) => meeting.status == MeetingStatus.declined
+        && !meeting.isFinished)
+        .toList();
+    List<MeetingTileModel> finishedMeetings = meetings
+        .where((meeting) => meeting.isFinished == true)
         .toList();
     List<MeetingTileModel> newInvitations = meetings
-        .where((meeting) => meeting.status == MeetingStatus.needsAcceptance)
+        .where((meeting) => meeting.status == MeetingStatus.needsAcceptance
+        && !meeting.isFinished)
         .toList();
     List<MeetingTileModel> acceptedMeetings = meetings
-        .where((meeting) => meeting.status == MeetingStatus.accepted)
+        .where((meeting) => meeting.status == MeetingStatus.accepted
+        && !meeting.isFinished)
         .toList();
     List<MeetingTileModel> acceptedPassedMeetings = acceptedMeetings
-        .where((meeting) => meeting.dateTime.isBefore(DateTime.now()))
+        .where((meeting) => meeting.dateTime.isBefore(DateTime.now())
+        && !meeting.isFinished)
         .toList();
     List<MeetingTileModel> acceptedFutureMeetings = acceptedMeetings
-        .where((meeting) => meeting.dateTime.isAfter(DateTime.now()))
+        .where((meeting) => meeting.dateTime.isAfter(DateTime.now())
+        && !meeting.isFinished)
         .toList();
-    List<MeetingTileModel> archivedMeetings =
-        acceptedPassedMeetings + declinedMeetings;
-    archivedMeetings.sort((a, b) => b.dateTime.compareTo(a.dateTime));
+    List<MeetingTileModel> archivedMeetings = meetings
+        .where((meeting) => meeting.status == MeetingStatus.declined
+        || meeting.isFinished
+        || meeting.isInPast())
+        .toList();
+    //     acceptedPassedMeetings + declinedMeetings + finishedMeetings;
+    // archivedMeetings.sort((a, b) => b.dateTime.compareTo(a.dateTime));
+    archivedMeetings.sort((a, b) =>
+    b.dateTime.difference(DateTime.now()).inSeconds -
+        a.dateTime.difference(DateTime.now()).inSeconds);
 
     double screenHeight = MediaQuery.of(context).size.height;
     double screenWidth = MediaQuery.of(context).size.width;
