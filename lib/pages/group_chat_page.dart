@@ -37,10 +37,10 @@ class ChatMessage extends StatelessWidget {
             crossAxisAlignment:
                 isFromUser ? CrossAxisAlignment.end : CrossAxisAlignment.start,
             children: [
-              (isFirst ? Text(username) : Container()),
+              ((isFirst && !isFromUser) ? Text(username) : Container()),
               Container(
                   decoration: BoxDecoration(
-                    color: isFromUser ? darkBlue : lightBlue,
+                    color: !isFromUser ? darkBlue : lightBlue,
                     borderRadius: BorderRadius.only(
                       topLeft: const Radius.circular(10),
                       topRight: const Radius.circular(10),
@@ -53,12 +53,9 @@ class ChatMessage extends StatelessWidget {
                         const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                     child: Text(text,
                         style: TextStyle(
-                            color: isFromUser ? Colors.white : Colors.black)),
+                            color: !isFromUser ? Colors.white : Colors.black)),
                   ))
             ]),
-        (isFromUser && isFirst
-            ? Padding(padding: const EdgeInsets.all(5), child: avatar)
-            : const SizedBox(width: 40, height: 30)),
       ],
     );
   }
@@ -109,68 +106,69 @@ class GroupChatPageState extends State<GroupChatPage> {
     return Scaffold(
         backgroundColor: Colors.white,
         appBar: const CustomAppBar(needButton: false, title: "Group Chat"),
-        body: GestureDetector(
-            onPanDown: (_) {
-              FocusScope.of(context).unfocus();
-            },
-            child: Column(children: [
-              Expanded(
-                  child: StreamBuilder(
-                stream: channel.stream,
-                builder: (context, snapshot) {
-                  if (snapshot.hasData) {
-                    var msg = snapshot.data;
-                    if (msg != '{}') {
-                      var chatMessage = ChatMessageModel.fromJson(
-                          json.decode(msg.toString()));
-                      messages.add(ChatMessage(
-                          avatar: widget.memberAvatars[chatMessage.userId]!,
-                          username: widget.memberUsernames[chatMessage.userId]!,
-                          text: chatMessage.text,
-                          isFromUser: widget.userId == chatMessage.userId,
-                          isFirst: lastSenderId != chatMessage.userId));
-                      lastSenderId = chatMessage.userId;
-                    }
-
-                    return ListView.builder(
-                      itemCount: oldMessages.length + messages.length,
-                      controller: _scrollController,
-                      itemBuilder: (context, index) {
-                        Future.delayed(
-                            const Duration(milliseconds: 400),
-                            () => _scrollController.animateTo(
-                                _scrollController.position.maxScrollExtent,
-                                duration: const Duration(milliseconds: 200),
-                                curve: Curves.linear));
-                        if (index < oldMessages.length) {
-                          return oldMessages.toList()[index];
-                        } else {
-                          return messages.toList()[index - oldMessages.length];
-                        }
-                      },
-                    );
-                  } else {
-                    return const Text('');
-                  }
+        body: Column(children: [
+          Expanded(
+              child: GestureDetector(
+                onPanDown: (_) {
+                  FocusScope.of(context).unfocus();
                 },
+                child: StreamBuilder(
+                            stream: channel.stream,
+                            builder: (context, snapshot) {
+                if (snapshot.hasData) {
+                  var msg = snapshot.data;
+                  if (msg != '{}') {
+                    var chatMessage = ChatMessageModel.fromJson(
+                        json.decode(msg.toString()));
+                    messages.add(ChatMessage(
+                        avatar: widget.memberAvatars[chatMessage.userId]!,
+                        username: widget.memberUsernames[chatMessage.userId]!,
+                        text: chatMessage.text,
+                        isFromUser: widget.userId == chatMessage.userId,
+                        isFirst: lastSenderId != chatMessage.userId));
+                    lastSenderId = chatMessage.userId;
+                  }
+
+                  return ListView.builder(
+                    itemCount: oldMessages.length + messages.length,
+                    controller: _scrollController,
+                    itemBuilder: (context, index) {
+                      Future.delayed(
+                          const Duration(milliseconds: 400),
+                          () => _scrollController.animateTo(
+                              _scrollController.position.maxScrollExtent,
+                              duration: const Duration(milliseconds: 200),
+                              curve: Curves.linear));
+                      if (index < oldMessages.length) {
+                        return oldMessages.toList()[index];
+                      } else {
+                        return messages.toList()[index - oldMessages.length];
+                      }
+                    },
+                  );
+                } else {
+                  return const Text('');
+                }
+                            },
+                          ),
               )),
-              SafeArea(
-                  child: Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Row(
-                          mainAxisAlignment: MainAxisAlignment.end,
-                          children: [
-                            SizedBox(
-                                width: MediaQuery.sizeOf(context).width * 0.8,
-                                child: TextField(
-                                  autofocus: true,
-                                  controller: _controller,
-                                )),
-                            IconButton(
-                                icon: const Icon(Icons.send),
-                                onPressed: _sendMessage)
-                          ]))),
-            ])));
+          SafeArea(
+              child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        SizedBox(
+                            width: MediaQuery.sizeOf(context).width * 0.8,
+                            child: TextField(
+                              autofocus: true,
+                              controller: _controller,
+                            )),
+                        IconButton(
+                            icon: const Icon(Icons.send),
+                            onPressed: _sendMessage)
+                      ]))),
+        ]));
   }
 
   void _sendMessage() async {
