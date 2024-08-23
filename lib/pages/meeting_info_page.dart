@@ -27,6 +27,7 @@ class _MeetingDetailsPageState extends State<MeetingDetailsPage> {
   late DateTime dateTime = widget.meeting.dateTime;
   late final textController =
       TextEditingController(text: widget.meeting.meetingLink ?? '');
+  late var isAdmin = false;
 
   Future<void> _answerInvitation(bool accept) async {
     if (widget.meeting.isInPast()) {
@@ -143,6 +144,7 @@ class _MeetingDetailsPageState extends State<MeetingDetailsPage> {
 
   @override
   Widget build(BuildContext context) {
+  final isAdmin = widget.meeting.admin.id == AppState.authController.userId;
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: CustomAppBar(
@@ -185,14 +187,14 @@ class _MeetingDetailsPageState extends State<MeetingDetailsPage> {
                   children: <Widget>[
                     GestureDetector(
                       onTap: () async {
-                        _selectDate();
+                        if (isAdmin) _selectDate();
                       },
                       child: buildInfoRow(Icons.calendar_today, "Date",
                           widget.meeting.getFormattedDate(dateTime)),
                     ),
                     GestureDetector(
                       onTap: () async {
-                        _selectTime();
+                        if (isAdmin) _selectTime();
                       },
                       child: buildInfoRow(Icons.access_time, "Time",
                           widget.meeting.getFormattedTime(dateTime)),
