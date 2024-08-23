@@ -85,6 +85,8 @@ class GroupChatPage extends StatefulWidget {
 
 class GroupChatPageState extends State<GroupChatPage> {
   String lastSenderId = '';
+  String lastMessage = '';
+
   final TextEditingController _controller = TextEditingController();
   late final channel = WebSocketChannel.connect(
     Uri.parse('$wsUrl/${widget.groupId}/${widget.userId}'),
@@ -117,7 +119,7 @@ class GroupChatPageState extends State<GroupChatPage> {
                             builder: (context, snapshot) {
                 if (snapshot.hasData) {
                   var msg = snapshot.data;
-                  if (msg != '{}') {
+                  if (msg != '{}' && msg != lastMessage) {
                     var chatMessage = ChatMessageModel.fromJson(
                         json.decode(msg.toString()));
                     messages.add(ChatMessage(
@@ -127,6 +129,7 @@ class GroupChatPageState extends State<GroupChatPage> {
                         isFromUser: widget.userId == chatMessage.userId,
                         isFirst: lastSenderId != chatMessage.userId));
                     lastSenderId = chatMessage.userId;
+                    lastMessage = msg;
                   }
 
                   return ListView.builder(
