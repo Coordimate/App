@@ -157,4 +157,14 @@ class GroupController {
       throw Exception('Failed to delete the group poll');
     }
   }
+
+  Future<void> voteOnPoll(id, optionIndex) async {
+    var url = Uri.parse("$apiUrl/groups/$id/poll/$optionIndex");
+    final response = await AppState.client
+        .post(url, headers: {"Content-Type": "application/json"});
+    if (response.statusCode != 200) {
+      log(response.body);
+      throw Exception('Failed to vote on the group poll');
+    }
+  }
 }
