@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:developer';
 
 import 'package:coordimate/app_state.dart';
 import 'package:coordimate/models/chat_message.dart';
@@ -8,12 +9,26 @@ import 'package:coordimate/models/meeting.dart';
 import 'package:coordimate/keys.dart';
 
 class GroupController {
+  Group? group;
+
   Future<List<Group>> getGroups() async {
     final response = await AppState.client.get(Uri.parse("$apiUrl/groups"));
     if (response.statusCode == 200) {
       // Checks for successful response
       final List body = json.decode(response.body)["groups"];
       return body.map((e) => Group.fromJson(e)).toList();
+    } else {
+      throw Exception('Failed to load groups'); // Handles failed response
+    }
+  }
+
+  Future<Group> getGroup(id) async {
+    final response = await AppState.client.get(Uri.parse("$apiUrl/groups/$id"));
+    if (response.statusCode == 200) {
+      // Checks for successful response
+      final body = json.decode(response.body);
+      group = Group.fromJson(body);
+      return group!;
     } else {
       throw Exception('Failed to load groups'); // Handles failed response
     }
@@ -108,5 +123,38 @@ class GroupController {
       throw Exception('Failed to share schedule');
     }
     return json.decode(response.body)['join_link'].toString();
+  }
+
+  Future<void> createPoll(id, pollData) async {
+    var url = Uri.parse("$apiUrl/groups/$id");
+    final response = await AppState.client
+        .patch(url, headers: {"Content-Type": "application/json"}, body: json.encode({
+      "poll": json.decode(pollData)
+    }));
+    if (response.statusCode != 200) {
+      log(response.body);
+      throw Exception('Failed to create the group poll');
+    }
+  }
+
+  Future<GroupPoll> fetchPoll(id) async {
+    var url = Uri.parse("$apiUrl/groups/$id");
+    final response = await AppState.client
+        .get(url, headers: {"Content-Type": "application/json"});
+    if (response.statusCode != 200) {
+      log(response.body);
+      throw Exception('Failed to get the group poll');
+    }
+    return GroupPoll.fromJson(json.decode(response.body)['poll']);
+  }
+
+  Future<void> deletePoll(id) async {
+    var url = Uri.parse("$apiUrl/groups/$id/poll");
+    final response = await AppState.client
+        .delete(url, headers: {"Content-Type": "application/json"});
+    if (response.statusCode != 200) {
+      log(response.body);
+      throw Exception('Failed to delete the group poll');
+    }
   }
 }

@@ -1,3 +1,4 @@
+import 'package:coordimate/components/group_poll_card.dart';
 import 'package:coordimate/models/chat_message.dart';
 import 'package:coordimate/pages/group_chat_page.dart';
 import 'package:coordimate/widget_keys.dart';
@@ -301,6 +302,12 @@ class GroupDetailsPageState extends State<GroupDetailsPage> {
                   ],
                 ),
               ),
+              GroupPollCard(
+                  groupId: widget.group.id,
+                  initialPoll: widget.group.poll,
+                  fontSize: universalFontSize,
+                  isAdmin:
+                      widget.group.adminId == AppState.authController.userId),
               const SizedBox(height: 16.0),
               _buildMeetingList(
                   acceptedFutureMeetings, "Group Schedule", true, 80),

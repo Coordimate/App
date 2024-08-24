@@ -36,6 +36,34 @@ void main() {
       }, throwsException);
     });
 
+    test('Group poll data parsed correctly', () async {
+      when(client.get(Uri.parse("$apiUrl/groups/group_id")))
+          .thenAnswer((_) async => http.Response('''{
+                   "id": "group_id",
+                   "name": "name",
+                   "admin": {"id": "admin_id"},
+                   "decscription": "description",
+                   "poll": {
+                     "question": "question",
+                     "options": ["one", "two"],
+                     "votes": {"0": ["user_1_id", "user_2_id"], "1": ["user_3_id"]}
+                   }
+                 }''', 200));
+      final group = await AppState.groupController.getGroup("group_id");
+      expect(group.poll, isNotNull);
+      expect(group.poll!.question, 'question');
+      expect(group.poll!.options[0], 'one');
+      expect(group.poll!.options[1], 'two');
+
+      expect(group.poll!.votes.containsKey(0), true);
+      expect(group.poll!.votes.containsKey(1), true);
+      expect(group.poll!.votes[0]![0], 'user_1_id');
+      expect(group.poll!.votes[0]![1], 'user_2_id');
+      expect(group.poll!.votes[1]![0], 'user_3_id');
+
+      expect(group.adminId, 'admin_id');
+    });
+
     test('Create group passes name and description of the group to the API',
         () async {
       when(client.post(Uri.parse("$apiUrl/groups"),
