@@ -14,6 +14,7 @@ class MeetingController {
           MeetingDetails.fromJson(json.decode(response.body));
       return meetingDetails;
     } else {
+      print(response.body);
       throw Exception('Failed to load meetings');
     }
   }

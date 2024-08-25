@@ -1,5 +1,9 @@
+import 'dart:convert';
 import 'dart:developer';
 import 'package:coordimate/components/colors.dart';
+import 'package:coordimate/keys.dart';
+import 'package:coordimate/models/meeting.dart';
+import 'package:coordimate/pages/random_coffee_invitation_page.dart';
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -71,6 +75,7 @@ class HomeScreenState extends State<HomeScreen> {
     });
     await _tryParseGroupJoinLink(uri);
     await _tryParseUserScheduleLink(uri);
+    await _tryParseRandomCoffeeLink(uri);
   }
 
   Future<void> _tryParseUserScheduleLink(Uri uri) async {
@@ -89,6 +94,25 @@ class HomeScreenState extends State<HomeScreen> {
           return JoinGroupDialog(
               key: UniqueKey(), groupName: group.name, groupId: group.id);
         });
+    }
+  }
+
+  Future<void> _tryParseRandomCoffeeLink(Uri uri) async {
+    final regex = RegExp(r'^/meetings/([0-9a-z]+)/join$');
+    final match = regex.firstMatch(uri.path);
+    if (match != null) {
+      final meetingId = match.group(1)!;
+      final response = await AppState.client
+          .get(Uri.parse("$apiUrl/meetings/$meetingId/details"));
+      if (response.statusCode != 200) {
+        throw Exception('Failed to parse randomCoffee meeting join link');
+      }
+      final meeting = MeetingDetails.fromJson(json.decode(response.body));
+      if (mounted) {
+        Navigator.of(context).push(MaterialPageRoute(
+            builder: (context) =>
+                RandomCoffeeInvitationPage(meeting: meeting)));
+      }
     }
   }
 

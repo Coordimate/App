@@ -1,3 +1,4 @@
+import 'dart:developer';
 import 'dart:convert';
 import 'package:geolocator/geolocator.dart';
 import 'package:coordimate/app_state.dart';
@@ -14,10 +15,8 @@ class UserController {
   Future<User> getInfo() async {
     final id = await AppState.authController.getAccountId();
     var url = Uri.parse("$apiUrl/users/$id");
-    final response = await AppState.client.get(
-        url,
-        headers: {"Content-Type": "application/json"}
-    );
+    final response = await AppState.client
+        .get(url, headers: {"Content-Type": "application/json"});
     if (response.statusCode != 200) {
       throw Exception('Failed to load data');
     }
@@ -38,11 +37,8 @@ class UserController {
 
   Future<void> deleteUser(id) async {
     var url = Uri.parse("$apiUrl/users/$id");
-    final response =
-    await AppState.client.delete(
-        url,
-        headers: {"Content-Type": "application/json"}
-    );
+    final response = await AppState.client
+        .delete(url, headers: {"Content-Type": "application/json"});
     if (response.statusCode != 204) {
       throw Exception('Failed to delete user');
     }
@@ -94,5 +90,17 @@ class UserController {
         headers: <String, String>{'Content-Type': 'application/json'},
         body: json.encode(
             {"last_location": "${position.latitude},${position.longitude}"}));
+  }
+
+  Future<void> updateRandomCoffee(id, data) async {
+    var url = Uri.parse("$apiUrl/users/$id");
+    final response = await AppState.client.patch(url,
+        headers: {"Content-Type": "application/json"},
+        body: jsonEncode({"random_coffee": data}));
+
+    if (response.statusCode != 200) {
+      print(response.body);
+      throw Exception('Failed to save data');
+    }
   }
 }
