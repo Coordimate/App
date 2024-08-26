@@ -70,6 +70,7 @@ class CreateGroupDialogState extends State<CreateGroupDialog> {
             ),
             const SizedBox(height: 16),
             TextFormField(
+              key: groupCreationDescriptionFieldKey,
               controller: descriptionController,
               style: const TextStyle(color: darkBlue),
               decoration: const InputDecoration(

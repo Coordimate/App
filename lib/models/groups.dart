@@ -19,7 +19,7 @@ class Group {
     var group = Group(
       id: json['id'].toString(),
       name: json['name'],
-      adminId: json['admin']['id'],
+      adminId: json['admin']['_id'],
       description: json['description'] ?? '',
       groupMeetingLink: json['meeting_link'] ?? '',
     );

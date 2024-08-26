@@ -41,7 +41,7 @@ void main() {
           .thenAnswer((_) async => http.Response('''{
                    "id": "group_id",
                    "name": "name",
-                   "admin": {"id": "admin_id"},
+                   "admin": {"_id": "admin_id"},
                    "decscription": "description",
                    "poll": {
                      "question": "question",
@@ -55,11 +55,12 @@ void main() {
       expect(group.poll!.options[0], 'one');
       expect(group.poll!.options[1], 'two');
 
-      expect(group.poll!.votes.containsKey(0), true);
-      expect(group.poll!.votes.containsKey(1), true);
-      expect(group.poll!.votes[0]![0], 'user_1_id');
-      expect(group.poll!.votes[0]![1], 'user_2_id');
-      expect(group.poll!.votes[1]![0], 'user_3_id');
+      expect(group.poll!.votes, isNotNull);
+      expect(group.poll!.votes!.containsKey(0), true);
+      expect(group.poll!.votes!.containsKey(1), true);
+      expect(group.poll!.votes![0]![0], 'user_1_id');
+      expect(group.poll!.votes![0]![1], 'user_2_id');
+      expect(group.poll!.votes![1]![0], 'user_3_id');
 
       expect(group.adminId, 'admin_id');
     });

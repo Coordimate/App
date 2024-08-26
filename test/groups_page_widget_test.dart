@@ -56,7 +56,7 @@ void main() {
   });
 
   testWidgets(
-      'test3: groups page presses create button and an alertdialogue window appears, containing name and description text fields and finalization create group button',
+      'test3: groups page presses create button and an alertdialog window appears, containing name and description text fields and finalization create group button',
       (tester) async {
     whenGroupsNone(client);
     await tester.pumpWidget(const MaterialApp(

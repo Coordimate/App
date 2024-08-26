@@ -37,6 +37,7 @@ class _GroupsPageState extends State<GroupsPage> {
       context: context,
       builder: (context) {
         return CreateGroupDialog(
+            key: createGroupKey,
             onCreateGroup: AppState.groupController.createGroup,
             fetchGroups: _fetchGroups);
       },
