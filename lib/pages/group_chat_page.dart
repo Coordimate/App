@@ -114,46 +114,49 @@ class GroupChatPageState extends State<GroupChatPage> {
                 onPanDown: (_) {
                   FocusScope.of(context).unfocus();
                 },
-                child: StreamBuilder(
-                            stream: channel.stream,
-                            builder: (context, snapshot) {
-                if (snapshot.hasData) {
-                  var msg = snapshot.data;
-                  if (msg != '{}' && msg != lastMessage) {
-                    var chatMessage = ChatMessageModel.fromJson(
-                        json.decode(msg.toString()));
-                    messages.add(ChatMessage(
-                        avatar: widget.memberAvatars[chatMessage.userId]!,
-                        username: widget.memberUsernames[chatMessage.userId]!,
-                        text: chatMessage.text,
-                        isFromUser: widget.userId == chatMessage.userId,
-                        isFirst: lastSenderId != chatMessage.userId));
-                    lastSenderId = chatMessage.userId;
-                    lastMessage = msg;
-                  }
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                  child: StreamBuilder(
+                              stream: channel.stream,
+                              builder: (context, snapshot) {
+                  if (snapshot.hasData) {
+                    var msg = snapshot.data;
+                    if (msg != '{}' && msg != lastMessage) {
+                      var chatMessage = ChatMessageModel.fromJson(
+                          json.decode(msg.toString()));
+                      messages.add(ChatMessage(
+                          avatar: widget.memberAvatars[chatMessage.userId]!,
+                          username: widget.memberUsernames[chatMessage.userId]!,
+                          text: chatMessage.text,
+                          isFromUser: widget.userId == chatMessage.userId,
+                          isFirst: lastSenderId != chatMessage.userId));
+                      lastSenderId = chatMessage.userId;
+                      lastMessage = msg;
+                    }
 
-                  return ListView.builder(
-                    itemCount: oldMessages.length + messages.length,
-                    controller: _scrollController,
-                    itemBuilder: (context, index) {
-                      Future.delayed(
-                          const Duration(milliseconds: 400),
-                          () => _scrollController.animateTo(
-                              _scrollController.position.maxScrollExtent,
-                              duration: const Duration(milliseconds: 200),
-                              curve: Curves.linear));
-                      if (index < oldMessages.length) {
-                        return oldMessages.toList()[index];
-                      } else {
-                        return messages.toList()[index - oldMessages.length];
-                      }
-                    },
-                  );
-                } else {
-                  return const Text('');
-                }
-                            },
-                          ),
+                    return ListView.builder(
+                      itemCount: oldMessages.length + messages.length,
+                      controller: _scrollController,
+                      itemBuilder: (context, index) {
+                        Future.delayed(
+                            const Duration(milliseconds: 400),
+                            () => _scrollController.animateTo(
+                                _scrollController.position.maxScrollExtent,
+                                duration: const Duration(milliseconds: 200),
+                                curve: Curves.linear));
+                        if (index < oldMessages.length) {
+                          return oldMessages.toList()[index];
+                        } else {
+                          return messages.toList()[index - oldMessages.length];
+                        }
+                      },
+                    );
+                  } else {
+                    return const Text('');
+                  }
+                              },
+                            ),
+                ),
               )),
           SafeArea(
               child: Padding(
