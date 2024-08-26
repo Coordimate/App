@@ -56,6 +56,7 @@ class GroupDetailsPageState extends State<GroupDetailsPage> {
     groupDescriptionController.text = widget.group.description;
     groupNameController.text = widget.group.name;
     groupEmptyDescriptionController.text = "No group description";
+    textController.text = widget.group.groupMeetingLink;
   }
 
   Future<void> _fetchUsers() async {
@@ -210,6 +211,14 @@ class GroupDetailsPageState extends State<GroupDetailsPage> {
               Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 20),
                   child: TextField(
+                    onSubmitted: (String s) async {
+                      await AppState.groupController
+                          .updateGroupMeetingLink(widget.group.id, s);
+                    },
+                    onTapOutside: (_) async {
+                      await AppState.groupController
+                          .updateGroupMeetingLink(widget.group.id, textController.text);
+                    },
                     controller: textController,
                     decoration: InputDecoration(
                         enabledBorder: UnderlineInputBorder(

@@ -211,6 +211,14 @@ class _MeetingDetailsPageState extends State<MeetingDetailsPage> {
               const SizedBox(height: 8),
               if (widget.meeting.status == MeetingStatus.accepted)
                 TextField(
+                  onSubmitted: (String s) async {
+                    await AppState.meetingController.updateMeetingLink(
+                        widget.meeting.id, s);
+                  },
+                  onTapOutside: (_) async {
+                    await AppState.meetingController.updateMeetingLink(
+                        widget.meeting.id, textController.text);
+                  },
                   controller: textController,
                   decoration: InputDecoration(
                       enabledBorder: UnderlineInputBorder(

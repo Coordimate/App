@@ -167,4 +167,18 @@ class GroupController {
       throw Exception('Failed to vote on the group poll');
     }
   }
+
+  Future<void> updateGroupMeetingLink(String id, String link) async {
+    var url = Uri.parse("$apiUrl/groups/$id");
+    final response = await AppState.client.patch(url,
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: jsonEncode(<String, dynamic>{
+          'meeting_link': link,
+        }));
+    if (response.statusCode != 200) {
+      throw Exception('Failed to update group meeting link');
+    }
+  }
 }

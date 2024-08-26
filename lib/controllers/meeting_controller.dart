@@ -252,4 +252,18 @@ class MeetingController {
     }
     return json.decode(response.body)["link"];
   }
+
+  Future<void> updateMeetingLink(String id, String link) async {
+    var url = Uri.parse("$apiUrl/meetings/$id");
+    final response = await AppState.client.patch(url,
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+        },
+        body: jsonEncode(<String, dynamic>{
+          'meeting_link': link,
+        }));
+    if (response.statusCode != 200) {
+      throw Exception('Failed to update group meeting link');
+    }
+  }
 }

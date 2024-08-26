@@ -4,6 +4,7 @@ class Group {
   String description;
   String adminId;
   GroupPoll? poll;
+  String groupMeetingLink;
 
   Group({
     this.id = '',
@@ -11,6 +12,7 @@ class Group {
     this.adminId = '',
     this.description = '',
     this.poll,
+    this.groupMeetingLink = '',
   });
 
   factory Group.fromJson(Map<String, dynamic> json) {
@@ -19,6 +21,7 @@ class Group {
       name: json['name'],
       adminId: json['admin']['id'],
       description: json['description'] ?? '',
+      groupMeetingLink: json['meeting_link'] ?? '',
     );
     if (json['poll'] != null) {
       group.poll = GroupPoll.fromJson(json['poll']);

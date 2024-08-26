@@ -41,7 +41,6 @@ class _GroupsPageState extends State<GroupsPage> {
             fetchGroups: _fetchGroups);
       },
     );
-    _fetchGroups();
   }
 
   Future<void> _navigateToGroupDetails(Group group) async {
