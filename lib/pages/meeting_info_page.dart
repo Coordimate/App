@@ -110,8 +110,10 @@ class _MeetingDetailsPageState extends State<MeetingDetailsPage> {
         return CustomPopUpDialog(
           question: "Do you want to delete meeting \n\"${widget.meeting.title}\"?",
           onYes: () async {
-            await AppState.meetingController.deleteMeeting(
-                widget.meeting.id, widget.meeting.googleEventId);
+            await AppState.meetingController
+                .deleteMeeting(widget.meeting.id, widget.meeting.googleEventId);
+            if (context.mounted) Navigator.of(context).pop();
+            if (context.mounted) Navigator.of(context).pop();
           },
           onNo: () {
             Navigator.of(context).pop();
