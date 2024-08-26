@@ -323,17 +323,18 @@ class _MeetingDetailsPageState extends State<MeetingDetailsPage> {
                   );
                 }).toList(),
               ),
-              Center(
-                child: Container(
-                  color: white,
-                  padding: const EdgeInsets.only(bottom: 16.0),
-                  child: DeleteButton(
-                    itemToDelete: 'Meeting',
-                    showDeleteDialog: showDeleteMeetingDialog,
-                    color: orange,
+              if (isAdmin)
+                Center(
+                  child: Container(
+                    color: white,
+                    padding: const EdgeInsets.only(bottom: 16.0),
+                    child: DeleteButton(
+                      itemToDelete: 'Meeting',
+                      showDeleteDialog: showDeleteMeetingDialog,
+                      color: orange,
+                    ),
                   ),
                 ),
-              ),
             ],
           ),
         ),

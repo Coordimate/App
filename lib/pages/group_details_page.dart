@@ -188,7 +188,7 @@ class GroupDetailsPageState extends State<GroupDetailsPage> {
                     AppState.groupController
                         .updateGroupName(widget.group.id, s);
                   },
-                  fontSize: universalFontSize,
+                  fontSize: universalFontSize + 4.0,
                   padding: horPadding,
                   maxLength: 20,
                   iconSize: 20.0,
@@ -199,7 +199,7 @@ class GroupDetailsPageState extends State<GroupDetailsPage> {
               ),
               Center(
                 child: Text(
-                  '${users.length} Member ${users.length > 1 ? 's' : ''}',
+                  '${users.length} Member${users.length > 1 ? 's' : ''}',
                   style: const TextStyle(
                     fontSize: 16.0,
                     color: Colors.grey,

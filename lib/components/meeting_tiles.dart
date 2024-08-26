@@ -1,3 +1,4 @@
+import 'package:coordimate/components/avatar.dart';
 import 'package:coordimate/components/invitation_action_button.dart';
 import 'package:coordimate/pages/meeting_info_page.dart';
 import 'package:coordimate/models/meeting.dart';
@@ -57,7 +58,7 @@ class MeetingTile extends StatelessWidget {
             ),
             Row(
               children: [
-                const Icon(Icons.calendar_today, color: Colors.white70),
+                Avatar(size: 20, groupId: meeting.group.id),
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(
@@ -136,7 +137,7 @@ class NewMeetingTile extends MeetingTile {
                   ),
                   Row(
                     children: [
-                      const Icon(Icons.calendar_today, color: Colors.white70),
+                      Avatar(size: 20, groupId: meeting.group.id),
                       const SizedBox(width: 8),
                       Expanded(
                         child: Text(
