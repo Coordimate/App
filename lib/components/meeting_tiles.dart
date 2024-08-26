@@ -58,7 +58,7 @@ class MeetingTile extends StatelessWidget {
             ),
             Row(
               children: [
-                Avatar(size: 20, groupId: meeting.group.id),
+                const Icon(Icons.group, color: Colors.white70),
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(
@@ -137,7 +137,8 @@ class NewMeetingTile extends MeetingTile {
                   ),
                   Row(
                     children: [
-                      Avatar(size: 20, groupId: meeting.group.id),
+                      // Avatar(size: 20, groupId: meeting.group.id),
+                      const Icon(Icons.group, color: Colors.white70),
                       const SizedBox(width: 8),
                       Expanded(
                         child: Text(

@@ -54,25 +54,6 @@ class ConfirmationButtons extends StatelessWidget {
       children: <Widget>[
         Expanded(
           child: ElevatedButton(
-            onPressed: onYes,
-            style: ButtonStyle(
-              elevation: WidgetStateProperty.all(0),
-              backgroundColor: WidgetStateProperty.all(mediumBlue),
-              shape: WidgetStateProperty.all<RoundedRectangleBorder>(
-                RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10),
-                ),
-              ),
-            ),
-            child: Text(
-                yes,
-                style:const TextStyle(
-                    color: Colors.white, fontWeight: FontWeight.bold, fontSize: 20)),
-          ),
-        ),
-        const SizedBox(width: 16),
-        Expanded(
-          child: ElevatedButton(
             onPressed: onNo,
             style: ButtonStyle(
               backgroundColor: WidgetStateProperty.all(Colors.white),
@@ -90,6 +71,26 @@ class ConfirmationButtons extends StatelessWidget {
                     color: mediumBlue, fontWeight: FontWeight.bold, fontSize: 20)),
           ),
         ),
+        const SizedBox(width: 16),
+        Expanded(
+          child: ElevatedButton(
+            onPressed: onYes,
+            style: ButtonStyle(
+              elevation: WidgetStateProperty.all(0),
+              backgroundColor: WidgetStateProperty.all(mediumBlue),
+              shape: WidgetStateProperty.all<RoundedRectangleBorder>(
+                RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
+              ),
+            ),
+            child: Text(
+                yes,
+                style:const TextStyle(
+                    color: Colors.white, fontWeight: FontWeight.bold, fontSize: 20)),
+          ),
+        ),
+
       ],
     );
   }
