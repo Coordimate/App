@@ -162,7 +162,7 @@ class _PersonalPageState extends State<PersonalPage> {
                         text: "Change Password",
                         onTap: showChangePasswordDialog,
                       ),
-                    if (showChangePasswordButton) const SizedBox(height: 8),
+                    const SizedBox(height: 8),
                     LoginButton(
                         text: "Logout",
                         onTap: () {

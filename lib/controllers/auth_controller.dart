@@ -1,5 +1,7 @@
 import 'dart:developer';
 import 'dart:convert';
+import 'dart:typed_data';
+import 'dart:ui';
 
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
@@ -109,6 +111,8 @@ class AuthorizationController {
           "email": googleUser.email,
           "auth_type": signInType[AuthType.google]!
         };
+        final photoUrl = googleUser.photoUrl;
+        if (photoUrl != null) await _uploadGoogleProfileImage(photoUrl);
       case AuthType.facebook:
         final LoginResult result =
             await _facebookAuth.login(permissions: ['email']);
@@ -184,6 +188,8 @@ class AuthorizationController {
           "password": password,
           "auth_type": signInType[AuthType.google]!
         };
+        final photoUrl = googleUser.photoUrl;
+        if (photoUrl != null) await _uploadGoogleProfileImage(photoUrl);
       case AuthType.facebook:
         final LoginResult result =
             await _facebookAuth.login(permissions: ['email']);
@@ -241,5 +247,49 @@ class AuthorizationController {
       return true;
     }
     return false;
+  }
+
+  Future<Uint8List> cropToSquare(Uint8List imageBytes) async {
+    final codec = await instantiateImageCodec(imageBytes);
+    final frame = await codec.getNextFrame();
+    final image = frame.image;
+
+    int width = image.width;
+    int height = image.height;
+    int newSize = width < height ? width : height;
+
+    final recorder = PictureRecorder();
+    final canvas = Canvas(recorder);
+    final paint = Paint();
+
+    canvas.drawImageRect(
+      image,
+      Rect.fromLTWH(0, 0, newSize.toDouble(), newSize.toDouble()),
+      Rect.fromLTWH(0, 0, newSize.toDouble(), newSize.toDouble()),
+      paint,
+    );
+
+    final croppedImage = await recorder.endRecording().toImage(newSize, newSize);
+    final byteData = await croppedImage.toByteData(format: ImageByteFormat.png);
+    return byteData!.buffer.asUint8List();
+  }
+
+  Future<void> _uploadGoogleProfileImage(String photoUrl) async {
+    final response = await http.get(Uri.parse(photoUrl));
+    if (response.statusCode == 200) {
+      Uint8List imageBytes = response.bodyBytes;
+      Uint8List croppedImage = await cropToSquare(imageBytes);
+
+      var request = http.MultipartRequest('POST', Uri.parse("$apiUrl/upload_avatar/$userId"));
+      request.files.add(http.MultipartFile.fromBytes(
+          'file',
+          croppedImage,
+          filename: 'image$userId.png')
+      );
+      var streamedResponse = await request.send();
+      await http.Response.fromStream(streamedResponse);
+    } else {
+      log("Failed to download Google profile image");
+    }
   }
 }

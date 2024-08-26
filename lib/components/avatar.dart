@@ -1,7 +1,6 @@
 import 'dart:developer';
 import 'dart:io';
-import 'dart:typed_data';
-import 'dart:ui';
+
 import 'package:coordimate/app_state.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
@@ -82,39 +81,14 @@ class _AvatarState extends State<Avatar>{
         : "$apiUrl/groups/$id/avatar";
   }
 
-  Future<Uint8List> cropToSquare(Uint8List imageBytes) async {
-    final codec = await instantiateImageCodec(imageBytes);
-    final frame = await codec.getNextFrame();
-    final image = frame.image;
-
-    int width = image.width;
-    int height = image.height;
-    int newSize = width < height ? width : height;
-
-    final recorder = PictureRecorder();
-    final canvas = Canvas(recorder);
-    final paint = Paint();
-
-    canvas.drawImageRect(
-      image,
-      Rect.fromLTWH(0, 0, newSize.toDouble(), newSize.toDouble()),
-      Rect.fromLTWH(0, 0, newSize.toDouble(), newSize.toDouble()),
-      paint,
-    );
-
-    final croppedImage = await recorder.endRecording().toImage(newSize, newSize);
-    final byteData = await croppedImage.toByteData(format: ImageByteFormat.png);
-    return byteData!.buffer.asUint8List();
-  }
-
   Future<void> uploadAvatar(XFile? image) async {
     if (image == null) {
       log("No image picked");
       return;
     }
 
-    Uint8List imageBytes = await File(image.path).readAsBytes();
-    Uint8List croppedImage = await cropToSquare(imageBytes);
+    var imageBytes = await File(image.path).readAsBytes();
+    var croppedImage = await AppState.authController.cropToSquare(imageBytes);
 
     var request =
         http.MultipartRequest('POST', Uri.parse("$apiUrl/upload_avatar/$id"));
