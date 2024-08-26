@@ -301,8 +301,8 @@ class _GroupPollCardState extends State<GroupPollCard> {
             padding: const EdgeInsets.all(4),
             margin: const EdgeInsets.symmetric(horizontal: 20),
             decoration: BoxDecoration(
-              color: Colors.white,
-              border: Border.all(color: darkBlue, width: 2),
+              color: mediumBlue,
+              border: Border.all(color: mediumBlue, width: 2),
               borderRadius: BorderRadius.circular(10),
             ),
             child: const Center(
@@ -310,7 +310,7 @@ class _GroupPollCardState extends State<GroupPollCard> {
               Text(
                 "Create Group Poll",
                 style: TextStyle(
-                    color: darkBlue,
+                    color: Colors.white,
                     fontSize: 20,
                     fontWeight: FontWeight.bold
                 ),
