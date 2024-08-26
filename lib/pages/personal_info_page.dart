@@ -100,6 +100,19 @@ class _PersonalPageState extends State<PersonalPage> {
     );
   }
 
+  void showRandomCoffeeDialog() {
+    showDialog(
+        context: context,
+        builder: (context) {
+          return RandomCoffeeDialog(randomCoffee: user.randomCoffee!);
+        }).then((_) async {
+      final updatedUser = await AppState.userController.getInfo();
+      setState(() {
+        user = updatedUser;
+      });
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return FutureBuilder(
@@ -140,6 +153,10 @@ class _PersonalPageState extends State<PersonalPage> {
                             fontWeight: FontWeight.w600,
                             color: darkBlue)),
                     const SizedBox(height: 16),
+                    RandomCoffeeButton(
+                      onTap: showRandomCoffeeDialog,
+                    ),
+                    if (showChangePasswordButton) const SizedBox(height: 8),
                     if (showChangePasswordButton)
                       LoginEmptyButton(
                         text: "Change Password",
@@ -150,23 +167,6 @@ class _PersonalPageState extends State<PersonalPage> {
                         text: "Logout",
                         onTap: () {
                           logOut(context);
-                        }),
-                    const SizedBox(height: 16),
-                    LoginButton(
-                        text: "Setup Random Coffee",
-                        onTap: () {
-                          showDialog(
-                              context: context,
-                              builder: (context) {
-                                return RandomCoffeeDialog(
-                                    randomCoffee: user.randomCoffee!);
-                              }).then((_) async {
-                            final updatedUser =
-                                await AppState.userController.getInfo();
-                            setState(() {
-                              user = updatedUser;
-                            });
-                          });
                         }),
                   ],
                 ),
@@ -310,6 +310,46 @@ class _ChangePasswordDialogState extends State<ChangePasswordDialog> {
           no: "Cancel",
         ),
       ],
+    );
+  }
+}
+
+class RandomCoffeeButton extends StatelessWidget {
+  final VoidCallback onTap;
+
+  const RandomCoffeeButton({
+    super.key,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.all(10),
+        margin: const EdgeInsets.symmetric(horizontal: 25),
+        decoration: BoxDecoration(
+          color: mediumBlue,
+          border: Border.all(color: mediumBlue, width: 3),
+          borderRadius: BorderRadius.circular(10),
+        ),
+        child: const Center(
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(Icons.local_cafe, color: Colors.white, size: 24),
+              SizedBox(width: 16),
+              Text(
+                "Setup Random Coffee",
+                style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 24),
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 }
