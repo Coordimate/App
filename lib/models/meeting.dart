@@ -44,7 +44,7 @@ class MeetingTileModel {
         title: json['title'],
         group: GroupCard.fromJson(json['group']),
         dateTime: DateTime.parse(json['start']).toLocal(),
-        duration: json['length'],
+        duration: json['length'] ?? 60,
         status: json['status'] == 'accepted'
             ? MeetingStatus.accepted
             : json['status'] == 'declined'

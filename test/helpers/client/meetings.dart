@@ -9,11 +9,11 @@ void whenMeetingsNone(client) {
   )).thenAnswer((_) async => http.Response('{"meetings": []}', 200));
 }
 
-const acceptedInTheFuture = '{"id": "1", "title": "acceptedInTheFuture ","start": "2025-07-09T13:10:00.000","group": {"id": "2","name": "group"},"status": "accepted","is_finished": false}';
-const acceptedInThePast = '{"id": "2", "title": "acceptedInThePast ","start": "2020-07-09T13:10:00.000","group": {"id": "2","name": "group"},"status": "accepted","is_finished": true}';
-const declinedInTheFuture = '{"id": "3", "title": "declinedInTheFuture ","start": "2025-07-09T13:10:00.000","group": {"id": "2","name": "group"},"status": "declined","is_finished": false}';
-const declinedInThePast = '{"id": "4", "title": "declinedInThePast ","start": "2020-07-09T13:10:00.000","group": {"id": "2","name": "group"},"status": "declined","is_finished": true}';
-const invitationInTheFuture = '{"id": "5", "title": "invitationInTheFuture ","start": "2025-07-09T13:10:00.000","group": {"id": "2","name": "group"},"status": "invitation","is_finished": false}';
+const acceptedInTheFuture = '{"id": "1", "title": "acceptedInTheFuture ","start": "2025-07-09T13:10:00.000", "length": 60, "group": {"id": "2","name": "group"},"status": "accepted","is_finished": false}';
+const acceptedInThePast = '{"id": "2", "title": "acceptedInThePast ","start": "2020-07-09T13:10:00.000", "length": 60,"group": {"id": "2","name": "group"},"status": "accepted","is_finished": true}';
+const declinedInTheFuture = '{"id": "3", "title": "declinedInTheFuture ","start": "2025-07-09T13:10:00.000", "length": 60,"group": {"id": "2","name": "group"},"status": "declined","is_finished": false}';
+const declinedInThePast = '{"id": "4", "title": "declinedInThePast ","start": "2020-07-09T13:10:00.000", "length": 60,"group": {"id": "2","name": "group"},"status": "declined","is_finished": true}';
+const invitationInTheFuture = '{"id": "5", "title": "invitationInTheFuture ","start": "2025-07-09T13:10:00.000", "length": 60,"group": {"id": "2","name": "group"},"status": "invitation","is_finished": false}';
 
 
 void whenMeetingsOneAcceptedInTheFuture(client) {
