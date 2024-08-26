@@ -41,7 +41,7 @@ class GroupDetailsPageState extends State<GroupDetailsPage> {
   final groupEmptyDescriptionController = TextEditingController();
 
   final FocusNode focusNode = FocusNode();
-  static const universalFontSize = 16.0;
+  static const universalFontSize = 20.0;
   static const horPadding = 0.0;
   var userEmail = '';
   var showChangePasswordButton = true;
@@ -127,15 +127,9 @@ class GroupDetailsPageState extends State<GroupDetailsPage> {
       backgroundColor: Colors.white,
       appBar: CustomAppBar(
         title: "",
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          onPressed: () {
-            Navigator.pop(
-                context, true); // Pass a result of `true` when popping
-          },
-        ),
         needButton: true,
-        buttonIcon: Icons.archive,
+        buttonIcon: Icons.archive_rounded,
+        buttonColor: alphaDarkBlue,
         onPressed: () {
           Navigator.push(
             context,
@@ -150,7 +144,7 @@ class GroupDetailsPageState extends State<GroupDetailsPage> {
       ),
       body: SingleChildScrollView(
         child: Padding(
-          padding: const EdgeInsets.all(4.0),
+          padding: const EdgeInsets.symmetric(vertical: 4.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: <Widget>[
@@ -339,7 +333,7 @@ class GroupDetailsPageState extends State<GroupDetailsPage> {
         ),
       ),
       floatingActionButton: FloatingActionButton(
-        backgroundColor: darkBlue,
+        backgroundColor: mediumBlue,
         foregroundColor: white,
         onPressed: () async {
           Map<String, Avatar> memberAvatars = {};
@@ -400,16 +394,21 @@ class GroupDetailsPageState extends State<GroupDetailsPage> {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Container(
-                      height: 1,
-                      color: darkBlue,
-                      width: stripeWidth,
+                    Expanded(
+                      child: Container(
+                        height: 1,
+                        color: darkBlue,
+                        width: stripeWidth,
+                      ),
                     ),
-                    const SizedBox(width: 5),
+                    // const SizedBox(width: 16),
                     ElevatedButton(
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: darkBlue,
+                        backgroundColor: mediumBlue,
                         foregroundColor: white,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
                       ),
                       onPressed: () async {
                         Navigator.of(context)
@@ -422,20 +421,18 @@ class GroupDetailsPageState extends State<GroupDetailsPage> {
                           await _fetchMeetings();
                         });
                       },
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(
-                            vertical: 10.0, horizontal: 10.0),
-                        child: Text(
-                          title,
-                          style: const TextStyle(fontSize: 20),
-                        ),
+                      child: Text(
+                        title,
+                        style: const TextStyle(fontSize: 24),
                       ),
                     ),
-                    const SizedBox(width: 5),
-                    Container(
-                      height: 1,
-                      color: darkBlue,
-                      width: stripeWidth,
+                    // const SizedBox(width: 16),
+                    Expanded(
+                      child: Container(
+                        height: 1,
+                        color: darkBlue,
+                        width: stripeWidth,
+                      ),
                     ),
                   ],
                 ),
@@ -497,6 +494,13 @@ class GroupDetailsPageState extends State<GroupDetailsPage> {
                 child: ListTile(
                   leading: Avatar(
                       key: Key('avatar${users[index].id}'), userId: users[index].id, size: 40),
+                  trailing: Text(
+                    users[index].id == widget.group.adminId ? "admin" : "",
+                    style: const TextStyle(
+                      fontSize: 16,
+                      color: darkBlue,
+                    )
+                  ),
                   title: Text(
                     users[index].username,
                     style: const TextStyle(

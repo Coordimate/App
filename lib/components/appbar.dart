@@ -6,7 +6,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   final VoidCallback? onPressed;
   final bool needButton;
   final IconData buttonIcon;
-  final Widget? leading;
+  final Color buttonColor;
 
   const CustomAppBar({
     super.key,
@@ -14,7 +14,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
     required this.needButton,
     this.buttonIcon = Icons.add_circle_outline_rounded,
     this.onPressed = defaultOnPressed,
-    this.leading,
+    this.buttonColor = darkBlue,
   });
 
   static void defaultOnPressed() {}
@@ -25,7 +25,6 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   @override
   Widget build(BuildContext context) {
     return AppBar(
-      leading: leading,
       backgroundColor: Colors.white,
       scrolledUnderElevation: 0.0,
       title: Text(title,
@@ -37,7 +36,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
               Padding(
                 padding: const EdgeInsets.only(right: 16.0),
                 child: IconButton(
-                  icon: Icon(buttonIcon, color: darkBlue, size: 40),
+                  icon: Icon(buttonIcon, color: buttonColor, size: 40),
                   onPressed: onPressed,
                 ),
               ),

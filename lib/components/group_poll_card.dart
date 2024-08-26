@@ -282,25 +282,42 @@ class _GroupPollCardState extends State<GroupPollCard> {
   @override
   Widget build(BuildContext context) {
     if (poll == null && widget.isAdmin) {
-      return TextButton(
-          onPressed: () {
+      return
+        GestureDetector(
+          onTap: () {
             Navigator.of(context)
                 .push(MaterialPageRoute(
-                    builder: (context) =>
-                        CreateGroupPollPage(groupId: widget.groupId)))
+                builder: (context) =>
+                    CreateGroupPollPage(groupId: widget.groupId)))
                 .then((_) async {
               var newPoll =
-                  await AppState.groupController.fetchPoll(widget.groupId);
+              await AppState.groupController.fetchPoll(widget.groupId);
               setState(() {
                 poll = newPoll;
               });
             });
           },
-          child: const Text(
-            'Create a Group Poll',
-            style: TextStyle(
-                color: darkBlue, fontSize: 20, fontWeight: FontWeight.w700),
-          ));
+          child: Container(
+            padding: const EdgeInsets.all(4),
+            margin: const EdgeInsets.symmetric(horizontal: 20),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              border: Border.all(color: darkBlue, width: 2),
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: const Center(
+              child:
+              Text(
+                "Create Group Poll",
+                style: TextStyle(
+                    color: darkBlue,
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold
+                ),
+              ),
+            ),
+          ),
+        );
     } else if (poll != null && widget.isAdmin) {
       return Dismissible(
           key: UniqueKey(),
