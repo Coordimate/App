@@ -75,7 +75,19 @@ class RandomCoffeeDialogState extends State<RandomCoffeeDialog> {
       builder: (BuildContext context, StateSetter setState) {
         return AlertDialog(
           elevation: 0,
-          title: const Center(child: Text('RandomCoffee')),
+          title: const Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(Icons.local_cafe, color: darkBlue, size: 24),
+              SizedBox(width: 8),
+              Text(
+                "Random Coffee",
+                style: TextStyle(
+                    color: darkBlue,
+                    fontSize: 24),
+              ),
+            ],
+          ),
           titleTextStyle: const TextStyle(
             color: darkBlue,
             fontWeight: FontWeight.bold,
@@ -84,62 +96,68 @@ class RandomCoffeeDialogState extends State<RandomCoffeeDialog> {
           alignment: Alignment.center,
           backgroundColor: Colors.white,
           content: SingleChildScrollView(
-            child: ListBody(
-              children: <Widget>[
-                if (!randomCoffeeEnabled)
-                  const Text(
-                      'The feature is disabled. Toggle the switch to participate.',
-                      style: TextStyle(
-                        color: darkBlue,
-                        fontSize: 18,
-                      )),
-                Switch(
-                    value: randomCoffeeEnabled,
-                    activeColor: mediumBlue,
-                    onChanged: (value) {
-                      setState(() {
-                        randomCoffeeEnabled = value;
-                      });
-                    }),
-                if (randomCoffeeEnabled) ...[
-                  const Text(
-                      'Pick a daily time interval, when you are free to meet up for RandomCoffee',
-                      style: TextStyle(
-                        color: darkBlue,
-                        fontSize: 18,
-                      )),
-                  const SizedBox(height: 16),
-                  const Center(
-                    child: Text('Starting from',
+            child: AnimatedSize(
+              duration: const Duration(milliseconds: 200),
+              curve: Curves.easeInOut,
+              child: ListBody(
+                children: <Widget>[
+                  if (!randomCoffeeEnabled)
+                    const Text(
+                        'The feature is disabled. Toggle the switch to participate.',
+                        textAlign: TextAlign.center,
                         style: TextStyle(
                           color: darkBlue,
                           fontSize: 18,
                         )),
-                  ),
-                  LoginEmptyButton(
-                    text: startTime.format(context),
-                    onTap: () async {
-                      await _selectTime(isStart: true);
-                      setState(() {});
-                    },
-                  ),
-                  const SizedBox(height: 16),
-                  const Center(
-                    child: Text('Up to',
+                  Switch(
+                      value: randomCoffeeEnabled,
+                      activeColor: mediumBlue,
+                      onChanged: (value) {
+                        setState(() {
+                          randomCoffeeEnabled = value;
+                        });
+                      }),
+                  if (randomCoffeeEnabled) ...[
+                    const Text(
+                        'Pick a daily time interval, when you are free to meet up for Random Coffee',
+                        textAlign: TextAlign.center,
                         style: TextStyle(
                           color: darkBlue,
                           fontSize: 18,
                         )),
-                  ),
-                  LoginEmptyButton(
-                    text: endTime.format(context),
-                    onTap: () async {
-                      await _selectTime(isStart: false);
-                      setState(() {});
-                    },
-                  )
+                    const SizedBox(height: 16),
+                    const Center(
+                      child: Text('Starting from',
+                          style: TextStyle(
+                            color: darkBlue,
+                            fontSize: 18,
+                          )),
+                    ),
+                    LoginEmptyButton(
+                      text: startTime.format(context),
+                      onTap: () async {
+                        await _selectTime(isStart: true);
+                        setState(() {});
+                      },
+                    ),
+                    const SizedBox(height: 16),
+                    const Center(
+                      child: Text('Up to',
+                          style: TextStyle(
+                            color: darkBlue,
+                            fontSize: 18,
+                          )),
+                    ),
+                    LoginEmptyButton(
+                      text: endTime.format(context),
+                      onTap: () async {
+                        await _selectTime(isStart: false);
+                        setState(() {});
+                      },
+                    )
+                  ],
                 ],
-              ],
+              ),
             ),
           ),
           actions: <Widget>[
