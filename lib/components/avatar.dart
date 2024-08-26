@@ -29,7 +29,7 @@ class _PickPictureButton extends StatelessWidget {
           child: Column(
             children: [
               Icon(
-                text == 'Take Picture' ? Icons.camera_alt : Icons.image,
+                text == 'Take Photo' ? Icons.camera_alt : Icons.image,
                 color: darkBlue,
                 // size: 40,
               ),
@@ -47,24 +47,39 @@ class _PickPictureButton extends StatelessWidget {
   }
 }
 
-class Avatar extends StatelessWidget {
-  Avatar(
-      {super.key,
-      required this.size,
-      this.userId = '',
-      this.groupId = '',
-      this.clickable = false});
-
+class Avatar extends StatefulWidget {
   final bool clickable;
   final double size;
   final String userId;
   final String groupId;
-  late final id = (groupId == '') ? userId : groupId;
-  late final url = (groupId == '')
-      ? "$apiUrl/users/$id/avatar"
-      : "$apiUrl/groups/$id/avatar";
 
-  uploadAvatar(XFile? image) async {
+  const Avatar({
+    super.key,
+    required this.size,
+    this.userId = '',
+    this.groupId = '',
+    this.clickable = false
+  });
+
+  @override
+  State<Avatar> createState() => _AvatarState();
+}
+
+class _AvatarState extends State<Avatar>{
+  late String id;
+  late String url;
+  int imageRefreshKey = DateTime.now().millisecondsSinceEpoch; // Cache buster
+
+  @override
+  void initState() {
+    super.initState();
+    id = (widget.groupId == '') ? widget.userId : widget.groupId;
+    url = (widget.groupId == '')
+        ? "$apiUrl/users/$id/avatar"
+        : "$apiUrl/groups/$id/avatar";
+  }
+
+  Future<void> uploadAvatar(XFile? image) async {
     if (image == null) {
       log("No image picked");
       return;
@@ -76,6 +91,9 @@ class Avatar extends StatelessWidget {
         filename: image.path));
     var streamedResponse = await request.send();
     await http.Response.fromStream(streamedResponse);
+    setState(() {
+      imageRefreshKey = DateTime.now().millisecondsSinceEpoch;
+    });
   }
 
   @override
@@ -83,26 +101,26 @@ class Avatar extends StatelessWidget {
     Widget image;
     if (AppState.testMode) {
       image = SizedBox(
-          width: size,
-          height: size,
+          width: widget.size,
+          height: widget.size,
           child: Image.asset('lib/images/person.png'));
     } else {
       image = Container(
-        width: size,
-        height: size,
+        width: widget.size,
+        height: widget.size,
         decoration: BoxDecoration(
           shape: BoxShape.circle,
           color: white,
           image: DecorationImage(
             fit: BoxFit.fill,
-            image: NetworkImage(url),
+            image: NetworkImage('$url?refresh=$imageRefreshKey'),
           ),
         ),
       );
     }
     return GestureDetector(
         onTap: () async {
-          if (!clickable) return;
+          if (!widget.clickable) return;
           showModalBottomSheet<String>(
               context: context,
               builder: (BuildContext context) {
@@ -117,13 +135,13 @@ class Avatar extends StatelessWidget {
                         children: <Widget>[
                           Flexible(
                             child: _PickPictureButton(
-                                text: 'Take Picture',
+                                text: 'Take Photo',
                                 onTap: () async {
                                   Navigator.pop(context);
                                   final ImagePicker picker = ImagePicker();
                                   final XFile? image = await picker.pickImage(
                                       source: ImageSource.camera);
-                                  uploadAvatar(image);
+                                  await uploadAvatar(image);
                                 }),
                           ),
                           Flexible(
@@ -134,7 +152,7 @@ class Avatar extends StatelessWidget {
                                   final ImagePicker picker = ImagePicker();
                                   final XFile? image = await picker.pickImage(
                                       source: ImageSource.gallery);
-                                  uploadAvatar(image);
+                                  await uploadAvatar(image);
                                 }),
                           ),
                         ],
