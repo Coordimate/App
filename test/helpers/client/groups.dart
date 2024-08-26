@@ -57,3 +57,13 @@ void whenGroupsLongNameAndDescr(client) {
     headers: anyNamed('headers'),
   )).thenAnswer((_) async => http.Response('{"groups" : [$groupCard4]}', 200));
 }
+
+void whenCreateGroup(client) {
+  when(client.post(
+    Uri.parse('$apiUrl/groups'),
+    headers: anyNamed('headers'),
+    body: anyNamed('body'),
+  )).thenAnswer((_) async => http.Response(
+      '{"id": "group_id", "admin": {"_id": "admin_id", "username": "admin"}, "name": "$groupName1","description": "$groupDescr1","users": [],"meetings": [],"schedule": []}',
+      201));
+}

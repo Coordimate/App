@@ -31,93 +31,11 @@ void main() {
   setAppState(client, storage, sharedPrefs, firebase);
   whenStatements(client, storage, sharedPrefs, firebase);
 
-  // testWidgets(
-  //     'test3: groups page presses create button and an alertdialogue window appears, containing name and description text fields and finalization create group button',
-  //     (tester) async {
-  //   whenGroupsNone(client);
-  //   await tester.pumpWidget(const MaterialApp(
-  //     home: GroupsPage(),
-  //   ));
-  //   final button = find.byIcon(Icons.add_circle_outline_rounded);
-  //   expect(button, findsExactly(1));
-
-  //   await tester.runAsync(() async {
-  //     await tester.tap(button);
-  //   });
-
-  //   await tester.pumpAndSettle();
-  //   expect(find.byKey(createGroupKey), findsExactly(1));
-  //   expect(find.text('Name'), findsExactly(1));
-  //   expect(find.byKey(groupCreationNameFieldKey), findsExactly(1));
-  //   expect(find.text('Description'), findsExactly(1));
-  //   expect(find.byKey(groupCreationDescriptionFieldKey), findsExactly(1));
-  // });
-
-  // testWidgets(
-  //     'test7: alertdialogue from create button has fields that can be typed in within the character limit',
-  //     (tester) async {
-  //   whenGroupsNone(client);
-  //   await tester.pumpWidget(const MaterialApp(
-  //     home: GroupsPage(),
-  //   ));
-  //   final button = find.byIcon(Icons.add_circle_outline_rounded);
-  //   expect(button, findsExactly(1));
-
-  //   await tester.runAsync(() async {
-  //     await tester.tap(button);
-  //   });
-
-  //   await tester.pumpAndSettle();
-  //   final nameField = find.byKey(groupCreationNameFieldKey);
-  //   final descrField = find.byKey(groupCreationDescriptionFieldKey);
-  //   final createGroup = find.byKey(createGroupKey);
-
-  //   expect(createGroup, findsExactly(1));
-  //   expect(find.text('Name'), findsExactly(1));
-  //   expect(nameField, findsExactly(1));
-  //   expect(find.text('Description'), findsExactly(1));
-  //   expect(descrField, findsExactly(1));
-
-  //   await tester.enterText(nameField, 'Sample Group Name');
-  //   await tester.enterText(descrField, 'This is a description of the group.');
-  //   await tester.pump();
-
-  //   await tester.runAsync(() async {
-  //     await tester.tap(createGroup);
-  //   });
-  //   await tester.pumpAndSettle();
-  // });
-
-  // Your test function
-// Test function
-
-  // void whenGroupsNone(client) {
-  //   when(client.get(
-  //     Uri.parse('$apiUrl/groups'),
-  //     headers: anyNamed('headers'),
-  //   )).thenAnswer((_) async => http.Response('{"groups": []}', 200));
-  // }
-
   testWidgets(
-      'test7: alertdialogue from create button has fields that can be typed in within the character limit',
+      'test7: alertdialogue from create button has fields that can be typed in while respecting the character-limit',
       (tester) async {
     whenGroupsNone(client);
-
-    // Stub the POST request to return a successful response
-    when(client.post(
-      Uri.parse('$apiUrl/groups'),
-      headers: anyNamed('headers'),
-      // headers: {
-      //   'Content-Type': 'application/json; charset=UTF-8',
-      //   // Assuming your authentication is handled via a Bearer token in the headers
-      //   'Authorization': 'Bearer your-mock-token',
-      // },
-      // body:
-      //     '{"name":"Sample Group Name","description":"This is a description of the group."}',
-    )).thenAnswer((_) async => http.Response(
-        '{"id": "123", "name": "Sample Group Name", "description": "This is a description of the group."}',
-        201));
-
+    whenCreateGroup(client);
     await tester.pumpWidget(const MaterialApp(
       home: GroupsPage(),
     ));
@@ -141,8 +59,11 @@ void main() {
     expect(find.text('Description'), findsExactly(1));
     expect(descrField, findsExactly(1));
 
-    await tester.enterText(nameField, 'Sample Group Name');
-    await tester.enterText(descrField, 'This is a description of the group.');
+    final gName = DataProvider.getGroupName1();
+    final gDescr = DataProvider.getGroupDescr1();
+
+    await tester.enterText(nameField, gName);
+    await tester.enterText(descrField, gDescr);
     await tester.pump();
 
     await tester.runAsync(() async {
@@ -151,6 +72,12 @@ void main() {
 
     await tester.pumpAndSettle();
 
-    // Additional assertions can be added here to verify the correct behavior
+    // expect(find.byKey(groupCardKey), findsExactly(1));
+    // expect(find.byKey(groupCardDescriptionKey), findsExactly(1));
+    // expect(find.text(gDescr), findsExactly(1));
+    // expect(find.byKey(groupCardNameKey), findsExactly(1));
+    // expect(find.text(gName), findsExactly(1));
+//    expect(find.byKey(groupCardDescriptionOverflowKey), findsExactly(1));
+//    expect(find.byKey(groupCardNameOverflowKey), findsExactly(1));
   });
 }
