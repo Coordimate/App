@@ -1,3 +1,4 @@
+import 'dart:developer';
 import 'dart:convert';
 import 'package:coordimate/models/time_slot.dart';
 import 'package:coordimate/keys.dart';
@@ -56,13 +57,17 @@ class ScheduleController {
     var slotTime = DateTime(now.year, now.month, now.day, start.floor(),
         (60 * (start % 1)).floor());
 
-    await AppState.client.patch(Uri.parse("$apiUrl/time_slots/$id"),
+    var resp = await AppState.client.patch(Uri.parse("$apiUrl/time_slots/$id"),
         headers: {"Content-Type": "application/json"},
         body: json.encode(<String, dynamic>{
           'id': id,
           'start': slotTime.toUtc().toString(),
           'length': (60 * length).floor()
         }));
+    if (resp.statusCode != 200) {
+      log(resp.body);
+      throw Exception('Failed to update time slot');
+    }
   }
 
   Future<SchedulePage?> tryParseUserScheduleLink(Uri uri) async {
