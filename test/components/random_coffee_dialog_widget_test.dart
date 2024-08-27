@@ -14,8 +14,8 @@ import 'random_coffee_dialog_widget_test.mocks.dart';
 import 'package:coordimate/app_state.dart';
 import 'package:coordimate/models/user.dart';
 import 'package:coordimate/components/random_coffee_dialog.dart';
-import 'helpers/set_appstate.dart';
-import 'helpers/when.dart';
+import '../helpers/set_appstate.dart';
+import '../helpers/when.dart';
 
 @GenerateMocks(
     [http.Client, FlutterSecureStorage, SharedPreferences, FirebaseMessaging])
