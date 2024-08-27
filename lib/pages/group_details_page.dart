@@ -36,6 +36,7 @@ class GroupDetailsPageState extends State<GroupDetailsPage> {
   List<UserCard> users = [];
   List<MeetingTileModel> meetings = [];
   final String pathPerson = 'lib/images/person.png';
+  GroupPoll? poll;
 
   final groupDescriptionController = TextEditingController();
   final groupNameController = TextEditingController();
@@ -58,6 +59,7 @@ class GroupDetailsPageState extends State<GroupDetailsPage> {
     groupNameController.text = widget.group.name;
     groupEmptyDescriptionController.text = "No group description";
     textController.text = widget.group.groupMeetingLink;
+    poll = widget.group.poll;
   }
 
   Future<void> _fetchUsers() async {
@@ -319,7 +321,7 @@ class GroupDetailsPageState extends State<GroupDetailsPage> {
               GroupPollCard(
                   key: createGroupPollButtonKey,
                   groupId: widget.group.id,
-                  initialPoll: widget.group.poll,
+                  initialPoll: poll,
                   fontSize: universalFontSize,
                   isAdmin:
                       widget.group.adminId == AppState.authController.userId),

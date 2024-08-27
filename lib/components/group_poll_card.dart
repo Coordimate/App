@@ -1,5 +1,7 @@
 import 'dart:convert';
-import 'dart:math';
+import 'dart:developer';
+import 'dart:math' as math;
+
 import 'package:coordimate/components/login_button.dart';
 import 'package:flutter/material.dart';
 import 'package:coordimate/components/appbar.dart';
@@ -32,7 +34,7 @@ class _CreateGroupPollPageState extends State<CreateGroupPollPage> {
     });
   }
 
-  void createPoll() {
+  void createPoll() async {
     if (formKey.currentState!.validate() == false) {
       return;
     }
@@ -40,8 +42,11 @@ class _CreateGroupPollPageState extends State<CreateGroupPollPage> {
       "question": questionController.text,
       "options": optionControllers.map((con) => con.text).toList(),
     });
-    AppState.groupController.createPoll(widget.groupId, pollData);
-    Navigator.of(context).pop();
+
+    await AppState.groupController.createPoll(widget.groupId, pollData);
+    if (mounted) {
+      Navigator.pop(context, pollData);
+    }
   }
 
   @override
@@ -319,7 +324,7 @@ class _VoteGroupPollPageState extends State<VoteGroupPollPage> {
                                       ...widget.poll.votes![index]!
                                           .getRange(
                                           0,
-                                          min(
+                                          math.min(
                                               widget.poll.votes![index]!
                                                   .length,
                                               3))
@@ -365,7 +370,14 @@ class GroupPollCard extends StatefulWidget {
 }
 
 class _GroupPollCardState extends State<GroupPollCard> {
-  late GroupPoll? poll = widget.initialPoll;
+  GroupPoll? poll;
+  Future<GroupPoll>? pollFuture;
+
+  @override
+  void initState() {
+    super.initState();
+    pollFuture = AppState.groupController.fetchPoll(widget.groupId);
+  }
 
   void openVotePage() async {
     Map<String, Avatar> memberAvatars = {};
@@ -380,70 +392,84 @@ class _GroupPollCardState extends State<GroupPollCard> {
           poll: poll!,
           memberAvatars: memberAvatars
         ),
-      ));
+      )).then((_) {
+        pollFuture = AppState.groupController.fetchPoll(widget.groupId);
+      });
     }
   }
 
-  void openCreatePollPage() {
-    Navigator.of(context).push(MaterialPageRoute(
+  void openCreatePollPage() async {
+    final pollData = await Navigator.push(context, MaterialPageRoute(
       builder: (context) => CreateGroupPollPage(groupId: widget.groupId),
-    )).then((_) async {
-      var newPoll = await AppState.groupController.fetchPoll(widget.groupId);
+    ));
+    if (pollData != null) {
+      final fetchedPoll = await AppState.groupController.fetchPoll(
+          widget.groupId);
       setState(() {
-        poll = newPoll;
+        poll = fetchedPoll;
+        pollFuture = AppState.groupController.fetchPoll(widget.groupId);
       });
-    });
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    if (poll == null && widget.isAdmin) {
-      return CreateGroupPollButton(groupId: widget.groupId);
-    } else if (poll != null && widget.isAdmin) {
-      return Dismissible(
-          key: UniqueKey(),
-          background: Container(color: Colors.white70),
-          onDismissed: (_) {
-            AppState.groupController.deletePoll(widget.groupId);
-            setState(() {
-              poll = null;
-            });
-          },
-          child: ActiveGroupPollButton(
-            groupId: widget.groupId,
-            poll: poll!,
-            fontSize: widget.fontSize,
-            onPressed: openVotePage,
-          ));
-    } else if (poll != null) {
-      return ActiveGroupPollButton(
-        groupId: widget.groupId,
-        poll: poll!,
-        fontSize: widget.fontSize,
-        onPressed: openVotePage,
-      );
-    } else {
-      return Container();
-    }
+    return FutureBuilder(
+      future: pollFuture,
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.done) {
+          poll = snapshot.data;
+          if (poll == null && widget.isAdmin) {
+            return CreateGroupPollButton(groupId: widget.groupId, onPressed: openCreatePollPage);
+          } else if (poll != null && widget.isAdmin) {
+            return Dismissible(
+                key: UniqueKey(),
+                background: Container(color: Colors.white70),
+                onDismissed: (_) async {
+                  await AppState.groupController.deletePoll(widget.groupId);
+                  setState(() {
+                    poll = null;
+                    pollFuture = AppState.groupController.fetchPoll(widget.groupId);
+                  });
+                },
+                child: ActiveGroupPollButton(
+                  groupId: widget.groupId,
+                  poll: poll!,
+                  fontSize: widget.fontSize,
+                  onPressed: openVotePage,
+                ));
+          } else if (poll != null) {
+            return ActiveGroupPollButton(
+              groupId: widget.groupId,
+              poll: poll!,
+              fontSize: widget.fontSize,
+              onPressed: openVotePage,
+            );
+          } else {
+            return Container();
+          }
+        } else {
+          return const CircularProgressIndicator();
+        }
+      }
+    );
   }
 }
 
 class CreateGroupPollButton extends StatelessWidget {
   final String groupId;
+  final GestureTapCallback? onPressed;
 
   const CreateGroupPollButton({
     super.key,
     required this.groupId,
+    required this.onPressed,
   });
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: () {
-        Navigator.of(context).push(MaterialPageRoute(
-          builder: (context) => CreateGroupPollPage(groupId: groupId),
-        ));
-      },
+      onTap: onPressed,
       child: Container(
         padding: const EdgeInsets.all(4),
         margin: const EdgeInsets.symmetric(horizontal: 20),
