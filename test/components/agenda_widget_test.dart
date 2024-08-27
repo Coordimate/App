@@ -13,8 +13,7 @@ import 'agenda_widget_test.mocks.dart';
 
 @GenerateMocks([MeetingController])
 void main() {
-  IntegrationTestWidgetsFlutterBinding.ensureInitialized();
-  // TestWidgetsFlutterBinding.ensureInitialized();
+  TestWidgetsFlutterBinding.ensureInitialized();
 
   final mockMeetingController = MockMeetingController();
   AppState.meetingController = mockMeetingController;
