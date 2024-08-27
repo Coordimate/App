@@ -88,7 +88,6 @@ class _GroupsPageState extends State<GroupsPage> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         EllipsisText(
-                          key: UniqueKey(),
                           text: groups[index].name,
                           textKey: groupCardNameKey,
                           overflowKey: groupCardNameOverflowKey,
@@ -111,7 +110,6 @@ class _GroupsPageState extends State<GroupsPage> {
                         // ),
                         const SizedBox(height: 5),
                         EllipsisText(
-                          key: UniqueKey(),
                           text: groups[index].description,
                           textKey: groupCardDescriptionKey,
                           overflowKey: groupCardDescriptionOverflowKey,

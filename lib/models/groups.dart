@@ -19,7 +19,7 @@ class Group {
     var group = Group(
       id: json['id'].toString(),
       name: json['name'],
-      adminId: json['admin']['_id'],
+      adminId: json['admin']['_id'] ?? json['admin']['id'],
       description: json['description'] ?? '',
       groupMeetingLink: json['meeting_link'] ?? '',
     );
@@ -67,9 +67,9 @@ class GroupPoll {
       return votes;
     }
 
-    var groupPoll =  GroupPoll(
-        question: json['question'].toString(),
-        options: List.castFrom<dynamic, String>(json['options']),
+    var groupPoll = GroupPoll(
+      question: json['question'].toString(),
+      options: List.castFrom<dynamic, String>(json['options']),
     );
     if (json['votes'] != null) {
       groupPoll.votes = parseVotes(json['votes']);
