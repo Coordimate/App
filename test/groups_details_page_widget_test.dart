@@ -7,7 +7,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/annotations.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
-import 'groups_page_widget_test.mocks.dart';
+import 'groups_details_page_widget_test.mocks.dart';
 import 'helpers/set_appstate.dart';
 import 'helpers/when.dart';
 import 'helpers/client/groups.dart';
@@ -28,4 +28,30 @@ void main() {
 
   setAppState(client, storage, sharedPrefs, firebase);
   whenStatements(client, storage, sharedPrefs, firebase);
+
+  testWidgets('test1: groups page has create button when no groups loaded',
+      (tester) async {
+    whenGroupsNone(client);
+    await tester.pumpWidget(const MaterialApp(
+      home: GroupsPage(),
+    ));
+    expect(find.text('Groups'), findsExactly(1));
+    expect(find.byIcon(Icons.add_circle_outline_rounded), findsExactly(1));
+  });
+
+  testWidgets('test1', (tester) async {
+    AppState.testMode = true;
+    whenGroupsOne(client);
+    await tester.pumpWidget(const MaterialApp(
+      home: GroupsPage(),
+    ));
+    final button = find.byKey(groupCardKey);
+    expect(button, findsExactly(1));
+
+    await tester.runAsync(() async {
+      await tester.tap(button);
+    });
+
+    await tester.pumpAndSettle();
+  });
 }

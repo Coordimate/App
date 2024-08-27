@@ -21,6 +21,7 @@ import 'package:coordimate/components/text_field_with_edit.dart';
 import 'package:coordimate/components/avatar.dart';
 import 'package:coordimate/components/pop_up_dialog.dart';
 import 'package:coordimate/components/delete_button.dart';
+import 'package:coordimate/widget_keys.dart';
 
 class GroupDetailsPage extends StatefulWidget {
   final Group group;
@@ -61,7 +62,7 @@ class GroupDetailsPageState extends State<GroupDetailsPage> {
 
   Future<void> _fetchUsers() async {
     final usersFetched =
-    await AppState.groupController.fetchGroupUsers(widget.group.id);
+        await AppState.groupController.fetchGroupUsers(widget.group.id);
     setState(() {
       users = usersFetched;
     });
@@ -69,7 +70,7 @@ class GroupDetailsPageState extends State<GroupDetailsPage> {
 
   Future<void> _fetchMeetings() async {
     final meetingsFetched =
-    await AppState.groupController.fetchGroupMeetings(widget.group.id);
+        await AppState.groupController.fetchGroupMeetings(widget.group.id);
     setState(() {
       meetings = meetingsFetched;
     });
@@ -152,6 +153,7 @@ class GroupDetailsPageState extends State<GroupDetailsPage> {
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
                   IconButton(
+                    key: inviteButtonKey,
                     icon: const Icon(Icons.group_add),
                     iconSize: 43.0,
                     onPressed: () async {
@@ -166,6 +168,7 @@ class GroupDetailsPageState extends State<GroupDetailsPage> {
                       groupId: widget.group.id,
                       clickable: true),
                   IconButton(
+                    key: createMeetingButtonKey,
                     icon: const Icon(Icons.add_circle_outline_rounded),
                     iconSize: 43.0,
                     onPressed: () {
@@ -177,6 +180,7 @@ class GroupDetailsPageState extends State<GroupDetailsPage> {
               const SizedBox(height: 16.0),
               Center(
                 child: EditableTextField(
+                  key: groupNameFieldKey,
                   controller: groupNameController,
                   focusNode: focusNode,
                   onSubmit: (String s) {
@@ -194,6 +198,7 @@ class GroupDetailsPageState extends State<GroupDetailsPage> {
               ),
               Center(
                 child: Text(
+                  key: groupMemberCountKey,
                   '${users.length} Member${users.length > 1 ? 's' : ''}',
                   style: const TextStyle(
                     fontSize: 16.0,
@@ -205,13 +210,14 @@ class GroupDetailsPageState extends State<GroupDetailsPage> {
               Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 20),
                   child: TextField(
+                    key: linkPlaceholderFieldKey,
                     onSubmitted: (String s) async {
                       await AppState.groupController
                           .updateGroupMeetingLink(widget.group.id, s);
                     },
                     onTapOutside: (_) async {
-                      await AppState.groupController
-                          .updateGroupMeetingLink(widget.group.id, textController.text);
+                      await AppState.groupController.updateGroupMeetingLink(
+                          widget.group.id, textController.text);
                     },
                     controller: textController,
                     decoration: InputDecoration(
@@ -231,6 +237,7 @@ class GroupDetailsPageState extends State<GroupDetailsPage> {
                           mainAxisSize: MainAxisSize.min,
                           children: <Widget>[
                             IconButton(
+                              key: copyButtonKey,
                               onPressed: () {
                                 Clipboard.setData(
                                     ClipboardData(text: textController.text));
@@ -242,6 +249,7 @@ class GroupDetailsPageState extends State<GroupDetailsPage> {
                               color: darkBlue,
                             ),
                             IconButton(
+                              key: shareButtonKey,
                               onPressed: () {
                                 Share.share(textController.text);
                               },
@@ -260,8 +268,9 @@ class GroupDetailsPageState extends State<GroupDetailsPage> {
                     if (widget.group.description.isNotEmpty)
                       Container(
                         constraints:
-                        const BoxConstraints(minWidth: double.infinity),
+                            const BoxConstraints(minWidth: double.infinity),
                         child: EditableTextField(
+                          key: groupDescriptionFieldKey,
                           controller: groupDescriptionController,
                           focusNode: focusNode,
                           onSubmit: (String s) {
@@ -283,6 +292,7 @@ class GroupDetailsPageState extends State<GroupDetailsPage> {
                       Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 8.0),
                         child: EditableTextField(
+                          key: noGroupDescriptionFieldKey,
                           placeHolderText: "No Group Description",
                           controller: groupDescriptionController,
                           focusNode: focusNode,
@@ -307,11 +317,12 @@ class GroupDetailsPageState extends State<GroupDetailsPage> {
               ),
               const SizedBox(height: 16),
               GroupPollCard(
+                  key: createGroupPollButtonKey,
                   groupId: widget.group.id,
                   initialPoll: widget.group.poll,
                   fontSize: universalFontSize,
                   isAdmin:
-                  widget.group.adminId == AppState.authController.userId),
+                      widget.group.adminId == AppState.authController.userId),
               const SizedBox(height: 16.0),
               _buildMeetingList(
                   acceptedFutureMeetings, "Group Schedule", true, 80),
@@ -321,6 +332,7 @@ class GroupDetailsPageState extends State<GroupDetailsPage> {
               else
                 _buildUserList(users, "No Group Members"),
               Container(
+                key: deleteGroupButtonKey,
                 color: white,
                 padding: const EdgeInsets.only(bottom: 16.0),
                 child: DeleteButton(
@@ -334,20 +346,23 @@ class GroupDetailsPageState extends State<GroupDetailsPage> {
         ),
       ),
       floatingActionButton: FloatingActionButton(
+        key: groupChatButtonKey,
         backgroundColor: mediumBlue,
         foregroundColor: white,
         onPressed: () async {
           Map<String, Avatar> memberAvatars = {};
           Map<String, String> memberUsernames = {};
 
-          var users = await AppState.groupController.fetchGroupUsers(widget.group.id);
+          var users =
+              await AppState.groupController.fetchGroupUsers(widget.group.id);
           for (int i = 0; i < users.length; i++) {
             memberUsernames[users[i].id] = users[i].username;
             memberAvatars[users[i].id] = Avatar(size: 30, userId: users[i].id);
           }
 
           String lastSenderId = '';
-          List<ChatMessageModel> messages = await AppState.groupController.fetchGroupChatMessages(widget.group.id);
+          List<ChatMessageModel> messages = await AppState.groupController
+              .fetchGroupChatMessages(widget.group.id);
           late List<ChatMessage> chatMessages = messages.map((msg) {
             var chatMsg = ChatMessage(
                 avatar: memberAvatars[msg.userId]!,
@@ -362,24 +377,22 @@ class GroupDetailsPageState extends State<GroupDetailsPage> {
           if (context.mounted) {
             Navigator.of(context)
                 .push(MaterialPageRoute(
-                builder: (context) =>
-                    GroupChatPage(
-                      chatMessages: chatMessages,
-                      memberAvatars: memberAvatars,
-                      memberUsernames: memberUsernames,
-                      title: '${widget.group.name} Chat',
-                      userId: AppState.authController.userId!,
-                      groupId: widget.group.id,
-                    ))).then((_) async {
+                    builder: (context) => GroupChatPage(
+                          chatMessages: chatMessages,
+                          memberAvatars: memberAvatars,
+                          memberUsernames: memberUsernames,
+                          title: '${widget.group.name} Chat',
+                          userId: AppState.authController.userId!,
+                          groupId: widget.group.id,
+                        )))
+                .then((_) async {
               await _fetchMeetings();
             });
           }
         },
         child: const Padding(
-            padding: EdgeInsets.symmetric(
-                vertical: 10.0, horizontal: 10.0),
-            child: Icon(Icons.chat_outlined)
-        ),
+            padding: EdgeInsets.symmetric(vertical: 10.0, horizontal: 10.0),
+            child: Icon(Icons.chat_outlined)),
       ),
     );
   }
@@ -392,60 +405,61 @@ class GroupDetailsPageState extends State<GroupDetailsPage> {
       children: [
         button
             ? Center(
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const Expanded(
-                child: Divider(
-                  height: 1,
-                  color: darkBlue,
-                ),
-              ),
-              GestureDetector(
-                onTap: () async {
-                  Navigator.of(context)
-                      .push(MaterialPageRoute(
-                      builder: (context) => SchedulePage(
-                          isGroupSchedule: true,
-                          ownerId: widget.group.id,
-                          ownerName: widget.group.name)))
-                      .then((_) async {
-                    await _fetchMeetings();
-                  });
-                },
-                child: Container(
-                  padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 16),
-                  // margin: const EdgeInsets.symmetric(horizontal: 20),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    border: Border.all(color: darkBlue, width: 2),
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  child: Center(
-                    child: Text(
-                      title,
-                      style: const TextStyle(
-                          color: darkBlue,
-                          fontSize: 24,
-                          // fontWeight: FontWeight.bold
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Expanded(
+                      child: Divider(
+                        height: 1,
+                        color: darkBlue,
                       ),
                     ),
-                  ),
+                    GestureDetector(
+                      key: groupScheduleButtonKey,
+                      onTap: () async {
+                        Navigator.of(context)
+                            .push(MaterialPageRoute(
+                                builder: (context) => SchedulePage(
+                                    isGroupSchedule: true,
+                                    ownerId: widget.group.id,
+                                    ownerName: widget.group.name)))
+                            .then((_) async {
+                          await _fetchMeetings();
+                        });
+                      },
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                            vertical: 4, horizontal: 16),
+                        // margin: const EdgeInsets.symmetric(horizontal: 20),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          border: Border.all(color: darkBlue, width: 2),
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: Center(
+                          child: Text(
+                            title,
+                            style: const TextStyle(
+                              color: darkBlue,
+                              fontSize: 24,
+                              // fontWeight: FontWeight.bold
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                    const Expanded(
+                      child: Divider(
+                        height: 1,
+                        color: darkBlue,
+                      ),
+                    ),
+                    // ),
+                  ],
                 ),
-              ),
-              const Expanded(
-                child: Divider(
-                  height: 1,
-                  color: darkBlue,
-                ),
-              ),
-              // ),
-            ],
-          ),
-        )
+              )
             : CustomDivider(text: title),
-        if (meetings.isNotEmpty)
-          const SizedBox(height: 16),
+        if (meetings.isNotEmpty) const SizedBox(height: 16),
         ListView.builder(
           padding: const EdgeInsets.symmetric(horizontal: 16),
           shrinkWrap: true,
@@ -478,12 +492,14 @@ class GroupDetailsPageState extends State<GroupDetailsPage> {
         CustomDivider(text: title),
         const SizedBox(height: 8),
         ListView.builder(
+          key: groupMembersListKey,
           padding: const EdgeInsets.symmetric(horizontal: 8),
           shrinkWrap: true,
           physics: const NeverScrollableScrollPhysics(),
           itemCount: users.length,
           itemBuilder: (context, index) {
             return GestureDetector(
+              key: groupMemberKey,
               onTap: () {
                 Navigator.of(context).push(MaterialPageRoute(
                     builder: (context) => SchedulePage(
@@ -500,14 +516,15 @@ class GroupDetailsPageState extends State<GroupDetailsPage> {
                 ),
                 child: ListTile(
                   leading: Avatar(
-                      key: Key('avatar${users[index].id}'), userId: users[index].id, size: 40),
+                      key: Key('avatar${users[index].id}'),
+                      userId: users[index].id,
+                      size: 40),
                   trailing: Text(
                       users[index].id == widget.group.adminId ? "admin" : "",
                       style: const TextStyle(
                         fontSize: 16,
                         color: darkBlue,
-                      )
-                  ),
+                      )),
                   title: Text(
                     users[index].username,
                     style: const TextStyle(
