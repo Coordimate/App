@@ -1,5 +1,3 @@
-//groups_page_widget_test
-
 import 'package:coordimate/app_state.dart';
 import 'package:coordimate/pages/groups_page.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';

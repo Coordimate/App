@@ -1,4 +1,3 @@
-// test/helpers/client/groups
 import 'package:coordimate/keys.dart';
 import 'package:mockito/mockito.dart';
 import 'package:http/http.dart' as http;

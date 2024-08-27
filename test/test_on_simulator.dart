@@ -1,5 +1,4 @@
 // this will be deleted later, its only purpose is to paste the tests one by one so we can see how they run on a virtual device
-//test_ont_simulator
 
 import 'package:coordimate/app_state.dart';
 import 'package:coordimate/pages/groups_page.dart';
