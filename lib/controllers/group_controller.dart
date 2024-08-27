@@ -91,6 +91,17 @@ class GroupController {
     }
   }
 
+  Future<void> deleteGroup(String id) async {
+    var url = Uri.parse("$apiUrl/groups/$id");
+    final response = await AppState.client.delete(url,
+        headers: {
+          "Content-Type": "application/json",
+        });
+    if (response.statusCode != 204) {
+      throw Exception('Failed to delete group');
+    }
+  }
+
   Future<List<UserCard>> fetchGroupUsers(id) async {
     final response = await AppState.client.get(Uri.parse("$apiUrl/groups/$id"));
 

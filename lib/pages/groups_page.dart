@@ -45,16 +45,13 @@ class _GroupsPageState extends State<GroupsPage> {
   }
 
   Future<void> _navigateToGroupDetails(Group group) async {
-    final result = await Navigator.push(
+    await Navigator.push(
       context,
       MaterialPageRoute(
         builder: (context) => GroupDetailsPage(group: group),
       ),
     );
-
-    if (result == true) {
-      _fetchGroups();
-    }
+    _fetchGroups();
   }
 
   @override

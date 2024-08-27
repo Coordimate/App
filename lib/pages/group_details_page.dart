@@ -98,8 +98,11 @@ class GroupDetailsPageState extends State<GroupDetailsPage> {
         return CustomPopUpDialog(
           question: "Do you want to delete group \n\"${widget.group.name}\"?",
           onYes: () async {
-            // TODO: Implement delete group
-            // await AppState.groupController.deleteGroup(widget.group.id);
+            await AppState.groupController.deleteGroup(widget.group.id);
+            if (context.mounted) {
+              Navigator.of(context).pop();
+              Navigator.of(context).pop();
+            }
           },
           onNo: () {
             Navigator.of(context).pop();
@@ -253,7 +256,9 @@ class GroupDetailsPageState extends State<GroupDetailsPage> {
                             IconButton(
                               key: shareButtonKey,
                               onPressed: () {
-                                Share.share(textController.text);
+                                if (textController.text != null && textController.text.isNotEmpty) {
+                                  Share.share(textController.text);
+                                }
                               },
                               icon: const Icon(Icons.share, color: darkBlue),
                               color: darkBlue,
