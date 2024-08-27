@@ -81,7 +81,7 @@ void whenGroupsDetails(client) {
       "name": "name",
       "description": "description",
       "users": [{
-        "_id": "admin_id",
+        "id": "admin_id",
         "username": "username"
       }],
       "meetings": [],
