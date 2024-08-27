@@ -140,13 +140,11 @@ class _AgendaPointWidgetState extends State<_AgendaPointWidget> {
                     }
                   })),
                   if (showDelete)
-                    GestureDetector(
-                        onTap: () {
-                          setState(() {
-                            widget.deletePoint(widget.index);
-                          });
-                        },
-                        child: const Icon(Icons.delete, color: orange))
+                    IconButton(onPressed: () {
+                      setState(() {
+                        widget.deletePoint(widget.index);
+                      });
+                    }, icon: const Icon(Icons.delete, color: orange))
                 ]));
           },
         ));

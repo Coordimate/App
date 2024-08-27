@@ -74,6 +74,8 @@ dev_dependencies:
 
 # The following section is specific to Flutter packages.
   firebase_messaging_platform_interface: any
+  integration_test:
+    sdk: flutter
 flutter:
 
   # The following line ensures that the Material Icons font is

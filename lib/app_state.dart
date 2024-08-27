@@ -21,7 +21,7 @@ class AppState {
       AuthorizationController(plainClient: http.Client());
   static FirebaseMessaging firebaseMessagingInstance =
       FirebaseMessaging.instance;
-  static final meetingController = MeetingController();
+  static MeetingController meetingController = MeetingController();
   static final scheduleController = ScheduleController();
   static final userController = UserController();
   static final groupController = GroupController();
