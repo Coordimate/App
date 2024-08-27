@@ -1,5 +1,4 @@
 //file to change data mocked for tests when widget-testing
-//dataprovider
 class DataProvider {
   static String groupName1 = "testGroup1";
   static String groupName2 = "testGroup2";
