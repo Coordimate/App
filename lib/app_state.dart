@@ -24,7 +24,7 @@ class AppState {
   static MeetingController meetingController = MeetingController();
   static final scheduleController = ScheduleController();
   static final userController = UserController();
-  static final groupController = GroupController();
+  static GroupController groupController = GroupController();
 
   static bool testMode = false;
 
