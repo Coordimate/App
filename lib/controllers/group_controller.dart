@@ -148,7 +148,7 @@ class GroupController {
     }
   }
 
-  Future<GroupPoll> fetchPoll(id) async {
+  Future<GroupPoll?> fetchPoll(id) async {
     var url = Uri.parse("$apiUrl/groups/$id");
     final response = await AppState.client
         .get(url, headers: {"Content-Type": "application/json"});

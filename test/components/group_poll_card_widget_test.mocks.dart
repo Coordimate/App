@@ -150,16 +150,6 @@ class _FakeGroup_10 extends _i1.SmartFake implements _i6.Group {
         );
 }
 
-class _FakeGroupPoll_11 extends _i1.SmartFake implements _i6.GroupPoll {
-  _FakeGroupPoll_11(
-    Object parent,
-    Invocation parentInvocation,
-  ) : super(
-          parent,
-          parentInvocation,
-        );
-}
-
 /// A class which mocks [Client].
 ///
 /// See the documentation for Mockito's code generation for more information.
@@ -1210,6 +1200,16 @@ class MockGroupController extends _i1.Mock implements _i14.GroupController {
       ) as _i7.Future<void>);
 
   @override
+  _i7.Future<void> deleteGroup(String? id) => (super.noSuchMethod(
+        Invocation.method(
+          #deleteGroup,
+          [id],
+        ),
+        returnValue: _i7.Future<void>.value(),
+        returnValueForMissingStub: _i7.Future<void>.value(),
+      ) as _i7.Future<void>);
+
+  @override
   _i7.Future<List<_i16.UserCard>> fetchGroupUsers(dynamic id) =>
       (super.noSuchMethod(
         Invocation.method(
@@ -1263,19 +1263,13 @@ class MockGroupController extends _i1.Mock implements _i14.GroupController {
       ) as _i7.Future<void>);
 
   @override
-  _i7.Future<_i6.GroupPoll> fetchPoll(dynamic id) => (super.noSuchMethod(
+  _i7.Future<_i6.GroupPoll?> fetchPoll(dynamic id) => (super.noSuchMethod(
         Invocation.method(
           #fetchPoll,
           [id],
         ),
-        returnValue: _i7.Future<_i6.GroupPoll>.value(_FakeGroupPoll_11(
-          this,
-          Invocation.method(
-            #fetchPoll,
-            [id],
-          ),
-        )),
-      ) as _i7.Future<_i6.GroupPoll>);
+        returnValue: _i7.Future<_i6.GroupPoll?>.value(),
+      ) as _i7.Future<_i6.GroupPoll?>);
 
   @override
   _i7.Future<void> deletePoll(dynamic id) => (super.noSuchMethod(

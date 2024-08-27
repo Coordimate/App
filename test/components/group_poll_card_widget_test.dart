@@ -38,9 +38,11 @@ void main() {
   group('GroupPollCard', () {
     testWidgets('should navigate to CreateGroupPollPage when tapped', (WidgetTester tester) async {
       const String testGroupId = 'testGroupId';
+      when(mockGroupController.fetchPoll(testGroupId)).thenAnswer((_) async => null);
       await tester.pumpWidget(const MaterialApp(home: GroupPollCard(groupId: testGroupId, initialPoll: null, fontSize: 16.0, isAdmin: true)));
 
       // Tap the Create Group Poll button
+      await tester.pumpAndSettle();
       final createPollFinder = find.text('Create Group Poll');
       await tester.tap(createPollFinder);
       await tester.pumpAndSettle();
@@ -53,6 +55,7 @@ void main() {
       // Arrange
       const String testGroupId = 'testGroupId';
       final testPoll = GroupPoll(question: 'Test Poll', options: ['Option 1', 'Option 2']);
+      when(mockGroupController.fetchPoll(testGroupId)).thenAnswer((_) async => testPoll);
       await tester.pumpWidget(MaterialApp(home: GroupPollCard(groupId: testGroupId, initialPoll: testPoll, fontSize: 16.0, isAdmin: false)));
 
       // Act
@@ -67,16 +70,17 @@ void main() {
       const String testGroupId = 'testGroupId';
       final testPoll = GroupPoll(question: 'Test Poll', options: ['Option 1', 'Option 2']);
       when(mockGroupController.fetchPoll(testGroupId)).thenAnswer((_) async => testPoll);
-      
+
       await tester.pumpWidget(MaterialApp(home: GroupPollCard(groupId: testGroupId, initialPoll: testPoll, fontSize: 16.0, isAdmin: true)));
-      
-      // Act
-      await tester.drag(find.byType(Dismissible), const Offset(-500, 0)); // Swipe left
+      await tester.pumpAndSettle();
+
+      // Once the poll widget is dismissed, the widget will refetch the group poll
+      when(mockGroupController.fetchPoll(testGroupId)).thenAnswer((_) async => null);
+      await tester.drag(find.byType(Dismissible), const Offset(1500, 0));
       await tester.pumpAndSettle();
 
       // Assert
       verify(mockGroupController.deletePoll(testGroupId)).called(1);
-      await tester.pumpAndSettle();
       expect(find.text('Active Group Poll'), findsNothing);
     });
   });

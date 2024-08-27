@@ -1,8 +1,6 @@
 import 'dart:convert';
-import 'dart:developer';
 import 'dart:math' as math;
 
-import 'package:coordimate/components/login_button.dart';
 import 'package:flutter/material.dart';
 import 'package:coordimate/components/appbar.dart';
 import 'package:coordimate/components/colors.dart';
@@ -371,7 +369,7 @@ class GroupPollCard extends StatefulWidget {
 
 class _GroupPollCardState extends State<GroupPollCard> {
   GroupPoll? poll;
-  Future<GroupPoll>? pollFuture;
+  Future<GroupPoll?>? pollFuture;
 
   @override
   void initState() {
