@@ -32,10 +32,14 @@ void main() {
   whenStatements(client, storage, sharedPrefs, firebase);
 
   testWidgets('test1', (tester) async {
+    AppState.testMode = true;
     whenGroupsOne(client);
+    whenGroupsDetails(client);
+    whenGroupsMeetings(client);
     await tester.pumpWidget(const MaterialApp(
       home: GroupsPage(),
     ));
+    await tester.pumpAndSettle();
     final button = find.byKey(groupCardKey);
     expect(button, findsExactly(1));
 

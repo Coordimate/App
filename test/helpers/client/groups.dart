@@ -67,3 +67,32 @@ void whenCreateGroup(client) {
       '{"id": "group_id", "admin": {"_id": "admin_id", "username": "admin"}, "name": "$groupName1","description": "$groupDescr1","users": [],"meetings": [],"schedule": []}',
       201));
 }
+
+void whenGroupsDetails(client) {
+  when(client.get(Uri.parse("$apiUrl/groups/group_id"),
+          headers: anyNamed('headers')))
+      .thenAnswer((_) async => http.Response('''
+    {
+      "_id": "group_id",
+      "admin": {
+        "_id": "admin_id",
+        "username": "username"
+      },
+      "name": "name",
+      "description": "description",
+      "users": [{
+        "_id": "admin_id",
+        "username": "username"
+      }],
+      "meetings": [],
+      "schedule": [],
+      "chat_messages": "[]"
+    }
+    ''', 200));
+}
+
+void whenGroupsMeetings(client) {
+  when(client.get(Uri.parse("$apiUrl/groups/group_id/meetings"),
+          headers: anyNamed('headers')))
+      .thenAnswer((_) async => http.Response('{"meetings": []}', 200));
+}
