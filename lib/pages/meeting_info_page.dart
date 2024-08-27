@@ -3,6 +3,7 @@ import 'package:coordimate/components/delete_button.dart';
 import 'package:coordimate/components/meeting_action_button.dart';
 import 'package:coordimate/components/pop_up_dialog.dart';
 import 'package:coordimate/components/snack_bar.dart';
+import 'package:coordimate/widget_keys.dart';
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:coordimate/components/colors.dart';
@@ -38,7 +39,6 @@ class _MeetingDetailsPageState extends State<MeetingDetailsPage> {
       CustomSnackBar.show(context, "Meeting is already finished");
       return;
     }
-    var accId = await AppState.authController.getAccountId();
     await AppState.meetingController
         .answerInvitation(accept, widget.meeting.id)
         .then((status) {
@@ -48,7 +48,7 @@ class _MeetingDetailsPageState extends State<MeetingDetailsPage> {
       setState(() {
         widget.meeting.status = status;
         widget.meeting.participants
-            .firstWhere((element) => element.id == accId)
+            .firstWhere((element) => element.id == AppState.authController.userId)
             .status = status.name;
         CustomSnackBar.show(context, meetingStatus);
       });
@@ -71,6 +71,7 @@ class _MeetingDetailsPageState extends State<MeetingDetailsPage> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
+          key: alertDialogKey,
           backgroundColor: Colors.white,
           title: Align(
               alignment: Alignment.center,
@@ -82,14 +83,17 @@ class _MeetingDetailsPageState extends State<MeetingDetailsPage> {
                   style: const TextStyle(
                       color: darkBlue, fontWeight: FontWeight.bold))),
           actions: <Widget>[
-            ConfirmationButtons(onYes: () async {
-              await _answerInvitation(accept);
-              if (context.mounted) {
+            ConfirmationButtons(
+              onYes: () async {
+                await _answerInvitation(accept);
+                if (context.mounted) {
+                  Navigator.of(context).pop();
+                }
+              },
+              onNo: () {
                 Navigator.of(context).pop();
               }
-            }, onNo: () {
-              Navigator.of(context).pop();
-            }),
+            ),
           ],
         );
       },
@@ -151,14 +155,9 @@ class _MeetingDetailsPageState extends State<MeetingDetailsPage> {
       backgroundColor: Colors.white,
       appBar: CustomAppBar(
         title: '',
-        needButton: true,
-        buttonIcon: Icons.settings,
-        onPressed: widget.meeting.isInPast()
-            ? null
-            : () {
-                showPopUpDialog(
-                    context, widget.meeting.status != MeetingStatus.accepted);
-              },
+        needButton: (!widget.meeting.isInPast() && !widget.meeting.isFinished && !isAdmin && widget.meeting.status == MeetingStatus.accepted),
+        buttonIcon: Icons.person_off,
+        onPressed: () { showPopUpDialog(context, false); },
       ),
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 0),
@@ -211,6 +210,7 @@ class _MeetingDetailsPageState extends State<MeetingDetailsPage> {
               const SizedBox(height: 8),
               if (widget.meeting.status == MeetingStatus.accepted)
                 TextField(
+                  key: linkPlaceholderFieldKey,
                   onSubmitted: (String s) async {
                     await AppState.meetingController.updateMeetingLink(
                         widget.meeting.id, s);
@@ -261,35 +261,41 @@ class _MeetingDetailsPageState extends State<MeetingDetailsPage> {
 
               if (widget.meeting.status == MeetingStatus.accepted && !widget.meeting.isFinished && !widget.meeting.isInPast())
               MeetingActionButton(
-                  text: "Meet Offline",
-                  onPressed: _showMeetingOfflinePicker,
-                  backgroundColor: mediumBlue
+                key: meetOfflineButtonKey,
+                text: "Meet Offline",
+                onPressed: _showMeetingOfflinePicker,
+                backgroundColor: mediumBlue
               ),
 
               if (widget.meeting.status == MeetingStatus.accepted)
                 MeetingActionButton(
-                    text: "Meeting Agenda",
-                    onPressed: _showMeetingAgendaPage,
-                    backgroundColor: darkBlue
+                  key: meetingAgendaButtonKey,
+                  text: "Meeting Agenda",
+                  onPressed: _showMeetingAgendaPage,
+                  backgroundColor: darkBlue
                 ),
 
               if (widget.meeting.status == MeetingStatus.accepted)
                 MeetingActionButton(
-                    text: widget.meeting.isFinished
-                        ? "Summary"
-                        : "Finish Meeting",
-                    onPressed: () async {
-                      if (widget.meeting.isFinished) {
-                        _showSummaryPage();
-                      } else {
-                        await _finishMeeting();
-                      }
-                    },
-                    backgroundColor: mediumBlue
+                  key: widget.meeting.isFinished
+                      ? summaryButtonKey
+                      : finishMeetingButtonKey,
+                  text: widget.meeting.isFinished
+                      ? "Summary"
+                      : "Finish Meeting",
+                  onPressed: () async {
+                    if (widget.meeting.isFinished) {
+                      _showSummaryPage();
+                    } else {
+                      await _finishMeeting();
+                    }
+                  },
+                  backgroundColor: mediumBlue
                 ),
 
               if (widget.meeting.status == MeetingStatus.needsAcceptance)
                 Row(
+                  key: answerButtonsKey,
                   children: <Widget>[
                     answerButton(
                         "Accept", lightBlue, () => _answerInvitation(true)),
@@ -299,20 +305,24 @@ class _MeetingDetailsPageState extends State<MeetingDetailsPage> {
                   ],
                 ),
 
-              if (widget.meeting.status == MeetingStatus.declined && !widget.meeting.isInPast())
+              if (widget.meeting.status == MeetingStatus.declined && !(widget.meeting.isInPast() || widget.meeting.isFinished))
                 MeetingActionButton(
-                    text: "Attend Meeting",
-                    onPressed: () async {
-                      await showPopUpDialog(context, true);
-                    },
-                    backgroundColor: Colors.grey
+                  key: attendMeetingButtonKey,
+                  text: "Attend Meeting",
+                  onPressed: () async {
+                    await showPopUpDialog(context, true);
+                  },
+                  backgroundColor: Colors.grey
                 ),
 
-              if (widget.meeting.status == MeetingStatus.declined && widget.meeting.isInPast())
+              if (widget.meeting.status == MeetingStatus.declined && (widget.meeting.isInPast() || widget.meeting.isFinished))
                 MeetingActionButton(
-                    text: "Invitation Declined",
-                    onPressed: () {},
-                    backgroundColor: Colors.white
+                  key: invitationDeclinedButtonKey,
+                  text: "Invitation Declined",
+                  onPressed: () {
+                    CustomSnackBar.show(context, "Meeting is finished");
+                  },
+                  backgroundColor: Colors.grey
                 ),
 
               const SizedBox(height: 16),
@@ -339,6 +349,7 @@ class _MeetingDetailsPageState extends State<MeetingDetailsPage> {
                     color: white,
                     padding: const EdgeInsets.only(bottom: 16.0),
                     child: DeleteButton(
+                      key: deleteMeetingButtonKey,
                       itemToDelete: 'Meeting',
                       showDeleteDialog: showDeleteMeetingDialog,
                       color: orange,

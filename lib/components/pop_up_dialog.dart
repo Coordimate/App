@@ -1,3 +1,4 @@
+import 'package:coordimate/widget_keys.dart';
 import 'package:flutter/material.dart';
 import 'package:coordimate/components/colors.dart';
 
@@ -54,6 +55,7 @@ class ConfirmationButtons extends StatelessWidget {
       children: <Widget>[
         Expanded(
           child: ElevatedButton(
+            key: noButtonKey,
             onPressed: onNo,
             style: ButtonStyle(
               backgroundColor: WidgetStateProperty.all(Colors.white),
@@ -74,6 +76,7 @@ class ConfirmationButtons extends StatelessWidget {
         const SizedBox(width: 16),
         Expanded(
           child: ElevatedButton(
+            key: yesButtonKey,
             onPressed: onYes,
             style: ButtonStyle(
               elevation: WidgetStateProperty.all(0),

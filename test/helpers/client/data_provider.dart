@@ -10,6 +10,17 @@ class DataProvider {
   static String longGroupName = "12345687890123456789";
   //  "12345687890123456789"
 
+  static String username1 = "testUser1";
+  static String username2 = "testUser2";
+  static String usernameAdmin = "testUserAdmin";
+  static String meetingTitle1 = "testMeetingTitle1";
+  static String meetingDescr1 = "testMeetingDescription1";
+  static String dateTimePast = "2022-01-01T12:00:00.000Z";
+  static String dateTimeFuture = "2025-01-01T12:00:00.000Z";
+  static DateTime dateTimePastObj = DateTime.parse(dateTimePast);
+  static DateTime dateTimeFutureObj = DateTime.parse(dateTimeFuture);
+  static String meetingLink = "https://meet.google.com/abc-123";
+
   static String getGroupName1() {
     return groupName1;
   }

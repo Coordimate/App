@@ -19,6 +19,9 @@ const meetingsNavigationButtonKey = Key('meetingsNavigation');
 const groupsNavigationButtonKey = Key('groupsNavigation');
 const archiveButtonKey = Key('archiveButton');
 const meetingsScrollViewKey = Key('meetingCard');
+const yesButtonKey = Key('yesButton');
+const noButtonKey = Key('noButton');
+const appBarIconButtonKey = Key('appBarIconButton');
 
 //groups_page keys:
 const groupCreationWindowKey = Key('groupCreationWindow');
@@ -54,3 +57,13 @@ const groupMemberKey = Key('groupMember');
 //const groupAdminKey = Key('groupAdmin');
 const groupChatButtonKey = Key('groupChatButton');
 const deleteGroupButtonKey = Key('deleteGroupButton');
+
+//meeting_info_page keys:
+const meetOfflineButtonKey = Key('meetOfflineButton');
+const meetingAgendaButtonKey = Key('meetingAgendaButton');
+const finishMeetingButtonKey = Key('finishMeetingButton');
+const summaryButtonKey = Key('summaryButton');
+const answerButtonsKey = Key('answerButtons');
+const attendMeetingButtonKey = Key('attendMeetingButton');
+const invitationDeclinedButtonKey = Key('invitationDeclinedButton');
+const deleteMeetingButtonKey = Key('deleteMeetingButton');
