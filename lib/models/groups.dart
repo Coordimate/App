@@ -16,17 +16,22 @@ class Group {
   });
 
   factory Group.fromJson(Map<String, dynamic> json) {
-    var group = Group(
-      id: json['id'].toString(),
-      name: json['name'],
-      adminId: json['admin']['_id'] ?? json['admin']['id'],
-      description: json['description'] ?? '',
-      groupMeetingLink: json['meeting_link'] ?? '',
-    );
-    if (json['poll'] != null) {
-      group.poll = GroupPoll.fromJson(json['poll']);
+    try {
+      var group = Group(
+        id: json['id'].toString(),
+        name: json['name'],
+        adminId: json['admin']['_id'] ?? json['admin']['id'],
+        description: json['description'] ?? '',
+        groupMeetingLink: json['meeting_link'] ?? '',
+      );
+      if (json['poll'] != null) {
+        group.poll = GroupPoll.fromJson(json['poll']);
+      }
+      return group;
+    } catch(e) {
+      throw Exception("can't parse group: $json, exception: $e");
     }
-    return group;
+
   }
 }
 
