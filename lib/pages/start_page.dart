@@ -7,6 +7,7 @@ import 'package:coordimate/pages/login_page.dart';
 import 'package:coordimate/pages/register_page.dart';
 import 'package:coordimate/controllers/auth_controller.dart';
 import 'package:coordimate/app_state.dart';
+import 'package:coordimate/widget_keys.dart';
 import 'package:flutter/material.dart';
 
 class StartPage extends StatefulWidget {
@@ -107,11 +108,19 @@ class _StartPageState extends State<StartPage> {
             const Row (
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                SquareTile(imagePath: 'lib/images/google.png', authType: AuthType.google),
+                SquareTile(
+                    key: googleTileKey,
+                    imagePath: 'lib/images/google.png',
+                    authType: AuthType.google
+                ),
 
                 SizedBox(width: 50),
 
-                SquareTile(imagePath: 'lib/images/facebook.png', authType: AuthType.facebook),
+                SquareTile(
+                    key: facebookTileKey,
+                    imagePath: 'lib/images/facebook.png',
+                    authType: AuthType.facebook
+                ),
               ],
             ),
 
