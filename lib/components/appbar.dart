@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:coordimate/components/colors.dart';
+import 'package:coordimate/widget_keys.dart';
 
 class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   final String title;
@@ -36,6 +37,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
               Padding(
                 padding: const EdgeInsets.only(right: 16.0),
                 child: IconButton(
+                  key: appBarIconButtonKey,
                   icon: Icon(buttonIcon, color: buttonColor, size: 40),
                   onPressed: onPressed,
                 ),

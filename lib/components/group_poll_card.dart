@@ -1,6 +1,5 @@
 import 'dart:convert';
 import 'dart:math' as math;
-
 import 'package:flutter/material.dart';
 import 'package:coordimate/components/appbar.dart';
 import 'package:coordimate/components/colors.dart';
