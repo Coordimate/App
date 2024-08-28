@@ -338,15 +338,16 @@ class GroupDetailsPageState extends State<GroupDetailsPage> {
                 _buildUserList(users, "Group Members")
               else
                 _buildUserList(users, "No Group Members"),
-              Container(
-                key: deleteGroupButtonKey,
-                color: white,
-                padding: const EdgeInsets.only(bottom: 16.0),
-                child: DeleteButton(
-                  itemToDelete: 'Group',
-                  showDeleteDialog: _showDeleteGroupDialog,
-                  color: orange,
-                ),
+              if (widget.group.adminId == AppState.authController.userId)
+                Container(
+                  key: deleteGroupButtonKey,
+                  color: white,
+                  padding: const EdgeInsets.only(bottom: 16.0),
+                  child: DeleteButton(
+                    itemToDelete: 'Group',
+                    showDeleteDialog: _showDeleteGroupDialog,
+                    color: orange,
+                  ),
               ),
             ],
           ),
