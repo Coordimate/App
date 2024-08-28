@@ -10,6 +10,7 @@ class DataProvider {
   static String longGroupName = "12345687890123456789";
   //  "12345687890123456789"
 
+  static String email1 = "test1@email.com";
   static String username1 = "testUser1";
   static String username2 = "testUser2";
   static String usernameAdmin = "testUserAdmin";

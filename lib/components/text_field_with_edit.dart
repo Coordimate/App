@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:coordimate/components/colors.dart';
+import 'package:coordimate/widget_keys.dart';
 
 class EditableTextField extends StatefulWidget {
   final TextEditingController controller;
@@ -169,6 +170,7 @@ class _EditableTextFieldState extends State<EditableTextField> {
         Positioned(
           right: 0,
           child: IconButton(
+            key: editTextFieldButtonKey,
             onPressed: isSubmitEnabled
                 ? () {
                     if (isEditing) {

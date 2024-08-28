@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 const loginButtonKey = Key('loginButton');
 const registerButtonKey = Key('registerButton');
 const emailFieldKey = Key('email');
+const oldPasswordFieldKey = Key('oldPassword');
 const passwordFieldKey = Key('password');
 const confirmPasswordFieldKey = Key('confirmPassword');
 const usernameFieldKey = Key('username');
@@ -67,3 +68,10 @@ const answerButtonsKey = Key('answerButtons');
 const attendMeetingButtonKey = Key('attendMeetingButton');
 const invitationDeclinedButtonKey = Key('invitationDeclinedButton');
 const deleteMeetingButtonKey = Key('deleteMeetingButton');
+
+//personal info page keys:
+const randomCoffeeButtonKey = Key('randomCoffee');
+const changePasswordButtonKey = Key('changePassword');
+const logoutButtonKey = Key('logoutButton');
+const deleteUserButtonKey = Key('deleteUserButton');
+const editTextFieldButtonKey = Key('editTextFieldButton');

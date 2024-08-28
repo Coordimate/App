@@ -414,8 +414,71 @@ void main() {
       expect(find.text('Delete Meeting'), findsOneWidget);
     });
 
-    testWidgets('change date and time for meeting', (WidgetTester tester) async {
-    // TODO: implement test
+    testWidgets('change date of meeting', (WidgetTester tester) async {
+      when(mockAuthController.userId).thenReturn('1');
+
+      final mockPickedDate = DataProvider.dateTimeFutureObj.add(const Duration(days: 1));
+      // Override the `showDatePicker` method using `TestDefaultBinaryMessengerBinding`
+      TestWidgetsFlutterBinding.ensureInitialized();
+
+      await tester.pumpWidget(MaterialApp(
+        home: MeetingDetailsPage(meeting: mockMeetingDetails3),
+      ));
+
+      final datePickerField = find.text(
+          mockMeetingDetails3.getFormattedDate(DataProvider.dateTimeFutureObj));
+
+      expect(datePickerField, findsOneWidget);
+
+      await tester.tap(datePickerField);
+      await tester.pumpAndSettle();
+
+      final nextDay = find.text('2');
+      expect(nextDay, findsOneWidget);
+      await tester.tap(nextDay);
+      await tester.pumpAndSettle();
+      final okButton  = find.text('OK');
+      expect(okButton, findsOneWidget);
+      await tester.tap(okButton);
+
+      await tester.pumpAndSettle();
+
+      expect(find.text(
+          mockMeetingDetails3.getFormattedDate(mockPickedDate)),
+          findsOneWidget);
+
+      expect(datePickerField, findsNothing);
+    });
+
+    testWidgets('change time of meeting', (WidgetTester tester) async {
+      when(mockAuthController.userId).thenReturn('1');
+
+      final mockPickedDate = DataProvider.dateTimeFutureObj.add(const Duration(hours: 1));
+      // Override the `showDatePicker` method using `TestDefaultBinaryMessengerBinding`
+      TestWidgetsFlutterBinding.ensureInitialized();
+
+      await tester.pumpWidget(MaterialApp(
+        home: MeetingDetailsPage(meeting: mockMeetingDetails3),
+      ));
+
+      final timePickerField = find.text(
+          mockMeetingDetails3.getFormattedTime(DataProvider.dateTimeFutureObj));
+
+      expect(timePickerField, findsOneWidget);
+
+      await tester.tap(timePickerField);
+      await tester.pumpAndSettle();
+
+      // while (true) {
+      //   await Future.delayed(Duration(seconds: 1));
+      // }
+      //
+      // final minutes = find.text('00');
+      // expect(minutes, findsOneWidget);
+      // await tester.tap(minutes);
+      // await tester.pumpAndSettle();
+
+      // TODO: test time picker
     });
 
     testWidgets('change meeting link for meeting', (WidgetTester tester) async {

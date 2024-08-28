@@ -292,4 +292,9 @@ class AuthorizationController {
       log("Failed to download Google profile image");
     }
   }
+
+  Future<bool> checkAuthType(authType) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    return prefs.getString('sign_in_method') == signInType[authType];
+  }
 }

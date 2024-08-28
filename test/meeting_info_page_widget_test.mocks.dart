@@ -462,4 +462,13 @@ class MockAuthorizationController extends _i1.Mock
         ),
         returnValue: _i6.Future<_i12.Uint8List>.value(_i12.Uint8List(0)),
       ) as _i6.Future<_i12.Uint8List>);
+
+  @override
+  _i6.Future<bool> checkAuthType(dynamic authType) => (super.noSuchMethod(
+        Invocation.method(
+          #checkAuthType,
+          [authType],
+        ),
+        returnValue: _i6.Future<bool>.value(false),
+      ) as _i6.Future<bool>);
 }

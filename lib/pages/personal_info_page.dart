@@ -33,11 +33,6 @@ class _PersonalPageState extends State<PersonalPage> {
   var userEmail = '';
   var showChangePasswordButton = true;
 
-  Future<bool> checkAuthType() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    return prefs.getString('sign_in_method') == signInType[AuthType.email];
-  }
-
   void logOut(BuildContext context) async {
     await AppState.authController.signOut();
     if (context.mounted) {
@@ -50,7 +45,7 @@ class _PersonalPageState extends State<PersonalPage> {
     user = await AppState.userController.getInfo();
     usernameController.text = user.username;
     userEmail = user.email;
-    showChangePasswordButton = await checkAuthType();
+    showChangePasswordButton = await AppState.authController.checkAuthType(AuthType.email);
     return user;
   }
 
@@ -139,6 +134,7 @@ class _PersonalPageState extends State<PersonalPage> {
                       padding:
                           const EdgeInsets.symmetric(horizontal: horPadding),
                       child: EditableTextField(
+                        key: usernameFieldKey,
                         controller: usernameController,
                         focusNode: focusNode,
                         onSubmit: changeUsername,
@@ -148,22 +144,26 @@ class _PersonalPageState extends State<PersonalPage> {
                     ),
                     const SizedBox(height: 8),
                     Text(userEmail,
+                        key: emailFieldKey,
                         style: const TextStyle(
                             fontSize: 20,
                             fontWeight: FontWeight.w600,
                             color: darkBlue)),
                     const SizedBox(height: 16),
                     RandomCoffeeButton(
+                      key: randomCoffeeButtonKey,
                       onTap: showRandomCoffeeDialog,
                     ),
                     if (showChangePasswordButton) const SizedBox(height: 8),
                     if (showChangePasswordButton)
                       LoginEmptyButton(
+                        key: changePasswordButtonKey,
                         text: "Change Password",
                         onTap: showChangePasswordDialog,
                       ),
                     const SizedBox(height: 8),
                     LoginButton(
+                        key: logoutButtonKey,
                         text: "Logout",
                         onTap: () {
                           logOut(context);
@@ -175,6 +175,7 @@ class _PersonalPageState extends State<PersonalPage> {
                 color: white,
                 padding: const EdgeInsets.only(bottom: 16.0),
                 child: DeleteButton(
+                  key: deleteUserButtonKey,
                   itemToDelete: 'Account',
                   showDeleteDialog: showDeleteAccountDialog,
                   color: mediumBlue,
@@ -258,6 +259,7 @@ class _ChangePasswordDialogState extends State<ChangePasswordDialog> {
           mainAxisSize: MainAxisSize.min,
           children: <Widget>[
             LoginTextField(
+              key: oldPasswordFieldKey,
               controller: oldPasswordController,
               obscureText: true,
               hintText: 'Old password',
@@ -267,6 +269,7 @@ class _ChangePasswordDialogState extends State<ChangePasswordDialog> {
             ),
             const SizedBox(height: 16),
             LoginTextField(
+              key: passwordFieldKey,
               controller: newPasswordController,
               obscureText: true,
               hintText: 'New password',
@@ -276,6 +279,7 @@ class _ChangePasswordDialogState extends State<ChangePasswordDialog> {
             ),
             const SizedBox(height: 16),
             LoginTextField(
+              key: confirmPasswordFieldKey,
               controller: repeatPasswordController,
               obscureText: true,
               hintText: 'Repeat password',
