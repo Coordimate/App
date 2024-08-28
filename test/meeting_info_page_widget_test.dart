@@ -264,6 +264,21 @@ void main() {
       expect(find.byType(SummaryPage), findsOneWidget);
       expect(find.text('Summary'), findsOneWidget);
     });
+
+    testWidgets('opens maps for offline meeting', (WidgetTester tester) async {
+      when(mockAuthController.userId).thenReturn('2');
+      when(mockMeetingController.suggestMeetingLocation('12345'))
+          .thenAnswer((_) async => 'https://www.google.com/maps/place/');
+
+      await tester.pumpWidget(MaterialApp(
+        home: MeetingDetailsPage(meeting: mockMeetingDetails1),
+      ));
+
+      expect(find.byKey(meetOfflineButtonKey), findsOneWidget);
+
+      await tester.tap(find.byKey(meetOfflineButtonKey));
+      await tester.pumpAndSettle();
+    });
   });
 
   group('Not admin user who has invitation', () {
@@ -358,9 +373,7 @@ void main() {
 
   group('Admin user', () {
 
-    testWidgets(
-        'displays meeting title, description, information, participants', (
-        WidgetTester tester) async {
+    testWidgets('displays meeting title, description, information, participants', (WidgetTester tester) async {
 
       when(mockAuthController.userId).thenReturn('1');
 
@@ -400,6 +413,34 @@ void main() {
 
       expect(find.text('Delete Meeting'), findsOneWidget);
     });
+
+    testWidgets('change date and time for meeting', (WidgetTester tester) async {
+    // TODO: implement test
+    });
+
+    testWidgets('change meeting link for meeting', (WidgetTester tester) async {
+      final scaffoldMessengerKey = GlobalKey<ScaffoldMessengerState>();
+      when(mockAuthController.userId).thenReturn('1');
+
+      await tester.pumpWidget(MaterialApp(
+        scaffoldMessengerKey: scaffoldMessengerKey,
+        home: MeetingDetailsPage(meeting: mockMeetingDetails3),
+      ));
+
+      expect(find.byKey(linkPlaceholderFieldKey), findsOneWidget);
+      expect(find.text(DataProvider.meetingLink), findsOneWidget);
+
+      await tester.tap(find.byKey(copyButtonKey));
+      await tester.pump();
+      expect(find.byType(SnackBar), findsOneWidget);
+      expect(find.text('Copied to clipboard'), findsOneWidget);
+
+      await tester.tap(find.byKey(shareButtonKey));
+      await tester.pumpAndSettle();
+      // expect(find.text("Copy"), findsOneWidget);
+      // TODO: test share button
+    });
+
   });
 
   group('Not admin user who declined future invitation', () {

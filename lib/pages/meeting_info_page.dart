@@ -237,6 +237,7 @@ class _MeetingDetailsPageState extends State<MeetingDetailsPage> {
                         mainAxisSize: MainAxisSize.min,
                         children: <Widget>[
                           IconButton(
+                            key: copyButtonKey,
                             onPressed: () {
                               Clipboard.setData(
                                   ClipboardData(text: textController.text));
@@ -248,6 +249,7 @@ class _MeetingDetailsPageState extends State<MeetingDetailsPage> {
                             color: darkBlue,
                           ),
                           IconButton(
+                            key: shareButtonKey,
                             onPressed: () {
                               Share.share(textController.text);
                             },
