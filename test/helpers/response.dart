@@ -37,20 +37,20 @@ void deleteResponse(client, String url, String response,
 
 void postBodyResponse(
     client, String url, Map<String, dynamic> body, String response,
-    {int statusCode = 200}) {
+    {int statusCode = 201}) {
   when(client.post(
     Uri.parse('$apiUrl$url'),
     headers: anyNamed('headers'),
     body: body,
-  )).thenAnswer((_) async => http.Response(response, 200));
+  )).thenAnswer((_) async => http.Response(response, statusCode));
 }
 
 void postResponse(
     client, String url, String response,
-    {int statusCode = 200}) {
+    {int statusCode = 201}) {
   when(client.post(
     Uri.parse('$apiUrl$url'),
     headers: anyNamed('headers'),
     body: anyNamed('body'),
-  )).thenAnswer((_) async => http.Response(response, 200));
+  )).thenAnswer((_) async => http.Response(response, statusCode));
 }
