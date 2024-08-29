@@ -352,7 +352,7 @@ class _MeetingDetailsPageState extends State<MeetingDetailsPage> {
                     padding: const EdgeInsets.only(bottom: 16.0),
                     child: DeleteButton(
                       key: deleteMeetingButtonKey,
-                      itemToDelete: 'Meeting',
+                      str: 'Delete Meeting',
                       showDeleteDialog: showDeleteMeetingDialog,
                       color: orange,
                     ),

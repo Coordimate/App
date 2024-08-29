@@ -112,6 +112,27 @@ class GroupDetailsPageState extends State<GroupDetailsPage> {
     );
   }
 
+  void _showLeaveGroupDialog() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return CustomPopUpDialog(
+          question: "Do you want to leave group \n\"${widget.group.name}\"?",
+          onYes: () async {
+            await AppState.groupController.leaveGroup(widget.group.id);
+            if (context.mounted) {
+              Navigator.of(context).pop();
+              Navigator.of(context).pop();
+            }
+          },
+          onNo: () {
+            Navigator.of(context).pop();
+          },
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     List<MeetingTileModel> declinedMeetings = meetings
@@ -341,14 +362,25 @@ class GroupDetailsPageState extends State<GroupDetailsPage> {
               if (widget.group.adminId == AppState.authController.userId)
                 Container(
                   key: deleteGroupButtonKey,
-                  color: white,
+                  // color: white,
                   padding: const EdgeInsets.only(bottom: 16.0),
                   child: DeleteButton(
-                    itemToDelete: 'Group',
+                    str: 'Delete Group',
                     showDeleteDialog: _showDeleteGroupDialog,
                     color: orange,
-                  ),
-              ),
+                  )
+                )
+              else
+                Container(
+                  key: leaveGroupButtonKey,
+                  // color: white,
+                  padding: const EdgeInsets.only(bottom: 16.0),
+                  child: DeleteButton(
+                    str: 'Leave Group',
+                    showDeleteDialog: _showLeaveGroupDialog,
+                    color: orange,
+                  )
+                ),
             ],
           ),
         ),

@@ -178,7 +178,7 @@ class _PersonalPageState extends State<PersonalPage> {
                 padding: const EdgeInsets.only(bottom: 16.0),
                 child: DeleteButton(
                   key: deleteUserButtonKey,
-                  itemToDelete: 'Account',
+                  str: 'Delete Account',
                   showDeleteDialog: showDeleteAccountDialog,
                   color: mediumBlue,
                 ),

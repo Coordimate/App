@@ -102,6 +102,17 @@ class GroupController {
     }
   }
 
+  Future<void> leaveGroup(String id) async {
+    var url = Uri.parse("$apiUrl/groups/$id/leave");
+    final response = await AppState.client.post(url,
+        headers: {
+          "Content-Type": "application/json",
+        });
+    if (response.statusCode != 200) {
+      throw Exception('Failed to leave group');
+    }
+  }
+
   Future<List<UserCard>> fetchGroupUsers(id) async {
     final response = await AppState.client.get(Uri.parse("$apiUrl/groups/$id"));
 
