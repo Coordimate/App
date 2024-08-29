@@ -140,6 +140,8 @@ class _PersonalPageState extends State<PersonalPage> {
                         onSubmit: changeUsername,
                         fontSize: usernameFontSize, // not required
                         padding: horPadding, // not required
+                        minChars: 1,
+                        maxLength: 20,
                       ),
                     ),
                     const SizedBox(height: 8),
