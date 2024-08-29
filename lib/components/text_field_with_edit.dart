@@ -115,7 +115,7 @@ class _EditableTextFieldState extends State<EditableTextField> {
 
   @override
   Widget build(BuildContext context) {
-    bool isSubmitEnabled = (widget.minChars == null && widget.controller.text.trim().length > 1) ||
+    bool isSubmitEnabled = widget.minChars == null ||
         widget.controller.text.trim().length >= widget.minChars!;
     String displayedText = widget.controller.text.isNotEmpty
         ? widget.controller.text
