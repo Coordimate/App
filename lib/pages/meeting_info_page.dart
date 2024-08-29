@@ -186,20 +186,10 @@ class _MeetingDetailsPageState extends State<MeetingDetailsPage> {
                 ),
                 child: Column(
                   children: <Widget>[
-                    GestureDetector(
-                      onTap: () async {
-                        if (isAdmin) _selectDate();
-                      },
-                      child: buildInfoRow(Icons.calendar_today, "Date",
+                    buildInfoRow(Icons.calendar_today, "Date",
                           widget.meeting.getFormattedDate(dateTime)),
-                    ),
-                    GestureDetector(
-                      onTap: () async {
-                        if (isAdmin) _selectTime();
-                      },
-                      child: buildInfoRow(Icons.access_time, "Time",
+                    buildInfoRow(Icons.access_time, "Time",
                           widget.meeting.getFormattedTime(dateTime)),
-                    ),
                     buildInfoRow(
                         Icons.group, "Group", widget.meeting.groupName),
                     buildInfoRow(
@@ -363,90 +353,6 @@ class _MeetingDetailsPageState extends State<MeetingDetailsPage> {
         ),
       ),
     );
-  }
-
-  Future<void> _selectDate() async {
-    final DateTime? pickedDate = await showDatePicker(
-      context: context,
-      initialDate: widget.meeting.dateTime,
-      firstDate: DateTime.now(),
-      lastDate: DateTime.now().add(const Duration(days: 365)),
-      builder: (BuildContext context, Widget? child) {
-        return Theme(
-          data: ThemeData.light().copyWith(
-            colorScheme: const ColorScheme.light(
-                primary: lightBlue,
-                onPrimary: darkBlue,
-                onSurface: darkBlue,
-                surfaceTint: Colors.white),
-            textButtonTheme: TextButtonThemeData(
-              style: TextButton.styleFrom(
-                foregroundColor: darkBlue,
-              ),
-            ),
-          ),
-          child: child!,
-        );
-      },
-    );
-    if (pickedDate != null) {
-      var selectedDateTime = DateTime(
-        pickedDate.year,
-        pickedDate.month,
-        pickedDate.day,
-        widget.meeting.dateTime.hour,
-        widget.meeting.dateTime.minute,
-      );
-      await AppState.meetingController.updateMeetingTime(
-          widget.meeting.id,
-          selectedDateTime.toUtc().toIso8601String(),
-          widget.meeting.duration,
-          widget.meeting.googleEventId);
-      setState(() {
-        dateTime = selectedDateTime;
-      });
-    }
-  }
-
-  Future<void> _selectTime() async {
-    final TimeOfDay? pickedTime = await showTimePicker(
-      context: context,
-      initialTime: TimeOfDay.fromDateTime(widget.meeting.dateTime),
-      builder: (BuildContext context, Widget? child) {
-        return Theme(
-          data: ThemeData.light().copyWith(
-            colorScheme: const ColorScheme.light(
-                primary: lightBlue,
-                onPrimary: darkBlue,
-                onSurface: darkBlue,
-                surfaceTint: Colors.white),
-            textButtonTheme: TextButtonThemeData(
-              style: TextButton.styleFrom(
-                foregroundColor: darkBlue,
-              ),
-            ),
-          ),
-          child: child!,
-        );
-      },
-    );
-    if (pickedTime != null) {
-      var selectedDateTime = DateTime(
-        widget.meeting.dateTime.year,
-        widget.meeting.dateTime.month,
-        widget.meeting.dateTime.day,
-        pickedTime.hour,
-        pickedTime.minute,
-      );
-      await AppState.meetingController.updateMeetingTime(
-          widget.meeting.id,
-          selectedDateTime.toUtc().toIso8601String(),
-          widget.meeting.duration,
-          widget.meeting.googleEventId);
-      setState(() {
-        dateTime = selectedDateTime;
-      });
-    }
   }
 
   Widget buildInfoRow(IconData icon, String title, String value) {
