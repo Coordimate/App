@@ -93,9 +93,9 @@ class _EditableTextFieldState extends State<EditableTextField> {
   }
 
   void _validateAndSubmit() {
-    final str = widget.controller.text.trim();
+    widget.controller.text = widget.controller.text.trim();
     if (widget.minChars != null &&
-        str.length < widget.minChars!) {
+        widget.controller.text.length < widget.minChars!) {
       setState(() {
         errorText = widget.errorMessage ??
             'Minimum ${widget.minChars} characters required';
@@ -106,10 +106,10 @@ class _EditableTextFieldState extends State<EditableTextField> {
     } else {
       setState(() {
         errorText = null;
-        lastValidValue = str;
+        lastValidValue = widget.controller.text;
         isEditing = false;
       });
-      widget.onSubmit(str);
+      widget.onSubmit(widget.controller.text);
     }
   }
 

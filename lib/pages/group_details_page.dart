@@ -133,6 +133,26 @@ class GroupDetailsPageState extends State<GroupDetailsPage> {
     );
   }
 
+  void _showRemoveUserDialog(username, userId) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return CustomPopUpDialog(
+          question: "Do you want to remove \n\"$username\"?",
+          onYes: () async {
+            await AppState.groupController.removeUser(widget.group.id, userId);
+            if (context.mounted) {
+              _fetchUsers();
+            }
+          },
+          onNo: () {
+            Navigator.of(context).pop();
+          },
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     List<MeetingTileModel> declinedMeetings = meetings
@@ -150,6 +170,9 @@ class GroupDetailsPageState extends State<GroupDetailsPage> {
     List<MeetingTileModel> archivedMeetings =
         acceptedPassedMeetings + declinedMeetings;
     archivedMeetings.sort((a, b) => b.dateTime.compareTo(a.dateTime));
+
+    final isAdmin = widget.group.adminId == AppState.authController.userId;
+
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: CustomAppBar(
@@ -349,8 +372,7 @@ class GroupDetailsPageState extends State<GroupDetailsPage> {
                   groupId: widget.group.id,
                   initialPoll: poll,
                   fontSize: universalFontSize,
-                  isAdmin:
-                      widget.group.adminId == AppState.authController.userId),
+                  isAdmin: isAdmin),
               const SizedBox(height: 16.0),
               _buildMeetingList(
                   acceptedFutureMeetings, "Group Schedule", true, 80),
@@ -359,7 +381,7 @@ class GroupDetailsPageState extends State<GroupDetailsPage> {
                 _buildUserList(users, "Group Members")
               else
                 _buildUserList(users, "No Group Members"),
-              if (widget.group.adminId == AppState.authController.userId)
+              if (isAdmin)
                 Container(
                   key: deleteGroupButtonKey,
                   // color: white,
@@ -526,6 +548,8 @@ class GroupDetailsPageState extends State<GroupDetailsPage> {
   }
 
   Widget _buildUserList(List<UserCard> users, String title) {
+    final isAdmin = widget.group.adminId == AppState.authController.userId;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
@@ -559,12 +583,17 @@ class GroupDetailsPageState extends State<GroupDetailsPage> {
                       key: Key('avatar${users[index].id}'),
                       userId: users[index].id,
                       size: 40),
-                  trailing: Text(
-                      users[index].id == widget.group.adminId ? "admin" : "",
-                      style: const TextStyle(
+                  trailing: users[index].id == widget.group.adminId
+                      ? const Text(
+                        "admin",
+                        style: TextStyle(
                         fontSize: 16,
-                        color: darkBlue,
-                      )),
+                        color: darkBlue))
+                      : ( isAdmin ? IconButton(
+                        onPressed: () {
+                          _showRemoveUserDialog(users[index].username, users[index].id);
+                          },
+                        icon: const Icon(Icons.close, color: darkBlue)) : const SizedBox()),
                   title: Text(
                     users[index].username,
                     style: const TextStyle(
