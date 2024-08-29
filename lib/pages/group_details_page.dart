@@ -256,7 +256,7 @@ class GroupDetailsPageState extends State<GroupDetailsPage> {
                             IconButton(
                               key: shareButtonKey,
                               onPressed: () {
-                                if (textController.text != null && textController.text.isNotEmpty) {
+                                if (textController.text.isNotEmpty) {
                                   Share.share(textController.text);
                                 }
                               },
@@ -440,15 +440,15 @@ class GroupDetailsPageState extends State<GroupDetailsPage> {
                             vertical: 4, horizontal: 16),
                         // margin: const EdgeInsets.symmetric(horizontal: 20),
                         decoration: BoxDecoration(
-                          color: Colors.white,
-                          border: Border.all(color: darkBlue, width: 2),
+                          color: mediumBlue,
+                          border: Border.all(color: mediumBlue, width: 2),
                           borderRadius: BorderRadius.circular(10),
                         ),
                         child: Center(
                           child: Text(
                             title,
                             style: const TextStyle(
-                              color: darkBlue,
+                              color: Colors.white,
                               fontSize: 24,
                               // fontWeight: FontWeight.bold
                             ),
