@@ -2,11 +2,11 @@ import 'package:coordimate/app_state.dart';
 import 'package:coordimate/pages/groups_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'test.mocks.dart';
-import 'helpers/set_appstate.dart';
-import 'helpers/when.dart';
-import 'helpers/client/groups.dart';
-import 'helpers/client/data_provider.dart';
+import '../test.mocks.dart';
+import '../helpers/set_appstate.dart';
+import '../helpers/when.dart';
+import '../helpers/client/groups.dart';
+import '../helpers/client/data_provider.dart';
 import 'package:coordimate/widget_keys.dart';
 
 void main() {

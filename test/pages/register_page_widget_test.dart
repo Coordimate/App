@@ -8,7 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
 import 'package:mockito/mockito.dart';
-import 'test.mocks.dart';
+import '../test.mocks.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();

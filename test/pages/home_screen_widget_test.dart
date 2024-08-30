@@ -5,10 +5,10 @@ import 'package:coordimate/screens/home_screen.dart';
 import 'package:coordimate/widget_keys.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'helpers/client/groups.dart';
-import 'helpers/set_appstate.dart';
-import 'helpers/when.dart';
-import 'test.mocks.dart';
+import '../helpers/client/groups.dart';
+import '../helpers/set_appstate.dart';
+import '../helpers/when.dart';
+import '../test.mocks.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();

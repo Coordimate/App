@@ -3,7 +3,7 @@ import 'package:coordimate/controllers/auth_controller.dart';
 import 'package:coordimate/pages/start_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'test.mocks.dart';
+import '../test.mocks.dart';
 import 'package:coordimate/widget_keys.dart';
 import 'package:mockito/mockito.dart';
 

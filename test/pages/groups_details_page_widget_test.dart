@@ -3,10 +3,10 @@ import 'package:coordimate/pages/groups_page.dart';
 import 'package:coordimate/pages/group_details_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'test.mocks.dart';
-import 'helpers/set_appstate.dart';
-import 'helpers/when.dart';
-import 'helpers/client/groups.dart';
+import '../test.mocks.dart';
+import '../helpers/set_appstate.dart';
+import '../helpers/when.dart';
+import '../helpers/client/groups.dart';
 import 'package:coordimate/widget_keys.dart';
 
 void main() {
