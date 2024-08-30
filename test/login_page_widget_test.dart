@@ -5,15 +5,11 @@ import 'package:coordimate/widget_keys.dart';
 import 'package:coordimate/pages/login_page.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mockito/annotations.dart';
 import 'package:http/http.dart' as http;
 import 'package:mockito/mockito.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'login_page_widget_test.mocks.dart';
+import 'test.mocks.dart';
 
-@GenerateMocks([http.Client, FlutterSecureStorage, SharedPreferences, FirebaseMessaging])
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 

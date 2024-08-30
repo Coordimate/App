@@ -3,22 +3,14 @@ import 'package:coordimate/keys.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
-
-import 'package:firebase_messaging/firebase_messaging.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import 'package:mockito/annotations.dart';
 import 'package:http/http.dart' as http;
-import 'package:shared_preferences/shared_preferences.dart';
-import 'random_coffee_dialog_widget_test.mocks.dart';
-
+import '../test.mocks.dart';
 import 'package:coordimate/app_state.dart';
 import 'package:coordimate/models/user.dart';
 import 'package:coordimate/components/random_coffee_dialog.dart';
 import '../helpers/set_appstate.dart';
 import '../helpers/when.dart';
 
-@GenerateMocks(
-    [http.Client, FlutterSecureStorage, SharedPreferences, FirebaseMessaging])
 void main() {
   final firebase = MockFirebaseMessaging();
   final client = MockClient();

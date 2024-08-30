@@ -1,17 +1,11 @@
-import 'package:coordimate/controllers/meeting_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:integration_test/integration_test.dart';
 import 'package:mockito/mockito.dart';
-
-import 'package:mockito/annotations.dart';
-
 import 'package:coordimate/components/agenda.dart';
 import 'package:coordimate/models/agenda_point.dart';
 import 'package:coordimate/app_state.dart';
-import 'agenda_widget_test.mocks.dart';
+import '../test.mocks.dart';
 
-@GenerateMocks([MeetingController])
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 

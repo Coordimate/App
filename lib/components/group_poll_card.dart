@@ -91,7 +91,6 @@ class _CreateGroupPollPageState extends State<CreateGroupPollPage> {
         width: 90,
         height: 50,
         child: FloatingActionButton(
-
           onPressed: createPoll,
           backgroundColor: mediumBlue,
           foregroundColor: white,

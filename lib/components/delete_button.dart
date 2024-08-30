@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:coordimate/components/colors.dart';
 
 class DeleteButton extends StatelessWidget {
   final String str;

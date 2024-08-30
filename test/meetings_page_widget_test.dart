@@ -1,19 +1,13 @@
 import 'package:coordimate/components/meeting_tiles.dart';
 import 'package:coordimate/pages/meetings_page.dart';
 import 'package:coordimate/widget_keys.dart';
-import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mockito/annotations.dart';
-import 'package:http/http.dart' as http;
-import 'package:shared_preferences/shared_preferences.dart';
 import 'helpers/client/meetings.dart';
 import 'helpers/set_appstate.dart';
 import 'helpers/when.dart';
-import 'meetings_page_widget_test.mocks.dart';
+import 'test.mocks.dart';
 
-@GenerateMocks([http.Client, FlutterSecureStorage, SharedPreferences, FirebaseMessaging])
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 

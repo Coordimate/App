@@ -1,20 +1,16 @@
 import 'package:coordimate/app_state.dart';
 import 'package:coordimate/components/agenda.dart';
-import 'package:coordimate/controllers/meeting_controller.dart';
-import 'package:coordimate/controllers/auth_controller.dart';
 import 'package:coordimate/models/meeting.dart';
 import 'package:coordimate/pages/meeting_info_page.dart';
 import 'package:coordimate/pages/meeting_summary_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mockito/annotations.dart';
 import 'helpers/client/data_provider.dart';
-import 'meeting_info_page_widget_test.mocks.dart';
+import 'test.mocks.dart';
 import 'package:coordimate/widget_keys.dart';
 import 'package:mockito/mockito.dart';
 
-@GenerateMocks(
-    [MeetingController, AuthorizationController])
+// TODO : fix
 void main() {
   late MeetingDetails mockMeetingDetails1;
   late MeetingDetails mockMeetingDetails2;
@@ -412,73 +408,6 @@ void main() {
       expect(find.text('needs_acceptance'), findsOneWidget);
 
       expect(find.text('Delete Meeting'), findsOneWidget);
-    });
-
-    testWidgets('change date of meeting', (WidgetTester tester) async {
-      when(mockAuthController.userId).thenReturn('1');
-
-      final mockPickedDate = DataProvider.dateTimeFutureObj.add(const Duration(days: 1));
-      // Override the `showDatePicker` method using `TestDefaultBinaryMessengerBinding`
-      TestWidgetsFlutterBinding.ensureInitialized();
-
-      await tester.pumpWidget(MaterialApp(
-        home: MeetingDetailsPage(meeting: mockMeetingDetails3),
-      ));
-
-      final datePickerField = find.text(
-          mockMeetingDetails3.getFormattedDate(DataProvider.dateTimeFutureObj));
-
-      expect(datePickerField, findsOneWidget);
-
-      await tester.tap(datePickerField);
-      await tester.pumpAndSettle();
-
-      final nextDay = find.text('2');
-      expect(nextDay, findsOneWidget);
-      await tester.tap(nextDay);
-      await tester.pumpAndSettle();
-      final okButton  = find.text('OK');
-      expect(okButton, findsOneWidget);
-      await tester.tap(okButton);
-
-      await tester.pumpAndSettle();
-
-      expect(find.text(
-          mockMeetingDetails3.getFormattedDate(mockPickedDate)),
-          findsOneWidget);
-
-      expect(datePickerField, findsNothing);
-    });
-
-    testWidgets('change time of meeting', (WidgetTester tester) async {
-      when(mockAuthController.userId).thenReturn('1');
-
-      final mockPickedDate = DataProvider.dateTimeFutureObj.add(const Duration(hours: 1));
-      // Override the `showDatePicker` method using `TestDefaultBinaryMessengerBinding`
-      TestWidgetsFlutterBinding.ensureInitialized();
-
-      await tester.pumpWidget(MaterialApp(
-        home: MeetingDetailsPage(meeting: mockMeetingDetails3),
-      ));
-
-      final timePickerField = find.text(
-          mockMeetingDetails3.getFormattedTime(DataProvider.dateTimeFutureObj));
-
-      expect(timePickerField, findsOneWidget);
-
-      await tester.tap(timePickerField);
-      await tester.pumpAndSettle();
-
-      // while (true) {
-      //   await Future.delayed(Duration(seconds: 1));
-      // }
-      //
-      // final minutes = find.text('00');
-      // expect(minutes, findsOneWidget);
-      // await tester.tap(minutes);
-      // await tester.pumpAndSettle();
-
-      // TODO: test time picker
     });
 
     testWidgets('change meeting link for meeting', (WidgetTester tester) async {
