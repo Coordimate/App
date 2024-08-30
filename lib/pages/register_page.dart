@@ -32,11 +32,13 @@ class _RegisterPageState extends State<RegisterPage> {
   final String backgroundImage = 'lib/images/circles2.png';
 
   final _formKey = GlobalKey<FormState>();
+  bool _isLoading = false;
 
   void registerUser() async {
     if (_formKey.currentState!.validate() == false) {
       return ;
     }
+    setState(() {_isLoading = true;});
     // isEmpty is checked in the form validation
     if (passwordController.text.isNotEmpty && emailController.text.isNotEmpty && usernameController.text.isNotEmpty && confirmPasswordController.text.isNotEmpty) {
       if (passwordController.text == confirmPasswordController.text) {
@@ -83,6 +85,7 @@ class _RegisterPageState extends State<RegisterPage> {
     } else {
       log("Please fill all fields");
     }
+    setState(() {_isLoading = false;});
   }
 
   void _goToLogInPage() {
@@ -182,7 +185,7 @@ class _RegisterPageState extends State<RegisterPage> {
 
                                 LoginButton(
                                     key: registerButtonKey,
-                                    onTap: registerUser,
+                                    onTap: _isLoading ? null : registerUser,
                                     text: "Register"
                                 ),
                               ],

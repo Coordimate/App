@@ -28,10 +28,13 @@ class _LoginPageState extends State<LoginPage> {
 
   final _formKey = GlobalKey<FormState>();
 
+  bool _isLoading = false;
+
   Future<void> signUserIn() async {
     if (_formKey.currentState!.validate() == false) {
       return;
     }
+    setState(() {_isLoading = true;});
     if (passwordController.text.isNotEmpty && emailController.text.isNotEmpty) {
       final signInOK = await AppState.authController.signIn(
           emailController.text, AuthType.email, password : passwordController.text);
@@ -48,6 +51,7 @@ class _LoginPageState extends State<LoginPage> {
           showDialog(
             context: context,
             builder: (BuildContext context) {
+              _isLoading = false;
               return const CustomAlertDialog(
                 key: alertDialogKey,
                 title: 'Sign In Failed',
@@ -58,6 +62,7 @@ class _LoginPageState extends State<LoginPage> {
         }
       }
     }
+    setState(() {_isLoading = false;});
   }
 
   void _goToRegisterPage() {
@@ -140,7 +145,7 @@ class _LoginPageState extends State<LoginPage> {
                     const SizedBox(height: 24),
                     LoginButton(
                       key: loginButtonKey,
-                      onTap: signUserIn,
+                      onTap: _isLoading ? null : signUserIn,
                       text: "Log In"
                     ),
                   ],

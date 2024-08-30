@@ -49,6 +49,8 @@ class GroupDetailsPageState extends State<GroupDetailsPage> {
 
   final textController = TextEditingController();
 
+  bool _isLoading = false;
+
   @override
   void initState() {
     super.initState();
@@ -78,6 +80,7 @@ class GroupDetailsPageState extends State<GroupDetailsPage> {
   }
 
   void _onCreateMeeting() {
+    setState(() {_isLoading = true;});
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -87,6 +90,7 @@ class GroupDetailsPageState extends State<GroupDetailsPage> {
       },
     ).then((_) async {
       await _fetchMeetings();
+      setState(() {_isLoading = false;});
     });
   }
 
@@ -219,9 +223,7 @@ class GroupDetailsPageState extends State<GroupDetailsPage> {
                     key: createMeetingButtonKey,
                     icon: const Icon(Icons.add_circle_outline_rounded),
                     iconSize: 43.0,
-                    onPressed: () {
-                      _onCreateMeeting();
-                    },
+                    onPressed: _isLoading ? null : _onCreateMeeting
                   ),
                 ],
               ),

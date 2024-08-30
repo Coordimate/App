@@ -31,6 +31,8 @@ class CreateMeetingDialogState extends State<CreateMeetingDialog> {
   final TextEditingController titleController = TextEditingController();
   final TextEditingController descriptionController = TextEditingController();
 
+  bool _isLoading = false;
+
   Future<void> _selectDate() async {
     final DateTime? pickedDate = await showDatePicker(
       context: context,
@@ -246,7 +248,7 @@ class CreateMeetingDialogState extends State<CreateMeetingDialog> {
           ),
           actions: <Widget>[
             ConfirmationButtons(
-              onYes: () async {
+              onYes: _isLoading ? () {} : () async {
                 if (formKey.currentState!.validate() == false) {
                   return;
                 }
@@ -259,6 +261,7 @@ class CreateMeetingDialogState extends State<CreateMeetingDialog> {
                     flushbarPosition: FlushbarPosition.TOP,
                   ).show(context);
                 } else {
+                  setState(() { _isLoading = true; });
                   await AppState.meetingController.createMeeting(
                       titleController.text,
                       selectedDate.toIso8601String(),
@@ -269,6 +272,7 @@ class CreateMeetingDialogState extends State<CreateMeetingDialog> {
                   if (context.mounted) {
                     Navigator.of(context).pop();
                   }
+                  setState(() { _isLoading = false; });
                 }
               },
               onNo: () {
