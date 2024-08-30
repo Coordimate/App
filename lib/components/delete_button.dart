@@ -2,13 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:coordimate/components/colors.dart';
 
 class DeleteButton extends StatelessWidget {
-  final String itemToDelete;
+  final String str;
   final VoidCallback showDeleteDialog;
   final Color color;
 
   const DeleteButton({
     super.key,
-    required this.itemToDelete,
+    required this.str,
     required this.showDeleteDialog,
     required this.color
   });
@@ -18,7 +18,7 @@ class DeleteButton extends StatelessWidget {
     return TextButton(
         onPressed: showDeleteDialog,
         child: Text(
-          'Delete $itemToDelete',
+          str,
           style: TextStyle(
               color: color,
               fontSize: 20,

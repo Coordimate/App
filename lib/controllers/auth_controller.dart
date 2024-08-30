@@ -130,7 +130,6 @@ class AuthorizationController {
       default:
         return false;
     }
-    // TODO: register google and facebook users if they can't login yet
 
     final response = await plainClient.post(
       Uri.parse("$apiUrl/login"),

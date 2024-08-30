@@ -13,7 +13,6 @@ import 'package:coordimate/controllers/auth_controller.dart';
 import 'package:coordimate/app_state.dart';
 import 'package:coordimate/models/user.dart';
 import 'package:coordimate/components/login_text_field.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:coordimate/widget_keys.dart';
 
 class PersonalPage extends StatefulWidget {
@@ -123,7 +122,7 @@ class _PersonalPageState extends State<PersonalPage> {
             return Scaffold(
               backgroundColor: white,
               appBar:
-                  const CustomAppBar(title: 'Personal Page', needButton: false),
+                  const CustomAppBar(title: 'Settings', needButton: false),
               body: Center(
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -140,6 +139,8 @@ class _PersonalPageState extends State<PersonalPage> {
                         onSubmit: changeUsername,
                         fontSize: usernameFontSize, // not required
                         padding: horPadding, // not required
+                        minChars: 1,
+                        maxLength: 20,
                       ),
                     ),
                     const SizedBox(height: 8),
@@ -176,7 +177,7 @@ class _PersonalPageState extends State<PersonalPage> {
                 padding: const EdgeInsets.only(bottom: 16.0),
                 child: DeleteButton(
                   key: deleteUserButtonKey,
-                  itemToDelete: 'Account',
+                  str: 'Delete Account',
                   showDeleteDialog: showDeleteAccountDialog,
                   color: mediumBlue,
                 ),

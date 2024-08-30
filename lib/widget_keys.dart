@@ -58,6 +58,7 @@ const groupMemberKey = Key('groupMember');
 //const groupAdminKey = Key('groupAdmin');
 const groupChatButtonKey = Key('groupChatButton');
 const deleteGroupButtonKey = Key('deleteGroupButton');
+const leaveGroupButtonKey = Key('leaveGroupButton');
 
 //meeting_info_page keys:
 const meetOfflineButtonKey = Key('meetOfflineButton');

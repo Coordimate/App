@@ -112,6 +112,47 @@ class GroupDetailsPageState extends State<GroupDetailsPage> {
     );
   }
 
+  void _showLeaveGroupDialog() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return CustomPopUpDialog(
+          question: "Do you want to leave group \n\"${widget.group.name}\"?",
+          onYes: () async {
+            await AppState.groupController.leaveGroup(widget.group.id);
+            if (context.mounted) {
+              Navigator.of(context).pop();
+              Navigator.of(context).pop();
+            }
+          },
+          onNo: () {
+            Navigator.of(context).pop();
+          },
+        );
+      },
+    );
+  }
+
+  void _showRemoveUserDialog(username, userId) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return CustomPopUpDialog(
+          question: "Do you want to remove \n\"$username\"?",
+          onYes: () async {
+            await AppState.groupController.removeUser(widget.group.id, userId);
+            if (context.mounted) {
+              _fetchUsers();
+            }
+          },
+          onNo: () {
+            Navigator.of(context).pop();
+          },
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     List<MeetingTileModel> declinedMeetings = meetings
@@ -129,6 +170,9 @@ class GroupDetailsPageState extends State<GroupDetailsPage> {
     List<MeetingTileModel> archivedMeetings =
         acceptedPassedMeetings + declinedMeetings;
     archivedMeetings.sort((a, b) => b.dateTime.compareTo(a.dateTime));
+
+    final isAdmin = widget.group.adminId == AppState.authController.userId;
+
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: CustomAppBar(
@@ -256,7 +300,7 @@ class GroupDetailsPageState extends State<GroupDetailsPage> {
                             IconButton(
                               key: shareButtonKey,
                               onPressed: () {
-                                if (textController.text != null && textController.text.isNotEmpty) {
+                                if (textController.text.isNotEmpty) {
                                   Share.share(textController.text);
                                 }
                               },
@@ -328,8 +372,7 @@ class GroupDetailsPageState extends State<GroupDetailsPage> {
                   groupId: widget.group.id,
                   initialPoll: poll,
                   fontSize: universalFontSize,
-                  isAdmin:
-                      widget.group.adminId == AppState.authController.userId),
+                  isAdmin: isAdmin),
               const SizedBox(height: 16.0),
               _buildMeetingList(
                   acceptedFutureMeetings, "Group Schedule", true, 80),
@@ -338,17 +381,28 @@ class GroupDetailsPageState extends State<GroupDetailsPage> {
                 _buildUserList(users, "Group Members")
               else
                 _buildUserList(users, "No Group Members"),
-              if (widget.group.adminId == AppState.authController.userId)
+              if (isAdmin)
                 Container(
                   key: deleteGroupButtonKey,
-                  color: white,
+                  // color: white,
                   padding: const EdgeInsets.only(bottom: 16.0),
                   child: DeleteButton(
-                    itemToDelete: 'Group',
+                    str: 'Delete Group',
                     showDeleteDialog: _showDeleteGroupDialog,
                     color: orange,
-                  ),
-              ),
+                  )
+                )
+              else
+                Container(
+                  key: leaveGroupButtonKey,
+                  // color: white,
+                  padding: const EdgeInsets.only(bottom: 16.0),
+                  child: DeleteButton(
+                    str: 'Leave Group',
+                    showDeleteDialog: _showLeaveGroupDialog,
+                    color: orange,
+                  )
+                ),
             ],
           ),
         ),
@@ -440,15 +494,15 @@ class GroupDetailsPageState extends State<GroupDetailsPage> {
                             vertical: 4, horizontal: 16),
                         // margin: const EdgeInsets.symmetric(horizontal: 20),
                         decoration: BoxDecoration(
-                          color: Colors.white,
-                          border: Border.all(color: darkBlue, width: 2),
+                          color: mediumBlue,
+                          border: Border.all(color: mediumBlue, width: 2),
                           borderRadius: BorderRadius.circular(10),
                         ),
                         child: Center(
                           child: Text(
                             title,
                             style: const TextStyle(
-                              color: darkBlue,
+                              color: Colors.white,
                               fontSize: 24,
                               // fontWeight: FontWeight.bold
                             ),
@@ -494,6 +548,8 @@ class GroupDetailsPageState extends State<GroupDetailsPage> {
   }
 
   Widget _buildUserList(List<UserCard> users, String title) {
+    final isAdmin = widget.group.adminId == AppState.authController.userId;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
@@ -527,12 +583,17 @@ class GroupDetailsPageState extends State<GroupDetailsPage> {
                       key: Key('avatar${users[index].id}'),
                       userId: users[index].id,
                       size: 40),
-                  trailing: Text(
-                      users[index].id == widget.group.adminId ? "admin" : "",
-                      style: const TextStyle(
+                  trailing: users[index].id == widget.group.adminId
+                      ? const Text(
+                        "admin",
+                        style: TextStyle(
                         fontSize: 16,
-                        color: darkBlue,
-                      )),
+                        color: darkBlue))
+                      : ( isAdmin ? IconButton(
+                        onPressed: () {
+                          _showRemoveUserDialog(users[index].username, users[index].id);
+                          },
+                        icon: const Icon(Icons.close, color: darkBlue)) : const SizedBox()),
                   title: Text(
                     users[index].username,
                     style: const TextStyle(

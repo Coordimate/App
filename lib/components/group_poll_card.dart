@@ -87,13 +87,16 @@ class _CreateGroupPollPageState extends State<CreateGroupPollPage> {
           ]),
         ),
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: createPoll,
-        backgroundColor: darkBlue,
-        foregroundColor: white,
-        child: const Padding(
-            padding: EdgeInsets.symmetric(vertical: 10.0, horizontal: 10.0),
-            child: Icon(Icons.send_outlined)),
+      floatingActionButton: SizedBox(
+        width: 90,
+        height: 50,
+        child: FloatingActionButton(
+
+          onPressed: createPoll,
+          backgroundColor: mediumBlue,
+          foregroundColor: white,
+          isExtended: true,
+          child: const Text("Create", style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),),
       ),
     );
   }
@@ -471,8 +474,8 @@ class CreateGroupPollButton extends StatelessWidget {
         padding: const EdgeInsets.all(4),
         margin: const EdgeInsets.symmetric(horizontal: 20),
         decoration: BoxDecoration(
-          color: mediumBlue,
-          border: Border.all(color: mediumBlue, width: 2),
+          color: darkBlue,
+          border: Border.all(color: darkBlue, width: 2),
           borderRadius: BorderRadius.circular(10),
         ),
         child: const Center(
@@ -480,8 +483,8 @@ class CreateGroupPollButton extends StatelessWidget {
             "Create Group Poll",
             style: TextStyle(
                 color: Colors.white,
-                fontSize: 20,
-                fontWeight: FontWeight.bold
+                fontSize: 24,
+                // fontWeight: FontWeight.bold
             ),
           ),
         ),
