@@ -27,15 +27,18 @@ class ScheduleController {
     }
 
     var now = DateTime.now();
-    var slotTime = DateTime(now.year, now.month, now.day, start.floor(),
-        (60 * (start % 1)).floor());
+    var weekStart = now.subtract(Duration(
+        days: now.weekday - 1,
+        hours: now.hour,
+        minutes: now.minute));
+    var picked = weekStart.add(Duration(days: day, hours: start.floor(), minutes: (60 * (start % 1)).floor()));
 
     await AppState.client.post(Uri.parse(scheduleUrl),
         headers: {"Content-Type": "application/json"},
         body: json.encode(<String, dynamic>{
           'is_meeting': false,
-          'day': day,
-          'start': slotTime.toUtc().toString(),
+          'day': picked.toUtc().weekday - 1,
+          'start': picked.toUtc().toString(),
           'length': (60 * length).floor()
         }));
   }
