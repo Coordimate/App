@@ -21,7 +21,6 @@ import 'package:coordimate/components/text_field_with_edit.dart';
 import 'package:coordimate/components/avatar.dart';
 import 'package:coordimate/components/pop_up_dialog.dart';
 import 'package:coordimate/components/delete_button.dart';
-import 'package:coordimate/widget_keys.dart';
 
 class GroupDetailsPage extends StatefulWidget {
   final Group group;

@@ -169,17 +169,18 @@ class _PersonalPageState extends State<PersonalPage> {
                         onTap: () {
                           logOut(context);
                         }),
+                    const SizedBox(height: 8),
+                    Container(
+                      color: white,
+                      padding: const EdgeInsets.only(bottom: 16.0),
+                      child: DeleteButton(
+                        key: deleteUserButtonKey,
+                        str: 'Delete Account',
+                        showDeleteDialog: showDeleteAccountDialog,
+                        color: orange,
+                      ),
+                    ),
                   ],
-                ),
-              ),
-              bottomSheet: Container(
-                color: white,
-                padding: const EdgeInsets.only(bottom: 16.0),
-                child: DeleteButton(
-                  key: deleteUserButtonKey,
-                  str: 'Delete Account',
-                  showDeleteDialog: showDeleteAccountDialog,
-                  color: mediumBlue,
                 ),
               ),
             );

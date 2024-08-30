@@ -78,7 +78,7 @@ class _MeetingDetailsPageState extends State<MeetingDetailsPage> {
               child: Text(
                   accept
                       ? "Do you want to attend the meeting?"
-                      : "Do you want to decline the invitation?",
+                      : "Do you want to withdraw from meeting?",
                   textAlign: TextAlign.center,
                   style: const TextStyle(
                       color: darkBlue, fontWeight: FontWeight.bold))),
@@ -151,13 +151,12 @@ class _MeetingDetailsPageState extends State<MeetingDetailsPage> {
   @override
   Widget build(BuildContext context) {
   final isAdmin = widget.meeting.admin.id == AppState.authController.userId;
+  final showWithdrawOrDeleteButton = !widget.meeting.isInPast() && !widget.meeting.isFinished && !isAdmin && widget.meeting.status == MeetingStatus.accepted;
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar: CustomAppBar(
+      appBar: const CustomAppBar(
         title: '',
-        needButton: (!widget.meeting.isInPast() && !widget.meeting.isFinished && !isAdmin && widget.meeting.status == MeetingStatus.accepted),
-        buttonIcon: Icons.person_off,
-        onPressed: () { showPopUpDialog(context, false); },
+        needButton: false
       ),
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 0),
@@ -335,15 +334,14 @@ class _MeetingDetailsPageState extends State<MeetingDetailsPage> {
                   );
                 }).toList(),
               ),
-              if (isAdmin)
+              if (showWithdrawOrDeleteButton)
                 Center(
                   child: Container(
-                    color: white,
                     padding: const EdgeInsets.only(bottom: 16.0),
                     child: DeleteButton(
-                      key: deleteMeetingButtonKey,
-                      str: 'Delete Meeting',
-                      showDeleteDialog: showDeleteMeetingDialog,
+                      key: isAdmin ? deleteMeetingButtonKey : withdrawMeetingButtonKey,
+                      str: isAdmin ? 'Delete Meeting' : 'Withdraw From Meeting',
+                      showDeleteDialog: isAdmin ? showDeleteMeetingDialog : () {showPopUpDialog(context, false); },
                       color: orange,
                     ),
                   ),

@@ -58,23 +58,12 @@ class _MeetingsPageState extends State<MeetingsPage> {
 
   @override
   Widget build(BuildContext context) {
-    List<MeetingTileModel> declinedMeetings = meetings
-        .where((meeting) => meeting.status == MeetingStatus.declined
-        && !meeting.isFinished)
-        .toList();
-    List<MeetingTileModel> finishedMeetings = meetings
-        .where((meeting) => meeting.isFinished == true)
-        .toList();
     List<MeetingTileModel> newInvitations = meetings
         .where((meeting) => meeting.status == MeetingStatus.needsAcceptance
         && !meeting.isFinished)
         .toList();
     List<MeetingTileModel> acceptedMeetings = meetings
         .where((meeting) => meeting.status == MeetingStatus.accepted
-        && !meeting.isFinished)
-        .toList();
-    List<MeetingTileModel> acceptedPassedMeetings = acceptedMeetings
-        .where((meeting) => meeting.dateTime.isBefore(DateTime.now())
         && !meeting.isFinished)
         .toList();
     List<MeetingTileModel> acceptedFutureMeetings = acceptedMeetings
@@ -86,8 +75,6 @@ class _MeetingsPageState extends State<MeetingsPage> {
         || meeting.isFinished
         || meeting.isInPast())
         .toList();
-    //     acceptedPassedMeetings + declinedMeetings + finishedMeetings;
-    // archivedMeetings.sort((a, b) => b.dateTime.compareTo(a.dateTime));
     archivedMeetings.sort((a, b) =>
     b.dateTime.difference(DateTime.now()).inSeconds -
         a.dateTime.difference(DateTime.now()).inSeconds);

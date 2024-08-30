@@ -69,6 +69,7 @@ const answerButtonsKey = Key('answerButtons');
 const attendMeetingButtonKey = Key('attendMeetingButton');
 const invitationDeclinedButtonKey = Key('invitationDeclinedButton');
 const deleteMeetingButtonKey = Key('deleteMeetingButton');
+const withdrawMeetingButtonKey = Key('withdrawMeetingButton');
 
 //personal info page keys:
 const randomCoffeeButtonKey = Key('randomCoffee');
