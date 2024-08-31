@@ -402,7 +402,7 @@ class _TimePickerState extends State<_TimePicker> {
                       startTimeString = timeToString(hoursToTime(newStart));
                     });
                     await AppState.scheduleController.updateTimeSlot(widget.id,
-                        newStart, widget.length + widget.start - newStart);
+                        widget.day, newStart, widget.length + widget.start - newStart);
                     widget.refresh();
                   }
                 },
@@ -438,7 +438,7 @@ class _TimePickerState extends State<_TimePicker> {
                           timeToString(hoursToTime(widget.start + newLength));
                     });
                     await AppState.scheduleController
-                        .updateTimeSlot(widget.id, widget.start, newLength);
+                        .updateTimeSlot(widget.id, widget.day, widget.start, newLength);
                     widget.refresh();
                   }
                 },

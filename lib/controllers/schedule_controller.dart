@@ -31,7 +31,11 @@ class ScheduleController {
         days: now.weekday - 1,
         hours: now.hour,
         minutes: now.minute));
-    var picked = weekStart.add(Duration(days: day, hours: start.floor(), minutes: (60 * (start % 1)).floor()));
+    var picked = weekStart.add(Duration(
+        days: day,
+        hours: start.floor(),
+        minutes: (60 * (start % 1)).floor()
+    ));
 
     await AppState.client.post(Uri.parse(scheduleUrl),
         headers: {"Content-Type": "application/json"},
@@ -51,14 +55,21 @@ class ScheduleController {
         headers: {"Content-Type": "application/json"});
   }
 
-  Future<void> updateTimeSlot(String id, double start, double length) async {
+  Future<void> updateTimeSlot(String id, int day, double start, double length) async {
     if (!isModifiable) {
       return;
     }
 
     var now = DateTime.now();
-    var slotTime = DateTime(now.year, now.month, now.day, start.floor(),
-        (60 * (start % 1)).floor());
+    var weekStart = now.subtract(Duration(
+        days: now.weekday - 1,
+        hours: now.hour,
+        minutes: now.minute));
+    var slotTime = weekStart.add(Duration(
+        days: day,
+        hours: start.floor(),
+        minutes: (60 * (start % 1)).floor()
+    ));
 
     var resp = await AppState.client.patch(Uri.parse("$apiUrl/time_slots/$id"),
         headers: {"Content-Type": "application/json"},
