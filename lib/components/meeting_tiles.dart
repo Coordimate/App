@@ -1,10 +1,10 @@
-import 'package:coordimate/components/avatar.dart';
 import 'package:coordimate/components/invitation_action_button.dart';
 import 'package:coordimate/pages/meeting_info_page.dart';
 import 'package:coordimate/models/meeting.dart';
 import 'package:flutter/material.dart';
 import 'package:coordimate/components/colors.dart';
 import 'package:coordimate/app_state.dart';
+import 'package:coordimate/widget_keys.dart';
 
 class MeetingTile extends StatelessWidget {
   final bool isArchived;
@@ -177,14 +177,16 @@ class NewMeetingTile extends MeetingTile {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 InvitationActionButton(
-                    onPressed: onAccepted,
-                    color: lightBlue,
-                    iconPath: 'lib/images/tick.png'),
+                  key: acceptButtonKey,
+                  onPressed: onAccepted,
+                  color: lightBlue,
+                  iconPath: 'lib/images/tick.png'),
                 const SizedBox(height: 10),
                 InvitationActionButton(
-                    onPressed: onDeclined,
-                    color: orange,
-                    iconPath: 'lib/images/cross.png'),
+                  key: declineButtonKey,
+                  onPressed: onDeclined,
+                  color: orange,
+                  iconPath: 'lib/images/cross.png'),
               ],
             ),
           ),

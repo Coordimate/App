@@ -77,3 +77,7 @@ const changePasswordButtonKey = Key('changePassword');
 const logoutButtonKey = Key('logoutButton');
 const deleteUserButtonKey = Key('deleteUserButton');
 const editTextFieldButtonKey = Key('editTextFieldButton');
+
+//meetings_page keys:
+const acceptButtonKey = Key('acceptButton');
+const declineButtonKey = Key('declineButton');

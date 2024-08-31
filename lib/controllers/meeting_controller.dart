@@ -138,18 +138,6 @@ class MeetingController {
     final meetings = (json.decode(response.body)['meetings'] as List)
         .map((data) => MeetingTileModel.fromJson(data))
         .toList();
-    for (var meeting in meetings
-        .where((meeting) => !meeting.isFinished && meeting.isInPast())
-        .toList()) {
-      finishMeeting(meeting.id);
-    }
-    for (var meeting in meetings
-        .where((meeting) =>
-            meeting.status == MeetingStatus.needsAcceptance &&
-            (meeting.isInPast() || meeting.isFinished))
-        .toList()) {
-      answerInvitation(false, meeting.id);
-    }
     meetings.sort((a, b) =>
         a.dateTime.difference(DateTime.now()).inSeconds.abs() -
         b.dateTime.difference(DateTime.now()).inSeconds.abs());
