@@ -1,5 +1,3 @@
-import 'dart:math';
-
 import 'package:coordimate/app_state.dart';
 import 'package:coordimate/components/agenda.dart';
 import 'package:coordimate/components/colors.dart';
