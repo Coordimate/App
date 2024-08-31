@@ -29,6 +29,8 @@ class DataProvider {
   static String meetingTitle2 = "testMeetingTitle2";
   static String meetingTitle3 = "testMeetingTitle3";
   static String meetingDescr1 = "testMeetingDescription1";
+  static String meetingSummaryLong = "The world is changing and Tropico is moving with the times - geographical powers rise and fall and the world market is dominated by new players with new demands and offers - and you, as El Presidente, face a whole new set of challenges.";
+  static String meetingSummaryShort = "The world is changing and Tropico is moving with the times";
   static String dateTimePast = "2022-01-01T12:00:00.000Z";
   static String dateTimeFuture = "2025-01-01T12:00:00.000Z";
   static DateTime dateTimePastObj = DateTime.parse(dateTimePast);

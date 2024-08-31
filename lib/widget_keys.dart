@@ -81,3 +81,7 @@ const editTextFieldButtonKey = Key('editTextFieldButton');
 //meetings_page keys:
 const acceptButtonKey = Key('acceptButton');
 const declineButtonKey = Key('declineButton');
+
+//meeting_summary_page keys:
+const sliderKey = Key('sliderKey');
+const summaryTextFieldKey = Key('summaryTextFieldKey');
