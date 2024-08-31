@@ -52,7 +52,7 @@ void main() {
 
       await tester.pumpAndSettle();
 
-      expect(find.text("Personal Page"), findsOneWidget);
+      expect(find.text("Settings"), findsOneWidget);
       expect(find.byKey(avatarKey), findsOneWidget);
       expect(find.byKey(usernameFieldKey), findsOneWidget);
       expect(find.byKey(emailFieldKey), findsOneWidget);

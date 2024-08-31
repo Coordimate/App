@@ -107,7 +107,7 @@ void main() {
       await tester.enterText(find.byType(PollTextField).at(1), 'Option 2');
 
       // Tap the send button
-      await tester.tap(find.byIcon(Icons.send_outlined));
+      await tester.tap(find.text("Create"));
       await tester.pump();
 
       // Verify createPoll was called

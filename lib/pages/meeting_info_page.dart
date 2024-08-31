@@ -151,7 +151,7 @@ class _MeetingDetailsPageState extends State<MeetingDetailsPage> {
   @override
   Widget build(BuildContext context) {
   final isAdmin = widget.meeting.admin.id == AppState.authController.userId;
-  final showWithdrawOrDeleteButton = !widget.meeting.isInPast() && !widget.meeting.isFinished && !isAdmin && widget.meeting.status == MeetingStatus.accepted;
+  final showWithdrawOrDeleteButton = (!widget.meeting.isInPast() && !widget.meeting.isFinished && !isAdmin && widget.meeting.status == MeetingStatus.accepted) || isAdmin;
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: const CustomAppBar(

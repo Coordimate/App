@@ -195,26 +195,26 @@ void main() {
         home: MeetingDetailsPage(meeting: mockMeetingDetails1),
       ));
 
-      expect(find.byKey(appBarIconButtonKey), findsOneWidget);
+      await tester.ensureVisible(find.byKey(withdrawMeetingButtonKey));
 
-      // Click on decline meeting button and then NO
-      await tester.tap(find.byKey(appBarIconButtonKey));
+      // // Click on decline meeting button and then NO
+      await tester.tap(find.byKey(withdrawMeetingButtonKey));
       await tester.pumpAndSettle();
       expect(find.byKey(alertDialogKey), findsOneWidget);
-      expect(find.text('Do you want to decline the invitation?'), findsOneWidget);
+      expect(find.text('Do you want to withdraw from meeting?'), findsOneWidget);
       await tester.tap(find.byKey(noButtonKey));
       await tester.pumpAndSettle();
       expect(find.byKey(alertDialogKey), findsNothing);
-      expect(find.byKey(appBarIconButtonKey), findsOneWidget);
+      expect(find.byKey(withdrawMeetingButtonKey), findsOneWidget);
 
       // Click on attend meeting button and then YES
-      await tester.tap(find.byKey(appBarIconButtonKey));
+      await tester.tap(find.byKey(withdrawMeetingButtonKey));
       await tester.pumpAndSettle();
       await tester.tap(find.byKey(yesButtonKey));
       await tester.pump();
       expect(find.byType(SnackBar), findsOneWidget);
       expect(find.text('Meeting declined'), findsOneWidget);
-      expect(find.byKey(appBarIconButtonKey), findsNothing);
+      expect(find.byKey(withdrawMeetingButtonKey), findsNothing);
     });
 
     testWidgets('redirects to meeting agenda page', (WidgetTester tester) async {
