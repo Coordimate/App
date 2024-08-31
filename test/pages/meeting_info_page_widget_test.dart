@@ -1,5 +1,9 @@
+import 'dart:math';
+
 import 'package:coordimate/app_state.dart';
 import 'package:coordimate/components/agenda.dart';
+import 'package:coordimate/components/colors.dart';
+import 'package:coordimate/components/pop_up_dialog.dart';
 import 'package:coordimate/models/meeting.dart';
 import 'package:coordimate/pages/meeting_info_page.dart';
 import 'package:coordimate/pages/meeting_summary_page.dart';
@@ -10,13 +14,15 @@ import '../test.mocks.dart';
 import 'package:coordimate/widget_keys.dart';
 import 'package:mockito/mockito.dart';
 
-// TODO : fix
 void main() {
   late MeetingDetails mockMeetingDetails1;
   late MeetingDetails mockMeetingDetails2;
   late MeetingDetails mockMeetingDetails3;
   late MeetingDetails mockMeetingDetails4;
   late MeetingDetails mockMeetingDetails5;
+  late MeetingDetails mockMeetingDetails6;
+  late MeetingDetails mockMeetingDetails7;
+  late MeetingDetails mockMeetingDetails8;
   late MockMeetingController mockMeetingController;
   late MockAuthorizationController mockAuthController;
 
@@ -143,6 +149,68 @@ void main() {
       summary: 'Summary of the meeting',
       meetingLink: DataProvider.meetingLink,
     );
+    mockMeetingDetails6 = MeetingDetails(
+      id: '12345',
+      title: DataProvider.meetingTitle1,
+      description: DataProvider.meetingDescr1,
+      admin: Participant(id: '1', username: DataProvider.usernameAdmin, status: 'accepted'),
+      participants: [
+        Participant(id: '1', username: DataProvider.usernameAdmin, status: 'accepted'),
+        Participant(id: '2', username: DataProvider.username1, status: 'accepted'),
+        Participant(id: '3', username: DataProvider.username2, status: 'needs_acceptance'),
+      ],
+      status: MeetingStatus.needsAcceptance,
+      dateTime: DataProvider.dateTimePastObj,
+      duration: 60,
+      groupName: DataProvider.groupName1,
+      groupId: '1',
+      isFinished: false,
+      summary: 'Summary of the meeting',
+      meetingLink: DataProvider.meetingLink,
+    );
+    mockMeetingDetails7 = MeetingDetails(
+      id: '12345',
+      title: DataProvider.meetingTitle1,
+      description: DataProvider.meetingDescr1,
+      admin: Participant(id: '1', username: DataProvider.usernameAdmin, status: 'accepted'),
+      participants: [
+        Participant(id: '1', username: DataProvider.usernameAdmin, status: 'accepted'),
+        Participant(id: '2', username: DataProvider.username1, status: 'accepted'),
+        Participant(id: '3', username: DataProvider.username2, status: 'needs_acceptance'),
+      ],
+      status: MeetingStatus.needsAcceptance,
+      dateTime: DataProvider.dateTimeFutureObj,
+      duration: 60,
+      groupName: DataProvider.groupName1,
+      groupId: '1',
+      isFinished: true,
+      summary: 'Summary of the meeting',
+      meetingLink: DataProvider.meetingLink,
+    );
+    mockMeetingDetails8 = MeetingDetails(
+      id: '12345',
+      title: DataProvider.meetingTitle1,
+      description: DataProvider.meetingDescr1,
+      admin: Participant(
+          id: '1', username: DataProvider.usernameAdmin, status: 'accepted'),
+      participants: [
+        Participant(
+            id: '1', username: DataProvider.usernameAdmin, status: 'accepted'),
+        Participant(
+            id: '2', username: DataProvider.username1, status: 'accepted'),
+        Participant(id: '3',
+            username: DataProvider.username2,
+            status: 'accepted'),
+      ],
+      status: MeetingStatus.accepted,
+      dateTime: DataProvider.dateTimeFutureObj,
+      duration: 60,
+      groupName: DataProvider.groupName1,
+      groupId: '1',
+      isFinished: true,
+      summary: 'Summary of the meeting',
+      meetingLink: DataProvider.meetingLink,
+    );
   });
 
   group('Not admin user who accepted invitation', () {
@@ -219,7 +287,7 @@ void main() {
 
     testWidgets('redirects to meeting agenda page', (WidgetTester tester) async {
       when(mockAuthController.userId).thenReturn('2');
-      when(mockMeetingController.getAgendaPoints('12345')).thenAnswer((_) async => []);
+      when(mockMeetingController.getAgendaPoints(mockMeetingDetails1.id)).thenAnswer((_) async => []);
 
       await tester.pumpWidget(MaterialApp(
         home: MeetingDetailsPage(meeting: mockMeetingDetails1),
@@ -233,37 +301,66 @@ void main() {
       expect(find.byType(MeetingAgenda), findsOneWidget);
 
       expect(find.text('Agenda'), findsOneWidget);
+
+      verify(mockMeetingController.getAgendaPoints(mockMeetingDetails1.id)).called(1);
     });
 
-    testWidgets('finish meeting and redirect to summary page', (WidgetTester tester) async {
+    testWidgets('redirects to meeting summary page', (WidgetTester tester) async {
+      when(mockAuthController.userId).thenReturn('3');
+      when(mockMeetingController.fetchMeetingSummary(mockMeetingDetails8.id)).thenAnswer((_) async => '');
+
+      await tester.pumpWidget(MaterialApp(
+        home: MeetingDetailsPage(meeting: mockMeetingDetails8),
+      ));
+
+      expect(find.byKey(summaryButtonKey), findsOneWidget);
+
+      await tester.tap(find.byKey(summaryButtonKey));
+      await tester.pumpAndSettle();
+
+      expect(find.byType(SummaryPage), findsOneWidget);
+      expect(find.text('Summary'), findsOneWidget);
+
+      await tester.tap(find.byTooltip('Back'));
+      await tester.pumpAndSettle();
+
+      expect(find.byType(MeetingDetailsPage), findsOneWidget);
+
+      verify(mockMeetingController.fetchMeetingSummary(mockMeetingDetails8.id)).called(1);
+    });
+
+    testWidgets('finish meeting and show summary button', (WidgetTester tester) async {
       final scaffoldMessengerKey = GlobalKey<ScaffoldMessengerState>();
       when(mockAuthController.userId).thenReturn('2');
-      when(mockMeetingController.fetchMeetingSummary('12345')).thenAnswer((_) async => '');
-      when(mockMeetingController.finishMeeting('12345')).thenAnswer((_) async => true);
+      when(mockMeetingController.finishMeeting(mockMeetingDetails1.id)).thenAnswer((_) async => true);
 
       await tester.pumpWidget(MaterialApp(
         scaffoldMessengerKey: scaffoldMessengerKey,
         home: MeetingDetailsPage(meeting: mockMeetingDetails1),
       ));
 
-      expect(find.byKey(finishMeetingButtonKey), findsOneWidget);
-      await tester.tap(find.byKey(finishMeetingButtonKey));
-      await tester.pump();
-      expect(find.byType(SnackBar), findsOneWidget);
-      expect(find.text('Meeting is finished'), findsOneWidget);
+      final finishMeetingButton = find.byKey(finishMeetingButtonKey);
 
+      await tester.tap(finishMeetingButton);
       await tester.pumpAndSettle();
+      expect(find.byType(CustomPopUpDialog), findsOneWidget);
+      expect(find.text("Do you want to finish the meeting?"), findsOneWidget);
+      await tester.tap(find.byKey(yesButtonKey));
+      await tester.pumpAndSettle();
+      expect(find.byType(CustomPopUpDialog), findsNothing);
       expect(find.byKey(finishMeetingButtonKey), findsNothing);
       expect(find.byKey(summaryButtonKey), findsOneWidget);
       await tester.tap(find.byKey(summaryButtonKey));
       await tester.pumpAndSettle();
       expect(find.byType(SummaryPage), findsOneWidget);
       expect(find.text('Summary'), findsOneWidget);
+
+      verify(mockMeetingController.finishMeeting(mockMeetingDetails1.id)).called(1);
     });
 
     testWidgets('opens maps for offline meeting', (WidgetTester tester) async {
       when(mockAuthController.userId).thenReturn('2');
-      when(mockMeetingController.suggestMeetingLocation('12345'))
+      when(mockMeetingController.suggestMeetingLocation(mockMeetingDetails1.id))
           .thenAnswer((_) async => 'https://www.google.com/maps/place/');
 
       await tester.pumpWidget(MaterialApp(
@@ -279,9 +376,7 @@ void main() {
 
   group('Not admin user who has invitation', () {
 
-    testWidgets(
-        'displays meeting title, description, information, participants', (
-        WidgetTester tester) async {
+    testWidgets('displays meeting title, description, information, participants', (WidgetTester tester) async {
 
       when(mockAuthController.userId).thenReturn('3');
 
@@ -326,7 +421,7 @@ void main() {
       final scaffoldMessengerKey = GlobalKey<ScaffoldMessengerState>();
 
       when(mockAuthController.userId).thenReturn('3');
-      when(mockMeetingController.answerInvitation(true, '12345'))
+      when(mockMeetingController.answerInvitation(true, mockMeetingDetails2.id))
           .thenAnswer((_) async => MeetingStatus.accepted);
 
       await tester.pumpWidget(MaterialApp(
@@ -342,6 +437,8 @@ void main() {
       await tester.pump();
       expect(find.byType(SnackBar), findsOneWidget);
       expect(find.text('Meeting accepted'), findsOneWidget);
+
+      verify(mockMeetingController.answerInvitation(true, mockMeetingDetails2.id)).called(1);
     });
 
     testWidgets('clicks on decline meeting invitation', (WidgetTester tester) async {
@@ -364,6 +461,52 @@ void main() {
       await tester.pump();
       expect(find.byType(SnackBar), findsOneWidget);
       expect(find.text('Meeting declined'), findsOneWidget);
+
+      verify(mockMeetingController.answerInvitation(false, mockMeetingDetails2.id)).called(1);
+    });
+
+    testWidgets('clicks on accept meeting invitation of the past meeting', (WidgetTester tester) async {
+      final scaffoldMessengerKey = GlobalKey<ScaffoldMessengerState>();
+
+      when(mockAuthController.userId).thenReturn('3');
+
+      await tester.pumpWidget(MaterialApp(
+        scaffoldMessengerKey: scaffoldMessengerKey,
+        home: MeetingDetailsPage(meeting: mockMeetingDetails6),
+      ));
+
+      expect(find.byKey(answerButtonsKey), findsOneWidget);
+      expect(find.text("Accept"), findsOneWidget);
+
+      // Click on accept meeting button and then NO
+      await tester.tap(find.text("Accept"));
+      await tester.pump();
+      expect(find.byType(SnackBar), findsOneWidget);
+      expect(find.text('Meeting is in the past'), findsOneWidget);
+
+      verifyNever(mockMeetingController.answerInvitation(true, mockMeetingDetails6.id));
+    });
+
+    testWidgets('clicks on accept meeting invitation of the finished meeting', (WidgetTester tester) async {
+      final scaffoldMessengerKey = GlobalKey<ScaffoldMessengerState>();
+
+      when(mockAuthController.userId).thenReturn('3');
+
+      await tester.pumpWidget(MaterialApp(
+        scaffoldMessengerKey: scaffoldMessengerKey,
+        home: MeetingDetailsPage(meeting: mockMeetingDetails7),
+      ));
+
+      expect(find.byKey(answerButtonsKey), findsOneWidget);
+      expect(find.text("Accept"), findsOneWidget);
+
+      // Click on accept meeting button and then NO
+      await tester.tap(find.text("Accept"));
+      await tester.pump();
+      expect(find.byType(SnackBar), findsOneWidget);
+      expect(find.text('Meeting is already finished'), findsOneWidget);
+
+      verifyNever(mockMeetingController.answerInvitation(true, mockMeetingDetails7.id));
     });
   });
 
@@ -410,7 +553,72 @@ void main() {
       expect(find.text('Delete Meeting'), findsOneWidget);
     });
 
-    testWidgets('change meeting link for meeting', (WidgetTester tester) async {
+    testWidgets('change meeting link (onSubmitted)', (WidgetTester tester) async {
+      const newLink = 'https://www.google.com';
+      final scaffoldMessengerKey = GlobalKey<ScaffoldMessengerState>();
+      when(mockAuthController.userId).thenReturn('1');
+      when(mockMeetingController.updateMeetingLink(mockMeetingDetails3.id, newLink)).thenAnswer((_) async => {});
+
+      await tester.pumpWidget(MaterialApp(
+        scaffoldMessengerKey: scaffoldMessengerKey,
+        home: MeetingDetailsPage(meeting: mockMeetingDetails3),
+      ));
+
+      expect(find.byKey(linkPlaceholderFieldKey), findsOneWidget);
+      expect(find.text(DataProvider.meetingLink), findsOneWidget);
+      // Verify enabled border color
+
+      final textField = tester.widget<TextField>(find.byType(TextField));
+      final enabledBorder = textField.decoration!.enabledBorder as UnderlineInputBorder;
+      expect(enabledBorder.borderSide.color, alphaDarkBlue);
+
+      await tester.tap(find.byKey(linkPlaceholderFieldKey));
+      await tester.enterText(find.byKey(linkPlaceholderFieldKey), newLink);
+      await tester.pumpAndSettle();
+      final focusedBorder = textField.decoration!.focusedBorder as UnderlineInputBorder;
+      expect(focusedBorder.borderSide.color, darkBlue);
+      expect(find.text(newLink), findsOneWidget);
+
+      await tester.testTextInput.receiveAction(TextInputAction.done);
+      await tester.pumpAndSettle();
+
+      expect(find.text(newLink), findsOneWidget);
+
+      verify(mockMeetingController.updateMeetingLink(mockMeetingDetails3.id, newLink)).called(1);
+    });
+
+    testWidgets('change meeting link (onTapOutside)', (WidgetTester tester) async {
+      const newLink = 'https://www.facebook.com';
+      final scaffoldMessengerKey = GlobalKey<ScaffoldMessengerState>();
+      when(mockAuthController.userId).thenReturn('1');
+      when(mockMeetingController.updateMeetingLink(mockMeetingDetails3.id, newLink)).thenAnswer((_) async => {});
+
+      await tester.pumpWidget(MaterialApp(
+        scaffoldMessengerKey: scaffoldMessengerKey,
+        home: MeetingDetailsPage(meeting: mockMeetingDetails3),
+      ));
+
+      expect(find.byKey(linkPlaceholderFieldKey), findsOneWidget);
+      expect(find.text(DataProvider.meetingLink), findsOneWidget);
+
+      final textField = tester.widget<TextField>(find.byType(TextField));
+      final enabledBorder = textField.decoration!.enabledBorder as UnderlineInputBorder;
+      expect(enabledBorder.borderSide.color, alphaDarkBlue);
+
+      await tester.tap(find.byKey(linkPlaceholderFieldKey));
+      await tester.enterText(find.byKey(linkPlaceholderFieldKey), newLink);
+      await tester.pumpAndSettle();
+      final focusedBorder = textField.decoration!.focusedBorder as UnderlineInputBorder;
+      expect(focusedBorder.borderSide.color, darkBlue);
+      expect(find.text(newLink), findsOneWidget);
+
+      await tester.tapAt(Offset.zero);
+      await tester.pumpAndSettle();
+
+      verify(mockMeetingController.updateMeetingLink(mockMeetingDetails3.id, newLink)).called(1);
+    });
+
+    testWidgets('copy and share meeting link ', (WidgetTester tester) async {
       final scaffoldMessengerKey = GlobalKey<ScaffoldMessengerState>();
       when(mockAuthController.userId).thenReturn('1');
 
@@ -431,6 +639,66 @@ void main() {
       await tester.pumpAndSettle();
       // expect(find.text("Copy"), findsOneWidget);
       // TODO: test share button
+    });
+
+    testWidgets('delete meeting', (WidgetTester tester) async {
+      final scaffoldMessengerKey = GlobalKey<ScaffoldMessengerState>();
+      when(mockAuthController.userId).thenReturn('1');
+      when(mockMeetingController.deleteMeeting(mockMeetingDetails3.id, null)).thenAnswer((_) async => {});
+
+      await tester.pumpWidget(MaterialApp(
+        scaffoldMessengerKey: scaffoldMessengerKey,
+        home: MeetingDetailsPage(meeting: mockMeetingDetails3),
+      ));
+
+      await tester.ensureVisible(find.text('Delete Meeting'));
+
+      await tester.tap(find.text('Delete Meeting'));
+      await tester.pumpAndSettle();
+      expect(find.byType(CustomPopUpDialog), findsOneWidget);
+      await tester.tap(find.byKey(noButtonKey));
+      await tester.pumpAndSettle();
+      expect(find.byType(CustomPopUpDialog), findsNothing);
+
+      await tester.tap(find.text('Delete Meeting'));
+      await tester.pumpAndSettle();
+      expect(find.byType(CustomPopUpDialog), findsOneWidget);
+      await tester.tap(find.byKey(yesButtonKey));
+      await tester.pump();
+
+      expect(find.byType(SnackBar), findsOneWidget);
+      expect(find.text('Meeting is deleted'), findsOneWidget);
+    });
+
+    testWidgets('fail to finish meeting', (WidgetTester tester) async {
+      final scaffoldMessengerKey = GlobalKey<ScaffoldMessengerState>();
+      when(mockAuthController.userId).thenReturn('1');
+      when(mockMeetingController.finishMeeting(mockMeetingDetails3.id)).thenAnswer((_) async => false);
+
+      await tester.pumpWidget(MaterialApp(
+        scaffoldMessengerKey: scaffoldMessengerKey,
+        home: MeetingDetailsPage(meeting: mockMeetingDetails3),
+      ));
+
+      final finishMeetingButton = find.byKey(finishMeetingButtonKey);
+
+      await tester.tap(finishMeetingButton);
+      await tester.pumpAndSettle();
+      expect(find.byType(CustomPopUpDialog), findsOneWidget);
+      expect(find.text("Do you want to finish the meeting?"), findsOneWidget);
+      await tester.tap(find.byKey(noButtonKey));
+      await tester.pumpAndSettle();
+      expect(find.byType(CustomPopUpDialog), findsNothing);
+
+      await tester.tap(finishMeetingButton);
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(yesButtonKey));
+      await tester.pump();
+
+      expect(find.byType(SnackBar), findsOneWidget);
+      expect(find.text('Failed to finish meeting'), findsOneWidget);
+
+      verify(mockMeetingController.finishMeeting(mockMeetingDetails3.id)).called(1);
     });
 
   });

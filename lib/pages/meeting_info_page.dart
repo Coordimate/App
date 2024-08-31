@@ -66,6 +66,24 @@ class _MeetingDetailsPageState extends State<MeetingDetailsPage> {
     }));
   }
 
+  void _showFinishMeetingDialog() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return CustomPopUpDialog(
+          question: "Do you want to finish the meeting?",
+          onYes: () async {
+            await _finishMeeting();
+            if (context.mounted) { Navigator.of(context).pop(); }
+          },
+          onNo: () {
+            if (context.mounted) { Navigator.of(context).pop(); }
+          },
+        );
+      },
+    );
+  }
+
   Future<void> showPopUpDialog(BuildContext context, bool accept) async {
     showDialog(
       context: context,
@@ -118,6 +136,7 @@ class _MeetingDetailsPageState extends State<MeetingDetailsPage> {
                 .deleteMeeting(widget.meeting.id, widget.meeting.googleEventId);
             if (context.mounted) Navigator.of(context).pop();
             if (context.mounted) Navigator.of(context).pop();
+            if (context.mounted) CustomSnackBar.show(context, "Meeting is deleted");
           },
           onNo: () {
             Navigator.of(context).pop();
@@ -278,7 +297,7 @@ class _MeetingDetailsPageState extends State<MeetingDetailsPage> {
                     if (widget.meeting.isFinished) {
                       _showSummaryPage();
                     } else {
-                      await _finishMeeting();
+                      _showFinishMeetingDialog();
                     }
                   },
                   backgroundColor: mediumBlue

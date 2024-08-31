@@ -188,7 +188,7 @@ class _PersonalPageState extends State<PersonalPage> {
             return const Scaffold(
                 backgroundColor: white,
                 appBar:
-                CustomAppBar(title: 'Personal Page', needButton: false),
+                CustomAppBar(title: 'Settings', needButton: false),
                 body: Center(child: CircularProgressIndicator()));
           }
         });
