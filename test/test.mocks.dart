@@ -2046,6 +2046,7 @@ class MockScheduleController extends _i1.Mock
   @override
   _i10.Future<void> updateTimeSlot(
     String? id,
+    int? day,
     double? start,
     double? length,
   ) =>
@@ -2054,6 +2055,7 @@ class MockScheduleController extends _i1.Mock
           #updateTimeSlot,
           [
             id,
+            day,
             start,
             length,
           ],
