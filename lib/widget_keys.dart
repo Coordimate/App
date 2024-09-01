@@ -90,3 +90,8 @@ const summaryTextFieldKey = Key('summaryTextFieldKey');
 const startTimeSlot = Key('startTimeSlot');
 const endTimeSlot = Key('endTimeSlot');
 const deleteTimeSlotKey = Key('deleteTimeSlotKey');
+
+//random_coffee_invitation keys:
+const randomCoffeeAcceptKey = Key('randomCoffeeAccept');
+const randomCoffeeDeclineKey = Key('randomCoffeeDecline');
+
