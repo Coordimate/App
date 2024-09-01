@@ -6,8 +6,8 @@ import 'package:coordimate/app_state.dart';
 
 const maxIndentLevel = 3;
 
-class _AgendaPointWidget extends StatefulWidget {
-  const _AgendaPointWidget(
+class AgendaPointWidget extends StatefulWidget {
+  const AgendaPointWidget(
       {required super.key,
       required this.index,
       required this.text,
@@ -27,10 +27,10 @@ class _AgendaPointWidget extends StatefulWidget {
   final Future<void> Function() updateAgenda;
 
   @override
-  State<_AgendaPointWidget> createState() => _AgendaPointWidgetState();
+  State<AgendaPointWidget> createState() => AgendaPointWidgetState();
 }
 
-class _AgendaPointWidgetState extends State<_AgendaPointWidget> {
+class AgendaPointWidgetState extends State<AgendaPointWidget> {
   int swipeDirection = 0;
   Color bgColor = Colors.white;
   late String text = widget.text;
@@ -235,7 +235,7 @@ class MeetingAgendaState extends State<MeetingAgenda> {
                     for (int index = 0;
                         index < snapshot.data!.length;
                         index += 1)
-                      _AgendaPointWidget(
+                      AgendaPointWidget(
                           // key: Key(snapshot.data![index].text),
                           key: Key(
                               snapshot.data![index].text + index.toString()),

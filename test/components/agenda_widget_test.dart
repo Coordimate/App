@@ -1,3 +1,4 @@
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
@@ -13,8 +14,10 @@ void main() {
   AppState.meetingController = mockMeetingController;
 
   group('MeetingAgenda Tests', () {
-    testWidgets('Renders CircularProgressIndicator while loading', (WidgetTester tester) async {
-      when(mockMeetingController.getAgendaPoints('test_meeting_id')).thenAnswer((_) async => []);
+    testWidgets('Renders CircularProgressIndicator while loading',
+        (WidgetTester tester) async {
+      when(mockMeetingController.getAgendaPoints('test_meeting_id'))
+          .thenAnswer((_) async => []);
 
       await tester.pumpWidget(
         const MaterialApp(
@@ -30,7 +33,8 @@ void main() {
         AgendaPoint(text: 'Point 1', level: 0),
         AgendaPoint(text: 'Point 2', level: 1),
       ];
-      when(mockMeetingController.getAgendaPoints('test_meeting_id')).thenAnswer((_) async => agendaPoints);
+      when(mockMeetingController.getAgendaPoints('test_meeting_id'))
+          .thenAnswer((_) async => agendaPoints);
 
       await tester.pumpWidget(
         const MaterialApp(
@@ -43,9 +47,12 @@ void main() {
       expect(find.text('Point 2'), findsOneWidget);
     });
 
-    testWidgets('Calls createAgendaPoint when button pressed', (WidgetTester tester) async {
-      when(mockMeetingController.getAgendaPoints('test_meeting_id')).thenAnswer((_) async => []);
-      when(mockMeetingController.createAgendaPoint('test_meeting_id', '', 0)).thenAnswer((_) async {});
+    testWidgets('Calls createAgendaPoint when button pressed',
+        (WidgetTester tester) async {
+      when(mockMeetingController.getAgendaPoints('test_meeting_id'))
+          .thenAnswer((_) async => []);
+      when(mockMeetingController.createAgendaPoint('test_meeting_id', '', 0))
+          .thenAnswer((_) async {});
 
       await tester.pumpWidget(
         const MaterialApp(
@@ -57,32 +64,115 @@ void main() {
       await tester.tap(addButtonFinder);
       await tester.pump();
 
-      verify(mockMeetingController.createAgendaPoint('test_meeting_id', '', 0)).called(1);
+      verify(mockMeetingController.createAgendaPoint('test_meeting_id', '', 0))
+          .called(1);
     });
 
-    // FIXME: this test works with flutter run, but not with flutter test
-    // testWidgets('Calls deleteAgendaPoint when delete icon tapped', (WidgetTester tester) async {
-    //   final agendaPoints = [
-    //     AgendaPoint(text: 'Point 1', level: 0),
-    //   ];
-    //   when(mockMeetingController.getAgendaPoints('test_meeting_id')).thenAnswer((_) async => agendaPoints);
-    //   when(mockMeetingController.deleteAgendaPoint('test_meeting_id', 0)).thenAnswer((_) async {});
-    //
-    //   await tester.pumpWidget(
-    //     const MaterialApp(
-    //       home: MeetingAgenda(meetingId: 'test_meeting_id'),
-    //     ),
-    //   );
-    //
-    //   await tester.pump(); // Trigger a frame.
-    //   await tester.drag(find.text('Point 1'), const Offset(-500, 0));
-    //   await tester.pumpAndSettle(const Duration(milliseconds: 400));
-    //
-    //   final deleteFinder = find.byIcon(Icons.delete);
-    //   await tester.tap(deleteFinder);
-    //   await tester.pump();
-    //
-    //   verify(mockMeetingController.deleteAgendaPoint('test_meeting_id', 0)).called(1);
-    // });
+    testWidgets('Agenda item editable after tap', (WidgetTester tester) async {
+      when(mockMeetingController.getAgendaPoints('test_meeting_id'))
+          .thenAnswer((_) async => [AgendaPoint(text: 'foo', level: 0)]);
+
+      await tester.pumpWidget(
+        const MaterialApp(
+          home: MeetingAgenda(meetingId: 'test_meeting_id'),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      final point = find.text('foo');
+      await tester.tap(point);
+      await tester.pumpAndSettle();
+
+      await tester.enterText(point, 'bar');
+      await tester.tap(find.text('Agenda'));
+
+      expect(find.text('bar'), findsOne);
+      verify(mockMeetingController.updateAgenda(any, any)).called(1);
+    });
+
+    testWidgets('Reorder agenda items', (tester) async {
+      when(mockMeetingController.getAgendaPoints('test_meeting_id')).thenAnswer(
+          (_) async => [
+                AgendaPoint(text: 'first', level: 0),
+                AgendaPoint(text: 'last', level: 0)
+              ]);
+
+      await tester.pumpWidget(
+        const MaterialApp(
+          home: MeetingAgenda(meetingId: 'test_meeting_id'),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      var first = (tester.state(find.byType(AgendaPointWidget).first)
+          as AgendaPointWidgetState);
+      var last = (tester.state(find.byType(AgendaPointWidget).last)
+          as AgendaPointWidgetState);
+      expect(first.text, 'first');
+      expect(last.text, 'last');
+
+      final TestGesture drag =
+          await tester.startGesture(tester.getCenter(find.text('first')));
+      await tester.pump(kLongPressTimeout + kPressTimeout);
+
+      await drag.moveTo(tester.getCenter(find.text('last')));
+      await drag.up();
+      await tester.pumpAndSettle();
+
+      verify(mockMeetingController.updateAgenda(any, any)).called(1);
+    });
+
+    testWidgets('Agenda item level changes on drag',
+        (WidgetTester tester) async {
+      when(mockMeetingController.getAgendaPoints('test_meeting_id'))
+          .thenAnswer((_) async => [AgendaPoint(text: 'foo', level: 0)]);
+      when(mockMeetingController.updateAgenda(any, any))
+          .thenAnswer((_) async => [AgendaPoint(text: 'foo', level: 1)]);
+
+      await tester.pumpWidget(
+        const MaterialApp(
+          home: MeetingAgenda(meetingId: 'test_meeting_id'),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      final text = find.text('foo');
+      var point = find.byType(AgendaPointWidget);
+      var pointState = (tester.state(point) as AgendaPointWidgetState);
+
+      expect(pointState.level, 0);
+
+      await tester.drag(text, const Offset(100, 0));
+      await tester.pumpAndSettle();
+      await tester.pumpAndSettle();
+
+      verify(mockMeetingController.updateAgenda(any, any)).called(1);
+    });
+
+    testWidgets('Calls deleteAgendaPoint when delete icon tapped',
+        (WidgetTester tester) async {
+      final agendaPoints = [
+        AgendaPoint(text: 'foo', level: 0),
+      ];
+      when(mockMeetingController.getAgendaPoints('test_meeting_id'))
+          .thenAnswer((_) async => agendaPoints);
+      when(mockMeetingController.deleteAgendaPoint('test_meeting_id', 0))
+          .thenAnswer((_) async {});
+
+      await tester.pumpWidget(
+        const MaterialApp(
+          home: MeetingAgenda(meetingId: 'test_meeting_id'),
+        ),
+      );
+
+      var point = find.byType(AgendaPointWidget);
+      expect(point, findsOne);
+      var pointState = (tester.state(point) as AgendaPointWidgetState);
+      pointState.showDelete = true;
+      await tester.pumpAndSettle(const Duration(milliseconds: 400));
+
+      verify(mockMeetingController.deleteAgendaPoint('test_meeting_id', 0))
+          .called(1);
+    });
   });
 }
