@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:another_flushbar/flushbar.dart';
 import 'package:duration_picker/duration_picker.dart';
 import 'package:intl/intl.dart';
-
+import 'package:coordimate/widget_keys.dart';
 import 'package:coordimate/components/colors.dart';
 import 'package:coordimate/components/pop_up_dialog.dart';
 import 'package:coordimate/components/login_button.dart';
@@ -164,6 +164,7 @@ class CreateMeetingDialogState extends State<CreateMeetingDialog> {
                 Form(
                   key: formKey,
                   child: TextFormField(
+                    key: createMeetingDialogTitleKey,
                     controller: titleController,
                     maxLength: 20,
                     style: const TextStyle(color: darkBlue),
@@ -248,33 +249,39 @@ class CreateMeetingDialogState extends State<CreateMeetingDialog> {
           ),
           actions: <Widget>[
             ConfirmationButtons(
-              onYes: _isLoading ? () {} : () async {
-                if (formKey.currentState!.validate() == false) {
-                  return;
-                }
-                if (selectedDate
-                    .isBefore(DateTime.now().add(const Duration(minutes: 5)))) {
-                  Flushbar(
-                    message: 'Meeting needs to be at least in 5 minutes',
-                    backgroundColor: orange,
-                    duration: const Duration(seconds: 2),
-                    flushbarPosition: FlushbarPosition.TOP,
-                  ).show(context);
-                } else {
-                  setState(() { _isLoading = true; });
-                  await AppState.meetingController.createMeeting(
-                      titleController.text,
-                      selectedDate.toIso8601String(),
-                      selectedDuration.inMinutes,
-                      descriptionController.text,
-                      widget.groupId);
-                  clearControllers();
-                  if (context.mounted) {
-                    Navigator.of(context).pop();
-                  }
-                  setState(() { _isLoading = false; });
-                }
-              },
+              onYes: _isLoading
+                  ? () {}
+                  : () async {
+                      if (formKey.currentState!.validate() == false) {
+                        return;
+                      }
+                      if (selectedDate.isBefore(
+                          DateTime.now().add(const Duration(minutes: 5)))) {
+                        Flushbar(
+                          message: 'Meeting needs to be at least in 5 minutes',
+                          backgroundColor: orange,
+                          duration: const Duration(seconds: 2),
+                          flushbarPosition: FlushbarPosition.TOP,
+                        ).show(context);
+                      } else {
+                        setState(() {
+                          _isLoading = true;
+                        });
+                        await AppState.meetingController.createMeeting(
+                            titleController.text,
+                            selectedDate.toIso8601String(),
+                            selectedDuration.inMinutes,
+                            descriptionController.text,
+                            widget.groupId);
+                        clearControllers();
+                        if (context.mounted) {
+                          Navigator.of(context).pop();
+                        }
+                        setState(() {
+                          _isLoading = false;
+                        });
+                      }
+                    },
               onNo: () {
                 clearControllers();
                 Navigator.of(context).pop();

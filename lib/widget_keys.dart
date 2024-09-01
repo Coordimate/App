@@ -51,7 +51,7 @@ const noGroupDescriptionFieldKey = Key('noGroupDescriptionField');
 //const editGroupDescriptionKey = Key('editGroupDescription');
 // const groupsDetailsNameKey = Key('groupsDetailsName');
 // const groupsDetailsDescriptionKey = Key('groupsDetailsDescription');
-const createGroupPollButtonKey = Key('createGroupPollButton');
+const pollPanelKey = Key('pollPanel');
 const groupScheduleButtonKey = Key('groupScheduleButton');
 const groupMembersListKey = Key('groupMembersList');
 const groupMemberKey = Key('groupMember');
@@ -59,6 +59,9 @@ const groupMemberKey = Key('groupMember');
 const groupChatButtonKey = Key('groupChatButton');
 const deleteGroupButtonKey = Key('deleteGroupButton');
 const leaveGroupButtonKey = Key('leaveGroupButton');
+const groupAcceptedMeetingKey = Key('groupAcceptedMeeting');
+const groupArchivedMeetingKey = Key('groupArchivedMeeting');
+const createMeetingDialogTitleKey = Key('createMeetingDialogTitle');
 
 //meeting_info_page keys:
 const meetOfflineButtonKey = Key('meetOfflineButton');
@@ -94,4 +97,3 @@ const deleteTimeSlotKey = Key('deleteTimeSlotKey');
 //random_coffee_invitation keys:
 const randomCoffeeAcceptKey = Key('randomCoffeeAccept');
 const randomCoffeeDeclineKey = Key('randomCoffeeDecline');
-

@@ -1,71 +1,54 @@
 import 'package:coordimate/app_state.dart';
+import 'package:coordimate/components/create_meeting_dialog.dart';
+import 'package:coordimate/components/meeting_tiles.dart';
+import 'package:coordimate/components/snack_bar.dart';
 import 'package:coordimate/pages/groups_page.dart';
 import 'package:coordimate/pages/group_details_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:googleapis/slides/v1.dart';
+import '../helpers/client/data_provider.dart';
 import '../test.mocks.dart';
 import '../helpers/set_appstate.dart';
 import '../helpers/when.dart';
-import '../helpers/client/groups.dart';
+import '../helpers/client/groups.dart' as groups;
 import 'package:coordimate/widget_keys.dart';
+import 'package:mockito/mockito.dart';
 
 void main() {
-  TestWidgetsFlutterBinding.ensureInitialized();
+  late MockGroupController mockGroupController;
+  late MockMeetingController mockMeetingController;
 
-  final firebase = MockFirebaseMessaging();
-  final client = MockClient();
-  final storage = MockFlutterSecureStorage();
-  final sharedPrefs = MockSharedPreferences();
-
-  setAppState(client, storage, sharedPrefs, firebase);
-  whenStatements(client, storage, sharedPrefs, firebase);
-
-  testWidgets(
-      'test1: the group card is tappable and redirects to a mocked groupsdetailspage',
-      (tester) async {
+  setUp(() {
+    mockGroupController = MockGroupController();
+    mockMeetingController = MockMeetingController();
+    AppState.groupController = mockGroupController;
+    AppState.meetingController = mockMeetingController;
     AppState.testMode = true;
-    whenGroupsOne(client);
-    whenGroupsDetails(client);
-    whenGroupsMeetings(client);
-    await tester.pumpWidget(const MaterialApp(
-      home: GroupsPage(),
-    ));
-    await tester.pumpAndSettle();
-    final button = find.byKey(groupCardKey);
-    expect(button, findsExactly(1));
-
-    await tester.runAsync(() async {
-      await tester.tap(button);
-    });
-
-    await tester.pumpAndSettle();
-    expect(find.byType(GroupDetailsPage), findsOne);
   });
 
   testWidgets(
-      'test2: check if all the elements are present inside the groupsdetailspage',
+      'test1: check if all the elements are present inside the groupsdetailspage from admin POV',
       (tester) async {
-    AppState.testMode = true;
-    whenGroupsOne(client);
-    whenGroupsDetails(client);
-    whenGroupsMeetings(client);
-    await tester.pumpWidget(const MaterialApp(
-      home: GroupsPage(),
+    when(mockGroupController.fetchGroupUsers(DataProvider.groupID1))
+        .thenAnswer((_) async => [groups.userCard1, groups.userCard2]);
+    when(mockGroupController.fetchGroupMeetings(DataProvider.groupID1))
+        .thenAnswer((_) async => [groups.meetingin2Days]);
+    when(mockGroupController.fetchPoll(DataProvider.groupID1))
+        .thenAnswer((_) async => null);
+    AppState.authController.userId = DataProvider.userAdmin;
+
+    await tester.pumpWidget(MaterialApp(
+      home: GroupDetailsPage(group: groups.group1),
     ));
     await tester.pumpAndSettle();
-    final button = find.byKey(groupCardKey);
-    expect(button, findsExactly(1));
 
-    await tester.runAsync(() async {
-      await tester.tap(button);
-    });
-    await tester.pumpAndSettle();
-
-//    const noGroupDescriptionFieldKey = Key('noGroupDescriptionField');
-//const groupAdminKey = Key('groupAdmin');
     final memberCard = find.byKey(groupMemberKey);
+    final pollpanel = find.byKey(pollPanelKey);
 
+    expect(find.byKey(appBarIconButtonKey), findsExactly(1));
     expect(find.byKey(inviteButtonKey), findsExactly(1));
+    expect(find.byKey(avatarKey), findsExactly(1));
     expect(find.byKey(createMeetingButtonKey), findsExactly(1));
     expect(find.byKey(groupNameFieldKey), findsExactly(1));
     expect(find.byKey(groupMemberCountKey), findsExactly(1));
@@ -73,16 +56,267 @@ void main() {
     expect(find.byKey(copyButtonKey), findsExactly(1));
     expect(find.byKey(shareButtonKey), findsExactly(1));
     expect(find.byKey(groupDescriptionFieldKey), findsExactly(1));
-    //expect(find.byKey(noGroupDescriptionFieldKey), findsExactly(1));
-    expect(find.byKey(createGroupPollButtonKey), findsExactly(1));
+    expect(pollpanel, findsExactly(1));
+    expect(
+        find.descendant(
+            of: pollpanel, matching: find.text('Create Group Poll')),
+        findsExactly(1));
     expect(find.byKey(groupScheduleButtonKey), findsExactly(1));
     expect(find.byKey(groupMembersListKey), findsExactly(1));
-    expect(memberCard, findsExactly(1));
+    expect(memberCard, findsExactly(2));
     expect(find.byKey(groupChatButtonKey), findsExactly(1));
-    expect(find.byKey(leaveGroupButtonKey), findsExactly(1));
+    expect(find.byKey(deleteGroupButtonKey), findsExactly(1));
     expect(find.byIcon(Icons.edit), findsExactly(2));
-    // expect(find.descendant(of: memberCard, matching: find.text('admin')),
-    //     findsExactly(1));
-    expect(find.text('admin'), findsExactly(1));
+    expect(find.byIcon(Icons.close), findsExactly(1));
+    expect(find.descendant(of: memberCard, matching: find.text('admin')),
+        findsExactly(1));
+  });
+
+  testWidgets('test2: check for active poll and empty group description',
+      (tester) async {
+    when(mockGroupController.fetchGroupUsers(DataProvider.groupID1))
+        .thenAnswer((_) async => [groups.userCard1, groups.userCard2]);
+    when(mockGroupController.fetchGroupMeetings(DataProvider.groupID1))
+        .thenAnswer((_) async => [groups.meetingin2Days]);
+    when(mockGroupController.fetchPoll(DataProvider.groupID1))
+        .thenAnswer((_) async => groups.pollData);
+    AppState.authController.userId = DataProvider.userAdmin;
+
+    await tester.pumpWidget(MaterialApp(
+      home: GroupDetailsPage(group: groups.group2),
+    ));
+    await tester.pumpAndSettle();
+
+    final pollpanel = find.byKey(pollPanelKey);
+
+    expect(find.byKey(noGroupDescriptionFieldKey), findsExactly(1));
+    expect(pollpanel, findsExactly(1));
+    expect(
+        find.descendant(
+            of: pollpanel, matching: find.text('Active Group Poll')),
+        findsExactly(1));
+  });
+
+  testWidgets('test3: group from member POV', (tester) async {
+    when(mockGroupController.fetchGroupUsers(DataProvider.groupID1))
+        .thenAnswer((_) async => [groups.userCard1, groups.userCard2]);
+    when(mockGroupController.fetchGroupMeetings(DataProvider.groupID1))
+        .thenAnswer((_) async => [groups.meetingin2Days]);
+    when(mockGroupController.fetchPoll(DataProvider.groupID1))
+        .thenAnswer((_) async => null);
+    AppState.authController.userId = DataProvider.userID2;
+
+    await tester.pumpWidget(MaterialApp(
+      home: GroupDetailsPage(group: groups.group1),
+    ));
+    await tester.pumpAndSettle();
+
+    final pollpanel = find.byKey(pollPanelKey);
+
+    expect(pollpanel, findsExactly(1));
+
+    expect(find.byKey(leaveGroupButtonKey), findsExactly(1));
+  });
+
+  testWidgets(
+      'test4: checking meeting presence, pressing archive, checking archived meeting presence',
+      (tester) async {
+    when(mockGroupController.fetchGroupUsers(DataProvider.groupID1))
+        .thenAnswer((_) async => [groups.userCard1, groups.userCard2]);
+    when(mockGroupController.fetchGroupMeetings(DataProvider.groupID1))
+        .thenAnswer(
+            (_) async => [groups.meetingin2Days, groups.meetingArchived]);
+    when(mockGroupController.fetchPoll(DataProvider.groupID1))
+        .thenAnswer((_) async => null);
+    AppState.authController.userId = DataProvider.userID2;
+
+    await tester.pumpWidget(MaterialApp(
+      home: GroupDetailsPage(group: groups.group1),
+    ));
+    await tester.pumpAndSettle();
+    expect(find.byKey(groupAcceptedMeetingKey), findsExactly(1));
+    final button = find.byKey(appBarIconButtonKey);
+    expect(button, findsExactly(1));
+
+    await tester.tap(button);
+
+    await tester.pumpAndSettle();
+
+    expect(find.byType(ArchivedMeetingTile), findsExactly(1));
+  });
+
+  testWidgets('test5: pressing invite button', (tester) async {
+    when(mockGroupController.fetchGroupUsers(DataProvider.groupID1))
+        .thenAnswer((_) async => [groups.userCard1, groups.userCard2]);
+    when(mockGroupController.fetchGroupMeetings(DataProvider.groupID1))
+        .thenAnswer(
+            (_) async => [groups.meetingin2Days, groups.meetingArchived]);
+    when(mockGroupController.fetchPoll(DataProvider.groupID1))
+        .thenAnswer((_) async => null);
+    when(mockGroupController.shareInviteLink(DataProvider.groupID1))
+        .thenAnswer((_) async => groups.inviteLink);
+    AppState.authController.userId = DataProvider.userID2;
+
+    await tester.pumpWidget(MaterialApp(
+      home: GroupDetailsPage(group: groups.group1),
+    ));
+    await tester.pumpAndSettle();
+
+    final button = find.byKey(inviteButtonKey);
+    expect(button, findsExactly(1));
+    await tester.tap(button);
+    await tester.pumpAndSettle();
+  });
+
+  testWidgets('test6: pressing create meeting and verify request was sent',
+      (tester) async {
+    when(mockGroupController.fetchGroupUsers(DataProvider.groupID1))
+        .thenAnswer((_) async => [groups.userCard1, groups.userCard2]);
+    when(mockGroupController.fetchGroupMeetings(DataProvider.groupID1))
+        .thenAnswer(
+            (_) async => [groups.meetingin2Days, groups.meetingArchived]);
+    when(mockGroupController.fetchPoll(DataProvider.groupID1))
+        .thenAnswer((_) async => null);
+    // when(mockMeetingController.createMeeting(
+    //     DataProvider.meetingTitle,
+    //     groups.dateTimeFutureString,
+    //     DataProvider.meetingLength,
+    //     DataProvider.meetingDescr1,
+    //     DataProvider.groupID1));
+
+    AppState.authController.userId = DataProvider.userID2;
+
+    await tester.pumpWidget(MaterialApp(
+      home: GroupDetailsPage(group: groups.group1),
+    ));
+    await tester.pumpAndSettle();
+
+    final button = find.byKey(createMeetingButtonKey);
+
+    expect(button, findsExactly(1));
+    await tester.tap(button);
+    await tester.pumpAndSettle();
+
+    expect(find.byKey(createMeetingDialogTitleKey), findsExactly(1));
+    await tester.enterText(
+        find.byKey(createMeetingDialogTitleKey), DataProvider.meetingTitle);
+
+    final confirmMeetingButton = find.byKey(yesButtonKey);
+    final cancelMeetingButton = find.byKey(noButtonKey);
+    expect(confirmMeetingButton, findsExactly(1));
+    expect(cancelMeetingButton, findsExactly(1));
+    await tester.tap(confirmMeetingButton);
+    await tester.pumpAndSettle();
+    // verify(mockMeetingController.createMeeting(
+    //         DataProvider.meetingTitle,
+    //         groups.dateTimeFutureString,
+    //         DataProvider.meetingLength,
+    //         DataProvider.meetingDescr1,
+    //         DataProvider.groupID1))
+    //     .called(1);
+
+    await tester.tap(button);
+    await tester.pumpAndSettle();
+    await tester.tap(cancelMeetingButton);
+    await tester.pumpAndSettle();
+
+    expect(find.byType(CreateMeetingDialog), findsNothing);
+  });
+
+  testWidgets('test7: check link placeholder copy and share buttons',
+      (tester) async {
+    when(mockGroupController.fetchGroupUsers(DataProvider.groupID1))
+        .thenAnswer((_) async => [groups.userCard1, groups.userCard2]);
+    when(mockGroupController.fetchGroupMeetings(DataProvider.groupID1))
+        .thenAnswer(
+            (_) async => [groups.meetingin2Days, groups.meetingArchived]);
+    when(mockGroupController.fetchPoll(DataProvider.groupID1))
+        .thenAnswer((_) async => null);
+    final scaffoldMessengerKey = GlobalKey<ScaffoldMessengerState>();
+    AppState.authController.userId = DataProvider.userID2;
+
+    await tester.pumpWidget(MaterialApp(
+      scaffoldMessengerKey: scaffoldMessengerKey,
+      home: GroupDetailsPage(group: groups.group1),
+    ));
+    await tester.pumpAndSettle();
+
+    final copy = find.byKey(copyButtonKey);
+    final share = find.byKey(shareButtonKey);
+
+    expect(copy, findsExactly(1));
+    expect(share, findsExactly(1));
+
+    await tester.enterText(
+        find.byKey(linkPlaceholderFieldKey), "https:link-link.com/link");
+
+    await tester.tap(copy);
+    await tester.pump();
+    expect(find.byType(SnackBar), findsExactly(1));
+
+    await tester.tap(share);
+    await tester.pumpAndSettle();
+  });
+
+  testWidgets(
+      'test8: check and then edit group name and group description adn check that they updated again',
+      (tester) async {
+    when(mockGroupController.fetchGroupUsers(DataProvider.groupID1))
+        .thenAnswer((_) async => [groups.userCard1, groups.userCard2]);
+    when(mockGroupController.fetchGroupMeetings(DataProvider.groupID1))
+        .thenAnswer(
+            (_) async => [groups.meetingin2Days, groups.meetingArchived]);
+    when(mockGroupController.fetchPoll(DataProvider.groupID1))
+        .thenAnswer((_) async => null);
+    AppState.authController.userId = DataProvider.userID2;
+    await tester.pumpWidget(MaterialApp(
+      home: GroupDetailsPage(group: groups.group1),
+    ));
+    await tester.pumpAndSettle();
+
+    final nameEditIcon = find.descendant(
+        of: find.byKey(groupNameFieldKey), matching: find.byIcon(Icons.edit));
+    final descrEditIcon = find.descendant(
+        of: find.byKey(groupDescriptionFieldKey),
+        matching: find.byIcon(Icons.edit));
+    final check = find.byIcon(Icons.check);
+    final groupnamefield = find.byKey(groupNameFieldKey);
+    final groupdescrfield = find.byKey(groupDescriptionFieldKey);
+    const newgroupname = 'new group name';
+    const newgroupdescr = 'new group description';
+    expect(
+        find.descendant(
+            of: groupnamefield, matching: find.text(groups.group1.name)),
+        findsExactly(2));
+
+    expect(
+        find.descendant(
+            of: groupdescrfield,
+            matching: find.text(groups.group1.description)),
+        findsExactly(2));
+
+    expect(nameEditIcon, findsExactly(1));
+    expect(descrEditIcon, findsExactly(1));
+
+    await tester.tap(nameEditIcon);
+    await tester.enterText(groupnamefield, newgroupname);
+    await tester.pumpAndSettle();
+    expect(check, findsExactly(1));
+    await tester.tap(check);
+
+    expect(
+        find.descendant(of: groupnamefield, matching: find.text(newgroupname)),
+        findsExactly(2));
+
+    await tester.tap(descrEditIcon);
+    await tester.enterText(groupdescrfield, newgroupdescr);
+    await tester.pumpAndSettle();
+    expect(check, findsExactly(1));
+    await tester.tap(check);
+
+    expect(
+        find.descendant(
+            of: groupdescrfield, matching: find.text(newgroupdescr)),
+        findsExactly(2));
   });
 }

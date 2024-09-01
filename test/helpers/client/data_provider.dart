@@ -18,6 +18,8 @@ class DataProvider {
   static String email1 = "test1@email.com";
   static String userID1 = "userID1";
   static String userID2 = "userID2";
+  static String userID3 = "userID3";
+  static String userID4 = "userID4";
   static String username1 = "testUser1";
   static String username2 = "testUser2";
   static String username3 = "testUser3";
@@ -29,8 +31,10 @@ class DataProvider {
   static String meetingTitle2 = "testMeetingTitle2";
   static String meetingTitle3 = "testMeetingTitle3";
   static String meetingDescr1 = "testMeetingDescription1";
-  static String meetingSummaryLong = "The world is changing and Tropico is moving with the times - geographical powers rise and fall and the world market is dominated by new players with new demands and offers - and you, as El Presidente, face a whole new set of challenges.";
-  static String meetingSummaryShort = "The world is changing and Tropico is moving with the times";
+  static String meetingSummaryLong =
+      "The world is changing and Tropico is moving with the times - geographical powers rise and fall and the world market is dominated by new players with new demands and offers - and you, as El Presidente, face a whole new set of challenges.";
+  static String meetingSummaryShort =
+      "The world is changing and Tropico is moving with the times";
   static String dateTimePast = "2022-01-01T12:00:00.000Z";
   static String dateTimeFuture = "2025-01-01T12:00:00.000Z";
   static DateTime dateTimePastObj = DateTime.parse(dateTimePast);
@@ -60,4 +64,19 @@ class DataProvider {
   static String getLongGroupName() {
     return longGroupName;
   }
+
+  //new group testing
+  static String inviteLink = "https//:groupinvite.com";
+  static String groupMeetingLink = "https//:groupmeeting.com";
+
+  static String question = "this is a question?";
+  static List<String> options = ["option1", "option2", "option3"];
+  static Map<int, List<String>> votes = {
+    0: [userID1, userID2],
+    1: [userID3],
+    2: [userID4],
+  };
+  static String userAdmin = "userAdmin";
+  static String meetingTitle = "meetingTitle";
+  static int meetingLength = 40;
 }

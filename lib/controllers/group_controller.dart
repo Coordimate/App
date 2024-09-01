@@ -93,10 +93,9 @@ class GroupController {
 
   Future<void> deleteGroup(String id) async {
     var url = Uri.parse("$apiUrl/groups/$id");
-    final response = await AppState.client.delete(url,
-        headers: {
-          "Content-Type": "application/json",
-        });
+    final response = await AppState.client.delete(url, headers: {
+      "Content-Type": "application/json",
+    });
     if (response.statusCode != 204) {
       throw Exception('Failed to delete group');
     }
@@ -104,25 +103,22 @@ class GroupController {
 
   Future<void> leaveGroup(String id) async {
     var url = Uri.parse("$apiUrl/groups/$id/leave");
-    final response = await AppState.client.post(url,
-        headers: {
-          "Content-Type": "application/json",
-        });
+    final response = await AppState.client.post(url, headers: {
+      "Content-Type": "application/json",
+    });
     if (response.statusCode != 200) {
       throw Exception('Failed to leave group');
     }
   }
 
   Future<void> removeUser(id, userId) async {
-    // TODO
-    // var url = Uri.parse("$apiUrl/groups/$id/remove_user/$userId");
-    // final response = await AppState.client.delete(url,
-    //     headers: {
-    //       "Content-Type": "application/json",
-    //     });
-    // if (response.statusCode != 204) {
-    //   throw Exception('Failed to remove user');
-    // }
+    var url = Uri.parse("$apiUrl/groups/$id/user/$userId");
+    final response = await AppState.client.delete(url, headers: {
+      "Content-Type": "application/json",
+    });
+    if (response.statusCode != 204) {
+      throw Exception('Failed to remove user');
+    }
   }
 
   Future<List<UserCard>> fetchGroupUsers(id) async {
@@ -161,10 +157,9 @@ class GroupController {
 
   Future<void> createPoll(id, pollData) async {
     var url = Uri.parse("$apiUrl/groups/$id");
-    final response = await AppState.client
-        .patch(url, headers: {"Content-Type": "application/json"}, body: json.encode({
-      "poll": json.decode(pollData)
-    }));
+    final response = await AppState.client.patch(url,
+        headers: {"Content-Type": "application/json"},
+        body: json.encode({"poll": json.decode(pollData)}));
     if (response.statusCode != 200) {
       log(response.body);
       throw Exception('Failed to create the group poll');

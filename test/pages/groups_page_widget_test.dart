@@ -8,6 +8,7 @@ import '../helpers/when.dart';
 import '../helpers/client/groups.dart';
 import '../helpers/client/data_provider.dart';
 import 'package:coordimate/widget_keys.dart';
+import 'package:coordimate/pages/group_details_page.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -46,6 +47,7 @@ void main() {
     expect(find.byKey(groupCardKey), findsExactly(1));
     expect(find.byKey(groupCardDescriptionKey), findsExactly(1));
     expect(find.byKey(groupCardNameKey), findsExactly(1));
+    expect(find.byKey(avatarKey), findsExactly(1));
   });
 
   testWidgets(
@@ -226,5 +228,27 @@ void main() {
     // expect(find.text(gName), findsExactly(1));
 //    expect(find.byKey(groupCardDescriptionOverflowKey), findsExactly(1));
 //    expect(find.byKey(groupCardNameOverflowKey), findsExactly(1));
+  });
+
+  testWidgets(
+      'test8: the group card is tappable and redirects to a mocked groupsdetailspage',
+      (tester) async {
+    AppState.testMode = true;
+    whenGroupsOne(client);
+    whenGroupsDetails(client);
+    whenGroupsMeetings(client);
+    await tester.pumpWidget(const MaterialApp(
+      home: GroupsPage(),
+    ));
+    await tester.pumpAndSettle();
+    final button = find.byKey(groupCardKey);
+    expect(button, findsExactly(1));
+
+    await tester.runAsync(() async {
+      await tester.tap(button);
+    });
+
+    await tester.pumpAndSettle();
+    expect(find.byType(GroupDetailsPage), findsOne);
   });
 }

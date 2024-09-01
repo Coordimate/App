@@ -78,7 +78,7 @@ class _GroupsPageState extends State<GroupsPage> {
               padding: const EdgeInsets.all(10),
               child: Row(
                 children: [
-                  Avatar(key: UniqueKey(), size: 70, groupId: groups[index].id),
+                  Avatar(key: avatarKey, size: 70, groupId: groups[index].id),
                   const SizedBox(width: 10),
                   Expanded(
                     child: Column(

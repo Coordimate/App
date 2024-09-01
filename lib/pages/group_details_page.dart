@@ -372,7 +372,7 @@ class GroupDetailsPageState extends State<GroupDetailsPage> {
               ),
               const SizedBox(height: 16),
               GroupPollCard(
-                  key: createGroupPollButtonKey,
+                  key: pollPanelKey,
                   groupId: widget.group.id,
                   initialPoll: poll,
                   fontSize: universalFontSize,
@@ -537,6 +537,7 @@ class GroupDetailsPageState extends State<GroupDetailsPage> {
               );
             } else if (meetings[index].status == MeetingStatus.accepted) {
               return AcceptedMeetingTile(
+                key: groupAcceptedMeetingKey,
                 meeting: meetings[index],
                 fetchMeetings: _fetchMeetings,
               );
