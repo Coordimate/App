@@ -116,7 +116,7 @@ class _PersonalPageState extends State<PersonalPage> {
             return const Scaffold(
                 backgroundColor: white,
                 appBar:
-                CustomAppBar(title: 'Personal Page', needButton: false),
+                CustomAppBar(title: 'Settings', needButton: false),
                 body: Center(child: Text('Failed to load data')));
           } else if (snapshot.hasData) {
             return Scaffold(
@@ -124,63 +124,65 @@ class _PersonalPageState extends State<PersonalPage> {
               appBar:
                   const CustomAppBar(title: 'Settings', needButton: false),
               body: Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: <Widget>[
-                    Avatar(size: 120, key: avatarKey, userId: user.id, clickable: true),
-                    const SizedBox(height: 16),
-                    Padding(
-                      padding:
-                          const EdgeInsets.symmetric(horizontal: horPadding),
-                      child: EditableTextField(
-                        key: usernameFieldKey,
-                        controller: usernameController,
-                        focusNode: focusNode,
-                        onSubmit: changeUsername,
-                        fontSize: usernameFontSize, // not required
-                        padding: horPadding, // not required
-                        minChars: 1,
-                        maxLength: 20,
+                child: SingleChildScrollView(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: <Widget>[
+                      Avatar(size: 120, key: avatarKey, userId: user.id, clickable: true),
+                      const SizedBox(height: 16),
+                      Padding(
+                        padding:
+                            const EdgeInsets.symmetric(horizontal: horPadding),
+                        child: EditableTextField(
+                          key: usernameFieldKey,
+                          controller: usernameController,
+                          focusNode: focusNode,
+                          onSubmit: changeUsername,
+                          fontSize: usernameFontSize, // not required
+                          padding: horPadding, // not required
+                          minChars: 1,
+                          maxLength: 20,
+                        ),
                       ),
-                    ),
-                    const SizedBox(height: 8),
-                    Text(userEmail,
-                        key: emailFieldKey,
-                        style: const TextStyle(
-                            fontSize: 20,
-                            fontWeight: FontWeight.w600,
-                            color: darkBlue)),
-                    const SizedBox(height: 16),
-                    RandomCoffeeButton(
-                      key: randomCoffeeButtonKey,
-                      onTap: showRandomCoffeeDialog,
-                    ),
-                    if (showChangePasswordButton) const SizedBox(height: 8),
-                    if (showChangePasswordButton)
-                      LoginEmptyButton(
-                        key: changePasswordButtonKey,
-                        text: "Change Password",
-                        onTap: showChangePasswordDialog,
+                      const SizedBox(height: 8),
+                      Text(userEmail,
+                          key: emailFieldKey,
+                          style: const TextStyle(
+                              fontSize: 20,
+                              fontWeight: FontWeight.w600,
+                              color: darkBlue)),
+                      const SizedBox(height: 16),
+                      RandomCoffeeButton(
+                        key: randomCoffeeButtonKey,
+                        onTap: showRandomCoffeeDialog,
                       ),
-                    const SizedBox(height: 8),
-                    LoginButton(
-                        key: logoutButtonKey,
-                        text: "Logout",
-                        onTap: () {
-                          logOut(context);
-                        }),
-                    const SizedBox(height: 8),
-                    Container(
-                      color: white,
-                      padding: const EdgeInsets.only(bottom: 16.0),
-                      child: DeleteButton(
-                        key: deleteUserButtonKey,
-                        str: 'Delete Account',
-                        showDeleteDialog: showDeleteAccountDialog,
-                        color: orange,
+                      if (showChangePasswordButton) const SizedBox(height: 8),
+                      if (showChangePasswordButton)
+                        LoginEmptyButton(
+                          key: changePasswordButtonKey,
+                          text: "Change Password",
+                          onTap: showChangePasswordDialog,
+                        ),
+                      const SizedBox(height: 8),
+                      LoginButton(
+                          key: logoutButtonKey,
+                          text: "Logout",
+                          onTap: () {
+                            logOut(context);
+                          }),
+                      const SizedBox(height: 8),
+                      Container(
+                        color: white,
+                        padding: const EdgeInsets.only(bottom: 16.0),
+                        child: DeleteButton(
+                          key: deleteUserButtonKey,
+                          str: 'Delete Account',
+                          showDeleteDialog: showDeleteAccountDialog,
+                          color: orange,
+                        ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
             );
