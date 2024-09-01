@@ -124,6 +124,26 @@ final meetingTileDeclinedFuture = MeetingTileModel(
     isFinished: false
 );
 
+final meetingTileAcceptedPast = MeetingTileModel(
+    id: DataProvider.meetingID2,
+    title: DataProvider.meetingTitle2,
+    dateTime: DataProvider.dateTimePastObj,
+    duration: 60,
+    group: groupCard1,
+    status: MeetingStatus.accepted,
+    isFinished: true
+);
+
+final meetingTileDeclinedPast = MeetingTileModel(
+    id: DataProvider.meetingID3,
+    title: DataProvider.meetingTitle3,
+    dateTime: DataProvider.dateTimePastObj,
+    duration: 60,
+    group: groupCard1,
+    status: MeetingStatus.declined,
+    isFinished: true
+);
+
 final participantAccepted = Participant(
     id: '1acc',
     username: DataProvider.username1,
@@ -183,6 +203,21 @@ final meetingDetailsFuturePending = MeetingDetails(
     groupName: DataProvider.groupName1,
     status: MeetingStatus.needsAcceptance,
     isFinished: false,
+    summary: '',
+    meetingLink: DataProvider.meetingLink
+);
+
+final meetingDetailsPastDeclined = MeetingDetails(
+    title: DataProvider.meetingTitle1,
+    dateTime: DataProvider.dateTimePastObj,
+    duration: 60,
+    participants: [participantAccepted, participantDeclined],
+    description: DataProvider.meetingDescr1,
+    admin: participantAccepted,
+    groupId: DataProvider.groupID1,
+    groupName: DataProvider.groupName1,
+    status: MeetingStatus.declined,
+    isFinished: true,
     summary: '',
     meetingLink: DataProvider.meetingLink
 );

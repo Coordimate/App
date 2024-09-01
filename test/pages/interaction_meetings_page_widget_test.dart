@@ -1,7 +1,4 @@
 import 'package:coordimate/app_state.dart';
-import 'package:coordimate/components/colors.dart';
-import 'package:coordimate/components/draggable_bottom_sheet.dart';
-import 'package:coordimate/components/invitation_action_button.dart';
 import 'package:coordimate/components/meeting_tiles.dart';
 import 'package:coordimate/models/meeting.dart';
 import 'package:coordimate/pages/meeting_info_page.dart';

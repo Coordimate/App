@@ -1,9 +1,4 @@
 import 'package:coordimate/app_state.dart';
-import 'package:coordimate/components/agenda.dart';
-import 'package:coordimate/components/colors.dart';
-import 'package:coordimate/components/pop_up_dialog.dart';
-import 'package:coordimate/models/meeting.dart';
-import 'package:coordimate/pages/meeting_info_page.dart';
 import 'package:coordimate/pages/meeting_summary_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
