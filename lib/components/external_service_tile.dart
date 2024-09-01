@@ -1,4 +1,5 @@
 import 'dart:developer';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:coordimate/screens/home_screen.dart';
 import 'package:coordimate/app_state.dart';
@@ -53,8 +54,8 @@ class SquareTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ElevatedButton(
-      onPressed: () { _authUser(context); },
+    return !kIsWeb ? ElevatedButton(
+      onPressed: () { if (!kIsWeb) _authUser(context);  },
       style: ButtonStyle(
         shape: WidgetStateProperty.all(const CircleBorder()),
         backgroundColor: WidgetStateProperty.all(Colors.white),
@@ -64,6 +65,6 @@ class SquareTile extends StatelessWidget {
         height: 60,
         width: 60,
       ),
-    );
+    ) : const SizedBox(height: 60, width: 60);
   }
 }
