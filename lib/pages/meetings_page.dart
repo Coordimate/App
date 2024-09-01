@@ -1,6 +1,7 @@
 import 'package:coordimate/components/appbar.dart';
 import 'package:coordimate/components/divider.dart';
 import 'package:coordimate/widget_keys.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:coordimate/components/meeting_tiles.dart';
 import 'package:coordimate/components/calendar_day_box.dart';
@@ -149,6 +150,7 @@ class _MeetingsPageState extends State<MeetingsPage> {
               ],
             ),
           ),
+          if (!kIsWeb)
           DraggableBottomSheet(
             key: draggableBottomSheetKey,
             initialChildSize: initialChildSize,
@@ -233,7 +235,6 @@ class _MeetingsPageState extends State<MeetingsPage> {
           physics: const NeverScrollableScrollPhysics(),
           itemCount: meetings.length,
           itemBuilder: (context, index) {
-            // Build meeting tile based on meeting status
             if (meetings[index].status == MeetingStatus.needsAcceptance) {
               return NewMeetingTile(
                 key: Key('newMeetingTile${meetings[index].id}'),

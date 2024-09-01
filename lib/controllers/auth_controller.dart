@@ -94,7 +94,7 @@ class AuthorizationController {
     switch (signInMethod) {
       case AuthType.email:
         body = {
-          "email": email,
+          "email": email.toLowerCase(),
           "password": password,
           "auth_type": signInType[AuthType.email]!
         };
@@ -176,7 +176,7 @@ class AuthorizationController {
       case AuthType.email:
         body = {
           "username": username,
-          "email": email,
+          "email": email.toLowerCase(),
           "password": password,
           "auth_type": signInType[AuthType.email]!
         };

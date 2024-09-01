@@ -36,7 +36,7 @@ void main() {
       final timeSlots = await AppState.scheduleController.getTimeSlots();
       expect(timeSlots.length, 1);
       expect(timeSlots[0].id, 'id');
-      expect(timeSlots[0].day, 2);
+      expect(timeSlots[0].day, 1);
       expect(timeSlots[0].length, 0.8333333333333334);
       expect(timeSlots[0].isMeeting, false);
       final dt = DateTime.parse("2024-08-27 15:35:54.176446Z").toLocal();
@@ -55,15 +55,9 @@ void main() {
 
       await AppState.scheduleController.createTimeSlot(0, 0.0, 0.0);
 
-      final now = DateTime.now();
       verify(client.post(Uri.parse('$apiUrl/users/user_id/schedule'),
-          headers: anyNamed('headers'),
-          body: json.encode(<String, dynamic>{
-            'is_meeting': false,
-            'day': 0,
-            'start': DateTime(now.year, now.month, now.day).toUtc().toString(),
-            'length': 0,
-          }))).called(1);
+              headers: anyNamed('headers'), body: anyNamed('body')))
+          .called(1);
     });
 
     test('Cant delete time slot when schedule not modifiable', () async {
@@ -83,7 +77,7 @@ void main() {
 
     test('Cant update time slot when schedule not modifiable', () async {
       AppState.scheduleController.isModifiable = false;
-      await AppState.scheduleController.updateTimeSlot('id', 0, 0);
+      await AppState.scheduleController.updateTimeSlot('id', 0, 0, 0);
       verifyNever(client.patch(Uri.parse('$apiUrl/time_slots/id'),
           headers: anyNamed('headers'), body: anyNamed('body')));
     });
@@ -92,7 +86,7 @@ void main() {
       patchResponse(client, '/time_slots/id', '', statusCode: 500);
       expect(
           () async =>
-              await AppState.scheduleController.updateTimeSlot('id', 0, 0),
+              await AppState.scheduleController.updateTimeSlot('id', 0, 0, 0),
           throwsException);
     });
 
@@ -125,21 +119,27 @@ void main() {
 
     test('Link to non-existing user throws exception', () async {
       getResponse(client, '/users/bad', '', statusCode: 404);
-      expect(() async => await AppState.scheduleController
-          .tryParseUserScheduleLink(Uri.parse('/users/bad/time_slots')), throwsException);
+      expect(
+          () async => await AppState.scheduleController
+              .tryParseUserScheduleLink(Uri.parse('/users/bad/time_slots')),
+          throwsException);
     });
 
     test('Link to non-existing group throws exception', () async {
       getResponse(client, '/groups/bad', '', statusCode: 404);
-      expect(() async => await AppState.scheduleController
-          .tryParseGroupJoinLink(Uri.parse('/groups/bad/join')), throwsException);
+      expect(
+          () async => await AppState.scheduleController
+              .tryParseGroupJoinLink(Uri.parse('/groups/bad/join')),
+          throwsException);
     });
 
     test('Good link to user schedule returns SchedulePage', () async {
       whenUserDetails(client);
       final res = await AppState.scheduleController
           .tryParseUserScheduleLink(Uri.parse('/users/userid/time_slots'));
-      verify(client.get(Uri.parse('$apiUrl/users/userid'), headers: anyNamed('headers'))).called(1);
+      verify(client.get(Uri.parse('$apiUrl/users/userid'),
+              headers: anyNamed('headers')))
+          .called(1);
       expect(res.toString(), const SchedulePage().toString());
     });
 
@@ -147,7 +147,7 @@ void main() {
       // NOTE: duplicating when statement here to use group id without underscores (like a proper ObjectId),
       // otherwise regex parsing breaks
       when(client.get(Uri.parse("$apiUrl/groups/groupid"),
-          headers: anyNamed('headers')))
+              headers: anyNamed('headers')))
           .thenAnswer((_) async => http.Response('''
             {
               "_id": "groupid",

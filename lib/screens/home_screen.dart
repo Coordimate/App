@@ -131,10 +131,11 @@ class HomeScreenState extends State<HomeScreen> {
       _initNotifications();
     });
     initUniLinks().whenComplete(() {});
-    AppState.userController.updateLocation();
+    if (!AppState.testMode) AppState.userController.updateLocation();
   }
 
   void _initNotifications() async {
+    if (AppState.testMode) return;
     await AppState.firebaseMessagingInstance.requestPermission();
     // await FirebaseMessaging.instance.getAPNSToken();
     final fcmToken = await AppState.firebaseMessagingInstance.getToken();

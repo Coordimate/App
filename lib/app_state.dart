@@ -10,6 +10,7 @@ import 'package:coordimate/controllers/group_controller.dart';
 import 'package:http_interceptor/http/intercepted_client.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:coordimate/auth_interceptor.dart';
+import 'package:web_socket_channel/web_socket_channel.dart';
 
 class AppState {
   static Future<SharedPreferences> prefs = SharedPreferences.getInstance();
@@ -25,6 +26,7 @@ class AppState {
   static ScheduleController scheduleController = ScheduleController();
   static UserController userController = UserController();
   static GroupController groupController = GroupController();
+  static WebSocketChannel? webSocketChannel;
 
   static bool testMode = false;
 

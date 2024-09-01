@@ -1,5 +1,5 @@
 import 'dart:convert';
-
+import 'package:coordimate/app_state.dart';
 import 'package:coordimate/components/appbar.dart';
 import 'package:coordimate/components/avatar.dart';
 import 'package:coordimate/components/colors.dart';
@@ -106,9 +106,6 @@ class GroupChatPageState extends State<GroupChatPage> {
   String lastMessage = '';
 
   final TextEditingController _controller = TextEditingController();
-  late final channel = WebSocketChannel.connect(
-    Uri.parse('$wsUrl/${widget.groupId}/${widget.userId}'),
-  );
 
   List<ChatMessage> oldMessages = [];
   List<ChatMessage> messages = [];
@@ -119,6 +116,11 @@ class GroupChatPageState extends State<GroupChatPage> {
   void initState() {
     super.initState();
     oldMessages = widget.chatMessages;
+    if (!AppState.testMode) {
+      AppState.webSocketChannel = WebSocketChannel.connect(
+      Uri.parse('$wsUrl/${widget.groupId}/${widget.userId}'),
+    );
+    }
   }
 
   @override
@@ -135,7 +137,7 @@ class GroupChatPageState extends State<GroupChatPage> {
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16.0),
               child: StreamBuilder(
-                stream: channel.stream,
+                stream: AppState.webSocketChannel!.stream,
                 builder: (context, snapshot) {
                   if (snapshot.hasData) {
                     var msg = snapshot.data;
@@ -195,7 +197,7 @@ class GroupChatPageState extends State<GroupChatPage> {
 
   void _sendMessage() async {
     if (_controller.text.isNotEmpty) {
-      channel.sink.add(
+      AppState.webSocketChannel!.sink.add(
           json.encode({'user_id': widget.userId, 'text': _controller.text}));
       _controller.clear();
     }
@@ -203,7 +205,7 @@ class GroupChatPageState extends State<GroupChatPage> {
 
   @override
   void dispose() {
-    channel.sink.close();
+    AppState.webSocketChannel!.sink.close();
     _controller.dispose();
     super.dispose();
   }
