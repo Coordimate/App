@@ -139,5 +139,67 @@ void main() {
       final inviteLink = await AppState.groupController.shareInviteLink(1);
       expect(inviteLink, "http://google.com");
     });
+
+    group('joinGroup tests', () {
+
+      test('Sends POST request to the correct URL', () async {
+        when(client.post(Uri.parse("$apiUrl/groups/group_id/join"),
+            headers: {"Content-Type": "application/json"}))
+            .thenAnswer((_) async => http.Response('', 200));
+        when(client.get(Uri.parse("$apiUrl/groups/group_id")))
+            .thenAnswer((_) async => http.Response('''{
+                   "id": "group_id",
+                   "name": "name",
+                   "admin": {"_id": "admin_id"},
+                   "description": "description"
+                 }''', 200));
+
+        await AppState.groupController.joinGroup("group_id");
+
+        verify(client.post(Uri.parse("$apiUrl/groups/group_id/join"),
+            headers: {"Content-Type": "application/json"})).called(1);
+      });
+
+      test('Correctly parses group data from response', () async {
+        when(client.post(Uri.parse("$apiUrl/groups/group_id/join"),
+            headers: {"Content-Type": "application/json"}))
+            .thenAnswer((_) async => http.Response('', 200));
+        when(client.get(Uri.parse("$apiUrl/groups/group_id")))
+            .thenAnswer((_) async => http.Response('''{
+                   "id": "group_id",
+                   "name": "group_name",
+                   "admin": {"_id": "admin_id"},
+                   "description": "description"
+                 }''', 200));
+
+        final group = await AppState.groupController.joinGroup("group_id");
+
+        expect(group.id, "group_id");
+        expect(group.name, "group_name");
+      });
+
+      test('Throws exception when response status code is not 200 in post', () async {
+        when(client.post(Uri.parse("$apiUrl/groups/group_id/join"),
+            headers: {"Content-Type": "application/json"}))
+            .thenAnswer((_) async => http.Response('', 500));
+
+        expect(() async {
+          await AppState.groupController.joinGroup("group_id");
+        }, throwsException);
+      });
+
+      test('Throws exception when response status code is not 200 in get', () async {
+        when(client.post(Uri.parse("$apiUrl/groups/group_id/join"),
+            headers: {"Content-Type": "application/json"}))
+            .thenAnswer((_) async => http.Response('', 200));
+        when(client.get(Uri.parse("$apiUrl/groups/group_id")))
+            .thenAnswer((_) async => http.Response('', 500));
+
+        expect(() async {
+          await AppState.groupController.joinGroup("group_id");
+        }, throwsException);
+      });
+
+    });
   });
 }

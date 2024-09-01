@@ -2140,6 +2140,21 @@ class MockGroupController extends _i1.Mock implements _i26.GroupController {
         returnValue: _i12.Future<void>.value(),
         returnValueForMissingStub: _i12.Future<void>.value(),
       ) as _i12.Future<void>);
+
+  @override
+  _i12.Future<_i11.Group> joinGroup(String? id) => (super.noSuchMethod(
+        Invocation.method(
+          #joinGroup,
+          [id],
+        ),
+        returnValue: _i12.Future<_i11.Group>.value(_FakeGroup_16(
+          this,
+          Invocation.method(
+            #joinGroup,
+            [id],
+          ),
+        )),
+      ) as _i12.Future<_i11.Group>);
 }
 
 /// A class which mocks [ScheduleController].

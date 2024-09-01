@@ -215,4 +215,20 @@ class GroupController {
       throw Exception('Failed to update group meeting link');
     }
   }
+
+  Future<Group> joinGroup(String id) async {
+    final responsePost = await AppState.client.post(
+        Uri.parse("$apiUrl/groups/$id/join"),
+        headers: {"Content-Type": "application/json"});
+    if (responsePost.statusCode != 200) {
+      throw Exception('Failed to join group');
+    }
+    final response = await AppState.client.get(Uri.parse("$apiUrl/groups/$id"));
+    if (response.statusCode == 200) {
+      final group = Group.fromJson(json.decode(response.body));
+      return group;
+    } else {
+      throw Exception('Failed to join group');
+    }
+  }
 }
