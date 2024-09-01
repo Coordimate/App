@@ -79,6 +79,7 @@ class AuthorizationController {
   }
 
   Future<bool> signIn(email, signInMethod, {password}) async {
+    String? photoUrl;
     googleSignIn.onCurrentUserChanged
         .listen((GoogleSignInAccount? account) async {
       googleAuthClient = await googleSignIn.authenticatedClient();
@@ -111,8 +112,7 @@ class AuthorizationController {
           "email": googleUser.email,
           "auth_type": signInType[AuthType.google]!
         };
-        final photoUrl = googleUser.photoUrl;
-        if (photoUrl != null) await _uploadGoogleProfileImage(photoUrl);
+        photoUrl = googleUser.photoUrl;
       case AuthType.facebook:
         final LoginResult result =
             await _facebookAuth.login(permissions: ['email']);
@@ -163,6 +163,9 @@ class AuthorizationController {
     final respBody = json.decode(meResponse.body);
     await AppState.storage.write(key: 'id_account', value: respBody['id']);
     userId = respBody['id'];
+    if (photoUrl != null && signInMethod == AuthType.google) {
+      await _uploadGoogleProfileImage(photoUrl);
+    }
     return true;
   }
 
