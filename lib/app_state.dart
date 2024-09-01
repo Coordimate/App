@@ -22,7 +22,7 @@ class AppState {
   static FirebaseMessaging firebaseMessagingInstance =
       FirebaseMessaging.instance;
   static MeetingController meetingController = MeetingController();
-  static final scheduleController = ScheduleController();
+  static ScheduleController scheduleController = ScheduleController();
   static UserController userController = UserController();
   static GroupController groupController = GroupController();
 
