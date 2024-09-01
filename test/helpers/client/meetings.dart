@@ -221,3 +221,5 @@ final meetingDetailsPastDeclined = MeetingDetails(
     summary: '',
     meetingLink: DataProvider.meetingLink
 );
+
+const meetingDetailsPastDeclinedJSON = '{"title": "meetingTitle1","dateTime": "2020-07-09T13:10:00.000","duration": 60,"participants": [{"id": "1acc","username": "username1","status": "accepted"},{"id": "2dec","username": "username2","status": "declined"}],"description": "meetingDescr1","admin": {"id": "1acc","username": "username1","status": "accepted"},"groupId": "1","groupName": "group1","status": "declined","isFinished": true,"summary": "","meetingLink": "meetingLink"}';

@@ -73,19 +73,72 @@ void main() {
                                       },
                                     "status": "accepted",
                                     "is_finished": true
+                                  },
+                                  {
+                                    "id": "2",
+                                    "title": "meeting",
+                                    "start": "2024-08-09T13:10:00.000",
+                                    "length": 60,
+                                    "group": {
+                                      "id": "1",
+                                      "name": "group"
+                                      },
+                                    "status": "declined",
+                                    "is_finished": true
                                   }
                                 ]
                               }''', 200));
       final meetings = await AppState.meetingController.fetchMeetings();
-      expect(meetings.length, 1);
-      expect(meetings[0].id, '1');
-      expect(meetings[0].title, 'meeting');
-      expect(meetings[0].isFinished, true);
-      expect(meetings[0].status, MeetingStatus.accepted);
-      expect(meetings[0].dateTime, DateTime.parse("2024-07-09T13:10:00.000"));
-      expect(meetings[0].group.id, '1');
-      expect(meetings[0].group.name, 'group');
-      expect(meetings[0].duration, 60);
+      expect(meetings.length, 2);
+      expect(meetings[1].id, '1');
+      expect(meetings[1].title, 'meeting');
+      expect(meetings[1].isFinished, true);
+      expect(meetings[1].status, MeetingStatus.accepted);
+      expect(meetings[1].dateTime, DateTime.parse("2024-07-09T13:10:00.000"));
+      expect(meetings[1].group.id, '1');
+      expect(meetings[1].group.name, 'group');
+      expect(meetings[1].duration, 60);
+    });
+
+    test('fetchMeetingDetails returns info on success', () async {
+      getResponse(client, '/meetings/$id/details', '''{
+                                    "id": "$id",
+                                    "title": "meeting title",
+                                    "start": "2024-07-09T13:10:00.000",
+                                    "length": 20,
+                                    "is_finished": true,
+                                    "description": "string of description",
+                                    "summary": "string for summary",
+                                    "group_id": "id_gr",
+                                    "group_name": "name of group",
+                                    "admin": {
+                                      "user_id": "adminID",
+                                      "user_username": "admin username here",
+                                      "status": "accepted"
+                                    },
+                                    "participants": [],
+                                    "meeting_link": "meeting_link",
+                                    "google_event_id": "google_event_id",
+                                    "status": "accepted"
+                                  }''');
+      final meeting = await AppState.meetingController.fetchMeetingDetails(id);
+
+      expect(meeting.id, id);
+      expect(meeting.title, 'meeting title');
+      expect(meeting.dateTime, DateTime.parse('2024-07-09T13:10:00.000'));
+      expect(meeting.duration, 20);
+      expect(meeting.isFinished, true);
+      expect(meeting.description, 'string of description');
+      expect(meeting.summary, 'string for summary');
+      expect(meeting.groupId, 'id_gr');
+      expect(meeting.groupName, 'name of group');
+      expect(meeting.admin.id, 'adminID');
+      expect(meeting.admin.username, 'admin username here');
+      expect(meeting.admin.status, 'accepted');
+      expect(meeting.participants, []);
+      expect(meeting.meetingLink, 'meeting_link');
+      expect(meeting.googleEventId, 'google_event_id');
+      expect(meeting.status, MeetingStatus.accepted);
     });
 
     test('fetchMeetingDetails throws an exception on failure', () async {
@@ -185,7 +238,7 @@ void main() {
                                     "summary": "Summary A"
                                   },
                                   {
-                                    "id": "1",
+                                    "id": "2",
                                     "title": "meeting",
                                     "start": "2600-07-09T13:10:00.000",
                                     "length": 60,
@@ -196,13 +249,26 @@ void main() {
                                     "status": "accepted",
                                     "is_finished": false,
                                     "summary": "Summary A"
+                                  },
+                                  {
+                                    "id": "3",
+                                    "title": "Archived Meeting",
+                                    "start": "2024-08-09T13:10:00.000",
+                                    "length": 60,
+                                    "group": {
+                                      "id": "1",
+                                      "name": "group"
+                                      },
+                                    "status": "declined",
+                                    "is_finished": true,
+                                    "summary": "Summary A"
                                   }
                                 ]
                               }''');
 
       final meetings = await AppState.meetingController.fetchArchivedMeetings();
 
-      expect(meetings.length, 1);
+      expect(meetings.length, 2);
       expect(meetings.first.title, 'Archived Meeting');
     });
 
@@ -349,6 +415,43 @@ void main() {
 
       expect(() => AppState.meetingController.suggestMeetingLocation(id),
           throwsException);
+    });
+
+    group('updateMeetingLink', () {
+      test('successfully updates the meeting link', () async {
+        const meetingId = '1';
+        const meetingLink = 'http://new.meeting.link';
+
+        when(AppState.client.patch(
+          Uri.parse('$apiUrl/meetings/$meetingId'),
+          headers: anyNamed('headers'),
+          body: anyNamed('body'),
+        )).thenAnswer((_) async => http.Response('{}', 200));
+
+        await AppState.meetingController.updateMeetingLink(meetingId, meetingLink);
+
+        verify(AppState.client.patch(
+          Uri.parse('$apiUrl/meetings/$meetingId'),
+          headers: {'Content-Type': 'application/json; charset=UTF-8'},
+          body: jsonEncode({'meeting_link': meetingLink}),
+        )).called(1);
+      });
+
+      test('throws an exception on failure', () async {
+        const meetingId = '1';
+        const meetingLink = 'http://new.meeting.link';
+
+        when(AppState.client.patch(
+          Uri.parse('$apiUrl/meetings/$meetingId'),
+          headers: anyNamed('headers'),
+          body: anyNamed('body'),
+        )).thenAnswer((_) async => http.Response('Not Found', 404));
+
+        expect(
+              () => AppState.meetingController.updateMeetingLink(meetingId, meetingLink),
+          throwsException,
+        );
+      });
     });
   });
 }

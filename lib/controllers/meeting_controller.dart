@@ -164,8 +164,9 @@ class MeetingController {
         shouldNotifyAttendees: true,
       );
       body['google_event_id'] = eventData['id'];
-      if (eventData.containsKey('link'))
+      if (eventData.containsKey('link')) {
         body['meeting_link'] = eventData['link'];
+      }
     } else {
       log('User not signed in to google, not creating a google meet');
     }
