@@ -12,6 +12,7 @@ class MeetingTile extends StatelessWidget {
   final VoidCallback onAccepted;
   final VoidCallback onDeclined;
   final Function fetchMeetings;
+  final Color? color; // Optional color field
 
   const MeetingTile({
     super.key,
@@ -20,6 +21,7 @@ class MeetingTile extends StatelessWidget {
     required this.onAccepted,
     required this.onDeclined,
     required this.fetchMeetings,
+    this.color, // Initialize color field
   });
 
   @override
@@ -27,7 +29,10 @@ class MeetingTile extends StatelessWidget {
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
       decoration: BoxDecoration(
-        color: isArchived ? Colors.grey : darkBlue,
+        color: color ??
+            (isArchived
+                ? Colors.grey
+                : darkBlue), // Use custom color if provided
         borderRadius: BorderRadius.circular(10),
       ),
       child: ListTile(
@@ -100,8 +105,10 @@ class NewMeetingTile extends MeetingTile {
     required super.onAccepted,
     required super.onDeclined,
     required super.fetchMeetings,
+    Color? color, // Optional color
   }) : super(
           isArchived: false,
+          color: color, // Pass color to superclass
         );
 
   @override
@@ -109,7 +116,7 @@ class NewMeetingTile extends MeetingTile {
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
       decoration: BoxDecoration(
-        color: mediumBlue,
+        color: color ?? mediumBlue, // Use custom color or default to mediumBlue
         borderRadius: BorderRadius.circular(10),
       ),
       child: Row(
@@ -137,7 +144,6 @@ class NewMeetingTile extends MeetingTile {
                   ),
                   Row(
                     children: [
-                      // Avatar(size: 20, groupId: meeting.group.id),
                       const Icon(Icons.group, color: Colors.white70),
                       const SizedBox(width: 8),
                       Expanded(
@@ -195,24 +201,32 @@ class NewMeetingTile extends MeetingTile {
 }
 
 class AcceptedMeetingTile extends MeetingTile {
-  const AcceptedMeetingTile(
-      {super.key, required super.meeting, required super.fetchMeetings})
-      : super(
-          isArchived: false, // Set isArchived to false
-          onAccepted: defaultOnPressed, // Set onAccepted to an empty function
-          onDeclined: defaultOnPressed, // Set onDeclined to an empty function
+  const AcceptedMeetingTile({
+    super.key,
+    required super.meeting,
+    required super.fetchMeetings,
+    Color? color, // Optional color
+  }) : super(
+          isArchived: false,
+          onAccepted: defaultOnPressed,
+          onDeclined: defaultOnPressed,
+          color: color, // Pass color to superclass
         );
 
   static void defaultOnPressed() {}
 }
 
 class ArchivedMeetingTile extends MeetingTile {
-  const ArchivedMeetingTile(
-      {super.key, required super.meeting, required super.fetchMeetings})
-      : super(
-          isArchived: true, // Set isArchived to true
-          onAccepted: defaultOnPressed, // Set onAccepted to an empty function
-          onDeclined: defaultOnPressed, // Set onDeclined to an empty function
+  const ArchivedMeetingTile({
+    super.key,
+    required super.meeting,
+    required super.fetchMeetings,
+    Color? color, // Optional color
+  }) : super(
+          isArchived: true,
+          onAccepted: defaultOnPressed,
+          onDeclined: defaultOnPressed,
+          color: color, // Pass color to superclass
         );
 
   static void defaultOnPressed() {}

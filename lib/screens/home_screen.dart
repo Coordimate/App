@@ -79,9 +79,11 @@ class HomeScreenState extends State<HomeScreen> {
   }
 
   Future<void> _tryParseUserScheduleLink(Uri uri) async {
-    final schedulePage = await AppState.scheduleController.tryParseUserScheduleLink(uri);
+    final schedulePage =
+        await AppState.scheduleController.tryParseUserScheduleLink(uri);
     if (schedulePage != null && mounted) {
-      Navigator.of(context).push(MaterialPageRoute(builder: (context) => schedulePage));
+      Navigator.of(context)
+          .push(MaterialPageRoute(builder: (context) => schedulePage));
     }
   }
 
@@ -89,11 +91,11 @@ class HomeScreenState extends State<HomeScreen> {
     final group = await AppState.scheduleController.tryParseGroupJoinLink(uri);
     if (group != null && mounted) {
       showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          return JoinGroupDialog(
-              key: UniqueKey(), groupName: group.name, groupId: group.id);
-        });
+          context: context,
+          builder: (BuildContext context) {
+            return JoinGroupDialog(
+                key: UniqueKey(), groupName: group.name, groupId: group.id);
+          });
     }
   }
 
@@ -160,21 +162,21 @@ class HomeScreenState extends State<HomeScreen> {
             ],
           ),
           child: BottomNavigationBar(
-            key: bottomNavigationBarKey,
+              key: bottomNavigationBarKey,
               backgroundColor: Colors.white,
               items: const <BottomNavigationBarItem>[
                 BottomNavigationBarItem(
-                  key: scheduleNavigationButtonKey,
-                  icon: Icon(Icons.perm_contact_cal_outlined),
-                  label: 'Schedule'),
+                    key: scheduleNavigationButtonKey,
+                    icon: Icon(Icons.perm_contact_cal_outlined),
+                    label: 'Schedule'),
                 BottomNavigationBarItem(
-                  key: meetingsNavigationButtonKey,
-                  icon: Icon(Icons.home_outlined),
-                  label: 'Meetings'),
+                    key: meetingsNavigationButtonKey,
+                    icon: Icon(Icons.home_outlined),
+                    label: 'Meetings'),
                 BottomNavigationBarItem(
-                  key: groupsNavigationButtonKey,
-                  icon: Icon(Icons.people_outline),
-                  label: 'Groups')
+                    key: groupsNavigationButtonKey,
+                    icon: Icon(Icons.people_outline),
+                    label: 'Groups')
               ],
               currentIndex: _selectedScreen,
               selectedItemColor: darkBlue,
