@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:coordimate/pages/personal_info_page.dart';
+import 'package:coordimate/widget_keys.dart';
 import 'package:flutter/material.dart';
 
 import 'package:coordimate/components/colors.dart';
@@ -29,12 +30,12 @@ class ScheduleGrid extends StatefulWidget {
   });
 
   @override
-  State<ScheduleGrid> createState() => _ScheduleGridState();
+  State<ScheduleGrid> createState() => ScheduleGridState();
 }
 
-class _ScheduleGridState extends State<ScheduleGrid> {
+class ScheduleGridState extends State<ScheduleGrid> {
   double _baseHourHeight = 26.0;
-  double _hourHeight = 26.0;
+  double hourHeight = 26.0;
   Future<List<TimeSlot>>? _timeSlots;
 
   @override
@@ -54,16 +55,16 @@ class _ScheduleGridState extends State<ScheduleGrid> {
     final screenWidth = MediaQuery.of(context).size.width;
     return GestureDetector(
         onScaleStart: (details) {
-          _baseHourHeight = _hourHeight;
+          _baseHourHeight = hourHeight;
         },
         onScaleUpdate: (details) {
           setState(() {
-            _hourHeight = _baseHourHeight * details.scale;
-            if (_hourHeight < 20) {
-              _hourHeight = 20.0;
+            hourHeight = _baseHourHeight * details.scale;
+            if (hourHeight < 20) {
+              hourHeight = 20.0;
             }
-            if (_hourHeight > 100) {
-              _hourHeight = 100.0;
+            if (hourHeight > 100) {
+              hourHeight = 100.0;
             }
           });
         },
@@ -84,13 +85,13 @@ class _ScheduleGridState extends State<ScheduleGrid> {
                                 children: [
                           SizedBox(
                               width: screenWidth / 8,
-                              child: _TimeColumn(hourHeight: _hourHeight)),
+                              child: TimeColumn(hourHeight: hourHeight)),
                           for (var i = 0; i < 7; i++)
                             SizedBox(
                                 width: screenWidth / 8,
-                                child: _DayColumn(
+                                child: DayColumn(
                                     day: i,
-                                    hourHeight: _hourHeight,
+                                    hourHeight: hourHeight,
                                     refresh: refresh,
                                     timeSlots: snapshot.hasData
                                         ? snapshot.data!
@@ -129,9 +130,9 @@ class _DaysRow extends StatelessWidget {
   }
 }
 
-class _TimeColumn extends StatelessWidget {
-  const _TimeColumn({
-    this.hourHeight = 20.0,
+class TimeColumn extends StatelessWidget {
+  const TimeColumn({
+    super.key, this.hourHeight = 20.0,
   });
 
   final double hourHeight;
@@ -147,15 +148,16 @@ class _TimeColumn extends StatelessWidget {
   }
 }
 
-class _DayColumn extends StatelessWidget {
+class DayColumn extends StatelessWidget {
   final List<TimeSlot> timeSlots;
   final int day;
   final double hourHeight;
   final Function refresh;
-  final GlobalKey<_NewTimeSlotState> _newTimeSlotKey =
-      GlobalKey<_NewTimeSlotState>();
+  final GlobalKey<NewTimeSlotState> _newTimeSlotKey =
+      GlobalKey<NewTimeSlotState>();
 
-  _DayColumn({
+  DayColumn({
+    super.key,
     required this.timeSlots,
     required this.day,
     required this.refresh,
@@ -192,7 +194,7 @@ class _DayColumn extends StatelessWidget {
             if (!AppState.scheduleController.isModifiable) {
               return;
             }
-            var start = _newTimeSlotKey.currentState?._start ?? 0.0;
+            var start = _newTimeSlotKey.currentState?.start ?? 0.0;
             if (details.localPosition.dy < start) {
               _newTimeSlotKey.currentState
                   ?.updateTop(roundToFraction(details.localPosition.dy));
@@ -208,8 +210,8 @@ class _DayColumn extends StatelessWidget {
             if (!AppState.scheduleController.isModifiable) {
               return;
             }
-            final start = _newTimeSlotKey.currentState!._top / hourHeight;
-            final length = _newTimeSlotKey.currentState!._height / hourHeight;
+            final start = _newTimeSlotKey.currentState!.top / hourHeight;
+            final length = _newTimeSlotKey.currentState!.height / hourHeight;
             await AppState.scheduleController
                 .createTimeSlot(day, start, length);
             refresh();
@@ -296,8 +298,8 @@ class TimeSlotWidget extends StatelessWidget {
   final double hourHeight;
   final Function refresh;
 
-  Widget _buildTimePickerPopup(BuildContext context, int day) {
-    return _TimePicker(
+  Widget buildTimePickerPopup(BuildContext context, int day) {
+    return TimePicker(
         id: id, day: day, start: start, length: length, refresh: refresh);
   }
 
@@ -315,7 +317,7 @@ class TimeSlotWidget extends StatelessWidget {
               }
               showDialog(
                   context: context,
-                  builder: (context) => _buildTimePickerPopup(context, day));
+                  builder: (context) => buildTimePickerPopup(context, day));
             },
             child: Stack(children: [
               Container(
@@ -328,8 +330,9 @@ class TimeSlotWidget extends StatelessWidget {
   }
 }
 
-class _TimePicker extends StatefulWidget {
-  const _TimePicker({
+class TimePicker extends StatefulWidget {
+  const TimePicker({
+    super.key,
     required this.id,
     required this.day,
     required this.start,
@@ -344,10 +347,10 @@ class _TimePicker extends StatefulWidget {
   final Function refresh;
 
   @override
-  State<_TimePicker> createState() => _TimePickerState();
+  State<TimePicker> createState() => TimePickerState();
 }
 
-class _TimePickerState extends State<_TimePicker> {
+class TimePickerState extends State<TimePicker> {
   double newStart = 0.0;
   double newLength = 0.0;
   String startTimeString = "";
@@ -407,6 +410,7 @@ class _TimePickerState extends State<_TimePicker> {
                   }
                 },
                 child: Container(
+                    key: startTimeSlot,
                     width: 90,
                     decoration: BoxDecoration(
                         border: Border.all(color: darkBlue),
@@ -443,6 +447,7 @@ class _TimePickerState extends State<_TimePicker> {
                   }
                 },
                 child: Container(
+                    key: endTimeSlot,
                     width: 90,
                     decoration: BoxDecoration(
                         border: Border.all(color: darkBlue),
@@ -456,6 +461,7 @@ class _TimePickerState extends State<_TimePicker> {
           const SizedBox(height: 30),
           Center(
               child: ElevatedButton(
+                  key: deleteTimeSlotKey,
                   style: const ButtonStyle(
                       side: WidgetStatePropertyAll(
                           BorderSide(color: Colors.red))),
@@ -483,31 +489,31 @@ class NewTimeSlot extends StatefulWidget {
   });
 
   @override
-  State<NewTimeSlot> createState() => _NewTimeSlotState();
+  State<NewTimeSlot> createState() => NewTimeSlotState();
 }
 
-class _NewTimeSlotState extends State<NewTimeSlot> {
-  double _top = 0.0;
-  double _height = 0.0;
-  double _start = 0.0;
+class NewTimeSlotState extends State<NewTimeSlot> {
+  double top = 0.0;
+  double height = 0.0;
+  double start = 0.0;
 
-  void updateTop(double top) {
+  void updateTop(double top_) {
     setState(() {
-      _top = top;
+      top = top_;
     });
   }
 
-  void updateHeight(double height) {
+  void updateHeight(double height_) {
     setState(() {
-      _height = height;
+      height = height_;
     });
   }
 
-  void updateStart(double start) {
+  void updateStart(double start_) {
     setState(() {
-      _start = start;
-      _top = start;
-      _height = 10;
+      start = start_;
+      top = start_;
+      height = 10;
     });
   }
 
@@ -515,8 +521,8 @@ class _NewTimeSlotState extends State<NewTimeSlot> {
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
     return Positioned(
-      top: _top,
-      height: _height,
+      top: top,
+      height: height,
       child: Container(
           width: screenWidth / 8 - gridBorderWidth,
           decoration: BoxDecoration(color: orange.withOpacity(0.5))),
@@ -551,24 +557,11 @@ class SchedulePage extends StatelessWidget {
   Widget build(BuildContext context) {
     AppState.scheduleController.ownerId = ownerId;
     if (isGroupSchedule) {
-      AppState.scheduleController.scheduleUrl =
-          "$apiUrl/groups/$ownerId/time_slots";
-      AppState.scheduleController.isModifiable = false;
-      AppState.scheduleController.canCreateMeeting = true;
-      AppState.scheduleController.pageTitle =
-          (ownerName == "") ? "Group Schedule" : ownerName;
+      AppState.scheduleController.setScheduleParams("$apiUrl/groups/$ownerId/time_slots", (ownerName == "") ? "Group Schedule" : ownerName, false, true);
     } else if (ownerId != "") {
-      AppState.scheduleController.scheduleUrl =
-          "$apiUrl/users/$ownerId/time_slots";
-      AppState.scheduleController.canCreateMeeting = false;
-      AppState.scheduleController.isModifiable = false;
-      AppState.scheduleController.pageTitle =
-          (ownerName == "") ? "User Schedule" : ownerName;
+      AppState.scheduleController.setScheduleParams("$apiUrl/users/$ownerId/time_slots", (ownerName == "") ? "User Schedule" : ownerName, false, false);
     } else {
-      AppState.scheduleController.scheduleUrl = "$apiUrl/time_slots";
-      AppState.scheduleController.canCreateMeeting = false;
-      AppState.scheduleController.isModifiable = true;
-      AppState.scheduleController.pageTitle = "Schedule";
+      AppState.scheduleController.setScheduleParams("$apiUrl/time_slots", "Schedule", true, false);
     }
 
     return Scaffold(

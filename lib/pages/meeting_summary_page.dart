@@ -2,6 +2,7 @@ import 'package:coordimate/components/appbar.dart';
 import 'package:coordimate/components/colors.dart';
 import 'package:flutter/material.dart';
 import 'package:coordimate/app_state.dart';
+import 'package:coordimate/widget_keys.dart';
 
 class SummaryPage extends StatefulWidget {
   final String summary;
@@ -71,6 +72,7 @@ class _SummaryPageState extends State<SummaryPage> {
                           const Icon(Icons.text_fields, color: darkBlue),
                           Expanded(
                             child: Slider(
+                              key: sliderKey,
                               value: fontSize,
                               min: 10.0,
                               max: 30.0,
@@ -89,6 +91,7 @@ class _SummaryPageState extends State<SummaryPage> {
                       child: Padding(
                         padding: const EdgeInsets.all(16.0),
                         child: TextField(
+                          key: summaryTextFieldKey,
                           focusNode: focusNode,
                           controller: summaryController,
                           maxLines: null,

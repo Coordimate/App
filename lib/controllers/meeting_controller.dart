@@ -138,18 +138,6 @@ class MeetingController {
     final meetings = (json.decode(response.body)['meetings'] as List)
         .map((data) => MeetingTileModel.fromJson(data))
         .toList();
-    for (var meeting in meetings
-        .where((meeting) => !meeting.isFinished && meeting.isInPast())
-        .toList()) {
-      finishMeeting(meeting.id);
-    }
-    for (var meeting in meetings
-        .where((meeting) =>
-            meeting.status == MeetingStatus.needsAcceptance &&
-            (meeting.isInPast() || meeting.isFinished))
-        .toList()) {
-      answerInvitation(false, meeting.id);
-    }
     meetings.sort((a, b) =>
         a.dateTime.difference(DateTime.now()).inSeconds.abs() -
         b.dateTime.difference(DateTime.now()).inSeconds.abs());
@@ -176,8 +164,9 @@ class MeetingController {
         shouldNotifyAttendees: true,
       );
       body['google_event_id'] = eventData['id'];
-      if (eventData.containsKey('link'))
+      if (eventData.containsKey('link')) {
         body['meeting_link'] = eventData['link'];
+      }
     } else {
       log('User not signed in to google, not creating a google meet');
     }

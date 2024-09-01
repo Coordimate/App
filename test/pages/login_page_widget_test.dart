@@ -8,6 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
 import 'package:mockito/mockito.dart';
+import '../helpers/when.dart';
 import '../test.mocks.dart';
 
 void main() {
@@ -192,6 +193,90 @@ void main() {
       expect(find.byKey(alertDialogKey), findsNothing);
 
       expect(find.text('Meetings'), findsAtLeast(1));
+    });
+
+    testWidgets('Failed login through google', (tester) async {
+      final mockAuthController = MockAuthorizationController();
+      AppState.authController = mockAuthController;
+
+      when(mockAuthController.signIn("", AuthType.google)).thenAnswer((_) async => false);
+
+      await tester.pumpWidget(const MaterialApp(
+        home: LoginPage(),
+      ));
+
+      expect(find.byKey(googleTileKey), findsOneWidget);
+
+      await tester.tap(find.byKey(googleTileKey));
+      await tester.pumpAndSettle();
+
+      verify(mockAuthController.signIn("", AuthType.google)).called(1);
+    });
+
+    testWidgets('Successful login through google', (tester) async {
+      final mockAuthController = MockAuthorizationController();
+      final firebase = MockFirebaseMessaging();
+
+      AppState.authController = mockAuthController;
+      AppState.firebaseMessagingInstance = firebase;
+
+      when(mockAuthController.signIn("", AuthType.google)).thenAnswer((_) async => true);
+      whenFirebase(firebase);
+
+      await tester.pumpWidget(const MaterialApp(
+        home: LoginPage(),
+      ));
+
+      expect(find.byKey(googleTileKey), findsOneWidget);
+
+      await tester.tap(find.byKey(googleTileKey));
+      await tester.pumpAndSettle();
+
+      expect(find.text("Meetings"), findsExactly(2));
+
+      verify(mockAuthController.signIn("", AuthType.google)).called(1);
+    });
+
+    testWidgets('Failed login through facebook', (tester) async {
+      final mockAuthController = MockAuthorizationController();
+      AppState.authController = mockAuthController;
+
+      when(mockAuthController.signIn("", AuthType.facebook)).thenAnswer((_) async => false);
+
+      await tester.pumpWidget(const MaterialApp(
+        home: LoginPage(),
+      ));
+
+      expect(find.byKey(facebookTileKey), findsOneWidget);
+
+      await tester.tap(find.byKey(facebookTileKey));
+      await tester.pumpAndSettle();
+
+      verify(mockAuthController.signIn("", AuthType.facebook)).called(1);
+    });
+
+    testWidgets('Successful login through facebook', (tester) async {
+      final mockAuthController = MockAuthorizationController();
+      final firebase = MockFirebaseMessaging();
+
+      AppState.authController = mockAuthController;
+      AppState.firebaseMessagingInstance = firebase;
+
+      when(mockAuthController.signIn("", AuthType.facebook)).thenAnswer((_) async => true);
+      whenFirebase(firebase);
+
+      await tester.pumpWidget(const MaterialApp(
+        home: LoginPage(),
+      ));
+
+      expect(find.byKey(facebookTileKey), findsOneWidget);
+
+      await tester.tap(find.byKey(facebookTileKey));
+      await tester.pumpAndSettle();
+
+      expect(find.text("Meetings"), findsExactly(2));
+
+      verify(mockAuthController.signIn("", AuthType.facebook)).called(1);
     });
   });
 }

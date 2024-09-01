@@ -21,14 +21,7 @@ class MeetingsPage extends StatefulWidget {
 }
 
 class _MeetingsPageState extends State<MeetingsPage> {
-  final TextEditingController _titleController = TextEditingController();
-  final TextEditingController _descriptionController = TextEditingController();
   List<MeetingTileModel> meetings = [];
-
-  void clearControllers() {
-    _titleController.clear();
-    _descriptionController.clear();
-  }
 
   @override
   void initState() {
@@ -249,13 +242,7 @@ class _MeetingsPageState extends State<MeetingsPage> {
                 onDeclined: () => _answerInvitation(meetings[index].id, false),
                 fetchMeetings: _fetchMeetings,
               );
-            } else if (meetings[index].status == MeetingStatus.declined) {
-              return ArchivedMeetingTile(
-                key: Key('archivedMeetingTile${meetings[index].id}'),
-                meeting: meetings[index],
-                fetchMeetings: _fetchMeetings,
-              );
-            } else {
+            } else if (meetings[index].status == MeetingStatus.accepted) {
               return AcceptedMeetingTile(
                 key: Key('acceptedMeetingTile${meetings[index].id}'),
                 meeting: meetings[index],

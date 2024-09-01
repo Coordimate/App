@@ -13,6 +13,13 @@ class ScheduleController {
   bool canCreateMeeting = false;
   String ownerId = '';
 
+  void setScheduleParams(scheduleUrl_, pageTitle_, isModifiable_, canCreateMeeting_) {
+    scheduleUrl = scheduleUrl_;
+    isModifiable = isModifiable_;
+    pageTitle = pageTitle_;
+    canCreateMeeting = canCreateMeeting_;
+  }
+
   Future<List<TimeSlot>> getTimeSlots() async {
     var url = Uri.parse(scheduleUrl);
     final response = await AppState.client
