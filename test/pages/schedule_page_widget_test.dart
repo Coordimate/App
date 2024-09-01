@@ -45,7 +45,10 @@ void main() {
 
   group('Schedule page picker: group, personal, on other user', () {
     testWidgets("Personal schedule", (WidgetTester tester) async {
-      when(mockScheduleController.getTimeSlots()).thenAnswer((_) async => []);
+      when(mockScheduleController.getTimeSlots()).thenAnswer(
+          (_) async => [TimeSlot(id: '1', day: 1, start: 2, length: 2)]);
+      when(mockScheduleController.isModifiable).thenAnswer((_) => true);
+      when(mockScheduleController.canCreateMeeting).thenAnswer((_) => false);
 
       await tester.pumpWidget(const MaterialApp(
         home: SchedulePage(),
@@ -57,10 +60,18 @@ void main() {
               '$apiUrl/time_slots', 'Schedule', true, false))
           .called(1);
       expect(find.byType(FloatingActionButton), findsOne);
+
+      expect(find.byType(TimeSlotWidget), findsOne);
+      await tester.tap(find.byType(TimeSlotWidget));
+      await tester.pumpAndSettle();
+      expect(find.byType(TimePicker), findsOne);
     });
 
     testWidgets("Group schedule", (WidgetTester tester) async {
-      when(mockScheduleController.getTimeSlots()).thenAnswer((_) async => []);
+      when(mockScheduleController.getTimeSlots()).thenAnswer(
+          (_) async => [TimeSlot(id: '1', day: 1, start: 2, length: 2)]);
+      when(mockScheduleController.isModifiable).thenAnswer((_) => false);
+      when(mockScheduleController.canCreateMeeting).thenAnswer((_) => true);
 
       await tester.pumpWidget(const MaterialApp(
         home: SchedulePage(
@@ -73,10 +84,18 @@ void main() {
               '$apiUrl/groups/123/time_slots', 'Friends', false, true))
           .called(1);
       expect(find.byType(FloatingActionButton), findsNothing);
+
+      expect(find.byType(TimeSlotWidget), findsOne);
+      await tester.tap(find.byType(TimeSlotWidget));
+      await tester.pumpAndSettle();
+      expect(find.byType(TimePicker), findsNothing);
     });
 
     testWidgets("Other user schedule", (WidgetTester tester) async {
-      when(mockScheduleController.getTimeSlots()).thenAnswer((_) async => []);
+      when(mockScheduleController.getTimeSlots()).thenAnswer(
+          (_) async => [TimeSlot(id: '1', day: 1, start: 2, length: 2)]);
+      when(mockScheduleController.isModifiable).thenAnswer((_) => false);
+      when(mockScheduleController.canCreateMeeting).thenAnswer((_) => false);
 
       await tester.pumpWidget(const MaterialApp(
         home: SchedulePage(ownerId: '54321', ownerName: 'Alice'),
@@ -88,6 +107,11 @@ void main() {
               '$apiUrl/users/54321/time_slots', 'Alice', false, false))
           .called(1);
       expect(find.byType(FloatingActionButton), findsNothing);
+
+      expect(find.byType(TimeSlotWidget), findsOne);
+      await tester.tap(find.byType(TimeSlotWidget));
+      await tester.pumpAndSettle();
+      expect(find.byType(TimePicker), findsNothing);
     });
   });
 
@@ -146,6 +170,45 @@ void main() {
       expect(find.byType(ScheduleGrid), findsExactly(1));
       expect(find.byType(TimeColumn), findsExactly(1));
       expect(find.byType(DayColumn), findsExactly(7));
+    });
+
+    testWidgets('scales schedule grid', (tester) async {
+      when(mockScheduleController.getTimeSlots()).thenAnswer((_) async => []);
+
+      await tester.pumpWidget(const MaterialApp(
+        home: SchedulePage(),
+      ));
+      await tester.pumpAndSettle();
+
+      final widgetFinder = find.byType(ScheduleGrid);
+      final grid = (tester.state(widgetFinder) as ScheduleGridState);
+      final center = tester.getCenter(widgetFinder);
+
+      expect(grid.hourHeight, 26.0);
+
+      // create two touches:
+      final touch1 = await tester.startGesture(center.translate(-10, 0));
+      final touch2 = await tester.startGesture(center.translate(10, 0));
+
+      // zoom in:
+      await touch1.moveBy(const Offset(-100, 0));
+      await touch2.moveBy(const Offset(100, 0));
+      await tester.pump();
+
+      final biggerHeight = grid.hourHeight;
+      expect(biggerHeight > 26.0, true);
+
+      // zoom out:
+      await touch1.moveBy(const Offset(10, 0));
+      await touch2.moveBy(const Offset(-10, 0));
+      await tester.pump();
+
+      final smallerHeight = grid.hourHeight;
+      expect(smallerHeight < biggerHeight, true);
+
+      // cancel touches:
+      await touch1.cancel();
+      await touch2.cancel();
     });
   });
 
@@ -232,6 +295,55 @@ void main() {
       // expect(newTimeSlot.height, 0);
     });
 
+    testWidgets('Flips time slot when dragging above start', (tester) async {
+      when(mockScheduleController.getTimeSlots()).thenAnswer((_) async => []);
+      when(mockScheduleController.createTimeSlot(any, any, any))
+          .thenAnswer((_) async {});
+
+      await tester.pumpWidget(const MaterialApp(
+        home: SchedulePage(),
+      ));
+      await tester.pumpAndSettle();
+
+      final dayColumn = find.byType(DayColumn).at(3);
+      final newTimeSlotFinder = find.byType(NewTimeSlot).at(3);
+      final newTimeSlot = (tester.state(newTimeSlotFinder) as NewTimeSlotState);
+
+      final center = tester.getCenter(dayColumn);
+
+      expect(newTimeSlot.top, 0);
+      expect(newTimeSlot.start, 0);
+      expect(newTimeSlot.height, 0);
+
+      // create touch:
+      final touch = await tester.startGesture(center.translate(0, 0));
+      await tester.pump(const Duration(milliseconds: 500));
+
+      final initTop = newTimeSlot.top;
+      final initHeight = newTimeSlot.height;
+      expect(initTop > 0, true);
+      expect(newTimeSlot.start == initTop, true);
+      expect(initHeight > 0, true);
+
+      // drag down:
+      await touch.moveBy(const Offset(0, 100));
+      await tester.pump();
+
+      expect(newTimeSlot.top == initTop, true);
+      expect(newTimeSlot.height > initHeight, true);
+      final slotHeight = newTimeSlot.height;
+
+      // drag up:
+      await touch.moveBy(const Offset(0, -200));
+      await tester.pump();
+
+      expect(newTimeSlot.top < initTop, true);
+      expect(newTimeSlot.height == slotHeight, true);
+
+      // cancel touches:
+      await touch.cancel();
+    });
+
     testWidgets('Displays TimeSlotWidgets', (tester) async {
       when(mockScheduleController.getTimeSlots()).thenAnswer((_) async => [
             TimeSlot(id: '1', day: 1, isMeeting: false, length: 2, start: 2),
@@ -244,6 +356,88 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.byType(TimeSlotWidget), findsExactly(2));
+    });
+
+    testWidgets('Time Picker - change start time and cancel', (tester) async {
+      when(mockScheduleController.getTimeSlots()).thenAnswer(
+          (_) async => [TimeSlot(id: '1', day: 1, start: 2, length: 2)]);
+      when(mockScheduleController.isModifiable).thenAnswer((_) => true);
+      when(mockScheduleController.canCreateMeeting).thenAnswer((_) => false);
+
+      await tester.pumpWidget(const MaterialApp(
+        home: SchedulePage(),
+      ));
+      await tester.pumpAndSettle();
+
+      expect(find.byType(TimeSlotWidget), findsOne);
+      await tester.tap(find.byType(TimeSlotWidget));
+      await tester.pumpAndSettle();
+      expect(find.byType(TimePicker), findsOne);
+
+      expect(find.byKey(startTimeSlot), findsOne);
+      expect(find.byKey(endTimeSlot), findsOne);
+      expect(find.byKey(deleteTimeSlotKey), findsOne);
+
+      await tester.tap(find.byKey(startTimeSlot));
+      await tester.pumpAndSettle();
+      expect(find.byType(TimePickerDialog), findsOne);
+      await tester.tap(find.text('Cancel'));
+      await tester.pumpAndSettle();
+      verifyNever(mockScheduleController.updateTimeSlot('1', 1, 7, 2));
+    });
+
+    testWidgets('Time Picker - change end time and cancel', (tester) async {
+      when(mockScheduleController.getTimeSlots()).thenAnswer(
+              (_) async => [TimeSlot(id: '1', day: 1, start: 2, length: 2)]);
+      when(mockScheduleController.isModifiable).thenAnswer((_) => true);
+      when(mockScheduleController.canCreateMeeting).thenAnswer((_) => false);
+      when(mockScheduleController.deleteTimeSlot(any)).thenAnswer((_) async {});
+
+      await tester.pumpWidget(const MaterialApp(
+        home: SchedulePage(),
+      ));
+      await tester.pumpAndSettle();
+
+      expect(find.byType(TimeSlotWidget), findsOne);
+      await tester.tap(find.byType(TimeSlotWidget));
+      await tester.pumpAndSettle();
+      expect(find.byType(TimePicker), findsOne);
+
+      expect(find.byKey(startTimeSlot), findsOne);
+      expect(find.byKey(endTimeSlot), findsOne);
+      expect(find.byKey(deleteTimeSlotKey), findsOne);
+
+      await tester.tap(find.byKey(endTimeSlot));
+      await tester.pumpAndSettle();
+      expect(find.byType(TimePickerDialog), findsOne);
+      await tester.tap(find.text('Cancel'));
+      verifyNever(mockScheduleController.updateTimeSlot('1', 1, 7, 2));
+    });
+
+    testWidgets('Time Picker - delete time slot', (tester) async {
+      when(mockScheduleController.getTimeSlots()).thenAnswer(
+              (_) async => [TimeSlot(id: '1', day: 1, start: 2, length: 2)]);
+      when(mockScheduleController.isModifiable).thenAnswer((_) => true);
+      when(mockScheduleController.canCreateMeeting).thenAnswer((_) => false);
+      when(mockScheduleController.deleteTimeSlot(any)).thenAnswer((_) async {});
+
+      await tester.pumpWidget(const MaterialApp(
+        home: SchedulePage(),
+      ));
+      await tester.pumpAndSettle();
+
+      expect(find.byType(TimeSlotWidget), findsOne);
+      await tester.tap(find.byType(TimeSlotWidget));
+      await tester.pumpAndSettle();
+      expect(find.byType(TimePicker), findsOne);
+
+      expect(find.byKey(startTimeSlot), findsOne);
+      expect(find.byKey(endTimeSlot), findsOne);
+      expect(find.byKey(deleteTimeSlotKey), findsOne);
+
+      when(mockScheduleController.deleteTimeSlot(any)).thenAnswer((_) async {});
+      await tester.tap(find.byKey(deleteTimeSlotKey));
+      verify(mockScheduleController.deleteTimeSlot('1')).called(1);
     });
   });
 }

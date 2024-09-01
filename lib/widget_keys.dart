@@ -85,3 +85,8 @@ const declineButtonKey = Key('declineButton');
 //meeting_summary_page keys:
 const sliderKey = Key('sliderKey');
 const summaryTextFieldKey = Key('summaryTextFieldKey');
+
+//schedule_page keys:
+const startTimeSlot = Key('startTimeSlot');
+const endTimeSlot = Key('endTimeSlot');
+const deleteTimeSlotKey = Key('deleteTimeSlotKey');

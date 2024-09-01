@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:coordimate/pages/personal_info_page.dart';
+import 'package:coordimate/widget_keys.dart';
 import 'package:flutter/material.dart';
 
 import 'package:coordimate/components/colors.dart';
@@ -29,12 +30,12 @@ class ScheduleGrid extends StatefulWidget {
   });
 
   @override
-  State<ScheduleGrid> createState() => _ScheduleGridState();
+  State<ScheduleGrid> createState() => ScheduleGridState();
 }
 
-class _ScheduleGridState extends State<ScheduleGrid> {
+class ScheduleGridState extends State<ScheduleGrid> {
   double _baseHourHeight = 26.0;
-  double _hourHeight = 26.0;
+  double hourHeight = 26.0;
   Future<List<TimeSlot>>? _timeSlots;
 
   @override
@@ -54,16 +55,16 @@ class _ScheduleGridState extends State<ScheduleGrid> {
     final screenWidth = MediaQuery.of(context).size.width;
     return GestureDetector(
         onScaleStart: (details) {
-          _baseHourHeight = _hourHeight;
+          _baseHourHeight = hourHeight;
         },
         onScaleUpdate: (details) {
           setState(() {
-            _hourHeight = _baseHourHeight * details.scale;
-            if (_hourHeight < 20) {
-              _hourHeight = 20.0;
+            hourHeight = _baseHourHeight * details.scale;
+            if (hourHeight < 20) {
+              hourHeight = 20.0;
             }
-            if (_hourHeight > 100) {
-              _hourHeight = 100.0;
+            if (hourHeight > 100) {
+              hourHeight = 100.0;
             }
           });
         },
@@ -84,13 +85,13 @@ class _ScheduleGridState extends State<ScheduleGrid> {
                                 children: [
                           SizedBox(
                               width: screenWidth / 8,
-                              child: TimeColumn(hourHeight: _hourHeight)),
+                              child: TimeColumn(hourHeight: hourHeight)),
                           for (var i = 0; i < 7; i++)
                             SizedBox(
                                 width: screenWidth / 8,
                                 child: DayColumn(
                                     day: i,
-                                    hourHeight: _hourHeight,
+                                    hourHeight: hourHeight,
                                     refresh: refresh,
                                     timeSlots: snapshot.hasData
                                         ? snapshot.data!
@@ -297,7 +298,7 @@ class TimeSlotWidget extends StatelessWidget {
   final double hourHeight;
   final Function refresh;
 
-  Widget _buildTimePickerPopup(BuildContext context, int day) {
+  Widget buildTimePickerPopup(BuildContext context, int day) {
     return TimePicker(
         id: id, day: day, start: start, length: length, refresh: refresh);
   }
@@ -316,7 +317,7 @@ class TimeSlotWidget extends StatelessWidget {
               }
               showDialog(
                   context: context,
-                  builder: (context) => _buildTimePickerPopup(context, day));
+                  builder: (context) => buildTimePickerPopup(context, day));
             },
             child: Stack(children: [
               Container(
@@ -346,10 +347,10 @@ class TimePicker extends StatefulWidget {
   final Function refresh;
 
   @override
-  State<TimePicker> createState() => _TimePickerState();
+  State<TimePicker> createState() => TimePickerState();
 }
 
-class _TimePickerState extends State<TimePicker> {
+class TimePickerState extends State<TimePicker> {
   double newStart = 0.0;
   double newLength = 0.0;
   String startTimeString = "";
@@ -409,6 +410,7 @@ class _TimePickerState extends State<TimePicker> {
                   }
                 },
                 child: Container(
+                    key: startTimeSlot,
                     width: 90,
                     decoration: BoxDecoration(
                         border: Border.all(color: darkBlue),
@@ -445,6 +447,7 @@ class _TimePickerState extends State<TimePicker> {
                   }
                 },
                 child: Container(
+                    key: endTimeSlot,
                     width: 90,
                     decoration: BoxDecoration(
                         border: Border.all(color: darkBlue),
@@ -458,6 +461,7 @@ class _TimePickerState extends State<TimePicker> {
           const SizedBox(height: 30),
           Center(
               child: ElevatedButton(
+                  key: deleteTimeSlotKey,
                   style: const ButtonStyle(
                       side: WidgetStatePropertyAll(
                           BorderSide(color: Colors.red))),
