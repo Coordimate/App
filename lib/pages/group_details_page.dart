@@ -80,7 +80,9 @@ class GroupDetailsPageState extends State<GroupDetailsPage> {
   }
 
   void _onCreateMeeting() {
-    setState(() {_isLoading = true;});
+    setState(() {
+      _isLoading = true;
+    });
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -90,7 +92,9 @@ class GroupDetailsPageState extends State<GroupDetailsPage> {
       },
     ).then((_) async {
       await _fetchMeetings();
-      setState(() {_isLoading = false;});
+      setState(() {
+        _isLoading = false;
+      });
     });
   }
 
@@ -220,11 +224,10 @@ class GroupDetailsPageState extends State<GroupDetailsPage> {
                       groupId: widget.group.id,
                       clickable: true),
                   IconButton(
-                    key: createMeetingButtonKey,
-                    icon: const Icon(Icons.add_circle_outline_rounded),
-                    iconSize: 43.0,
-                    onPressed: _isLoading ? null : _onCreateMeeting
-                  ),
+                      key: createMeetingButtonKey,
+                      icon: const Icon(Icons.add_circle_outline_rounded),
+                      iconSize: 43.0,
+                      onPressed: _isLoading ? null : _onCreateMeeting),
                 ],
               ),
               const SizedBox(height: 16.0),
@@ -384,26 +387,24 @@ class GroupDetailsPageState extends State<GroupDetailsPage> {
                 _buildUserList(users, "No Group Members"),
               if (isAdmin)
                 Container(
-                  key: deleteGroupButtonKey,
-                  // color: white,
-                  padding: const EdgeInsets.only(bottom: 16.0),
-                  child: DeleteButton(
-                    str: 'Delete Group',
-                    showDeleteDialog: _showDeleteGroupDialog,
-                    color: orange,
-                  )
-                )
+                    key: deleteGroupButtonKey,
+                    // color: white,
+                    padding: const EdgeInsets.only(bottom: 16.0),
+                    child: DeleteButton(
+                      str: 'Delete Group',
+                      showDeleteDialog: _showDeleteGroupDialog,
+                      color: orange,
+                    ))
               else
                 Container(
-                  key: leaveGroupButtonKey,
-                  // color: white,
-                  padding: const EdgeInsets.only(bottom: 16.0),
-                  child: DeleteButton(
-                    str: 'Leave Group',
-                    showDeleteDialog: _showLeaveGroupDialog,
-                    color: orange,
-                  )
-                ),
+                    key: leaveGroupButtonKey,
+                    // color: white,
+                    padding: const EdgeInsets.only(bottom: 16.0),
+                    child: DeleteButton(
+                      str: 'Leave Group',
+                      showDeleteDialog: _showLeaveGroupDialog,
+                      color: orange,
+                    )),
             ],
           ),
         ),
@@ -585,16 +586,16 @@ class GroupDetailsPageState extends State<GroupDetailsPage> {
                       userId: users[index].id,
                       size: 40),
                   trailing: users[index].id == widget.group.adminId
-                      ? const Text(
-                        "admin",
-                        style: TextStyle(
-                        fontSize: 16,
-                        color: darkBlue))
-                      : ( isAdmin ? IconButton(
-                        onPressed: () {
-                          _showRemoveUserDialog(users[index].username, users[index].id);
-                          },
-                        icon: const Icon(Icons.close, color: darkBlue)) : const SizedBox()),
+                      ? const Text("admin",
+                          style: TextStyle(fontSize: 16, color: darkBlue))
+                      : (isAdmin
+                          ? IconButton(
+                              onPressed: () {
+                                _showRemoveUserDialog(
+                                    users[index].username, users[index].id);
+                              },
+                              icon: const Icon(Icons.close, color: darkBlue))
+                          : const SizedBox()),
                   title: Text(
                     users[index].username,
                     style: const TextStyle(

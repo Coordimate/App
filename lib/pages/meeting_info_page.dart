@@ -48,7 +48,8 @@ class _MeetingDetailsPageState extends State<MeetingDetailsPage> {
       setState(() {
         widget.meeting.status = status;
         widget.meeting.participants
-            .firstWhere((element) => element.id == AppState.authController.userId)
+            .firstWhere(
+                (element) => element.id == AppState.authController.userId)
             .status = status.name;
         CustomSnackBar.show(context, meetingStatus);
       });
@@ -59,11 +60,11 @@ class _MeetingDetailsPageState extends State<MeetingDetailsPage> {
     await AppState.meetingController
         .finishMeeting(widget.meeting.id)
         .then((isFinished) => setState(() {
-      isFinished
-          ? CustomSnackBar.show(context, "Meeting is finished")
-          : CustomSnackBar.show(context, "Failed to finish meeting");
-      isFinished && (widget.meeting.isFinished = isFinished);
-    }));
+              isFinished
+                  ? CustomSnackBar.show(context, "Meeting is finished")
+                  : CustomSnackBar.show(context, "Failed to finish meeting");
+              isFinished && (widget.meeting.isFinished = isFinished);
+            }));
   }
 
   void _showFinishMeetingDialog() {
@@ -74,10 +75,14 @@ class _MeetingDetailsPageState extends State<MeetingDetailsPage> {
           question: "Do you want to finish the meeting?",
           onYes: () async {
             await _finishMeeting();
-            if (context.mounted) { Navigator.of(context).pop(); }
+            if (context.mounted) {
+              Navigator.of(context).pop();
+            }
           },
           onNo: () {
-            if (context.mounted) { Navigator.of(context).pop(); }
+            if (context.mounted) {
+              Navigator.of(context).pop();
+            }
           },
         );
       },
@@ -101,17 +106,14 @@ class _MeetingDetailsPageState extends State<MeetingDetailsPage> {
                   style: const TextStyle(
                       color: darkBlue, fontWeight: FontWeight.bold))),
           actions: <Widget>[
-            ConfirmationButtons(
-              onYes: () async {
-                await _answerInvitation(accept);
-                if (context.mounted) {
-                  Navigator.of(context).pop();
-                }
-              },
-              onNo: () {
+            ConfirmationButtons(onYes: () async {
+              await _answerInvitation(accept);
+              if (context.mounted) {
                 Navigator.of(context).pop();
               }
-            ),
+            }, onNo: () {
+              Navigator.of(context).pop();
+            }),
           ],
         );
       },
@@ -119,7 +121,8 @@ class _MeetingDetailsPageState extends State<MeetingDetailsPage> {
   }
 
   Future<void> _showMeetingOfflinePicker() async {
-    var link = await AppState.meetingController.suggestMeetingLocation(widget.meeting.id);
+    var link = await AppState.meetingController
+        .suggestMeetingLocation(widget.meeting.id);
     if (!await launchUrl(Uri.parse(link))) {
       throw Exception('Could not launch offline meeting location picker');
     }
@@ -130,13 +133,15 @@ class _MeetingDetailsPageState extends State<MeetingDetailsPage> {
       context: context,
       builder: (BuildContext context) {
         return CustomPopUpDialog(
-          question: "Do you want to delete meeting \n\"${widget.meeting.title}\"?",
+          question:
+              "Do you want to delete meeting \n\"${widget.meeting.title}\"?",
           onYes: () async {
             await AppState.meetingController
                 .deleteMeeting(widget.meeting.id, widget.meeting.googleEventId);
             if (context.mounted) Navigator.of(context).pop();
             if (context.mounted) Navigator.of(context).pop();
-            if (context.mounted) CustomSnackBar.show(context, "Meeting is deleted");
+            if (context.mounted)
+              CustomSnackBar.show(context, "Meeting is deleted");
           },
           onNo: () {
             Navigator.of(context).pop();
@@ -147,36 +152,39 @@ class _MeetingDetailsPageState extends State<MeetingDetailsPage> {
   }
 
   void _showSummaryPage() {
-    Navigator.of(context).push(
-      MaterialPageRoute(
-        builder: (context) => SummaryPage(
-          id: widget.meeting.id,
-          summary: widget.meeting.summary,
-        ),
-      ),
-    ).then((_) async => await AppState.meetingController
-        .fetchMeetingSummary(widget.meeting.id)
-        .then((summary) => setState(() { widget.meeting.summary = summary; }))
-    );
+    Navigator.of(context)
+        .push(
+          MaterialPageRoute(
+            builder: (context) => SummaryPage(
+              id: widget.meeting.id,
+              summary: widget.meeting.summary,
+            ),
+          ),
+        )
+        .then((_) async => await AppState.meetingController
+            .fetchMeetingSummary(widget.meeting.id)
+            .then((summary) => setState(() {
+                  widget.meeting.summary = summary;
+                })));
   }
 
   void _showMeetingAgendaPage() {
     Navigator.of(context).push(MaterialPageRoute(
-      builder: (context) => MeetingAgenda(
-        key: UniqueKey(), meetingId: widget.meeting.id)
-    ));
+        builder: (context) =>
+            MeetingAgenda(key: UniqueKey(), meetingId: widget.meeting.id)));
   }
 
   @override
   Widget build(BuildContext context) {
-  final isAdmin = widget.meeting.admin.id == AppState.authController.userId;
-  final showWithdrawOrDeleteButton = (!widget.meeting.isInPast() && !widget.meeting.isFinished && !isAdmin && widget.meeting.status == MeetingStatus.accepted) || isAdmin;
+    final isAdmin = widget.meeting.admin.id == AppState.authController.userId;
+    final showWithdrawOrDeleteButton = (!widget.meeting.isInPast() &&
+            !widget.meeting.isFinished &&
+            !isAdmin &&
+            widget.meeting.status == MeetingStatus.accepted) ||
+        isAdmin;
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar: const CustomAppBar(
-        title: '',
-        needButton: false
-      ),
+      appBar: const CustomAppBar(title: '', needButton: false),
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 0),
         child: SingleChildScrollView(
@@ -205,9 +213,9 @@ class _MeetingDetailsPageState extends State<MeetingDetailsPage> {
                 child: Column(
                   children: <Widget>[
                     buildInfoRow(Icons.calendar_today, "Date",
-                          widget.meeting.getFormattedDate(dateTime)),
+                        widget.meeting.getFormattedDate(dateTime)),
                     buildInfoRow(Icons.access_time, "Time",
-                          widget.meeting.getFormattedTime(dateTime)),
+                        widget.meeting.getFormattedTime(dateTime)),
                     buildInfoRow(
                         Icons.group, "Group", widget.meeting.groupName),
                     buildInfoRow(
@@ -220,8 +228,8 @@ class _MeetingDetailsPageState extends State<MeetingDetailsPage> {
                 TextField(
                   key: linkPlaceholderFieldKey,
                   onSubmitted: (String s) async {
-                    await AppState.meetingController.updateMeetingLink(
-                        widget.meeting.id, s);
+                    await AppState.meetingController
+                        .updateMeetingLink(widget.meeting.id, s);
                   },
                   onTapOutside: (_) async {
                     await AppState.meetingController.updateMeetingLink(
@@ -268,41 +276,36 @@ class _MeetingDetailsPageState extends State<MeetingDetailsPage> {
                       )),
                 ),
               const SizedBox(height: 10),
-
-              if (widget.meeting.status == MeetingStatus.accepted && !widget.meeting.isFinished && !widget.meeting.isInPast())
-              MeetingActionButton(
-                key: meetOfflineButtonKey,
-                text: "Meet Offline",
-                onPressed: _showMeetingOfflinePicker,
-                backgroundColor: mediumBlue
-              ),
-
+              if (widget.meeting.status == MeetingStatus.accepted &&
+                  !widget.meeting.isFinished &&
+                  !widget.meeting.isInPast())
+                MeetingActionButton(
+                    key: meetOfflineButtonKey,
+                    text: "Meet Offline",
+                    onPressed: _showMeetingOfflinePicker,
+                    backgroundColor: mediumBlue),
               if (widget.meeting.status == MeetingStatus.accepted)
                 MeetingActionButton(
-                  key: meetingAgendaButtonKey,
-                  text: "Meeting Agenda",
-                  onPressed: _showMeetingAgendaPage,
-                  backgroundColor: darkBlue
-                ),
-
+                    key: meetingAgendaButtonKey,
+                    text: "Meeting Agenda",
+                    onPressed: _showMeetingAgendaPage,
+                    backgroundColor: darkBlue),
               if (widget.meeting.status == MeetingStatus.accepted)
                 MeetingActionButton(
-                  key: widget.meeting.isFinished
-                      ? summaryButtonKey
-                      : finishMeetingButtonKey,
-                  text: widget.meeting.isFinished
-                      ? "Summary"
-                      : "Finish Meeting",
-                  onPressed: () async {
-                    if (widget.meeting.isFinished) {
-                      _showSummaryPage();
-                    } else {
-                      _showFinishMeetingDialog();
-                    }
-                  },
-                  backgroundColor: mediumBlue
-                ),
-
+                    key: widget.meeting.isFinished
+                        ? summaryButtonKey
+                        : finishMeetingButtonKey,
+                    text: widget.meeting.isFinished
+                        ? "Summary"
+                        : "Finish Meeting",
+                    onPressed: () async {
+                      if (widget.meeting.isFinished) {
+                        _showSummaryPage();
+                      } else {
+                        _showFinishMeetingDialog();
+                      }
+                    },
+                    backgroundColor: mediumBlue),
               if (widget.meeting.status == MeetingStatus.needsAcceptance)
                 Row(
                   key: answerButtonsKey,
@@ -314,29 +317,25 @@ class _MeetingDetailsPageState extends State<MeetingDetailsPage> {
                         "Decline", orange, () => _answerInvitation(false)),
                   ],
                 ),
-
-              if (widget.meeting.status == MeetingStatus.declined && !(widget.meeting.isInPast() || widget.meeting.isFinished))
+              if (widget.meeting.status == MeetingStatus.declined &&
+                  !(widget.meeting.isInPast() || widget.meeting.isFinished))
                 MeetingActionButton(
-                  key: attendMeetingButtonKey,
-                  text: "Attend Meeting",
-                  onPressed: () async {
-                    await showPopUpDialog(context, true);
-                  },
-                  backgroundColor: Colors.grey
-                ),
-
-              if (widget.meeting.status == MeetingStatus.declined && (widget.meeting.isInPast() || widget.meeting.isFinished))
+                    key: attendMeetingButtonKey,
+                    text: "Attend Meeting",
+                    onPressed: () async {
+                      await showPopUpDialog(context, true);
+                    },
+                    backgroundColor: Colors.grey),
+              if (widget.meeting.status == MeetingStatus.declined &&
+                  (widget.meeting.isInPast() || widget.meeting.isFinished))
                 MeetingActionButton(
-                  key: invitationDeclinedButtonKey,
-                  text: "Invitation Declined",
-                  onPressed: () {
-                    CustomSnackBar.show(context, "Meeting is finished");
-                  },
-                  backgroundColor: Colors.grey
-                ),
-
+                    key: invitationDeclinedButtonKey,
+                    text: "Invitation Declined",
+                    onPressed: () {
+                      CustomSnackBar.show(context, "Meeting is finished");
+                    },
+                    backgroundColor: Colors.grey),
               const SizedBox(height: 16),
-
               const Text(
                 "Participants",
                 style: TextStyle(
@@ -348,7 +347,10 @@ class _MeetingDetailsPageState extends State<MeetingDetailsPage> {
                     leading: Avatar(size: 30, userId: participant.id),
                     title: Text(participant.username,
                         style: const TextStyle(color: darkBlue)),
-                    subtitle: Text(participant.status,
+                    subtitle: Text(
+                        participant.status == "needs acceptance"
+                            ? "pending"
+                            : participant.status,
                         style: TextStyle(color: alphaDarkBlue)),
                   );
                 }).toList(),
@@ -358,9 +360,15 @@ class _MeetingDetailsPageState extends State<MeetingDetailsPage> {
                   child: Container(
                     padding: const EdgeInsets.only(bottom: 16.0),
                     child: DeleteButton(
-                      key: isAdmin ? deleteMeetingButtonKey : withdrawMeetingButtonKey,
+                      key: isAdmin
+                          ? deleteMeetingButtonKey
+                          : withdrawMeetingButtonKey,
                       str: isAdmin ? 'Delete Meeting' : 'Withdraw From Meeting',
-                      showDeleteDialog: isAdmin ? showDeleteMeetingDialog : () {showPopUpDialog(context, false); },
+                      showDeleteDialog: isAdmin
+                          ? showDeleteMeetingDialog
+                          : () {
+                              showPopUpDialog(context, false);
+                            },
                       color: orange,
                     ),
                   ),

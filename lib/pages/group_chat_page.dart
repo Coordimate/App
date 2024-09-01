@@ -26,37 +26,55 @@ class ChatMessage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      mainAxisAlignment:
-          isFromUser ? MainAxisAlignment.end : MainAxisAlignment.start,
-      children: [
-        (!isFromUser && isFirst
-            ? Padding(padding: const EdgeInsets.all(5), child: avatar)
-            : const SizedBox(width: 40, height: 30)),
-        Column(
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4.0),
+      child: Row(
+        mainAxisAlignment:
+            isFromUser ? MainAxisAlignment.end : MainAxisAlignment.start,
+        children: [
+          (!isFromUser && isFirst
+              ? Padding(padding: const EdgeInsets.all(5), child: avatar)
+              : const SizedBox(width: 40, height: 30)),
+          Column(
             crossAxisAlignment:
                 isFromUser ? CrossAxisAlignment.end : CrossAxisAlignment.start,
             children: [
-              ((isFirst && !isFromUser) ? Text(username) : Container()),
+              ((isFirst && !isFromUser)
+                  ? Text(username, style: const TextStyle(fontSize: 14))
+                  : Container()),
               Container(
-                  decoration: BoxDecoration(
-                    color: !isFromUser ? darkBlue : lightBlue,
-                    borderRadius: BorderRadius.only(
-                      topLeft: const Radius.circular(10),
-                      topRight: const Radius.circular(10),
-                      bottomLeft: Radius.circular(isFromUser ? 10 : 0),
-                      bottomRight: Radius.circular(isFromUser ? 0 : 10),
+                decoration: BoxDecoration(
+                  color: !isFromUser ? darkBlue : lightBlue,
+                  borderRadius: BorderRadius.only(
+                    topLeft: const Radius.circular(10),
+                    topRight: const Radius.circular(10),
+                    bottomLeft: Radius.circular(isFromUser ? 10 : 0),
+                    bottomRight: Radius.circular(isFromUser ? 0 : 10),
+                  ),
+                ),
+                child: Padding(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                  child: ConstrainedBox(
+                    constraints: BoxConstraints(
+                      maxWidth: MediaQuery.of(context).size.width * 0.7,
+                    ),
+                    child: Text(
+                      text,
+                      style: TextStyle(
+                        fontSize: 16,
+                        color: !isFromUser ? Colors.white : Colors.black,
+                      ),
+                      maxLines: null,
+                      overflow: TextOverflow.visible,
                     ),
                   ),
-                  child: Padding(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                    child: Text(text,
-                        style: TextStyle(
-                            color: !isFromUser ? Colors.white : Colors.black)),
-                  ))
-            ]),
-      ],
+                ),
+              )
+            ],
+          ),
+        ],
+      ),
     );
   }
 }
@@ -111,14 +129,14 @@ class GroupChatPageState extends State<GroupChatPage> {
         body: Column(children: [
           Expanded(
               child: GestureDetector(
-                onPanDown: (_) {
-                  FocusScope.of(context).unfocus();
-                },
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                  child: StreamBuilder(
-                              stream: channel.stream,
-                              builder: (context, snapshot) {
+            onPanDown: (_) {
+              FocusScope.of(context).unfocus();
+            },
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16.0),
+              child: StreamBuilder(
+                stream: channel.stream,
+                builder: (context, snapshot) {
                   if (snapshot.hasData) {
                     var msg = snapshot.data;
                     if (msg != '{}' && msg != lastMessage) {
@@ -154,26 +172,24 @@ class GroupChatPageState extends State<GroupChatPage> {
                   } else {
                     return const Text('');
                   }
-                              },
-                            ),
-                ),
-              )),
+                },
+              ),
+            ),
+          )),
           SafeArea(
               child: Padding(
                   padding: const EdgeInsets.all(8.0),
-                  child: Row(
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      children: [
-                        SizedBox(
-                            width: MediaQuery.sizeOf(context).width * 0.8,
-                            child: TextField(
-                              autofocus: true,
-                              controller: _controller,
-                            )),
-                        IconButton(
-                            icon: const Icon(Icons.send),
-                            onPressed: _sendMessage)
-                      ]))),
+                  child:
+                      Row(mainAxisAlignment: MainAxisAlignment.end, children: [
+                    SizedBox(
+                        width: MediaQuery.sizeOf(context).width * 0.8,
+                        child: TextField(
+                          autofocus: true,
+                          controller: _controller,
+                        )),
+                    IconButton(
+                        icon: const Icon(Icons.send), onPressed: _sendMessage)
+                  ]))),
         ]));
   }
 
