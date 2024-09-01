@@ -1,7 +1,6 @@
 import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:coordimate/screens/home_screen.dart';
-import 'package:coordimate/keys.dart';
 import 'package:coordimate/app_state.dart';
 import 'package:coordimate/controllers/auth_controller.dart';
 
@@ -23,7 +22,7 @@ class SquareTile extends StatelessWidget {
     return AppState.authController.signIn("", AuthType.facebook);
   }
 
-  Future<void> _authUser() async {
+  Future<void> _authUser(context) async {
     // return AppState.authController.signIn()
     bool isAuth = false;
     switch (authType) {
@@ -41,8 +40,10 @@ class SquareTile extends StatelessWidget {
 
     if (isAuth) {
       log('User Authenticated');
-      navigatorKey.currentState!.pushAndRemoveUntil(
-        MaterialPageRoute(builder: (BuildContext context) => HomeScreen(key: UniqueKey())),
+      Navigator.of(context).pushAndRemoveUntil(
+        MaterialPageRoute(
+          builder: (context) => HomeScreen(key: UniqueKey()),
+        ),
             (route) => false,
       );
     } else {
@@ -53,7 +54,7 @@ class SquareTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ElevatedButton(
-      onPressed: _authUser,
+      onPressed: () { _authUser(context); },
       style: ButtonStyle(
         shape: WidgetStateProperty.all(const CircleBorder()),
         backgroundColor: WidgetStateProperty.all(Colors.white),
