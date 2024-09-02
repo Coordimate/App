@@ -176,7 +176,6 @@ void main() {
       var pointState = (tester.state(point) as AgendaPointWidgetState);
       pointState.showDelete = true;
       await tester.pumpAndSettle();
-      await tester.pumpAndSettle();
 
       expect(find.byIcon(Icons.delete), findsOneWidget);
       await tester.tap(find.byIcon(Icons.delete));
