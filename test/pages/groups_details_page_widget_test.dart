@@ -245,10 +245,17 @@ void main() {
         find.byKey(linkPlaceholderFieldKey), DataProvider.groupMeetingLink);
     await tester.pumpAndSettle();
     await tester.testTextInput.receiveAction(TextInputAction.done);
+
+    await tester.enterText(
+        find.byKey(linkPlaceholderFieldKey), DataProvider.groupMeetingLink2);
+    await tester.pumpAndSettle();
+
+    await tester.tapAt(Offset.zero);
+    await tester.pumpAndSettle();
     verify(mockGroupController.updateGroupMeetingLink(
       any,
       any,
-    )).called(1);
+    )).called(2);
 
     await tester.tap(copy);
     await tester.pump();
@@ -394,8 +401,17 @@ void main() {
     await tester.ensureVisible(leaveButton);
     expect(leaveButton, findsExactly(1));
     await tester.tap(leaveButton);
-    //, warnIfMissed: false
     await tester.pumpAndSettle();
+
+    final noButton = find.byKey(noButtonKey);
+    await tester.tap(noButton);
+    await tester.pumpAndSettle();
+
+    await tester.ensureVisible(leaveButton);
+    expect(leaveButton, findsExactly(1));
+    await tester.tap(leaveButton);
+    await tester.pumpAndSettle();
+
     final yesbutton = find.byKey(yesButtonKey);
     expect(yesbutton, findsExactly(1));
     await tester.tap(yesbutton);
@@ -424,6 +440,15 @@ void main() {
     await tester.pumpAndSettle();
 
     final removeUserButton = find.byIcon(Icons.close);
+    await tester.ensureVisible(removeUserButton);
+    expect(removeUserButton, findsExactly(1));
+    await tester.tap(removeUserButton);
+    await tester.pumpAndSettle();
+
+    final noButton = find.byKey(noButtonKey);
+    await tester.tap(noButton);
+    await tester.pumpAndSettle();
+
     await tester.ensureVisible(removeUserButton);
     expect(removeUserButton, findsExactly(1));
     await tester.tap(removeUserButton);
@@ -459,6 +484,15 @@ void main() {
     await tester.tap(deleteButton);
     await tester.pumpAndSettle();
 
+    final noButton = find.byKey(noButtonKey);
+    await tester.tap(noButton);
+    await tester.pumpAndSettle();
+
+    await tester.ensureVisible(deleteButton);
+    expect(deleteButton, findsExactly(1));
+    await tester.tap(deleteButton);
+    await tester.pumpAndSettle();
+
     final yesbutton = find.byKey(yesButtonKey);
     expect(yesbutton, findsExactly(1));
     await tester.tap(yesbutton);
@@ -466,5 +500,80 @@ void main() {
     verify(mockGroupController.deleteGroup(
       any,
     )).called(1);
+  });
+
+  testWidgets('test13: update empty group description', (tester) async {
+    when(mockGroupController.fetchGroupUsers(DataProvider.groupID1))
+        .thenAnswer((_) async => [groups.userCard1, groups.userCard2]);
+    when(mockGroupController.fetchGroupMeetings(DataProvider.groupID1))
+        .thenAnswer((_) async => [groups.meetingin2Days]);
+    when(mockGroupController.fetchPoll(DataProvider.groupID1))
+        .thenAnswer((_) async => groups.pollData);
+    when(mockGroupController.updateGroupDescription(
+            DataProvider.groupID1, DataProvider.newgroupdescr))
+        .thenAnswer((_) async => Future.value());
+    AppState.authController.userId = DataProvider.userAdmin;
+
+    await tester.pumpWidget(MaterialApp(
+      home: GroupDetailsPage(group: groups.group2),
+    ));
+    await tester.pumpAndSettle();
+    final groupdescrfield = find.byKey(noGroupDescriptionFieldKey);
+    expect(groupdescrfield, findsExactly(1));
+
+    final descrEditIcon =
+        find.descendant(of: groupdescrfield, matching: find.byIcon(Icons.edit));
+    final check = find.byIcon(Icons.check);
+
+    final newgroupdescr = DataProvider.newgroupdescr;
+    expect(
+        find.descendant(
+            of: groupdescrfield, matching: find.text("No Group Description")),
+        findsExactly(1));
+
+    expect(descrEditIcon, findsExactly(1));
+
+    await tester.tap(descrEditIcon);
+    await tester.enterText(groupdescrfield, newgroupdescr);
+    await tester.pumpAndSettle();
+    expect(check, findsExactly(1));
+    await tester.tap(check);
+
+    expect(
+        find.descendant(
+            of: groupdescrfield, matching: find.text(newgroupdescr)),
+        findsExactly(2));
+    verify(mockGroupController.updateGroupDescription(
+      any,
+      any,
+    )).called(1);
+  });
+
+  testWidgets('test14: tap on group schedule', (tester) async {
+    when(mockGroupController.fetchGroupUsers(DataProvider.groupID1))
+        .thenAnswer((_) async => [groups.userCard1, groups.userCard2]);
+    when(mockGroupController.fetchGroupMeetings(DataProvider.groupID1))
+        .thenAnswer((_) async => [groups.meetingin2Days]);
+    when(mockGroupController.fetchPoll(DataProvider.groupID1))
+        .thenAnswer((_) async => groups.pollData);
+    AppState.authController.userId = DataProvider.userID2;
+
+    await tester.pumpWidget(MaterialApp(
+      home: GroupDetailsPage(group: groups.group1),
+    ));
+    await tester.pumpAndSettle();
+    final button = find.text("Group Schedule");
+    expect(button, findsExactly(1));
+    await tester.tap(button);
+    await tester.pumpAndSettle();
+
+    final backButtonFinder = find.byTooltip('Back');
+    await tester.tap(backButtonFinder);
+    await tester.pumpAndSettle();
+
+    final memberCard = find.text(DataProvider.username1);
+    await tester.ensureVisible(memberCard);
+    await tester.tap(memberCard);
+    await tester.pumpAndSettle();
   });
 }

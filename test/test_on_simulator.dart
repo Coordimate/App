@@ -1,42 +1,52 @@
 // this will be deleted later, its only purpose is to paste the tests one by one so we can see how they run on a virtual device
 
 import 'package:coordimate/app_state.dart';
-import 'package:coordimate/pages/groups_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'test.mocks.dart';
-import 'helpers/set_appstate.dart';
-import 'helpers/when.dart';
-import 'helpers/client/groups.dart';
+import 'helpers/client/groups.dart' as groups;
 import 'package:coordimate/widget_keys.dart';
+import 'package:coordimate/pages/group_details_page.dart';
+import 'package:mockito/mockito.dart';
+import 'helpers/client/data_provider.dart';
 
 void main() {
-  TestWidgetsFlutterBinding.ensureInitialized();
+  late MockGroupController mockGroupController;
+  late MockMeetingController mockMeetingController;
 
-  final firebase = MockFirebaseMessaging();
-  final client = MockClient();
-  final storage = MockFlutterSecureStorage();
-  final sharedPrefs = MockSharedPreferences();
-
-  setAppState(client, storage, sharedPrefs, firebase);
-  whenStatements(client, storage, sharedPrefs, firebase);
-
-  testWidgets('test1', (tester) async {
+  setUp(() {
+    mockGroupController = MockGroupController();
+    mockMeetingController = MockMeetingController();
+    AppState.groupController = mockGroupController;
+    AppState.meetingController = mockMeetingController;
     AppState.testMode = true;
-    whenGroupsOne(client);
-    whenGroupsDetails(client);
-    whenGroupsMeetings(client);
-    await tester.pumpWidget(const MaterialApp(
-      home: GroupsPage(),
+  });
+
+  testWidgets('test14: tap on group schedule', (tester) async {
+    when(mockGroupController.fetchGroupUsers(DataProvider.groupID1))
+        .thenAnswer((_) async => [groups.userCard1, groups.userCard2]);
+    when(mockGroupController.fetchGroupMeetings(DataProvider.groupID1))
+        .thenAnswer((_) async => [groups.meetingin2Days]);
+    when(mockGroupController.fetchPoll(DataProvider.groupID1))
+        .thenAnswer((_) async => groups.pollData);
+    AppState.authController.userId = DataProvider.userID2;
+
+    await tester.pumpWidget(MaterialApp(
+      home: GroupDetailsPage(group: groups.group1),
     ));
     await tester.pumpAndSettle();
-    final button = find.byKey(groupCardKey);
+    final button = find.text("Group Schedule");
     expect(button, findsExactly(1));
+    await tester.tap(button);
+    await tester.pumpAndSettle();
 
-    await tester.runAsync(() async {
-      await tester.tap(button);
-    });
+    final backButtonFinder = find.byTooltip('Back');
+    await tester.tap(backButtonFinder);
+    await tester.pumpAndSettle();
 
+    final memberCard = find.text(DataProvider.username1);
+    await tester.ensureVisible(memberCard);
+    await tester.tap(memberCard);
     await tester.pumpAndSettle();
   });
 }

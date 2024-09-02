@@ -68,6 +68,7 @@ class DataProvider {
   //new group testing
   static String inviteLink = "https//:groupinvite.com";
   static String groupMeetingLink = "https//:groupmeeting.com";
+  static String groupMeetingLink2 = "https//:groupmeeting2.com";
 
   static String question = "this is a question?";
   static List<String> options = ["option1", "option2"];
