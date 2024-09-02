@@ -13,10 +13,16 @@ import 'package:mockito/mockito.dart';
 void main() {
   late MockGroupController mockGroupController;
   late MockMeetingController mockMeetingController;
+  late MockWebSocketChannel mockWebSocketChannel;
+  late MockWebSocketSink mockSink;
 
   setUp(() {
     mockGroupController = MockGroupController();
     mockMeetingController = MockMeetingController();
+    mockWebSocketChannel = MockWebSocketChannel();
+    mockSink = MockWebSocketSink();
+
+
     AppState.groupController = mockGroupController;
     AppState.meetingController = mockMeetingController;
     AppState.testMode = true;
@@ -577,24 +583,55 @@ void main() {
     await tester.pumpAndSettle();
   });
 
-  testWidgets('test15: tap on chat button', (tester) async {
+  testWidgets('renders the chat page correctly', (WidgetTester tester) async {
     when(mockGroupController.fetchGroupUsers(DataProvider.groupID1))
         .thenAnswer((_) async => [groups.userCard1, groups.userCard2]);
     when(mockGroupController.fetchGroupMeetings(DataProvider.groupID1))
         .thenAnswer((_) async => [groups.meetingin2Days]);
     when(mockGroupController.fetchPoll(DataProvider.groupID1))
         .thenAnswer((_) async => groups.pollData);
-    when(mockGroupController.fetchGroupChatMessages(DataProvider.groupID1))
-        .thenAnswer((_) async => []);
+    when(mockGroupController.fetchGroupChatMessages(any)).thenAnswer((_) async => []);
+
     AppState.authController.userId = DataProvider.userID2;
+    AppState.webSocketChannel = mockWebSocketChannel;
+    AppState.testMode = true;
+
+    when(AppState.webSocketChannel!.sink).thenReturn(mockSink);
+    when(AppState.webSocketChannel!.stream).thenAnswer((_) => const Stream.empty());
+
+    when(mockSink.close(any, any)).thenAnswer((_) => Future.value());
 
     await tester.pumpWidget(MaterialApp(
       home: GroupDetailsPage(group: groups.group1),
     ));
+
+    expect(find.byKey(groupChatButtonKey), findsOneWidget);
+    await tester.tap(find.byKey(groupChatButtonKey));
+
     await tester.pumpAndSettle();
-    final button = find.byKey(groupChatButtonKey);
-    expect(button, findsExactly(1));
+
+    expect(find.byType(TextField), findsOneWidget);
+    expect(find.text("Group Chat"), findsOneWidget);
+    expect(find.byIcon(Icons.send), findsOneWidget);
+  });
+
+  testWidgets('opens avatar menu', (WidgetTester tester) async {
+    when(mockGroupController.fetchGroupUsers(DataProvider.groupID1))
+        .thenAnswer((_) async => [groups.userCard1, groups.userCard2]);
+    when(mockGroupController.fetchGroupMeetings(DataProvider.groupID1))
+        .thenAnswer((_) async => [groups.meetingin2Days]);
+    when(mockGroupController.fetchPoll(DataProvider.groupID1))
+        .thenAnswer((_) async => null);
+    AppState.authController.userId = DataProvider.userAdmin;
+    await tester.pumpWidget(MaterialApp(
+      home: GroupDetailsPage(group: groups.group1),
+    ));
+
+    expect(find.byKey(avatarKey), findsOneWidget);
+    await tester.tap(find.byKey(avatarKey));
     await tester.pumpAndSettle();
-    verify(mockGroupController.fetchGroupChatMessages(any)).called(1);
+
+    expect(find.text("Take Photo"), findsOneWidget);
+    expect(find.text("Choose Picture"), findsOneWidget);
   });
 }
