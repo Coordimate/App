@@ -530,12 +530,7 @@ class GroupDetailsPageState extends State<GroupDetailsPage> {
           physics: const NeverScrollableScrollPhysics(),
           itemCount: meetings.length,
           itemBuilder: (context, index) {
-            if (meetings[index].status == MeetingStatus.declined) {
-              return ArchivedMeetingTile(
-                meeting: meetings[index],
-                fetchMeetings: _fetchMeetings,
-              );
-            } else if (meetings[index].status == MeetingStatus.accepted) {
+            if (meetings[index].status == MeetingStatus.accepted) {
               return AcceptedMeetingTile(
                 key: groupAcceptedMeetingKey,
                 meeting: meetings[index],

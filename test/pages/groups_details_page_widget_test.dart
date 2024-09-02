@@ -576,4 +576,25 @@ void main() {
     await tester.tap(memberCard);
     await tester.pumpAndSettle();
   });
+
+  testWidgets('test15: tap on chat button', (tester) async {
+    when(mockGroupController.fetchGroupUsers(DataProvider.groupID1))
+        .thenAnswer((_) async => [groups.userCard1, groups.userCard2]);
+    when(mockGroupController.fetchGroupMeetings(DataProvider.groupID1))
+        .thenAnswer((_) async => [groups.meetingin2Days]);
+    when(mockGroupController.fetchPoll(DataProvider.groupID1))
+        .thenAnswer((_) async => groups.pollData);
+    when(mockGroupController.fetchGroupChatMessages(DataProvider.groupID1))
+        .thenAnswer((_) async => []);
+    AppState.authController.userId = DataProvider.userID2;
+
+    await tester.pumpWidget(MaterialApp(
+      home: GroupDetailsPage(group: groups.group1),
+    ));
+    await tester.pumpAndSettle();
+    final button = find.byKey(groupChatButtonKey);
+    expect(button, findsExactly(1));
+    await tester.pumpAndSettle();
+    verify(mockGroupController.fetchGroupChatMessages(any)).called(1);
+  });
 }
