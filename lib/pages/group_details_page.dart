@@ -150,6 +150,7 @@ class GroupDetailsPageState extends State<GroupDetailsPage> {
             await AppState.groupController.removeUser(widget.group.id, userId);
             if (context.mounted) {
               _fetchUsers();
+              Navigator.of(context).pop();
             }
           },
           onNo: () {
@@ -162,21 +163,23 @@ class GroupDetailsPageState extends State<GroupDetailsPage> {
 
   @override
   Widget build(BuildContext context) {
-    List<MeetingTileModel> declinedMeetings = meetings
-        .where((meeting) => meeting.status == MeetingStatus.declined)
-        .toList();
     List<MeetingTileModel> acceptedMeetings = meetings
-        .where((meeting) => meeting.status == MeetingStatus.accepted)
-        .toList();
-    List<MeetingTileModel> acceptedPassedMeetings = acceptedMeetings
-        .where((meeting) => meeting.dateTime.isBefore(DateTime.now()))
+        .where((meeting) =>
+    meeting.status == MeetingStatus.accepted && !meeting.isFinished)
         .toList();
     List<MeetingTileModel> acceptedFutureMeetings = acceptedMeetings
-        .where((meeting) => meeting.dateTime.isAfter(DateTime.now()))
+        .where((meeting) =>
+    meeting.dateTime.add(Duration(minutes: meeting.duration)).isAfter(DateTime.now()) && !meeting.isFinished)
         .toList();
-    List<MeetingTileModel> archivedMeetings =
-        acceptedPassedMeetings + declinedMeetings;
-    archivedMeetings.sort((a, b) => b.dateTime.compareTo(a.dateTime));
+    List<MeetingTileModel> archivedMeetings = meetings
+        .where((meeting) =>
+    meeting.status == MeetingStatus.declined ||
+        meeting.isFinished ||
+        meeting.isInPast())
+        .toList();
+    archivedMeetings.sort((a, b) =>
+    b.dateTime.difference(DateTime.now()).inSeconds -
+        a.dateTime.difference(DateTime.now()).inSeconds);
 
     final isAdmin = widget.group.adminId == AppState.authController.userId;
 
@@ -421,8 +424,8 @@ class GroupDetailsPageState extends State<GroupDetailsPage> {
               .fetchGroupChatMessages(widget.group.id);
           late List<ChatMessage> chatMessages = messages.map((msg) {
             var chatMsg = ChatMessage(
-                avatar: memberAvatars[msg.userId]!,
-                username: memberUsernames[msg.userId]!,
+                avatar: memberAvatars[msg.userId] ?? const Avatar(size: 30),
+                username: memberUsernames[msg.userId] ?? "deleted user",
                 text: msg.text,
                 isFromUser: AppState.authController.userId == msg.userId,
                 isFirst: lastSenderId != msg.userId);

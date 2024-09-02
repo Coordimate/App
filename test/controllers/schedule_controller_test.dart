@@ -109,12 +109,11 @@ void main() {
           throwsException);
     });
 
-    test('Link to non-existing group throws exception', () async {
+    test('Link to non-existing group does not throw exception', () async {
       getResponse(client, '/groups/bad', '', statusCode: 404);
-      expect(
-          () async => await AppState.scheduleController
-              .tryParseGroupJoinLink(Uri.parse('/groups/bad/join')),
-          throwsException);
+      final res = await AppState.scheduleController
+              .tryParseGroupJoinLink(Uri.parse('/groups/bad/join'));
+      expect(res, isNull);
     });
 
     test('Good link to user schedule returns SchedulePage', () async {

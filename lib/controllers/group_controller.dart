@@ -110,7 +110,7 @@ class GroupController {
   }
 
   Future<void> removeUser(id, userId) async {
-    var url = Uri.parse("$apiUrl/groups/$id/user/$userId");
+    var url = Uri.parse("$apiUrl/groups/$id/users/$userId");
     final response = await AppState.client.delete(url, headers: {
       "Content-Type": "application/json",
     });

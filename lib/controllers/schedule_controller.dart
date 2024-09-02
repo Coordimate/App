@@ -115,7 +115,7 @@ class ScheduleController {
       final response =
           await AppState.client.get(Uri.parse("$apiUrl/groups/$groupId"));
       if (response.statusCode != 200) {
-        throw Exception('Failed to parse group join link');
+        return null;
       }
       return Group.fromJson(json.decode(response.body));
     }

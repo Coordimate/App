@@ -31,7 +31,7 @@ class _MeetingDetailsPageState extends State<MeetingDetailsPage> {
   late var isAdmin = false;
 
   Future<void> _answerInvitation(bool accept) async {
-    if (widget.meeting.isInPast()) {
+    if (widget.meeting.dateTime.add(Duration(minutes: widget.meeting.duration)).isBefore(DateTime.now())) {
       CustomSnackBar.show(context, "Meeting is in the past");
       return;
     }
@@ -60,10 +60,17 @@ class _MeetingDetailsPageState extends State<MeetingDetailsPage> {
     await AppState.meetingController
         .finishMeeting(widget.meeting.id)
         .then((isFinished) => setState(() {
-              isFinished
-                  ? CustomSnackBar.show(context, "Meeting is finished")
-                  : CustomSnackBar.show(context, "Failed to finish meeting");
-              isFinished && (widget.meeting.isFinished = isFinished);
+              if (isFinished) {
+                CustomSnackBar.show(context, "Meeting is finished");
+                widget.meeting.isFinished = isFinished;
+                for (var participant in widget.meeting.participants) {
+                  if (participant.status == "needs acceptance") {
+                    participant.status = "declined";
+                  }
+                }
+              } else {
+                CustomSnackBar.show(context, "Failed to finish meeting");
+              }
             }));
   }
 

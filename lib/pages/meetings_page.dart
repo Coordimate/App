@@ -64,7 +64,7 @@ class _MeetingsPageState extends State<MeetingsPage> {
         .toList();
     List<MeetingTileModel> acceptedFutureMeetings = acceptedMeetings
         .where((meeting) =>
-            meeting.dateTime.isAfter(DateTime.now()) && !meeting.isFinished)
+            meeting.dateTime.add(Duration(minutes: meeting.duration)).isAfter(DateTime.now()) && !meeting.isFinished)
         .toList();
     List<MeetingTileModel> archivedMeetings = meetings
         .where((meeting) =>

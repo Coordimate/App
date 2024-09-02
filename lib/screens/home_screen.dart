@@ -96,6 +96,21 @@ class HomeScreenState extends State<HomeScreen> {
             return JoinGroupDialog(
                 key: UniqueKey(), groupName: group.name, groupId: group.id);
           });
+    } else {
+      if (mounted) {
+        showDialog(context: context, builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Error'),
+          content: const Text('Group doesn\'t exist'),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('OK'),
+            ),
+          ],
+        );
+      });
+    }
     }
   }
 
