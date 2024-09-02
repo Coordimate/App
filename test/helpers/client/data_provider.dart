@@ -70,7 +70,7 @@ class DataProvider {
   static String groupMeetingLink = "https//:groupmeeting.com";
 
   static String question = "this is a question?";
-  static List<String> options = ["option1", "option2", "option3"];
+  static List<String> options = ["option1", "option2"];
   static Map<int, List<String>> votes = {
     0: [userID1, userID2],
     1: [userID3],
@@ -79,4 +79,6 @@ class DataProvider {
   static String userAdmin = "userAdmin";
   static String meetingTitle = "meetingTitle";
   static int meetingLength = 40;
+  static String newgroupname = "new group name";
+  static String newgroupdescr = "new group descr";
 }

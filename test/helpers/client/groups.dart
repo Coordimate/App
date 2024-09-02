@@ -114,9 +114,10 @@ final inviteLink =
     DataProvider.inviteLink; //also possible to use directly from dataprovider
 
 final pollData = GroupPoll(
-    question: DataProvider.question,
-    options: DataProvider.options,
-    votes: DataProvider.votes);
+  question: DataProvider.question,
+  options: DataProvider.options,
+  //votes: DataProvider.votes
+);
 
 final createPoll = json.encode({
   "question": DataProvider.question,

@@ -1,16 +1,11 @@
 import 'package:coordimate/app_state.dart';
 import 'package:coordimate/components/create_meeting_dialog.dart';
 import 'package:coordimate/components/meeting_tiles.dart';
-import 'package:coordimate/components/snack_bar.dart';
-import 'package:coordimate/pages/groups_page.dart';
 import 'package:coordimate/pages/group_details_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:googleapis/slides/v1.dart';
 import '../helpers/client/data_provider.dart';
 import '../test.mocks.dart';
-import '../helpers/set_appstate.dart';
-import '../helpers/when.dart';
 import '../helpers/client/groups.dart' as groups;
 import 'package:coordimate/widget_keys.dart';
 import 'package:mockito/mockito.dart';
@@ -166,6 +161,11 @@ void main() {
     expect(button, findsExactly(1));
     await tester.tap(button);
     await tester.pumpAndSettle();
+
+    await tester.tap(find.byKey(groupNameFieldKey));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(groupNameFieldKey));
+    await tester.pumpAndSettle();
   });
 
   testWidgets('test6: pressing create meeting and verify request was sent',
@@ -177,12 +177,8 @@ void main() {
             (_) async => [groups.meetingin2Days, groups.meetingArchived]);
     when(mockGroupController.fetchPoll(DataProvider.groupID1))
         .thenAnswer((_) async => null);
-    // when(mockMeetingController.createMeeting(
-    //     DataProvider.meetingTitle,
-    //     groups.dateTimeFutureString,
-    //     DataProvider.meetingLength,
-    //     DataProvider.meetingDescr1,
-    //     DataProvider.groupID1));
+    when(mockMeetingController.createMeeting(any, any, any, any, any))
+        .thenAnswer((_) async => Future.value());
 
     AppState.authController.userId = DataProvider.userID2;
 
@@ -207,13 +203,8 @@ void main() {
     expect(cancelMeetingButton, findsExactly(1));
     await tester.tap(confirmMeetingButton);
     await tester.pumpAndSettle();
-    // verify(mockMeetingController.createMeeting(
-    //         DataProvider.meetingTitle,
-    //         groups.dateTimeFutureString,
-    //         DataProvider.meetingLength,
-    //         DataProvider.meetingDescr1,
-    //         DataProvider.groupID1))
-    //     .called(1);
+    verify(mockMeetingController.createMeeting(any, any, any, any, any))
+        .called(1);
 
     await tester.tap(button);
     await tester.pumpAndSettle();
@@ -232,6 +223,9 @@ void main() {
             (_) async => [groups.meetingin2Days, groups.meetingArchived]);
     when(mockGroupController.fetchPoll(DataProvider.groupID1))
         .thenAnswer((_) async => null);
+    when(mockGroupController.updateGroupMeetingLink(
+            DataProvider.groupID1, DataProvider.groupMeetingLink))
+        .thenAnswer((_) async => Future.value());
     final scaffoldMessengerKey = GlobalKey<ScaffoldMessengerState>();
     AppState.authController.userId = DataProvider.userID2;
 
@@ -248,7 +242,13 @@ void main() {
     expect(share, findsExactly(1));
 
     await tester.enterText(
-        find.byKey(linkPlaceholderFieldKey), "https:link-link.com/link");
+        find.byKey(linkPlaceholderFieldKey), DataProvider.groupMeetingLink);
+    await tester.pumpAndSettle();
+    await tester.testTextInput.receiveAction(TextInputAction.done);
+    verify(mockGroupController.updateGroupMeetingLink(
+      any,
+      any,
+    )).called(1);
 
     await tester.tap(copy);
     await tester.pump();
@@ -256,10 +256,13 @@ void main() {
 
     await tester.tap(share);
     await tester.pumpAndSettle();
+
+    await tester.tap(find.byKey(groupNameFieldKey));
+    await tester.pumpAndSettle();
   });
 
   testWidgets(
-      'test8: check and then edit group name and group description adn check that they updated again',
+      'test8: check and then edit group name and group description and check that they updated again',
       (tester) async {
     when(mockGroupController.fetchGroupUsers(DataProvider.groupID1))
         .thenAnswer((_) async => [groups.userCard1, groups.userCard2]);
@@ -268,6 +271,12 @@ void main() {
             (_) async => [groups.meetingin2Days, groups.meetingArchived]);
     when(mockGroupController.fetchPoll(DataProvider.groupID1))
         .thenAnswer((_) async => null);
+    when(mockGroupController.updateGroupName(
+            DataProvider.groupID1, DataProvider.newgroupname))
+        .thenAnswer((_) async => Future.value());
+    when(mockGroupController.updateGroupDescription(
+            DataProvider.groupID1, DataProvider.newgroupdescr))
+        .thenAnswer((_) async => Future.value());
     AppState.authController.userId = DataProvider.userID2;
     await tester.pumpWidget(MaterialApp(
       home: GroupDetailsPage(group: groups.group1),
@@ -282,8 +291,8 @@ void main() {
     final check = find.byIcon(Icons.check);
     final groupnamefield = find.byKey(groupNameFieldKey);
     final groupdescrfield = find.byKey(groupDescriptionFieldKey);
-    const newgroupname = 'new group name';
-    const newgroupdescr = 'new group description';
+    final newgroupname = DataProvider.newgroupname;
+    final newgroupdescr = DataProvider.newgroupdescr;
     expect(
         find.descendant(
             of: groupnamefield, matching: find.text(groups.group1.name)),
@@ -318,5 +327,144 @@ void main() {
         find.descendant(
             of: groupdescrfield, matching: find.text(newgroupdescr)),
         findsExactly(2));
+
+    verify(mockGroupController.updateGroupName(
+      any,
+      any,
+    )).called(1);
+    verify(mockGroupController.updateGroupDescription(
+      any,
+      any,
+    )).called(1);
+  });
+
+  testWidgets('test9: tap active poll and member leaves group', (tester) async {
+    when(mockGroupController.fetchGroupUsers(DataProvider.groupID1))
+        .thenAnswer((_) async => [groups.userCard1, groups.userCard2]);
+    when(mockGroupController.fetchGroupMeetings(DataProvider.groupID1))
+        .thenAnswer((_) async => [groups.meetingin2Days]);
+    when(mockGroupController.fetchPoll(DataProvider.groupID1))
+        .thenAnswer((_) async => groups.pollData);
+    when(mockGroupController.voteOnPoll(DataProvider.groupID1, 1))
+        .thenAnswer((_) async => Future.value());
+    AppState.authController.userId = DataProvider.userID2;
+
+    await tester.pumpWidget(MaterialApp(
+      home: GroupDetailsPage(group: groups.group1),
+    ));
+    await tester.pumpAndSettle();
+    final pollpanel = find.byKey(pollPanelKey);
+    expect(pollpanel, findsExactly(1));
+
+    final pollButton = find.descendant(
+        of: pollpanel, matching: find.text('Active Group Poll'));
+
+    await tester.tap(pollButton);
+    await tester.pumpAndSettle();
+
+    final option = find.text('option1');
+    expect(option, findsExactly(1));
+    await tester.tap(option);
+
+    final backButtonFinder = find.byTooltip('Back');
+    await tester.tap(backButtonFinder);
+    await tester.pumpAndSettle();
+
+    verify(mockGroupController.voteOnPoll(any, any)).called(1);
+  });
+
+  testWidgets('test10: member leaves group', (tester) async {
+    when(mockGroupController.fetchGroupUsers(DataProvider.groupID1))
+        .thenAnswer((_) async => [groups.userCard2]);
+    when(mockGroupController.fetchGroupMeetings(DataProvider.groupID1))
+        .thenAnswer((_) async => []);
+    when(mockGroupController.fetchPoll(DataProvider.groupID1))
+        .thenAnswer((_) async => null);
+    when(mockGroupController.leaveGroup(DataProvider.groupID1))
+        .thenAnswer((_) async => Future.value());
+
+    AppState.authController.userId = DataProvider.userID2;
+
+    await tester.pumpWidget(MaterialApp(
+      home: GroupDetailsPage(group: groups.group1),
+    ));
+    final leaveButton = find.byKey(leaveGroupButtonKey);
+
+    await tester.pumpAndSettle();
+    await tester.ensureVisible(leaveButton);
+    expect(leaveButton, findsExactly(1));
+    await tester.tap(leaveButton);
+    //, warnIfMissed: false
+    await tester.pumpAndSettle();
+    final yesbutton = find.byKey(yesButtonKey);
+    expect(yesbutton, findsExactly(1));
+    await tester.tap(yesbutton);
+    await tester.pumpAndSettle();
+    verify(mockGroupController.leaveGroup(
+      any,
+    )).called(1);
+  });
+
+  testWidgets('test11: admin removes user from group', (tester) async {
+    when(mockGroupController.fetchGroupUsers(DataProvider.groupID1))
+        .thenAnswer((_) async => [groups.userCard1, groups.userCard2]);
+    when(mockGroupController.fetchGroupMeetings(DataProvider.groupID1))
+        .thenAnswer((_) async => []);
+    when(mockGroupController.fetchPoll(DataProvider.groupID1))
+        .thenAnswer((_) async => null);
+    when(mockGroupController.removeUser(
+            DataProvider.userID2, DataProvider.groupID1))
+        .thenAnswer((_) async => Future.value());
+
+    AppState.authController.userId = DataProvider.userAdmin;
+
+    await tester.pumpWidget(MaterialApp(
+      home: GroupDetailsPage(group: groups.group1),
+    ));
+    await tester.pumpAndSettle();
+
+    final removeUserButton = find.byIcon(Icons.close);
+    await tester.ensureVisible(removeUserButton);
+    expect(removeUserButton, findsExactly(1));
+    await tester.tap(removeUserButton);
+    await tester.pumpAndSettle();
+
+    final yesbutton = find.byKey(yesButtonKey);
+    expect(yesbutton, findsExactly(1));
+    await tester.tap(yesbutton);
+    await tester.pumpAndSettle();
+    verify(mockGroupController.removeUser(any, any)).called(1);
+  });
+
+  testWidgets('test12: admin deletes group', (tester) async {
+    when(mockGroupController.fetchGroupUsers(DataProvider.groupID1))
+        .thenAnswer((_) async => [groups.userCard1, groups.userCard2]);
+    when(mockGroupController.fetchGroupMeetings(DataProvider.groupID1))
+        .thenAnswer((_) async => []);
+    when(mockGroupController.fetchPoll(DataProvider.groupID1))
+        .thenAnswer((_) async => null);
+    when(mockGroupController.deleteGroup(DataProvider.groupID1))
+        .thenAnswer((_) async => Future.value());
+
+    AppState.authController.userId = DataProvider.userAdmin;
+
+    await tester.pumpWidget(MaterialApp(
+      home: GroupDetailsPage(group: groups.group1),
+    ));
+    await tester.pumpAndSettle();
+
+    final deleteButton = find.byKey(deleteGroupButtonKey);
+    await tester.ensureVisible(deleteButton);
+    expect(deleteButton, findsExactly(1));
+    await tester.tap(deleteButton);
+    await tester.pumpAndSettle();
+
+    final yesbutton = find.byKey(yesButtonKey);
+    expect(yesbutton, findsExactly(1));
+    await tester.tap(yesbutton);
+    await tester.pumpAndSettle();
+    verify(mockGroupController.deleteGroup(
+      any,
+    )).called(1);
   });
 }
