@@ -3,12 +3,13 @@ import 'package:flutter/material.dart';
 class EllipsisText extends StatelessWidget {
   final String text;
   final TextStyle? style;
-  final Key? textKey; // Key for the Text widget
-  final Key? overflowKey; // Key to assign if overflow occurs
+  final Key? textKey;
+  final Key? overflowKey;
   final int maxLines;
 
-  EllipsisText({
+  const EllipsisText({
     required this.text,
+    super.key,
     this.textKey,
     this.style,
     this.overflowKey,
@@ -23,8 +24,6 @@ class EllipsisText extends StatelessWidget {
       textDirection: TextDirection.ltr,
       ellipsis: '...',
     )..layout(maxWidth: 450);
-    //490 for description to overflow
-    //~410 for name to overflow
 
     final bool isOverflowing = textPainter.didExceedMaxLines;
 

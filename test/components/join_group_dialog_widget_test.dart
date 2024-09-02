@@ -8,7 +8,6 @@ import 'package:coordimate/components/join_group_dialog.dart';
 import '../helpers/client/data_provider.dart';
 import '../test.mocks.dart';
 
-
 void main() {
   late MockGroupController mockGroupController;
 
@@ -32,7 +31,6 @@ void main() {
       ),
     );
 
-    // Verify dialog content
     expect(find.text(DataProvider.groupName1), findsOneWidget);
     expect(find.text('You were invited to join the group!'), findsOneWidget);
     expect(find.text('Reject'), findsOneWidget);
@@ -58,11 +56,17 @@ void main() {
     expect(find.byType(JoinGroupDialog), findsNothing);
   });
 
-  testWidgets('Accept button performs correct API calls and navigation', (WidgetTester tester) async {
-    when(mockGroupController.joinGroup(DataProvider.groupID1)).thenAnswer((_) async => Group(id: DataProvider.groupID1, name: DataProvider.groupName1));
-    when(mockGroupController.fetchPoll(DataProvider.groupID1)).thenAnswer((_) async => null);
-    when(mockGroupController.fetchGroupMeetings(DataProvider.groupID1)).thenAnswer((_) async => []);
-    when(mockGroupController.fetchGroupUsers(DataProvider.groupID1)).thenAnswer((_) async => []);
+  testWidgets('Accept button performs correct API calls and navigation',
+      (WidgetTester tester) async {
+    when(mockGroupController.joinGroup(DataProvider.groupID1)).thenAnswer(
+        (_) async =>
+            Group(id: DataProvider.groupID1, name: DataProvider.groupName1));
+    when(mockGroupController.fetchPoll(DataProvider.groupID1))
+        .thenAnswer((_) async => null);
+    when(mockGroupController.fetchGroupMeetings(DataProvider.groupID1))
+        .thenAnswer((_) async => []);
+    when(mockGroupController.fetchGroupUsers(DataProvider.groupID1))
+        .thenAnswer((_) async => []);
 
     await tester.pumpWidget(
       MaterialApp(
@@ -83,7 +87,9 @@ void main() {
 
     verify(mockGroupController.joinGroup(DataProvider.groupID1)).called(1);
     verify(mockGroupController.fetchPoll(DataProvider.groupID1)).called(1);
-    verify(mockGroupController.fetchGroupMeetings(DataProvider.groupID1)).called(1);
-    verify(mockGroupController.fetchGroupUsers(DataProvider.groupID1)).called(1);
+    verify(mockGroupController.fetchGroupMeetings(DataProvider.groupID1))
+        .called(1);
+    verify(mockGroupController.fetchGroupUsers(DataProvider.groupID1))
+        .called(1);
   });
 }

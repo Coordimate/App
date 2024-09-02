@@ -36,11 +36,17 @@ void main() {
       id: '12345',
       title: DataProvider.meetingTitle1,
       description: DataProvider.meetingDescr1,
-      admin: Participant(id: '1', username: DataProvider.usernameAdmin, status: 'accepted'),
+      admin: Participant(
+          id: '1', username: DataProvider.usernameAdmin, status: 'accepted'),
       participants: [
-        Participant(id: '1', username: DataProvider.usernameAdmin, status: 'accepted'),
-        Participant(id: '2', username: DataProvider.username1, status: 'accepted'),
-        Participant(id: '3', username: DataProvider.username2, status: 'needs_acceptance'),
+        Participant(
+            id: '1', username: DataProvider.usernameAdmin, status: 'accepted'),
+        Participant(
+            id: '2', username: DataProvider.username1, status: 'accepted'),
+        Participant(
+            id: '3',
+            username: DataProvider.username2,
+            status: 'needs_acceptance'),
       ],
       status: MeetingStatus.accepted,
       dateTime: DataProvider.dateTimeFutureObj,
@@ -62,7 +68,8 @@ void main() {
             id: '1', username: DataProvider.usernameAdmin, status: 'accepted'),
         Participant(
             id: '2', username: DataProvider.username1, status: 'accepted'),
-        Participant(id: '3',
+        Participant(
+            id: '3',
             username: DataProvider.username2,
             status: 'needs_acceptance'),
       ],
@@ -86,7 +93,8 @@ void main() {
             id: '1', username: DataProvider.usernameAdmin, status: 'accepted'),
         Participant(
             id: '2', username: DataProvider.username1, status: 'accepted'),
-        Participant(id: '3',
+        Participant(
+            id: '3',
             username: DataProvider.username2,
             status: 'needs_acceptance'),
       ],
@@ -110,9 +118,8 @@ void main() {
             id: '1', username: DataProvider.usernameAdmin, status: 'accepted'),
         Participant(
             id: '2', username: DataProvider.username1, status: 'accepted'),
-        Participant(id: '3',
-            username: DataProvider.username2,
-            status: 'declined'),
+        Participant(
+            id: '3', username: DataProvider.username2, status: 'declined'),
       ],
       status: MeetingStatus.declined,
       dateTime: DataProvider.dateTimeFutureObj,
@@ -134,9 +141,8 @@ void main() {
             id: '1', username: DataProvider.usernameAdmin, status: 'accepted'),
         Participant(
             id: '2', username: DataProvider.username1, status: 'accepted'),
-        Participant(id: '3',
-            username: DataProvider.username2,
-            status: 'declined'),
+        Participant(
+            id: '3', username: DataProvider.username2, status: 'declined'),
       ],
       status: MeetingStatus.declined,
       dateTime: DataProvider.dateTimeFutureObj,
@@ -151,11 +157,17 @@ void main() {
       id: '12345',
       title: DataProvider.meetingTitle1,
       description: DataProvider.meetingDescr1,
-      admin: Participant(id: '1', username: DataProvider.usernameAdmin, status: 'accepted'),
+      admin: Participant(
+          id: '1', username: DataProvider.usernameAdmin, status: 'accepted'),
       participants: [
-        Participant(id: '1', username: DataProvider.usernameAdmin, status: 'accepted'),
-        Participant(id: '2', username: DataProvider.username1, status: 'accepted'),
-        Participant(id: '3', username: DataProvider.username2, status: 'needs_acceptance'),
+        Participant(
+            id: '1', username: DataProvider.usernameAdmin, status: 'accepted'),
+        Participant(
+            id: '2', username: DataProvider.username1, status: 'accepted'),
+        Participant(
+            id: '3',
+            username: DataProvider.username2,
+            status: 'needs_acceptance'),
       ],
       status: MeetingStatus.needsAcceptance,
       dateTime: DataProvider.dateTimePastObj,
@@ -170,11 +182,17 @@ void main() {
       id: '12345',
       title: DataProvider.meetingTitle1,
       description: DataProvider.meetingDescr1,
-      admin: Participant(id: '1', username: DataProvider.usernameAdmin, status: 'accepted'),
+      admin: Participant(
+          id: '1', username: DataProvider.usernameAdmin, status: 'accepted'),
       participants: [
-        Participant(id: '1', username: DataProvider.usernameAdmin, status: 'accepted'),
-        Participant(id: '2', username: DataProvider.username1, status: 'accepted'),
-        Participant(id: '3', username: DataProvider.username2, status: 'needs_acceptance'),
+        Participant(
+            id: '1', username: DataProvider.usernameAdmin, status: 'accepted'),
+        Participant(
+            id: '2', username: DataProvider.username1, status: 'accepted'),
+        Participant(
+            id: '3',
+            username: DataProvider.username2,
+            status: 'needs_acceptance'),
       ],
       status: MeetingStatus.needsAcceptance,
       dateTime: DataProvider.dateTimeFutureObj,
@@ -196,9 +214,8 @@ void main() {
             id: '1', username: DataProvider.usernameAdmin, status: 'accepted'),
         Participant(
             id: '2', username: DataProvider.username1, status: 'accepted'),
-        Participant(id: '3',
-            username: DataProvider.username2,
-            status: 'accepted'),
+        Participant(
+            id: '3', username: DataProvider.username2, status: 'accepted'),
       ],
       status: MeetingStatus.accepted,
       dateTime: DataProvider.dateTimeFutureObj,
@@ -212,8 +229,9 @@ void main() {
   });
 
   group('Not admin user who accepted invitation', () {
-
-    testWidgets('displays meeting title, description, information, participants', (WidgetTester tester) async {
+    testWidgets(
+        'displays meeting title, description, information, participants',
+        (WidgetTester tester) async {
       when(mockAuthController.userId).thenReturn('2');
 
       await tester.pumpWidget(MaterialApp(
@@ -223,8 +241,14 @@ void main() {
       expect(find.text(DataProvider.meetingTitle1), findsOneWidget);
       expect(find.text(DataProvider.meetingDescr1), findsOneWidget);
 
-      expect(find.text(mockMeetingDetails1.getFormattedDate(DataProvider.dateTimeFutureObj)), findsOneWidget);
-      expect(find.text(mockMeetingDetails1.getFormattedTime(DataProvider.dateTimeFutureObj)), findsOneWidget);
+      expect(
+          find.text(mockMeetingDetails1
+              .getFormattedDate(DataProvider.dateTimeFutureObj)),
+          findsOneWidget);
+      expect(
+          find.text(mockMeetingDetails1
+              .getFormattedTime(DataProvider.dateTimeFutureObj)),
+          findsOneWidget);
       expect(find.text(DataProvider.groupName1), findsOneWidget);
       expect(find.text(DataProvider.usernameAdmin), findsExactly(2));
 
@@ -249,7 +273,8 @@ void main() {
       expect(find.text('Delete Meeting'), findsNothing);
     });
 
-    testWidgets('clicks on decline meeting and snack bar shows', (WidgetTester tester) async {
+    testWidgets('clicks on decline meeting and snack bar shows',
+        (WidgetTester tester) async {
       final scaffoldMessengerKey = GlobalKey<ScaffoldMessengerState>();
 
       when(mockAuthController.userId).thenReturn('2');
@@ -267,7 +292,8 @@ void main() {
       await tester.tap(find.byKey(withdrawMeetingButtonKey));
       await tester.pumpAndSettle();
       expect(find.byKey(alertDialogKey), findsOneWidget);
-      expect(find.text('Do you want to withdraw from meeting?'), findsOneWidget);
+      expect(
+          find.text('Do you want to withdraw from meeting?'), findsOneWidget);
       await tester.tap(find.byKey(noButtonKey));
       await tester.pumpAndSettle();
       expect(find.byKey(alertDialogKey), findsNothing);
@@ -283,9 +309,11 @@ void main() {
       expect(find.byKey(withdrawMeetingButtonKey), findsNothing);
     });
 
-    testWidgets('redirects to meeting agenda page', (WidgetTester tester) async {
+    testWidgets('redirects to meeting agenda page',
+        (WidgetTester tester) async {
       when(mockAuthController.userId).thenReturn('2');
-      when(mockMeetingController.getAgendaPoints(mockMeetingDetails1.id)).thenAnswer((_) async => []);
+      when(mockMeetingController.getAgendaPoints(mockMeetingDetails1.id))
+          .thenAnswer((_) async => []);
 
       await tester.pumpWidget(MaterialApp(
         home: MeetingDetailsPage(meeting: mockMeetingDetails1),
@@ -300,12 +328,15 @@ void main() {
 
       expect(find.text('Agenda'), findsOneWidget);
 
-      verify(mockMeetingController.getAgendaPoints(mockMeetingDetails1.id)).called(1);
+      verify(mockMeetingController.getAgendaPoints(mockMeetingDetails1.id))
+          .called(1);
     });
 
-    testWidgets('redirects to meeting summary page', (WidgetTester tester) async {
+    testWidgets('redirects to meeting summary page',
+        (WidgetTester tester) async {
       when(mockAuthController.userId).thenReturn('3');
-      when(mockMeetingController.fetchMeetingSummary(mockMeetingDetails8.id)).thenAnswer((_) async => '');
+      when(mockMeetingController.fetchMeetingSummary(mockMeetingDetails8.id))
+          .thenAnswer((_) async => '');
 
       await tester.pumpWidget(MaterialApp(
         home: MeetingDetailsPage(meeting: mockMeetingDetails8),
@@ -324,13 +355,16 @@ void main() {
 
       expect(find.byType(MeetingDetailsPage), findsOneWidget);
 
-      verify(mockMeetingController.fetchMeetingSummary(mockMeetingDetails8.id)).called(1);
+      verify(mockMeetingController.fetchMeetingSummary(mockMeetingDetails8.id))
+          .called(1);
     });
 
-    testWidgets('finish meeting and show summary button', (WidgetTester tester) async {
+    testWidgets('finish meeting and show summary button',
+        (WidgetTester tester) async {
       final scaffoldMessengerKey = GlobalKey<ScaffoldMessengerState>();
       when(mockAuthController.userId).thenReturn('2');
-      when(mockMeetingController.finishMeeting(mockMeetingDetails1.id)).thenAnswer((_) async => true);
+      when(mockMeetingController.finishMeeting(mockMeetingDetails1.id))
+          .thenAnswer((_) async => true);
 
       await tester.pumpWidget(MaterialApp(
         scaffoldMessengerKey: scaffoldMessengerKey,
@@ -353,7 +387,8 @@ void main() {
       expect(find.byType(SummaryPage), findsOneWidget);
       expect(find.text('Summary'), findsOneWidget);
 
-      verify(mockMeetingController.finishMeeting(mockMeetingDetails1.id)).called(1);
+      verify(mockMeetingController.finishMeeting(mockMeetingDetails1.id))
+          .called(1);
     });
 
     testWidgets('opens maps for offline meeting', (WidgetTester tester) async {
@@ -373,9 +408,9 @@ void main() {
   });
 
   group('Not admin user who has invitation', () {
-
-    testWidgets('displays meeting title, description, information, participants', (WidgetTester tester) async {
-
+    testWidgets(
+        'displays meeting title, description, information, participants',
+        (WidgetTester tester) async {
       when(mockAuthController.userId).thenReturn('3');
 
       await tester.pumpWidget(MaterialApp(
@@ -385,11 +420,13 @@ void main() {
       expect(find.text(DataProvider.meetingTitle1), findsOneWidget);
       expect(find.text(DataProvider.meetingDescr1), findsOneWidget);
 
-      expect(find.text(
-          mockMeetingDetails2.getFormattedDate(DataProvider.dateTimeFutureObj)),
+      expect(
+          find.text(mockMeetingDetails2
+              .getFormattedDate(DataProvider.dateTimeFutureObj)),
           findsOneWidget);
-      expect(find.text(
-          mockMeetingDetails2.getFormattedTime(DataProvider.dateTimeFutureObj)),
+      expect(
+          find.text(mockMeetingDetails2
+              .getFormattedTime(DataProvider.dateTimeFutureObj)),
           findsOneWidget);
       expect(find.text(DataProvider.groupName1), findsOneWidget);
       expect(find.text(DataProvider.usernameAdmin), findsExactly(2));
@@ -415,7 +452,8 @@ void main() {
       expect(find.text('Delete Meeting'), findsNothing);
     });
 
-    testWidgets('clicks on accept meeting invitation', (WidgetTester tester) async {
+    testWidgets('clicks on accept meeting invitation',
+        (WidgetTester tester) async {
       final scaffoldMessengerKey = GlobalKey<ScaffoldMessengerState>();
 
       when(mockAuthController.userId).thenReturn('3');
@@ -436,10 +474,13 @@ void main() {
       expect(find.byType(SnackBar), findsOneWidget);
       expect(find.text('Meeting accepted'), findsOneWidget);
 
-      verify(mockMeetingController.answerInvitation(true, mockMeetingDetails2.id)).called(1);
+      verify(mockMeetingController.answerInvitation(
+              true, mockMeetingDetails2.id))
+          .called(1);
     });
 
-    testWidgets('clicks on decline meeting invitation', (WidgetTester tester) async {
+    testWidgets('clicks on decline meeting invitation',
+        (WidgetTester tester) async {
       final scaffoldMessengerKey = GlobalKey<ScaffoldMessengerState>();
 
       when(mockAuthController.userId).thenReturn('3');
@@ -460,10 +501,13 @@ void main() {
       expect(find.byType(SnackBar), findsOneWidget);
       expect(find.text('Meeting declined'), findsOneWidget);
 
-      verify(mockMeetingController.answerInvitation(false, mockMeetingDetails2.id)).called(1);
+      verify(mockMeetingController.answerInvitation(
+              false, mockMeetingDetails2.id))
+          .called(1);
     });
 
-    testWidgets('clicks on accept meeting invitation of the past meeting', (WidgetTester tester) async {
+    testWidgets('clicks on accept meeting invitation of the past meeting',
+        (WidgetTester tester) async {
       final scaffoldMessengerKey = GlobalKey<ScaffoldMessengerState>();
 
       when(mockAuthController.userId).thenReturn('3');
@@ -482,10 +526,12 @@ void main() {
       expect(find.byType(SnackBar), findsOneWidget);
       expect(find.text('Meeting is in the past'), findsOneWidget);
 
-      verifyNever(mockMeetingController.answerInvitation(true, mockMeetingDetails6.id));
+      verifyNever(
+          mockMeetingController.answerInvitation(true, mockMeetingDetails6.id));
     });
 
-    testWidgets('clicks on accept meeting invitation of the finished meeting', (WidgetTester tester) async {
+    testWidgets('clicks on accept meeting invitation of the finished meeting',
+        (WidgetTester tester) async {
       final scaffoldMessengerKey = GlobalKey<ScaffoldMessengerState>();
 
       when(mockAuthController.userId).thenReturn('3');
@@ -504,14 +550,15 @@ void main() {
       expect(find.byType(SnackBar), findsOneWidget);
       expect(find.text('Meeting is already finished'), findsOneWidget);
 
-      verifyNever(mockMeetingController.answerInvitation(true, mockMeetingDetails7.id));
+      verifyNever(
+          mockMeetingController.answerInvitation(true, mockMeetingDetails7.id));
     });
   });
 
   group('Admin user', () {
-
-    testWidgets('displays meeting title, description, information, participants', (WidgetTester tester) async {
-
+    testWidgets(
+        'displays meeting title, description, information, participants',
+        (WidgetTester tester) async {
       when(mockAuthController.userId).thenReturn('1');
 
       await tester.pumpWidget(MaterialApp(
@@ -521,11 +568,13 @@ void main() {
       expect(find.text(DataProvider.meetingTitle1), findsOneWidget);
       expect(find.text(DataProvider.meetingDescr1), findsOneWidget);
 
-      expect(find.text(
-          mockMeetingDetails3.getFormattedDate(DataProvider.dateTimeFutureObj)),
+      expect(
+          find.text(mockMeetingDetails3
+              .getFormattedDate(DataProvider.dateTimeFutureObj)),
           findsOneWidget);
-      expect(find.text(
-          mockMeetingDetails3.getFormattedTime(DataProvider.dateTimeFutureObj)),
+      expect(
+          find.text(mockMeetingDetails3
+              .getFormattedTime(DataProvider.dateTimeFutureObj)),
           findsOneWidget);
       expect(find.text(DataProvider.groupName1), findsOneWidget);
       expect(find.text(DataProvider.usernameAdmin), findsExactly(2));
@@ -551,11 +600,14 @@ void main() {
       expect(find.text('Delete Meeting'), findsOneWidget);
     });
 
-    testWidgets('change meeting link (onSubmitted)', (WidgetTester tester) async {
+    testWidgets('change meeting link (onSubmitted)',
+        (WidgetTester tester) async {
       const newLink = 'https://www.google.com';
       final scaffoldMessengerKey = GlobalKey<ScaffoldMessengerState>();
       when(mockAuthController.userId).thenReturn('1');
-      when(mockMeetingController.updateMeetingLink(mockMeetingDetails3.id, newLink)).thenAnswer((_) async => {});
+      when(mockMeetingController.updateMeetingLink(
+              mockMeetingDetails3.id, newLink))
+          .thenAnswer((_) async => {});
 
       await tester.pumpWidget(MaterialApp(
         scaffoldMessengerKey: scaffoldMessengerKey,
@@ -567,13 +619,15 @@ void main() {
       // Verify enabled border color
 
       final textField = tester.widget<TextField>(find.byType(TextField));
-      final enabledBorder = textField.decoration!.enabledBorder as UnderlineInputBorder;
+      final enabledBorder =
+          textField.decoration!.enabledBorder as UnderlineInputBorder;
       expect(enabledBorder.borderSide.color, alphaDarkBlue);
 
       await tester.tap(find.byKey(linkPlaceholderFieldKey));
       await tester.enterText(find.byKey(linkPlaceholderFieldKey), newLink);
       await tester.pumpAndSettle();
-      final focusedBorder = textField.decoration!.focusedBorder as UnderlineInputBorder;
+      final focusedBorder =
+          textField.decoration!.focusedBorder as UnderlineInputBorder;
       expect(focusedBorder.borderSide.color, darkBlue);
       expect(find.text(newLink), findsOneWidget);
 
@@ -582,14 +636,19 @@ void main() {
 
       expect(find.text(newLink), findsOneWidget);
 
-      verify(mockMeetingController.updateMeetingLink(mockMeetingDetails3.id, newLink)).called(1);
+      verify(mockMeetingController.updateMeetingLink(
+              mockMeetingDetails3.id, newLink))
+          .called(1);
     });
 
-    testWidgets('change meeting link (onTapOutside)', (WidgetTester tester) async {
+    testWidgets('change meeting link (onTapOutside)',
+        (WidgetTester tester) async {
       const newLink = 'https://www.facebook.com';
       final scaffoldMessengerKey = GlobalKey<ScaffoldMessengerState>();
       when(mockAuthController.userId).thenReturn('1');
-      when(mockMeetingController.updateMeetingLink(mockMeetingDetails3.id, newLink)).thenAnswer((_) async => {});
+      when(mockMeetingController.updateMeetingLink(
+              mockMeetingDetails3.id, newLink))
+          .thenAnswer((_) async => {});
 
       await tester.pumpWidget(MaterialApp(
         scaffoldMessengerKey: scaffoldMessengerKey,
@@ -600,20 +659,24 @@ void main() {
       expect(find.text(DataProvider.meetingLink), findsOneWidget);
 
       final textField = tester.widget<TextField>(find.byType(TextField));
-      final enabledBorder = textField.decoration!.enabledBorder as UnderlineInputBorder;
+      final enabledBorder =
+          textField.decoration!.enabledBorder as UnderlineInputBorder;
       expect(enabledBorder.borderSide.color, alphaDarkBlue);
 
       await tester.tap(find.byKey(linkPlaceholderFieldKey));
       await tester.enterText(find.byKey(linkPlaceholderFieldKey), newLink);
       await tester.pumpAndSettle();
-      final focusedBorder = textField.decoration!.focusedBorder as UnderlineInputBorder;
+      final focusedBorder =
+          textField.decoration!.focusedBorder as UnderlineInputBorder;
       expect(focusedBorder.borderSide.color, darkBlue);
       expect(find.text(newLink), findsOneWidget);
 
       await tester.tapAt(Offset.zero);
       await tester.pumpAndSettle();
 
-      verify(mockMeetingController.updateMeetingLink(mockMeetingDetails3.id, newLink)).called(1);
+      verify(mockMeetingController.updateMeetingLink(
+              mockMeetingDetails3.id, newLink))
+          .called(1);
     });
 
     testWidgets('copy and share meeting link ', (WidgetTester tester) async {
@@ -635,14 +698,13 @@ void main() {
 
       await tester.tap(find.byKey(shareButtonKey));
       await tester.pumpAndSettle();
-      // expect(find.text("Copy"), findsOneWidget);
-      // TODO: test share button
     });
 
     testWidgets('delete meeting', (WidgetTester tester) async {
       final scaffoldMessengerKey = GlobalKey<ScaffoldMessengerState>();
       when(mockAuthController.userId).thenReturn('1');
-      when(mockMeetingController.deleteMeeting(mockMeetingDetails3.id, null)).thenAnswer((_) async => {});
+      when(mockMeetingController.deleteMeeting(mockMeetingDetails3.id, null))
+          .thenAnswer((_) async => {});
 
       await tester.pumpWidget(MaterialApp(
         scaffoldMessengerKey: scaffoldMessengerKey,
@@ -671,7 +733,8 @@ void main() {
     testWidgets('fail to finish meeting', (WidgetTester tester) async {
       final scaffoldMessengerKey = GlobalKey<ScaffoldMessengerState>();
       when(mockAuthController.userId).thenReturn('1');
-      when(mockMeetingController.finishMeeting(mockMeetingDetails3.id)).thenAnswer((_) async => false);
+      when(mockMeetingController.finishMeeting(mockMeetingDetails3.id))
+          .thenAnswer((_) async => false);
 
       await tester.pumpWidget(MaterialApp(
         scaffoldMessengerKey: scaffoldMessengerKey,
@@ -696,17 +759,15 @@ void main() {
       expect(find.byType(SnackBar), findsOneWidget);
       expect(find.text('Failed to finish meeting'), findsOneWidget);
 
-      verify(mockMeetingController.finishMeeting(mockMeetingDetails3.id)).called(1);
+      verify(mockMeetingController.finishMeeting(mockMeetingDetails3.id))
+          .called(1);
     });
-
   });
 
   group('Not admin user who declined future invitation', () {
-
     testWidgets(
-        'displays meeting title, description, information, participants', (
-        WidgetTester tester) async {
-
+        'displays meeting title, description, information, participants',
+        (WidgetTester tester) async {
       when(mockAuthController.userId).thenReturn('3');
 
       await tester.pumpWidget(MaterialApp(
@@ -716,11 +777,13 @@ void main() {
       expect(find.text(DataProvider.meetingTitle1), findsOneWidget);
       expect(find.text(DataProvider.meetingDescr1), findsOneWidget);
 
-      expect(find.text(
-          mockMeetingDetails4.getFormattedDate(DataProvider.dateTimeFutureObj)),
+      expect(
+          find.text(mockMeetingDetails4
+              .getFormattedDate(DataProvider.dateTimeFutureObj)),
           findsOneWidget);
-      expect(find.text(
-          mockMeetingDetails4.getFormattedTime(DataProvider.dateTimeFutureObj)),
+      expect(
+          find.text(mockMeetingDetails4
+              .getFormattedTime(DataProvider.dateTimeFutureObj)),
           findsOneWidget);
       expect(find.text(DataProvider.groupName1), findsOneWidget);
       expect(find.text(DataProvider.usernameAdmin), findsExactly(2));
@@ -746,9 +809,8 @@ void main() {
       expect(find.text('Delete Meeting'), findsNothing);
     });
 
-    testWidgets(
-        'clicks on attend meeting and snack bar shows', (
-        WidgetTester tester) async {
+    testWidgets('clicks on attend meeting and snack bar shows',
+        (WidgetTester tester) async {
       final scaffoldMessengerKey = GlobalKey<ScaffoldMessengerState>();
 
       when(mockAuthController.userId).thenReturn('3');
@@ -780,15 +842,12 @@ void main() {
       expect(find.byType(SnackBar), findsOneWidget);
       expect(find.text('Meeting accepted'), findsOneWidget);
     });
-
   });
 
   group('Not admin user who declined and meeting is finished', () {
-
     testWidgets(
-        'displays meeting title, description, information, participants', (
-        WidgetTester tester) async {
-
+        'displays meeting title, description, information, participants',
+        (WidgetTester tester) async {
       when(mockAuthController.userId).thenReturn('3');
 
       await tester.pumpWidget(MaterialApp(
@@ -798,11 +857,13 @@ void main() {
       expect(find.text(DataProvider.meetingTitle1), findsOneWidget);
       expect(find.text(DataProvider.meetingDescr1), findsOneWidget);
 
-      expect(find.text(
-          mockMeetingDetails5.getFormattedDate(DataProvider.dateTimeFutureObj)),
+      expect(
+          find.text(mockMeetingDetails5
+              .getFormattedDate(DataProvider.dateTimeFutureObj)),
           findsOneWidget);
-      expect(find.text(
-          mockMeetingDetails5.getFormattedTime(DataProvider.dateTimeFutureObj)),
+      expect(
+          find.text(mockMeetingDetails5
+              .getFormattedTime(DataProvider.dateTimeFutureObj)),
           findsOneWidget);
       expect(find.text(DataProvider.groupName1), findsOneWidget);
       expect(find.text(DataProvider.usernameAdmin), findsExactly(2));
@@ -828,9 +889,8 @@ void main() {
       expect(find.text('Delete Meeting'), findsNothing);
     });
 
-    testWidgets(
-        'clicks on invitation declined and snack bar shows', (
-        WidgetTester tester) async {
+    testWidgets('clicks on invitation declined and snack bar shows',
+        (WidgetTester tester) async {
       final scaffoldMessengerKey = GlobalKey<ScaffoldMessengerState>();
 
       when(mockAuthController.userId).thenReturn('3');
@@ -848,7 +908,5 @@ void main() {
       expect(find.byType(SnackBar), findsOneWidget);
       expect(find.text('Meeting is finished'), findsOneWidget);
     });
-
   });
-
 }

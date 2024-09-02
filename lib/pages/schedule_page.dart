@@ -132,7 +132,8 @@ class _DaysRow extends StatelessWidget {
 
 class TimeColumn extends StatelessWidget {
   const TimeColumn({
-    super.key, this.hourHeight = 20.0,
+    super.key,
+    this.hourHeight = 20.0,
   });
 
   final double hourHeight;
@@ -164,7 +165,6 @@ class DayColumn extends StatelessWidget {
     this.hourHeight = 20.0,
   });
 
-  // Round to fraction of an hour based on current hour height
   double roundToFraction(double hours) {
     var fraction = 1;
     if (hourHeight <= 30) {
@@ -404,8 +404,11 @@ class TimePickerState extends State<TimePicker> {
                       newStart = timeToHours(time);
                       startTimeString = timeToString(hoursToTime(newStart));
                     });
-                    await AppState.scheduleController.updateTimeSlot(widget.id,
-                        widget.day, newStart, widget.length + widget.start - newStart);
+                    await AppState.scheduleController.updateTimeSlot(
+                        widget.id,
+                        widget.day,
+                        newStart,
+                        widget.length + widget.start - newStart);
                     widget.refresh();
                   }
                 },
@@ -441,8 +444,8 @@ class TimePickerState extends State<TimePicker> {
                       endTimeString =
                           timeToString(hoursToTime(widget.start + newLength));
                     });
-                    await AppState.scheduleController
-                        .updateTimeSlot(widget.id, widget.day, widget.start, newLength);
+                    await AppState.scheduleController.updateTimeSlot(
+                        widget.id, widget.day, widget.start, newLength);
                     widget.refresh();
                   }
                 },
@@ -557,11 +560,20 @@ class SchedulePage extends StatelessWidget {
   Widget build(BuildContext context) {
     AppState.scheduleController.ownerId = ownerId;
     if (isGroupSchedule) {
-      AppState.scheduleController.setScheduleParams("$apiUrl/groups/$ownerId/time_slots", (ownerName == "") ? "Group Schedule" : ownerName, false, true);
+      AppState.scheduleController.setScheduleParams(
+          "$apiUrl/groups/$ownerId/time_slots",
+          (ownerName == "") ? "Group Schedule" : ownerName,
+          false,
+          true);
     } else if (ownerId != "") {
-      AppState.scheduleController.setScheduleParams("$apiUrl/users/$ownerId/time_slots", (ownerName == "") ? "User Schedule" : ownerName, false, false);
+      AppState.scheduleController.setScheduleParams(
+          "$apiUrl/users/$ownerId/time_slots",
+          (ownerName == "") ? "User Schedule" : ownerName,
+          false,
+          false);
     } else {
-      AppState.scheduleController.setScheduleParams("$apiUrl/time_slots", "Schedule", true, false);
+      AppState.scheduleController
+          .setScheduleParams("$apiUrl/time_slots", "Schedule", true, false);
     }
 
     return Scaffold(
@@ -574,7 +586,6 @@ class SchedulePage extends StatelessWidget {
                   context,
                   MaterialPageRoute(
                       builder: (context) => const PersonalPage()));
-              // logOut(context);
             },
             buttonIcon: Icons.settings_outlined),
         body: const ScheduleGrid(),

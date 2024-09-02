@@ -37,25 +37,19 @@ const groupCardDescriptionOverflowKey = Key('groupCardDescriptionOverflow');
 const avatarKey = Key('avatar');
 
 //groups_details_page keys:
-//also check for avatar and archive buttons
 const inviteButtonKey = Key('inviteButton');
 const createMeetingButtonKey = Key('createMeetingButton');
 const groupNameFieldKey = Key('groupNameField');
 const groupMemberCountKey = Key('groupMemberCount');
-//const editGroupNameKey = Key('editGroupName');
 const linkPlaceholderFieldKey = Key('linkPlaceholderField');
 const copyButtonKey = Key('copyButton');
 const shareButtonKey = Key('shareButton');
 const groupDescriptionFieldKey = Key('groupDescriptionField');
 const noGroupDescriptionFieldKey = Key('noGroupDescriptionField');
-//const editGroupDescriptionKey = Key('editGroupDescription');
-// const groupsDetailsNameKey = Key('groupsDetailsName');
-// const groupsDetailsDescriptionKey = Key('groupsDetailsDescription');
 const pollPanelKey = Key('pollPanel');
 const groupScheduleButtonKey = Key('groupScheduleButton');
 const groupMembersListKey = Key('groupMembersList');
 const groupMemberKey = Key('groupMember');
-//const groupAdminKey = Key('groupAdmin');
 const groupChatButtonKey = Key('groupChatButton');
 const deleteGroupButtonKey = Key('deleteGroupButton');
 const leaveGroupButtonKey = Key('leaveGroupButton');

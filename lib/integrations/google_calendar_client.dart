@@ -14,8 +14,6 @@ class CalendarClient {
     bool hasConferenceSupport = true,
   }) async {
     Map<String, String> eventData = {};
-
-    // If the account has multiple calendars, then select the "primary" one
     String calendarId = "primary";
     Event event = Event();
 
@@ -155,4 +153,3 @@ class CalendarClient {
     }
   }
 }
-

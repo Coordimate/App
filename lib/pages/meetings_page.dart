@@ -32,18 +32,19 @@ class _MeetingsPageState extends State<MeetingsPage> {
 
   Future<void> _fetchMeetings() async {
     final meetingsFetched = await AppState.meetingController.fetchMeetings();
-      setState(() {
-        meetings = meetingsFetched;
-      });
+    setState(() {
+      meetings = meetingsFetched;
+    });
   }
 
   Future<void> _answerInvitation(String id, bool accept,
       {bool showSnackBar = true}) async {
-    final status = await AppState.meetingController.answerInvitation(accept, id);
+    final status =
+        await AppState.meetingController.answerInvitation(accept, id);
     if (showSnackBar && mounted) {
       status == MeetingStatus.accepted
-        ? CustomSnackBar.show(context, "Meeting accepted")
-        : CustomSnackBar.show(context, "Meeting declined");
+          ? CustomSnackBar.show(context, "Meeting accepted")
+          : CustomSnackBar.show(context, "Meeting declined");
     }
     _fetchMeetings();
   }
@@ -53,38 +54,39 @@ class _MeetingsPageState extends State<MeetingsPage> {
   @override
   Widget build(BuildContext context) {
     List<MeetingTileModel> newInvitations = meetings
-        .where((meeting) => meeting.status == MeetingStatus.needsAcceptance
-        && !meeting.isFinished)
+        .where((meeting) =>
+            meeting.status == MeetingStatus.needsAcceptance &&
+            !meeting.isFinished)
         .toList();
     List<MeetingTileModel> acceptedMeetings = meetings
-        .where((meeting) => meeting.status == MeetingStatus.accepted
-        && !meeting.isFinished)
+        .where((meeting) =>
+            meeting.status == MeetingStatus.accepted && !meeting.isFinished)
         .toList();
     List<MeetingTileModel> acceptedFutureMeetings = acceptedMeetings
-        .where((meeting) => meeting.dateTime.isAfter(DateTime.now())
-        && !meeting.isFinished)
+        .where((meeting) =>
+            meeting.dateTime.isAfter(DateTime.now()) && !meeting.isFinished)
         .toList();
     List<MeetingTileModel> archivedMeetings = meetings
-        .where((meeting) => meeting.status == MeetingStatus.declined
-        || meeting.isFinished
-        || meeting.isInPast())
+        .where((meeting) =>
+            meeting.status == MeetingStatus.declined ||
+            meeting.isFinished ||
+            meeting.isInPast())
         .toList();
     archivedMeetings.sort((a, b) =>
-    b.dateTime.difference(DateTime.now()).inSeconds -
+        b.dateTime.difference(DateTime.now()).inSeconds -
         a.dateTime.difference(DateTime.now()).inSeconds);
 
     double screenHeight = MediaQuery.of(context).size.height;
     double screenWidth = MediaQuery.of(context).size.width;
     double boxWidth = screenWidth / 5 * 0.85;
-    double paddingBottom = 8.0; // space between calendar row and meeting list
+    double paddingBottom = 8.0;
     double initialChildSize =
         (boxWidth + paddingBottom + kBottomNavigationBarHeight - 3) /
             screenHeight;
 
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar: const CustomAppBar(
-          title: "Meetings", needButton: false),
+      appBar: const CustomAppBar(title: "Meetings", needButton: false),
       body: Stack(
         children: [
           Padding(
@@ -135,9 +137,6 @@ class _MeetingsPageState extends State<MeetingsPage> {
                 )),
                 SliverList(
                   delegate: SliverChildListDelegate([
-                    // if (declinedMeetings.isNotEmpty) ...[
-                    //   _buildMeetingList(declinedMeetings, "Declined Meetings"),
-                    // ],
                     if (newInvitations.isNotEmpty) ...[
                       _buildMeetingList(newInvitations, "Invitations"),
                     ],
@@ -151,39 +150,39 @@ class _MeetingsPageState extends State<MeetingsPage> {
             ),
           ),
           if (!kIsWeb)
-          DraggableBottomSheet(
-            key: draggableBottomSheetKey,
-            initialChildSize: initialChildSize,
-            child: Column(
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: List<DateTime>.generate(
-                          5, (i) => DateTime.now().add(Duration(days: i)))
-                      .map(
-                        (date) => CalendarDayBox(
-                          key: Key('calendarDayBox${date.day.toString()}'),
-                          date: date,
-                          isSelected: selectedDate.day == date.day,
-                          onSelected: (selectedDate) {
-                            setState(() {
-                              this.selectedDate = selectedDate;
-                            });
-                          },
-                        ),
-                      )
-                      .toList(),
-                ),
-                const SizedBox(height: 16),
-                if (newInvitations.isNotEmpty) ...[
-                  _buildDailyMeetingList(newInvitations, selectedDate),
+            DraggableBottomSheet(
+              key: draggableBottomSheetKey,
+              initialChildSize: initialChildSize,
+              child: Column(
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: List<DateTime>.generate(
+                            5, (i) => DateTime.now().add(Duration(days: i)))
+                        .map(
+                          (date) => CalendarDayBox(
+                            key: Key('calendarDayBox${date.day.toString()}'),
+                            date: date,
+                            isSelected: selectedDate.day == date.day,
+                            onSelected: (selectedDate) {
+                              setState(() {
+                                this.selectedDate = selectedDate;
+                              });
+                            },
+                          ),
+                        )
+                        .toList(),
+                  ),
+                  const SizedBox(height: 16),
+                  if (newInvitations.isNotEmpty) ...[
+                    _buildDailyMeetingList(newInvitations, selectedDate),
+                  ],
+                  if (acceptedMeetings.isNotEmpty) ...[
+                    _buildDailyMeetingList(acceptedMeetings, selectedDate),
+                  ],
                 ],
-                if (acceptedMeetings.isNotEmpty) ...[
-                  _buildDailyMeetingList(acceptedMeetings, selectedDate),
-                ],
-              ],
+              ),
             ),
-          ),
         ],
       ),
     );
@@ -250,10 +249,10 @@ class _MeetingsPageState extends State<MeetingsPage> {
                 fetchMeetings: _fetchMeetings,
               );
             }
+            return null;
           },
         ),
       ],
     );
   }
 }
-

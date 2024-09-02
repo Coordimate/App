@@ -338,9 +338,6 @@ class GroupDetailsPageState extends State<GroupDetailsPage> {
                           iconSize: 20.0,
                           horizontalPadding: 40.0,
                           textAlign: TextAlign.justify,
-                          // minChars: 5,
-                          //errorMessage: 'Please enter at least 5 characters',
-                          //maxLines: null,
                         ),
                       )
                     else
@@ -361,10 +358,7 @@ class GroupDetailsPageState extends State<GroupDetailsPage> {
                           iconSize: 20.0,
                           horizontalPadding: 40.0,
                           textAlign: TextAlign.center,
-                          // minChars: 5,
                           textColor: darkBlue,
-                          //errorMessage: 'Please enter at least 5 characters',
-                          //maxLines: null,
                         ),
                       ),
                   ],
@@ -388,7 +382,6 @@ class GroupDetailsPageState extends State<GroupDetailsPage> {
               if (isAdmin)
                 Container(
                     key: deleteGroupButtonKey,
-                    // color: white,
                     padding: const EdgeInsets.only(bottom: 16.0),
                     child: DeleteButton(
                       str: 'Delete Group',
@@ -398,7 +391,6 @@ class GroupDetailsPageState extends State<GroupDetailsPage> {
               else
                 Container(
                     key: leaveGroupButtonKey,
-                    // color: white,
                     padding: const EdgeInsets.only(bottom: 16.0),
                     child: DeleteButton(
                       str: 'Leave Group',
@@ -494,7 +486,6 @@ class GroupDetailsPageState extends State<GroupDetailsPage> {
                       child: Container(
                         padding: const EdgeInsets.symmetric(
                             vertical: 4, horizontal: 16),
-                        // margin: const EdgeInsets.symmetric(horizontal: 20),
                         decoration: BoxDecoration(
                           color: mediumBlue,
                           border: Border.all(color: mediumBlue, width: 2),
@@ -506,7 +497,6 @@ class GroupDetailsPageState extends State<GroupDetailsPage> {
                             style: const TextStyle(
                               color: Colors.white,
                               fontSize: 24,
-                              // fontWeight: FontWeight.bold
                             ),
                           ),
                         ),
@@ -518,7 +508,6 @@ class GroupDetailsPageState extends State<GroupDetailsPage> {
                         color: darkBlue,
                       ),
                     ),
-                    // ),
                   ],
                 ),
               )

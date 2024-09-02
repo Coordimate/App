@@ -137,7 +137,6 @@ class HomeScreenState extends State<HomeScreen> {
   void _initNotifications() async {
     if (AppState.testMode) return;
     await AppState.firebaseMessagingInstance.requestPermission();
-    // await FirebaseMessaging.instance.getAPNSToken();
     final fcmToken = await AppState.firebaseMessagingInstance.getToken();
     if (fcmToken != null) {
       await AppState.userController.setFcmToken(fcmToken);

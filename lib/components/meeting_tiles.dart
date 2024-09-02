@@ -12,7 +12,7 @@ class MeetingTile extends StatelessWidget {
   final VoidCallback onAccepted;
   final VoidCallback onDeclined;
   final Function fetchMeetings;
-  final Color? color; // Optional color field
+  final Color? color;
 
   const MeetingTile({
     super.key,
@@ -21,7 +21,7 @@ class MeetingTile extends StatelessWidget {
     required this.onAccepted,
     required this.onDeclined,
     required this.fetchMeetings,
-    this.color, // Initialize color field
+    this.color,
   });
 
   @override
@@ -29,10 +29,7 @@ class MeetingTile extends StatelessWidget {
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
       decoration: BoxDecoration(
-        color: color ??
-            (isArchived
-                ? Colors.grey
-                : darkBlue), // Use custom color if provided
+        color: color ?? (isArchived ? Colors.grey : darkBlue),
         borderRadius: BorderRadius.circular(10),
       ),
       child: ListTile(
@@ -105,10 +102,9 @@ class NewMeetingTile extends MeetingTile {
     required super.onAccepted,
     required super.onDeclined,
     required super.fetchMeetings,
-    Color? color, // Optional color
+    super.color,
   }) : super(
           isArchived: false,
-          color: color, // Pass color to superclass
         );
 
   @override
@@ -116,7 +112,7 @@ class NewMeetingTile extends MeetingTile {
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
       decoration: BoxDecoration(
-        color: color ?? mediumBlue, // Use custom color or default to mediumBlue
+        color: color ?? mediumBlue,
         borderRadius: BorderRadius.circular(10),
       ),
       child: Row(
@@ -183,16 +179,16 @@ class NewMeetingTile extends MeetingTile {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 InvitationActionButton(
-                  key: acceptButtonKey,
-                  onPressed: onAccepted,
-                  color: lightBlue,
-                  iconPath: 'lib/images/tick.png'),
+                    key: acceptButtonKey,
+                    onPressed: onAccepted,
+                    color: lightBlue,
+                    iconPath: 'lib/images/tick.png'),
                 const SizedBox(height: 10),
                 InvitationActionButton(
-                  key: declineButtonKey,
-                  onPressed: onDeclined,
-                  color: orange,
-                  iconPath: 'lib/images/cross.png'),
+                    key: declineButtonKey,
+                    onPressed: onDeclined,
+                    color: orange,
+                    iconPath: 'lib/images/cross.png'),
               ],
             ),
           ),
@@ -207,12 +203,11 @@ class AcceptedMeetingTile extends MeetingTile {
     super.key,
     required super.meeting,
     required super.fetchMeetings,
-    Color? color, // Optional color
+    super.color,
   }) : super(
           isArchived: false,
           onAccepted: defaultOnPressed,
           onDeclined: defaultOnPressed,
-          color: color, // Pass color to superclass
         );
 
   static void defaultOnPressed() {}
@@ -223,12 +218,11 @@ class ArchivedMeetingTile extends MeetingTile {
     super.key,
     required super.meeting,
     required super.fetchMeetings,
-    Color? color, // Optional color
+    super.color,
   }) : super(
           isArchived: true,
           onAccepted: defaultOnPressed,
           onDeclined: defaultOnPressed,
-          color: color, // Pass color to superclass
         );
 
   static void defaultOnPressed() {}

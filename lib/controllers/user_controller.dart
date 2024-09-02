@@ -1,4 +1,3 @@
-import 'dart:developer';
 import 'dart:convert';
 import 'package:geolocator/geolocator.dart';
 import 'package:coordimate/app_state.dart';
@@ -99,7 +98,6 @@ class UserController {
         body: jsonEncode({"random_coffee": data}));
 
     if (response.statusCode != 200) {
-      print(response.body);
       throw Exception('Failed to save data');
     }
   }

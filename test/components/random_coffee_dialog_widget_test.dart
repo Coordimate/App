@@ -51,7 +51,6 @@ void main() {
         find.text('The feature is disabled. Toggle the switch to participate.'),
         findsOneWidget);
 
-    // Tap the switch to enable
     await tester.tap(find.byType(Switch));
     await tester.pumpAndSettle();
 

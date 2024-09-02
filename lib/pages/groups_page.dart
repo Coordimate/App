@@ -95,16 +95,6 @@ class _GroupsPageState extends State<GroupsPage> {
                           ),
                           maxLines: 1,
                         ),
-                        // Text(
-                        //   key: groupCardNameKey,
-                        //   groups[index].name,
-                        //   style: const TextStyle(
-                        //     fontSize: 30,
-                        //     color: Colors.white,
-                        //     fontWeight: FontWeight.bold,
-                        //   ),
-                        //   overflow: TextOverflow.ellipsis,
-                        // ),
                         const SizedBox(height: 5),
                         EllipsisText(
                           text: groups[index].description,
@@ -116,15 +106,6 @@ class _GroupsPageState extends State<GroupsPage> {
                           ),
                           maxLines: 1,
                         ),
-                        // Text(
-                        //   key: groupCardDescriptionKey,
-                        //   groups[index].description,
-                        //   style: const TextStyle(
-                        //     fontSize: 16,
-                        //     color: Colors.white,
-                        //   ),
-                        //   overflow: TextOverflow.ellipsis,
-                        // ),
                       ],
                     ),
                   ),

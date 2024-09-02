@@ -17,26 +17,10 @@ class RenderSliverHidedHeader extends RenderSliverSingleBoxAdapter {
   RenderSliverHidedHeader({
     required BuildContext context,
     super.child,
-  })  : _context = context;
+  }) : _context = context;
 
-  /// Whether we need to apply a correction to the scroll
-  /// offset during the next layout
-  ///
-  ///
-  /// This is useful to avoid the viewport to jump when we
-  /// insert/remove the child.
-  ///
-  /// If [showChild] is true, its an insert
-  /// If [showChild] is false, its a removal
   bool _correctScrollOffsetNextLayout = true;
-
-  /// Whether [child] should be shown
-  ///
-  ///
-  /// This is used to hide the child when the user scrolls down
   bool _showChild = true;
-
-  /// The context is used to get the [Scrollable]
   final BuildContext _context;
   ScrollableState? _scrollableState;
 
@@ -58,32 +42,21 @@ class RenderSliverHidedHeader extends RenderSliverSingleBoxAdapter {
         break;
     }
     final double paintedChildSize =
-    calculatePaintOffset(constraints, from: 0.0, to: childExtent);
-    final double cacheExtent = calculateCacheOffset(constraints, from: 0.0, to: childExtent);
+        calculatePaintOffset(constraints, from: 0.0, to: childExtent);
+    final double cacheExtent =
+        calculateCacheOffset(constraints, from: 0.0, to: childExtent);
 
     assert(paintedChildSize.isFinite);
     assert(paintedChildSize >= 0.0);
-
-    // Here are the few custom lines, which use [scrollOffsetCorrection]
-    // to remove the child size
-    //
-    // Note that this should only be called for correction linked with the
-    // insertion (NOT the removal)
     if (_correctScrollOffsetNextLayout) {
       geometry = SliverGeometry(scrollOffsetCorrection: childExtent);
       _correctScrollOffsetNextLayout = false;
       return;
     }
-
-    // Subscribe a listener to the scroll notifier
-    // which will snap if needed
     _manageSnapEffect(
       childExtent: childExtent,
       paintedChildSize: paintedChildSize,
     );
-
-    // Subscribe a listener to the scroll notifier
-    // which hide the child if needed
     _manageInsertChild(
       childExtent: childExtent,
       paintedChildSize: paintedChildSize,
@@ -97,8 +70,8 @@ class RenderSliverHidedHeader extends RenderSliverSingleBoxAdapter {
       cacheExtent: cacheExtent,
       maxPaintExtent: childExtent,
       hitTestExtent: paintedChildSize,
-      hasVisualOverflow:
-      childExtent > constraints.remainingPaintExtent || constraints.scrollOffset > 0.0,
+      hasVisualOverflow: childExtent > constraints.remainingPaintExtent ||
+          constraints.scrollOffset > 0.0,
     );
     setChildParentData(child!, constraints, geometry!);
   }
@@ -109,7 +82,6 @@ class RenderSliverHidedHeader extends RenderSliverSingleBoxAdapter {
     _scrollableState = Scrollable.of(_context);
   }
 
-  /// Override to remove the listeners if needed
   @override
   void dispose() {
     if (_scrollableState != null) {
@@ -126,72 +98,45 @@ class RenderSliverHidedHeader extends RenderSliverSingleBoxAdapter {
     super.dispose();
   }
 
-  /// The listener which will snap if needed
-  ///
-  ///
-  /// We store it to be able to remove it before subscribing
-  /// a new one
   void Function()? _subscribedSnapScrollNotifierListener;
 
-  /// Handles the subscription and removal of subscription to
-  /// the scrollable position notifier which are responsible
-  /// for the snapping effect
-  ///
-  ///
-  /// This must be called at each [performLayout] to ensure that the
-  /// [childExtent] and [paintedChildSize] parameters are up to date
   _manageSnapEffect({
     required double childExtent,
     required double paintedChildSize,
   }) {
     final scrollPosition = Scrollable.of(_context).position;
 
-    // If we were subscribed with previous value, remove the subscription
     if (_subscribedSnapScrollNotifierListener != null) {
       scrollPosition.isScrollingNotifier
           .removeListener(_subscribedSnapScrollNotifierListener!);
     }
 
-    // We store the subscription to be able to remove it
     _subscribedSnapScrollNotifierListener = () => _snapScrollNotifierListener(
-      childExtent: childExtent,
-      paintedChildSize: paintedChildSize,
-    );
-    scrollPosition.isScrollingNotifier.addListener(_subscribedSnapScrollNotifierListener!);
+          childExtent: childExtent,
+          paintedChildSize: paintedChildSize,
+        );
+    scrollPosition.isScrollingNotifier
+        .addListener(_subscribedSnapScrollNotifierListener!);
   }
 
-  /// Snaps if the user just stopped scrolling and the child is
-  /// partially visible
   void _snapScrollNotifierListener({
     required double childExtent,
     required double paintedChildSize,
   }) {
     final scrollPosition = Scrollable.of(_context).position;
+    final isIdle = scrollPosition is IdleScrollActivity;
 
-    // Whether the user is currently idle (i.e not scrolling)
-    //
-    // We don't check _scrollPosition.activity.isScrolling or
-    // _scrollPosition.isScrollingNotifier.value because even if
-    // the user is holding still we don't want to start animating
-    //
-    // ignore: invalid_use_of_protected_member, invalid_use_of_visible_for_testing_member
-    final isIdle = scrollPosition.activity is IdleScrollActivity;
-
-    // Whether at least part of the child is visible
     final isChildVisible = paintedChildSize > 0;
 
     if (isIdle && isChildVisible) {
-      // If more than half is visible, snap to see everything
-      if (paintedChildSize >= childExtent / 2 && paintedChildSize != childExtent) {
+      if (paintedChildSize >= childExtent / 2 &&
+          paintedChildSize != childExtent) {
         scrollPosition.animateTo(
           0,
           duration: const Duration(milliseconds: 100),
           curve: Curves.easeOut,
         );
-      }
-
-      // If less than half is visible, snap to hide
-      else if (paintedChildSize < childExtent / 2 && paintedChildSize != 0) {
+      } else if (paintedChildSize < childExtent / 2 && paintedChildSize != 0) {
         scrollPosition.animateTo(
           childExtent,
           duration: const Duration(milliseconds: 200),
@@ -201,46 +146,28 @@ class RenderSliverHidedHeader extends RenderSliverSingleBoxAdapter {
     }
   }
 
-  /// The listener which will hide the child if needed
-  ///
-  ///
-  /// We store it to be able to remove it before subscribing
-  /// a new one
   void Function()? _subscribedInsertChildScrollNotifierListener;
 
-  /// Handles the subscription and removal of subscription to
-  /// the scrollable position notifier which are responsible
-  /// for inserting/removing the child if needed
-  ///
-  ///
-  /// This must be called at each [performLayout] to ensure that the
-  /// [childExtent] and [paintedChildSize] parameters are up to date
   void _manageInsertChild({
     required double childExtent,
     required double paintedChildSize,
   }) {
     final scrollPosition = Scrollable.of(_context).position;
 
-    // If we were subscribed with previous value, remove the subscription
     if (_subscribedInsertChildScrollNotifierListener != null) {
       scrollPosition.isScrollingNotifier
           .removeListener(_subscribedInsertChildScrollNotifierListener!);
     }
 
-    // We store the subscription to be able to remove it
-    _subscribedInsertChildScrollNotifierListener = () => _insertChildScrollNotifierListener(
-      childExtent: childExtent,
-      paintedChildSize: paintedChildSize,
-    );
+    _subscribedInsertChildScrollNotifierListener =
+        () => _insertChildScrollNotifierListener(
+              childExtent: childExtent,
+              paintedChildSize: paintedChildSize,
+            );
     scrollPosition.isScrollingNotifier
         .addListener(_subscribedInsertChildScrollNotifierListener!);
   }
 
-  /// When [ScrollPosition.isScrollingNotifier] fires:
-  ///   - If the viewport is at the top and the child is not visible,
-  ///   ^ insert the child
-  ///   - If the viewport is NOT at the top and the child is NOT visible,
-  ///   ^ remove the child
   void _insertChildScrollNotifierListener({
     required double childExtent,
     required double paintedChildSize,
@@ -249,55 +176,34 @@ class RenderSliverHidedHeader extends RenderSliverSingleBoxAdapter {
 
     final isScrolling = scrollPosition.isScrollingNotifier.value;
 
-    // If the user is still scrolling, do nothing
     if (isScrolling) {
       return;
     }
 
     final scrollOffset = scrollPosition.pixels;
 
-    // If the viewport is at the top and the child is not visible,
-    // insert the child
-    //
-    // We use 0.1 as a small value in case the user is nearly scrolled
-    // all the way up
     if (!_showChild && scrollOffset <= 0.1) {
       _showChild = true;
       _correctScrollOffsetNextLayout = true;
       markNeedsLayout();
     }
 
-    // There is sometimes an issue with [ClampingScrollPhysics] where
-    // the child is NOT shown but the scroll offset still includes [childExtent]
-    //
-    // There is no why to detect it but we always insert the child when all
-    // this conditions are united.
-    // This means that if a user as [ClampingScrollPhysics] and stops scrolling
-    // exactly at [childExtent], the child will be wrongfully inserted. However
-    // this seems a small price to pay to avoid the issue.
-    if (scrollPosition.physics.containsScrollPhysicsOfType<ClampingScrollPhysics>()) {
+    if (scrollPosition.physics
+        .containsScrollPhysicsOfType<ClampingScrollPhysics>()) {
       if (!_showChild && scrollOffset == childExtent) {
         _showChild = true;
         markNeedsLayout();
       }
     }
 
-    // If the viewport is NOT at the top and the child is NOT visible,
-    // remove the child
     if (_showChild && scrollOffset > childExtent) {
       _showChild = false;
       markNeedsLayout();
-
-      // We don't have to correct the scroll offset here, no idea why
     }
   }
 }
 
-/// An extension on [ScrollPhysics] to check if it or its
-/// parent are the given [ScrollPhysics]
 extension _ScrollPhysicsExtension on ScrollPhysics {
-  /// Check the type of this [ScrollPhysics] and its parents and return
-  /// true if any is of type [T]
   bool containsScrollPhysicsOfType<T extends ScrollPhysics>() {
     return this is T || (parent?.containsScrollPhysicsOfType<T>() ?? false);
   }

@@ -1,3 +1,5 @@
+// ignore_for_file: deprecated_member_use
+
 import 'package:coordimate/components/appbar.dart';
 import 'package:coordimate/components/colors.dart';
 import 'package:flutter/material.dart';
@@ -21,7 +23,7 @@ class SummaryPage extends StatefulWidget {
 class _SummaryPageState extends State<SummaryPage> {
   var summaryController = TextEditingController();
   FocusNode focusNode = FocusNode();
-  double fontSize = 16.0; // Initial font size
+  double fontSize = 16.0;
   String initialSummary = '';
 
   @override
@@ -32,12 +34,12 @@ class _SummaryPageState extends State<SummaryPage> {
   }
 
   Future<void> _saveSummary() async {
-    if (summaryController.text.isEmpty
-        || summaryController.text == initialSummary) {
+    if (summaryController.text.isEmpty ||
+        summaryController.text == initialSummary) {
       return;
     }
-    await AppState.meetingController.saveSummary(
-        widget.id, summaryController.text);
+    await AppState.meetingController
+        .saveSummary(widget.id, summaryController.text);
   }
 
   @override
@@ -48,7 +50,7 @@ class _SummaryPageState extends State<SummaryPage> {
       },
       child: PopScope(
         canPop: false,
-          onPopInvoked: (bool didPop) async {
+        onPopInvoked: (bool didPop) async {
           if (didPop) {
             return;
           }

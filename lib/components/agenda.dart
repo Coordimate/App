@@ -53,10 +53,10 @@ class AgendaPointWidgetState extends State<AgendaPointWidget> {
   }
 
   @override
-    void dispose() {
-      textController.dispose();
-      super.dispose();
-    }
+  void dispose() {
+    textController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -98,7 +98,6 @@ class AgendaPointWidgetState extends State<AgendaPointWidget> {
               Tween<double>(begin: prevLevel.toDouble(), end: level.toDouble()),
           duration: const Duration(milliseconds: 200),
           builder: (context, double indentLevel, child) {
-            // Update prevLevel once the Animation has played out
             prevLevel = level;
 
             return Container(
@@ -140,11 +139,13 @@ class AgendaPointWidgetState extends State<AgendaPointWidget> {
                     }
                   })),
                   if (showDelete)
-                    IconButton(onPressed: () {
-                      setState(() {
-                        widget.deletePoint(widget.index);
-                      });
-                    }, icon: const Icon(Icons.delete, color: orange))
+                    IconButton(
+                        onPressed: () {
+                          setState(() {
+                            widget.deletePoint(widget.index);
+                          });
+                        },
+                        icon: const Icon(Icons.delete, color: orange))
                 ]));
           },
         ));
@@ -161,7 +162,6 @@ class MeetingAgenda extends StatefulWidget {
 }
 
 class MeetingAgendaState extends State<MeetingAgenda> {
-
   Future<List<AgendaPoint>>? _agendaPoints;
 
   @override
@@ -178,7 +178,8 @@ class MeetingAgendaState extends State<MeetingAgenda> {
   }
 
   Future<void> createAgendaPoint(String text, int level) async {
-    await AppState.meetingController.createAgendaPoint(widget.meetingId, text, level);
+    await AppState.meetingController
+        .createAgendaPoint(widget.meetingId, text, level);
     setState(() {
       _agendaPoints = getAgendaPoints();
     });
@@ -236,7 +237,6 @@ class MeetingAgendaState extends State<MeetingAgenda> {
                         index < snapshot.data!.length;
                         index += 1)
                       AgendaPointWidget(
-                          // key: Key(snapshot.data![index].text),
                           key: Key(
                               snapshot.data![index].text + index.toString()),
                           index: index,

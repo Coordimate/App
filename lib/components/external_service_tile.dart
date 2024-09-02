@@ -24,7 +24,6 @@ class SquareTile extends StatelessWidget {
   }
 
   Future<void> _authUser(context) async {
-    // return AppState.authController.signIn()
     bool isAuth = false;
     switch (authType) {
       case AuthType.google:
@@ -45,7 +44,7 @@ class SquareTile extends StatelessWidget {
         MaterialPageRoute(
           builder: (context) => HomeScreen(key: UniqueKey()),
         ),
-            (route) => false,
+        (route) => false,
       );
     } else {
       log('User Not Authenticated');
@@ -54,17 +53,21 @@ class SquareTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return !kIsWeb ? ElevatedButton(
-      onPressed: () { if (!kIsWeb) _authUser(context);  },
-      style: ButtonStyle(
-        shape: WidgetStateProperty.all(const CircleBorder()),
-        backgroundColor: WidgetStateProperty.all(Colors.white),
-      ),
-      child: Image.asset(
-        imagePath,
-        height: 60,
-        width: 60,
-      ),
-    ) : const SizedBox(height: 60, width: 60);
+    return !kIsWeb
+        ? ElevatedButton(
+            onPressed: () {
+              if (!kIsWeb) _authUser(context);
+            },
+            style: ButtonStyle(
+              shape: WidgetStateProperty.all(const CircleBorder()),
+              backgroundColor: WidgetStateProperty.all(Colors.white),
+            ),
+            child: Image.asset(
+              imagePath,
+              height: 60,
+              width: 60,
+            ),
+          )
+        : const SizedBox(height: 60, width: 60);
   }
 }

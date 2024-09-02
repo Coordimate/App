@@ -15,7 +15,6 @@ class CreateGroupDialog extends StatefulWidget {
 }
 
 class CreateGroupDialogState extends State<CreateGroupDialog> {
-
   var formKey = GlobalKey<FormState>();
 
   final TextEditingController titleController = TextEditingController();
@@ -90,14 +89,14 @@ class CreateGroupDialogState extends State<CreateGroupDialog> {
           ],
         ),
       ),
-
       actions: <Widget>[
         ConfirmationButtons(
           onYes: () async {
             if (formKey.currentState!.validate() == false) {
               return;
             }
-            await widget.onCreateGroup(titleController.text, descriptionController.text);
+            await widget.onCreateGroup(
+                titleController.text, descriptionController.text);
             clearControllers();
             if (context.mounted) {
               widget.fetchGroups();

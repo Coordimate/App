@@ -1,6 +1,4 @@
 //file to change data mocked for tests when widget-testing
-import 'package:coordimate/models/groups.dart';
-import 'package:coordimate/models/meeting.dart';
 
 class DataProvider {
   static String groupID1 = "group1";
@@ -11,9 +9,7 @@ class DataProvider {
   static String groupDescr2 = "testDescription2";
   static String longGroupDescr =
       "long group description long group description long group description long group description long group description long group description";
-  //      "long group description long group description long group description long group description long group description long group description ";
   static String longGroupName = "12345687890123456789";
-  //  "12345687890123456789"
 
   static String email1 = "test1@email.com";
   static String userID1 = "userID1";

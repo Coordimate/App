@@ -140,8 +140,9 @@ class _MeetingDetailsPageState extends State<MeetingDetailsPage> {
                 .deleteMeeting(widget.meeting.id, widget.meeting.googleEventId);
             if (context.mounted) Navigator.of(context).pop();
             if (context.mounted) Navigator.of(context).pop();
-            if (context.mounted)
+            if (context.mounted) {
               CustomSnackBar.show(context, "Meeting is deleted");
+            }
           },
           onNo: () {
             Navigator.of(context).pop();

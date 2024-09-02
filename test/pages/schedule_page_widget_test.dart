@@ -2,12 +2,10 @@ import 'package:coordimate/app_state.dart';
 import 'package:coordimate/components/create_meeting_dialog.dart';
 import 'package:coordimate/keys.dart';
 import 'package:coordimate/models/time_slot.dart';
-import 'package:coordimate/models/user.dart';
 import 'package:coordimate/pages/personal_info_page.dart';
 import 'package:coordimate/pages/schedule_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import '../helpers/client/data_provider.dart';
 import '../test.mocks.dart';
 import 'package:http/http.dart' as http;
 import 'package:coordimate/widget_keys.dart';
@@ -388,7 +386,7 @@ void main() {
 
     testWidgets('Time Picker - change end time and cancel', (tester) async {
       when(mockScheduleController.getTimeSlots()).thenAnswer(
-              (_) async => [TimeSlot(id: '1', day: 1, start: 2, length: 2)]);
+          (_) async => [TimeSlot(id: '1', day: 1, start: 2, length: 2)]);
       when(mockScheduleController.isModifiable).thenAnswer((_) => true);
       when(mockScheduleController.canCreateMeeting).thenAnswer((_) => false);
       when(mockScheduleController.deleteTimeSlot(any)).thenAnswer((_) async {});
@@ -416,7 +414,7 @@ void main() {
 
     testWidgets('Time Picker - delete time slot', (tester) async {
       when(mockScheduleController.getTimeSlots()).thenAnswer(
-              (_) async => [TimeSlot(id: '1', day: 1, start: 2, length: 2)]);
+          (_) async => [TimeSlot(id: '1', day: 1, start: 2, length: 2)]);
       when(mockScheduleController.isModifiable).thenAnswer((_) => true);
       when(mockScheduleController.canCreateMeeting).thenAnswer((_) => false);
       when(mockScheduleController.deleteTimeSlot(any)).thenAnswer((_) async {});

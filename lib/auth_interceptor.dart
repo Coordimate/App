@@ -52,7 +52,6 @@ class ExpiredTokenRetryPolicy extends RetryPolicy {
   @override
   Future<bool> shouldAttemptRetryOnResponse(BaseResponse response) async {
     if (response.statusCode == 403) {
-      // Might be because of an expired token
       final String? refreshToken = await storage.read(key: 'refresh_token');
       if (refreshToken == null) {
         return false;

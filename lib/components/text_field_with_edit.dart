@@ -17,7 +17,7 @@ class EditableTextField extends StatefulWidget {
   final String? errorMessage;
   final Color textColor;
   final Color borderColor;
-  final String? placeHolderText; // New optional field
+  final String? placeHolderText;
 
   const EditableTextField({
     super.key,
@@ -35,7 +35,7 @@ class EditableTextField extends StatefulWidget {
     this.errorMessage,
     this.textColor = darkBlue,
     this.borderColor = darkBlue,
-    this.placeHolderText, // Define placeHolderText as an optional argument
+    this.placeHolderText,
   });
 
   @override
@@ -154,7 +154,7 @@ class _EditableTextFieldState extends State<EditableTextField> {
                 _validateAndSubmit();
               },
               decoration: InputDecoration(
-                hintText: displayedText, // Use displayedText as placeholder
+                hintText: displayedText,
                 enabledBorder: InputBorder.none,
                 focusedBorder: isEditing
                     ? UnderlineInputBorder(

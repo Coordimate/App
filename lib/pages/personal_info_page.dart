@@ -44,7 +44,8 @@ class _PersonalPageState extends State<PersonalPage> {
     user = await AppState.userController.getInfo();
     usernameController.text = user.username;
     userEmail = user.email;
-    showChangePasswordButton = await AppState.authController.checkAuthType(AuthType.email);
+    showChangePasswordButton =
+        await AppState.authController.checkAuthType(AuthType.email);
     return user;
   }
 
@@ -115,20 +116,22 @@ class _PersonalPageState extends State<PersonalPage> {
           if (snapshot.hasError) {
             return const Scaffold(
                 backgroundColor: white,
-                appBar:
-                CustomAppBar(title: 'Settings', needButton: false),
+                appBar: CustomAppBar(title: 'Settings', needButton: false),
                 body: Center(child: Text('Failed to load data')));
           } else if (snapshot.hasData) {
             return Scaffold(
               backgroundColor: white,
-              appBar:
-                  const CustomAppBar(title: 'Settings', needButton: false),
+              appBar: const CustomAppBar(title: 'Settings', needButton: false),
               body: Center(
                 child: SingleChildScrollView(
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: <Widget>[
-                      Avatar(size: 120, key: avatarKey, userId: user.id, clickable: true),
+                      Avatar(
+                          size: 120,
+                          key: avatarKey,
+                          userId: user.id,
+                          clickable: true),
                       const SizedBox(height: 16),
                       Padding(
                         padding:
@@ -138,8 +141,8 @@ class _PersonalPageState extends State<PersonalPage> {
                           controller: usernameController,
                           focusNode: focusNode,
                           onSubmit: changeUsername,
-                          fontSize: usernameFontSize, // not required
-                          padding: horPadding, // not required
+                          fontSize: usernameFontSize,
+                          padding: horPadding,
                           minChars: 1,
                           maxLength: 20,
                         ),
@@ -189,8 +192,7 @@ class _PersonalPageState extends State<PersonalPage> {
           } else {
             return const Scaffold(
                 backgroundColor: white,
-                appBar:
-                CustomAppBar(title: 'Settings', needButton: false),
+                appBar: CustomAppBar(title: 'Settings', needButton: false),
                 body: Center(child: CircularProgressIndicator()));
           }
         });
@@ -350,9 +352,7 @@ class RandomCoffeeButton extends StatelessWidget {
               SizedBox(width: 16),
               Text(
                 "Setup Random Coffee",
-                style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 24),
+                style: TextStyle(color: Colors.white, fontSize: 24),
               ),
             ],
           ),

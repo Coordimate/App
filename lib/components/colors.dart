@@ -5,7 +5,6 @@ String hexMediumBlue = "#3D5A80";
 String hexLightBlue = "#98C1D9";
 String hexOrange = "#EE6C4D";
 
-/// Construct a color from a hex code string, of the format #RRGGBB.
 Color hexToColor(String hexString, {String alpha = 'FF'}) {
   return Color(int.parse(hexString.replaceFirst('#', '0x$alpha')));
 }

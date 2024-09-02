@@ -62,9 +62,7 @@ class _CreateGroupPollPageState extends State<CreateGroupPollPage> {
                 style: TextStyle(
                     color: darkBlue,
                     fontSize: 20,
-                    fontWeight: FontWeight.bold
-                )
-            ),
+                    fontWeight: FontWeight.bold)),
             Expanded(
               child: ListView.builder(
                   itemCount: optionControllers.length + 1,
@@ -95,7 +93,9 @@ class _CreateGroupPollPageState extends State<CreateGroupPollPage> {
           backgroundColor: mediumBlue,
           foregroundColor: white,
           isExtended: true,
-          child: const Text("Create", style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),),
+          child: const Text("Create",
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+        ),
       ),
     );
   }
@@ -126,7 +126,7 @@ class QuestionTextField extends StatelessWidget {
           hintStyle: TextStyle(color: Colors.white70),
           enabledBorder: InputBorder.none,
           focusedBorder: InputBorder.none,
-          errorBorder:UnderlineInputBorder(
+          errorBorder: UnderlineInputBorder(
             borderSide: BorderSide(color: Colors.white),
           ),
           focusedErrorBorder: UnderlineInputBorder(
@@ -174,10 +174,7 @@ class AddOptionButton extends StatelessWidget {
               Text(
                 "Add Option",
                 style: TextStyle(
-                    color: darkBlue,
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold
-                ),
+                    color: darkBlue, fontSize: 16, fontWeight: FontWeight.bold),
               ),
             ],
           ),
@@ -214,7 +211,7 @@ class PollTextField extends StatelessWidget {
         focusedBorder: const UnderlineInputBorder(
           borderSide: BorderSide(color: darkBlue, width: 2.0),
         ),
-        suffixIcon:  IconButton(
+        suffixIcon: IconButton(
           icon: Icon(Icons.clear, color: areTwoLeft ? darkBlue : Colors.white),
           onPressed: areTwoLeft ? onPressed : null,
         ),
@@ -236,9 +233,9 @@ class VoteGroupPollPage extends StatefulWidget {
 
   const VoteGroupPollPage(
       {super.key,
-        required this.groupId,
-        required this.poll,
-        required this.memberAvatars});
+      required this.groupId,
+      required this.poll,
+      required this.memberAvatars});
 
   @override
   State<VoteGroupPollPage> createState() => _VoteGroupPollPageState();
@@ -310,7 +307,7 @@ class _VoteGroupPollPageState extends State<VoteGroupPollPage> {
                             child: Column(children: [
                               Row(
                                 mainAxisAlignment:
-                                MainAxisAlignment.spaceBetween,
+                                    MainAxisAlignment.spaceBetween,
                                 children: [
                                   Flexible(
                                     child: Text(widget.poll.options[index],
@@ -322,13 +319,13 @@ class _VoteGroupPollPageState extends State<VoteGroupPollPage> {
                                     Wrap(spacing: -20, children: [
                                       ...widget.poll.votes![index]!
                                           .getRange(
-                                          0,
-                                          math.min(
-                                              widget.poll.votes![index]!
-                                                  .length,
-                                              3))
+                                              0,
+                                              math.min(
+                                                  widget.poll.votes![index]!
+                                                      .length,
+                                                  3))
                                           .map((userId) =>
-                                      widget.memberAvatars[userId]!),
+                                              widget.memberAvatars[userId]!),
                                     ])
                                 ],
                               ),
@@ -339,7 +336,7 @@ class _VoteGroupPollPageState extends State<VoteGroupPollPage> {
                                       Text(
                                           'Votes: ${widget.poll.votes![index]!.length}',
                                           style:
-                                          const TextStyle(color: lightBlue))
+                                              const TextStyle(color: lightBlue))
                                     ]),
                             ]),
                           ),
@@ -359,10 +356,10 @@ class GroupPollCard extends StatefulWidget {
 
   const GroupPollCard(
       {super.key,
-        required this.groupId,
-        required this.initialPoll,
-        required this.fontSize,
-        this.isAdmin = false});
+      required this.groupId,
+      required this.initialPoll,
+      required this.fontSize,
+      this.isAdmin = false});
 
   @override
   State<GroupPollCard> createState() => _GroupPollCardState();
@@ -385,25 +382,26 @@ class _GroupPollCardState extends State<GroupPollCard> {
       memberAvatars[users[i].id] = Avatar(size: 30, userId: users[i].id);
     }
     if (mounted) {
-      Navigator.of(context).push(MaterialPageRoute(
+      Navigator.of(context)
+          .push(MaterialPageRoute(
         builder: (context) => VoteGroupPollPage(
-          groupId: widget.groupId,
-          poll: poll!,
-          memberAvatars: memberAvatars
-        ),
-      )).then((_) {
+            groupId: widget.groupId, poll: poll!, memberAvatars: memberAvatars),
+      ))
+          .then((_) {
         pollFuture = AppState.groupController.fetchPoll(widget.groupId);
       });
     }
   }
 
   void openCreatePollPage() async {
-    final pollData = await Navigator.push(context, MaterialPageRoute(
-      builder: (context) => CreateGroupPollPage(groupId: widget.groupId),
-    ));
+    final pollData = await Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => CreateGroupPollPage(groupId: widget.groupId),
+        ));
     if (pollData != null) {
-      final fetchedPoll = await AppState.groupController.fetchPoll(
-          widget.groupId);
+      final fetchedPoll =
+          await AppState.groupController.fetchPoll(widget.groupId);
       setState(() {
         poll = fetchedPoll;
         pollFuture = AppState.groupController.fetchPoll(widget.groupId);
@@ -414,44 +412,45 @@ class _GroupPollCardState extends State<GroupPollCard> {
   @override
   Widget build(BuildContext context) {
     return FutureBuilder(
-      future: pollFuture,
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.done) {
-          poll = snapshot.data;
-          if (poll == null && widget.isAdmin) {
-            return CreateGroupPollButton(groupId: widget.groupId, onPressed: openCreatePollPage);
-          } else if (poll != null && widget.isAdmin) {
-            return Dismissible(
-                key: UniqueKey(),
-                background: Container(color: Colors.white70),
-                onDismissed: (_) async {
-                  await AppState.groupController.deletePoll(widget.groupId);
-                  setState(() {
-                    poll = null;
-                    pollFuture = AppState.groupController.fetchPoll(widget.groupId);
-                  });
-                },
-                child: ActiveGroupPollButton(
-                  groupId: widget.groupId,
-                  poll: poll!,
-                  fontSize: widget.fontSize,
-                  onPressed: openVotePage,
-                ));
-          } else if (poll != null) {
-            return ActiveGroupPollButton(
-              groupId: widget.groupId,
-              poll: poll!,
-              fontSize: widget.fontSize,
-              onPressed: openVotePage,
-            );
+        future: pollFuture,
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.done) {
+            poll = snapshot.data;
+            if (poll == null && widget.isAdmin) {
+              return CreateGroupPollButton(
+                  groupId: widget.groupId, onPressed: openCreatePollPage);
+            } else if (poll != null && widget.isAdmin) {
+              return Dismissible(
+                  key: UniqueKey(),
+                  background: Container(color: Colors.white70),
+                  onDismissed: (_) async {
+                    await AppState.groupController.deletePoll(widget.groupId);
+                    setState(() {
+                      poll = null;
+                      pollFuture =
+                          AppState.groupController.fetchPoll(widget.groupId);
+                    });
+                  },
+                  child: ActiveGroupPollButton(
+                    groupId: widget.groupId,
+                    poll: poll!,
+                    fontSize: widget.fontSize,
+                    onPressed: openVotePage,
+                  ));
+            } else if (poll != null) {
+              return ActiveGroupPollButton(
+                groupId: widget.groupId,
+                poll: poll!,
+                fontSize: widget.fontSize,
+                onPressed: openVotePage,
+              );
+            } else {
+              return Container();
+            }
           } else {
-            return Container();
+            return const CircularProgressIndicator();
           }
-        } else {
-          return const CircularProgressIndicator();
-        }
-      }
-    );
+        });
   }
 }
 
@@ -481,9 +480,8 @@ class CreateGroupPollButton extends StatelessWidget {
           child: Text(
             "Create Group Poll",
             style: TextStyle(
-                color: Colors.white,
-                fontSize: 24,
-                // fontWeight: FontWeight.bold
+              color: Colors.white,
+              fontSize: 24,
             ),
           ),
         ),

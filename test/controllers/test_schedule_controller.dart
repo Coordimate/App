@@ -1,4 +1,3 @@
-import 'dart:convert';
 import 'package:coordimate/app_state.dart';
 import 'package:coordimate/keys.dart';
 import 'package:coordimate/models/groups.dart';
@@ -89,21 +88,6 @@ void main() {
               await AppState.scheduleController.updateTimeSlot('id', 0, 0, 0),
           throwsException);
     });
-
-    // FIXME: the actual call doesn't match the verify call
-    // test('Time slot updates are sent to the API as UTC strings', () async {
-    //   patchResponse(client, '/time_slots/id', '');
-    //
-    //   await AppState.scheduleController.updateTimeSlot('id', 0.0, 0.0);
-    //
-    //   final now = DateTime.now();
-    //   verify(client.patch(Uri.parse('$apiUrl/times_slots/id'), headers: anyNamed('headers'), body:
-    //   json.encode(<String, dynamic>{
-    //     'is_meeting': false,
-    //     'start': DateTime(now.year, now.month, now.day).toUtc().toString(),
-    //     'length': 0,
-    //   }))).called(1);
-    // });
 
     test('Bad user schedule link returns null', () async {
       final res = await AppState.scheduleController

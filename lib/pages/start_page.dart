@@ -64,66 +64,32 @@ class _StartPageState extends State<StartPage> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-
-            // circles background
-            // ClipRect(
-            //   child: Align(
-            //     alignment: Alignment.bottomCenter,
-            //     heightFactor: 1, // Adjust this value to crop from the top
-            //     child: Image.asset(
-            //       backgroundImage,
-            //       fit: BoxFit.cover,
-            //       width: double.infinity,
-            //     ),
-            //   ),
-            // ),
-
             const SizedBox(height: 70),
-
-            const Text(
-                "Coordimate",
+            const Text("Coordimate",
                 style: TextStyle(
                   color: darkBlue,
                   fontSize: 40,
                   fontWeight: FontWeight.bold,
-                )
-            ),
-
+                )),
             const SizedBox(height: 30),
-
-            LoginButton(
-                onTap: _goToLogInPage,
-                text: "Log In"
-            ),
-
+            LoginButton(onTap: _goToLogInPage, text: "Log In"),
             const SizedBox(height: 30),
-
-            LoginButton(
-                text: "Register",
-                onTap: _goToRegisterPage
-            ),
-
+            LoginButton(text: "Register", onTap: _goToRegisterPage),
             const SizedBox(height: 50),
-
-            const Row (
+            const Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 SquareTile(
                     key: googleTileKey,
                     imagePath: 'lib/images/google.png',
-                    authType: AuthType.google
-                ),
-
+                    authType: AuthType.google),
                 SizedBox(width: 50),
-
                 SquareTile(
                     key: facebookTileKey,
                     imagePath: 'lib/images/facebook.png',
-                    authType: AuthType.facebook
-                ),
+                    authType: AuthType.facebook),
               ],
             ),
-
           ],
         ),
       ),

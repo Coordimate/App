@@ -14,23 +14,21 @@ class GroupController {
   Future<List<Group>> getGroups() async {
     final response = await AppState.client.get(Uri.parse("$apiUrl/groups"));
     if (response.statusCode == 200) {
-      // Checks for successful response
       final List body = json.decode(response.body)["groups"];
       return body.map((e) => Group.fromJson(e)).toList();
     } else {
-      throw Exception('Failed to load groups'); // Handles failed response
+      throw Exception('Failed to load groups');
     }
   }
 
   Future<Group> getGroup(id) async {
     final response = await AppState.client.get(Uri.parse("$apiUrl/groups/$id"));
     if (response.statusCode == 200) {
-      // Checks for successful response
       final body = json.decode(response.body);
       group = Group.fromJson(body);
       return group!;
     } else {
-      throw Exception('Failed to load groups'); // Handles failed response
+      throw Exception('Failed to load groups');
     }
   }
 

@@ -42,7 +42,7 @@ void main() {
         ),
       );
 
-      await tester.pump(); // Trigger a frame.
+      await tester.pump();
       expect(find.text('Point 1'), findsOneWidget);
       expect(find.text('Point 2'), findsOneWidget);
     });

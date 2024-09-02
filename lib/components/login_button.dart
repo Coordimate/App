@@ -22,10 +22,7 @@ class LoginButton extends StatelessWidget {
         child: Center(
           child: Text(
             text,
-            style: const TextStyle(
-                color: Colors.white,
-                // fontWeight: FontWeight.bold,
-                fontSize: 24),
+            style: const TextStyle(color: Colors.white, fontSize: 24),
           ),
         ),
       ),
@@ -45,17 +42,16 @@ class LoginEmptyButton extends LoginButton {
         padding: const EdgeInsets.all(10),
         margin: const EdgeInsets.symmetric(horizontal: 25),
         decoration: BoxDecoration(
-          border: Border.all(color: darkBlue, width: 3), // Dark blue border
+          border: Border.all(color: darkBlue, width: 3),
           borderRadius: BorderRadius.circular(10),
-          color: Colors.white, // White fill color
+          color: Colors.white,
         ),
         child: Center(
           child: Text(
             text,
             textAlign: TextAlign.center,
             style: const TextStyle(
-              color: darkBlue, // Dark blue text color
-              // fontWeight: FontWeight.bold,
+              color: darkBlue,
               fontSize: 24,
             ),
           ),
