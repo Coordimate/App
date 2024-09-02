@@ -151,11 +151,8 @@ void main() {
 
     testWidgets('Calls deleteAgendaPoint when delete icon tapped',
         (WidgetTester tester) async {
-      final agendaPoints = [
-        AgendaPoint(text: 'foo', level: 0),
-      ];
       when(mockMeetingController.getAgendaPoints('test_meeting_id'))
-          .thenAnswer((_) async => agendaPoints);
+          .thenAnswer((_) async => [AgendaPoint(text: 'foo', level: 0)]);
       when(mockMeetingController.deleteAgendaPoint('test_meeting_id', 0))
           .thenAnswer((_) async {});
 
@@ -164,12 +161,26 @@ void main() {
           home: MeetingAgenda(meetingId: 'test_meeting_id'),
         ),
       );
+      await tester.pumpWidget(
+        const MaterialApp(
+          home: MeetingAgenda(meetingId: 'test_meeting_id'),
+        ),
+      );
+      await tester.pumpAndSettle();
 
       var point = find.byType(AgendaPointWidget);
       expect(point, findsOne);
+
+      await tester.drag(point, const Offset(-500.0, 0.0));
+
       var pointState = (tester.state(point) as AgendaPointWidgetState);
       pointState.showDelete = true;
-      await tester.pumpAndSettle(const Duration(milliseconds: 400));
+      await tester.pumpAndSettle();
+      await tester.pumpAndSettle();
+
+      expect(find.byIcon(Icons.delete), findsOneWidget);
+      await tester.tap(find.byIcon(Icons.delete));
+      await tester.pumpAndSettle();
 
       verify(mockMeetingController.deleteAgendaPoint('test_meeting_id', 0))
           .called(1);
