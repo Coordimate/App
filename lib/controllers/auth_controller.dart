@@ -236,7 +236,7 @@ class AuthorizationController {
   }
 
   Future<bool> checkStoredToken() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
+    final prefs = await AppState.prefs;
     String? accessToken = prefs.getString("access_token");
     String? refreshToken = prefs.getString("refresh_token");
     if (accessToken != null && refreshToken != null) {
@@ -296,7 +296,7 @@ class AuthorizationController {
   }
 
   Future<bool> checkAuthType(authType) async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
+    final prefs = await AppState.prefs;
     return prefs.getString('sign_in_method') == signInType[authType];
   }
 }
