@@ -5,6 +5,7 @@ import 'package:coordimate/components/colors.dart';
 import 'package:flutter/material.dart';
 import 'package:coordimate/app_state.dart';
 import 'package:coordimate/widget_keys.dart';
+import 'package:coordimate/components/snack_bar.dart';
 
 class SummaryPage extends StatefulWidget {
   final String summary;
@@ -34,12 +35,18 @@ class _SummaryPageState extends State<SummaryPage> {
   }
 
   Future<void> _saveSummary() async {
-    if (summaryController.text.isEmpty ||
-        summaryController.text == initialSummary) {
+    if (summaryController.text.isEmpty
+        || summaryController.text == initialSummary) {
+      FocusManager.instance.primaryFocus?.unfocus();
       return;
     }
-    await AppState.meetingController
-        .saveSummary(widget.id, summaryController.text);
+    await AppState.meetingController.saveSummary(
+        widget.id, summaryController.text);
+    initialSummary = summaryController.text;
+    FocusManager.instance.primaryFocus?.unfocus();
+    if (mounted) {
+      CustomSnackBar.show(context, 'Summary saved');
+    }
   }
 
   @override

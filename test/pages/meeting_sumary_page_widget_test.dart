@@ -52,15 +52,18 @@ void main() {
     expect(find.byKey(appBarIconButtonKey), findsOneWidget);
   });
 
-  testWidgets('fill empty summary page and save', (WidgetTester tester) async {
+  testWidgets('fill empty summary page and save (on save button)', (WidgetTester tester) async {
+    final scaffoldMessengerKey = GlobalKey<ScaffoldMessengerState>();
     when(mockMeetingController.saveSummary(DataProvider.meetingID1, DataProvider.meetingSummaryShort))
         .thenAnswer((_) async => {});
+
     final meetingSummary = SummaryPage(
       id: DataProvider.meetingID1,
       summary: '',
     );
 
     await tester.pumpWidget(MaterialApp(
+      scaffoldMessengerKey: scaffoldMessengerKey,
       home: meetingSummary,
     ));
 
@@ -72,13 +75,17 @@ void main() {
     expect(find.text(DataProvider.meetingSummaryShort), findsOneWidget);
 
     await tester.tap(find.byKey(appBarIconButtonKey));
+    await tester.pump();
+    expect(find.byType(SnackBar), findsOneWidget);
+    expect(find.text('Summary saved'), findsOneWidget);
+
     await tester.pumpAndSettle();
 
     verify(mockMeetingController.saveSummary(DataProvider.meetingID1, DataProvider.meetingSummaryShort)).called(1);
   });
 
   testWidgets('add text to filled summary page', (WidgetTester tester) async {
-    const String addText = " Francesco Fergolini woooooooo";
+    const String addText = " I love rock-n-roll";
 
     final meetingSummary = SummaryPage(
       id: DataProvider.meetingID1,
@@ -98,6 +105,8 @@ void main() {
 
     await tester.enterText(find.byKey(summaryTextFieldKey), newText);
     await tester.pumpAndSettle();
+
+    expect(find.text(newText), findsOneWidget);
   });
 
   testWidgets('change font', (WidgetTester tester) async {

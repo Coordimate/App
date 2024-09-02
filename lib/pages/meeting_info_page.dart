@@ -256,8 +256,14 @@ class _MeetingDetailsPageState extends State<MeetingDetailsPage> {
                           IconButton(
                             key: copyButtonKey,
                             onPressed: () {
+                              if (textController.text.trim().isEmpty) {
+                                CustomSnackBar.show(
+                                    context, "Link is empty",
+                                    duration: const Duration(seconds: 1));
+                                return;
+                              }
                               Clipboard.setData(
-                                  ClipboardData(text: textController.text));
+                                  ClipboardData(text: textController.text.trim()));
                               CustomSnackBar.show(
                                   context, "Copied to clipboard",
                                   duration: const Duration(seconds: 1));
@@ -268,7 +274,13 @@ class _MeetingDetailsPageState extends State<MeetingDetailsPage> {
                           IconButton(
                             key: shareButtonKey,
                             onPressed: () {
-                              Share.share(textController.text);
+                              if (textController.text.trim().isNotEmpty) {
+                                Share.share(textController.text);
+                              } else {
+                                CustomSnackBar.show(
+                                    context, "Link is empty",
+                                    duration: const Duration(seconds: 1));
+                              }
                             },
                             icon: const Icon(Icons.share, color: darkBlue),
                             color: darkBlue,

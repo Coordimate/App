@@ -94,6 +94,12 @@ class _EditableTextFieldState extends State<EditableTextField> {
 
   void _validateAndSubmit() {
     widget.controller.text = widget.controller.text.trim();
+    if (widget.controller.text == lastValidValue) {
+      setState(() {
+        isEditing = false;
+      });
+      return;
+    }
     if (widget.minChars != null &&
         widget.controller.text.length < widget.minChars!) {
       setState(() {
@@ -128,6 +134,7 @@ class _EditableTextFieldState extends State<EditableTextField> {
           child: Padding(
             padding: EdgeInsets.symmetric(horizontal: widget.horizontalPadding),
             child: TextField(
+              key: textFieldKey,
               controller: widget.controller,
               textAlign: widget.textAlign,
               readOnly: !isEditing,

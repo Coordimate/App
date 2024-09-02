@@ -437,6 +437,32 @@ void main() {
         )).called(1);
       });
 
+      test('does not update if link is empty', () async {
+        const meetingId = '1';
+        const meetingLink = '';
+
+        await AppState.meetingController.updateMeetingLink(meetingId, meetingLink);
+
+        verifyNever(AppState.client.patch(
+          Uri.parse('$apiUrl/meetings/$meetingId'),
+          headers: {'Content-Type': 'application/json; charset=UTF-8'},
+          body: jsonEncode({'meeting_link': meetingLink}),
+        ));
+      });
+
+      test('does not update if link is filled with spaces', () async {
+        const meetingId = '1';
+        const meetingLink = '   ';
+
+        await AppState.meetingController.updateMeetingLink(meetingId, meetingLink);
+
+        verifyNever(AppState.client.patch(
+          Uri.parse('$apiUrl/meetings/$meetingId'),
+          headers: {'Content-Type': 'application/json; charset=UTF-8'},
+          body: jsonEncode({'meeting_link': meetingLink}),
+        ));
+      });
+
       test('throws an exception on failure', () async {
         const meetingId = '1';
         const meetingLink = 'http://new.meeting.link';

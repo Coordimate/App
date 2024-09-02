@@ -21,6 +21,7 @@ void main() {
   late MeetingDetails mockMeetingDetails6;
   late MeetingDetails mockMeetingDetails7;
   late MeetingDetails mockMeetingDetails8;
+  late MeetingDetails mockMeetingDetails9;
   late MockMeetingController mockMeetingController;
   late MockAuthorizationController mockAuthController;
 
@@ -225,6 +226,24 @@ void main() {
       isFinished: true,
       summary: 'Summary of the meeting',
       meetingLink: DataProvider.meetingLink,
+    );
+    mockMeetingDetails9 = MeetingDetails(
+      id: '12345',
+      title: DataProvider.meetingTitle1,
+      description: DataProvider.meetingDescr1,
+      admin: Participant(id: '1', username: DataProvider.usernameAdmin, status: 'accepted'),
+      participants: [
+        Participant(id: '1', username: DataProvider.usernameAdmin, status: 'accepted'),
+        Participant(id: '2', username: DataProvider.username1, status: 'accepted'),
+        Participant(id: '3', username: DataProvider.username2, status: 'needs_acceptance'),
+      ],
+      status: MeetingStatus.accepted,
+      dateTime: DataProvider.dateTimeFutureObj,
+      duration: 60,
+      groupName: DataProvider.groupName1,
+      groupId: '1',
+      isFinished: false,
+      summary: 'Summary of the meeting'
     );
   });
 
@@ -679,7 +698,7 @@ void main() {
           .called(1);
     });
 
-    testWidgets('copy and share meeting link ', (WidgetTester tester) async {
+    testWidgets('copy meeting link ', (WidgetTester tester) async {
       final scaffoldMessengerKey = GlobalKey<ScaffoldMessengerState>();
       when(mockAuthController.userId).thenReturn('1');
 
@@ -695,9 +714,59 @@ void main() {
       await tester.pump();
       expect(find.byType(SnackBar), findsOneWidget);
       expect(find.text('Copied to clipboard'), findsOneWidget);
+    });
+
+    testWidgets('not copy empty meeting link ', (WidgetTester tester) async {
+      final scaffoldMessengerKey = GlobalKey<ScaffoldMessengerState>();
+      when(mockAuthController.userId).thenReturn('1');
+
+      await tester.pumpWidget(MaterialApp(
+        scaffoldMessengerKey: scaffoldMessengerKey,
+        home: MeetingDetailsPage(meeting: mockMeetingDetails9),
+      ));
+
+      expect(find.byKey(linkPlaceholderFieldKey), findsOneWidget);
+
+      await tester.tap(find.byKey(copyButtonKey));
+      await tester.pump();
+      expect(find.byType(SnackBar), findsOneWidget);
+      expect(find.text('Link is empty'), findsOneWidget);
+    });
+
+    testWidgets('share meeting link ', (WidgetTester tester) async {
+      final scaffoldMessengerKey = GlobalKey<ScaffoldMessengerState>();
+      when(mockAuthController.userId).thenReturn('1');
+
+      await tester.pumpWidget(MaterialApp(
+        scaffoldMessengerKey: scaffoldMessengerKey,
+        home: MeetingDetailsPage(meeting: mockMeetingDetails3),
+      ));
+
+      expect(find.byKey(linkPlaceholderFieldKey), findsOneWidget);
+      expect(find.text(DataProvider.meetingLink), findsOneWidget);
 
       await tester.tap(find.byKey(shareButtonKey));
       await tester.pumpAndSettle();
+
+      expect(find.byType(SnackBar), findsNothing);
+    });
+
+    testWidgets('not share empty meeting link ', (WidgetTester tester) async {
+      final scaffoldMessengerKey = GlobalKey<ScaffoldMessengerState>();
+      when(mockAuthController.userId).thenReturn('1');
+
+      await tester.pumpWidget(MaterialApp(
+        scaffoldMessengerKey: scaffoldMessengerKey,
+        home: MeetingDetailsPage(meeting: mockMeetingDetails9),
+      ));
+
+      expect(find.byKey(linkPlaceholderFieldKey), findsOneWidget);
+
+      await tester.tap(find.byKey(shareButtonKey));
+      await tester.pump();
+
+      expect(find.byType(SnackBar), findsOneWidget);
+      expect(find.text('Link is empty'), findsOneWidget);
     });
 
     testWidgets('delete meeting', (WidgetTester tester) async {

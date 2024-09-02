@@ -23,6 +23,7 @@ const meetingsScrollViewKey = Key('meetingCard');
 const yesButtonKey = Key('yesButton');
 const noButtonKey = Key('noButton');
 const appBarIconButtonKey = Key('appBarIconButton');
+const textFieldKey = Key('textField');
 
 //groups_page keys:
 const groupCreationWindowKey = Key('groupCreationWindow');

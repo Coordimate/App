@@ -634,4 +634,55 @@ void main() {
     expect(find.text("Take Photo"), findsOneWidget);
     expect(find.text("Choose Picture"), findsOneWidget);
   });
+
+  testWidgets('checks for validation in group name field', (WidgetTester tester) async {
+    when(mockGroupController.fetchGroupUsers(DataProvider.groupID1))
+        .thenAnswer((_) async => [groups.userCard1, groups.userCard2]);
+    when(mockGroupController.fetchGroupMeetings(DataProvider.groupID1))
+        .thenAnswer((_) async => [groups.meetingin2Days]);
+    when(mockGroupController.fetchPoll(DataProvider.groupID1))
+        .thenAnswer((_) async => null);
+    when(mockGroupController.updateGroupName(
+            DataProvider.groupID1, DataProvider.newgroupname))
+        .thenAnswer((_) async => Future.value());
+    AppState.authController.userId = DataProvider.userAdmin;
+
+    await tester.pumpWidget(MaterialApp(
+      home: GroupDetailsPage(group: groups.group1),
+    ));
+    await tester.pumpAndSettle();
+
+    final nameEditIcon = find.descendant(
+        of: find.byKey(groupNameFieldKey), matching: find.byIcon(Icons.edit));
+    final groupNameField = find.byKey(groupNameFieldKey);
+
+    expect(
+        find.descendant(
+            of: groupNameField, matching: find.text(groups.group1.name)),
+        findsExactly(2));
+
+    expect(nameEditIcon, findsExactly(1));
+
+    await tester.tap(nameEditIcon);
+    await tester.enterText(groupNameField, 'a');
+    await tester.pumpAndSettle();
+    expect(find.text('Minimum 3 characters required'), findsOneWidget);
+
+    final nameSubmitIcon = find.descendant(
+        of: find.byKey(groupNameFieldKey), matching: find.byIcon(Icons.check));
+    await tester.tap(nameSubmitIcon);
+    await tester.pumpAndSettle();
+
+    expect(find.byType(AlertDialog), findsNothing);
+
+    await tester.testTextInput.receiveAction(TextInputAction.done);
+    await tester.pumpAndSettle();
+
+    expect(find.byType(AlertDialog), findsOneWidget);
+
+    verifyNever(mockGroupController.updateGroupName(
+      any,
+      any,
+    ));
+  });
 }
